@@ -5,20 +5,20 @@ import java.util.Date;
 public interface Login {
     /**
      * Authenticate against Spring Security Backend
-     * @param user
+     * @param user This is the user to authorize
      * @return Boolean representing result of function
      */
-    public boolean authenticate(User user);
+    boolean authenticate(User user);
 
     /**
      * Authorize against Spring Security Backend
-     * @param user
+     * @param user This is the user to authorize
      * @return Boolean representing result of function
      */
-    public boolean authorize(User user);
+    boolean authorize(User user);
 
     /**
      * Logout of the Spring Security Backend
      */
-    public boolean logout();
+    boolean logout();
 }

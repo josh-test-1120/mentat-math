@@ -9,7 +9,7 @@ public class User {
         STUDENT,
         INSTRUCTOR,
         ADMINISTRATOR
-    };
+    }
     // Model attributes
     protected int userID;
     protected String userName;
@@ -28,8 +28,8 @@ public class User {
         this.firstName = firstName;
         this.middleInit = middleInit;
         this.lastName = lastName;
-        // TBD Role validation for Instructor and Administrators
         /**
+         * TBD Role validation for Instructor and Administrators
          * Add feature here
          */
         if (role == null) this.role = Level.STUDENT;
