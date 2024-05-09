@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'org.mentat'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-ALPHA'
 
 java {
 	sourceCompatibility = '21'
@@ -13,6 +13,17 @@ java {
 
 repositories {
 	mavenCentral()
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['backend/src/main/java']
+		}
+		resources {
+			srcDirs = ['backend/src/main/resources','frontend']
+		}
+	}
 }
 
 dependencies {
