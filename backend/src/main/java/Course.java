@@ -16,7 +16,8 @@ public class Course {
     public String section;
 
     //Course object constructor
-    public Course(String courseID, String courseName, String instructorID, String instructorName, String term, String section){
+    public Course(String courseID, String courseName, String instructorID, String instructorName,
+                  String term, String section){
         this.courseID       = courseID;
         this.courseName     = courseName;
         this.instructorID   = instructorID;
@@ -53,7 +54,8 @@ public class Course {
     public void addCourse(String courseID, String courseName, String courseInstructorID,
                           String courseInstructorName, String courseTerm, String section){
         //Creating course object
-        Course newCourse = new Course(courseID, courseName, courseInstructorID, courseInstructorName, courseTerm, section);
+        Course newCourse = new Course(courseID, courseName, courseInstructorID,
+                courseInstructorName, courseTerm, section);
 
         // TODO: 5/10/24 Continue adding new course to the system and database
     }
