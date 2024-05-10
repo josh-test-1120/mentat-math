@@ -3,9 +3,106 @@
  * @author Telmen Enkhtuvshin
  */
 public class Course {
-    String courseID;
-    String courseName;
-    String instructorID;
-    String term;
+    // Course ID for this course
+     private String courseID;
+    // The course name
+    public String courseName;
+    //Course's instructor ID
+    private String instructorID;
+    //Course's instructor name
+    public String instructorName;
+    //Course term (i.e. Winter 2024)
+    public String term;
+    public String section;
+
+    //Course object constructor
+    public Course(String courseID, String courseName, String instructorID, String instructorName, String term, String section){
+        this.courseID       = courseID;
+        this.courseName     = courseName;
+        this.instructorID   = instructorID;
+        this.instructorName = instructorName;
+        this.term           = term;
+        this.section        = section;
+    }
+
+    /**
+     * A getter method that returns the course ID
+     * @return String course ID
+     */
+    public String getCourseID() {
+        return courseID;
+    }
+
+    /**
+     * A getter method that returns the instructor ID
+     * @return String instructor ID
+     */
+    public String getInstructorID() {
+        return instructorID;
+    }
+
+    /**
+     * A method that adds a course to the system which creates.
+     * @param courseID String course ID
+     * @param courseName String course name
+     * @param courseInstructorID String instructor ID
+     * @param courseInstructorName String Instructor name teaching the course
+     * @param courseTerm String period of the year the course is taking place
+     * @param section String the exact section number of the course
+     */
+    public void addCourse(String courseID, String courseName, String courseInstructorID,
+                          String courseInstructorName, String courseTerm, String section){
+        //Creating course object
+        Course newCourse = new Course(courseID, courseName, courseInstructorID, courseInstructorName, courseTerm, section);
+
+        // TODO: 5/10/24 Continue adding new course to the system and database
+    }
+
+    /**
+     * A method which updates the profile information of the course object and the connected database information.
+     * @param courseID String course ID
+     * @param courseName String course full name
+     * @param courseInstructorID String instructor ID
+     * @param courseInstructorName String instructor name
+     * @param courseTerm String course term of the year
+     * @param courseSection String exact section identifier
+     */
+    public void updateCourse(String courseID, String courseName, String courseInstructorID,
+                             String courseInstructorName, String courseTerm, String courseSection){
+        if (courseID != "") {
+            this.courseID = courseID;
+        }
+        if (courseName != "") {
+            this.courseName = courseName;
+        }
+        if (courseInstructorID != "") {
+            this.instructorID = courseInstructorID;
+        }
+        if (courseInstructorName != "") {
+            this.instructorName = courseInstructorName;
+        }
+        if (courseTerm != "") {
+            this.term = courseTerm;
+        }
+        if (courseSection != "") {
+            this.section = courseSection;
+        }
+
+        // TODO: 5/10/24 Continue updating the system and database
+    }
+
+    /**
+     * A method that deleted the course object and connected information from the database as well as system.
+     */
+    public void deleteCourse(){
+        this.courseID       = null;
+        this.courseName     = null;
+        this.instructorID   = null;
+        this.instructorName = null;
+        this.term           = null;
+        this.section        = null;
+
+        // TODO: 5/10/24 Continue delete the course from the database and system
+    }
 
 }
