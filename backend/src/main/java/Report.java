@@ -15,7 +15,7 @@ public abstract class Report {
      * An abstract method for displaying the report.
      * @return
      */
-    public abstract List<Grade> viewReportGrades();
+    public abstract List<Grade> getReportGrades();
 }
 
 class StudentReport extends Report {
@@ -55,11 +55,20 @@ class StudentReport extends Report {
     }
 
 
+    /**
+     * A method that generates the report in a String.
+     * @return String type information about exam name, score, and recorded date in order.
+     */
     @Override
     public String generateReport() {
-
-        // TODO: 5/10/24 Adapt to the necessities
-        return "";
+        String result = "";
+        for (int i = 0; i < allGrades.size(); i++) {
+            Grade currentGrade = allGrades.get(i);
+            result += currentGrade.getExamName() + " " + String.valueOf(currentGrade.getScore()) + " "
+                    + currentGrade.getDateRecorded() + "\n";
+        }
+        // TODO: 5/10/24 Adapt to the necessities ✅
+        return result;
     }
 
     /**
@@ -67,7 +76,7 @@ class StudentReport extends Report {
      * @return List<Grade> type ArrayList full of grades.
      */
     @Override
-    public List<Grade> viewReportGrades() {
+    public List<Grade> getReportGrades() {
         // TODO: 5/10/24 Adapt to the necessities ✅
         return allGrades;
     }
@@ -77,25 +86,52 @@ class InstructorReport extends Report {
 
     private String reportID;
     public  String type;
+    private String examID;
     public String generatedDate;
-    private List<Grade> allGrades;
+    private List<Grade> allGradesOfExam;
 
     //The studentReport object constructor
-    public InstructorReport(String reportID, String type, String generatedDate){
+    public InstructorReport(String reportID, String type, String examID, String generatedDate){
         this.reportID      = reportID;
         this.type          = type;
+        this.examID        = examID;
         this.generatedDate = generatedDate;
     }
 
+    /**
+     * A method that adds a student Grade object into the allGradesOfExam ArrayList.
+     * @param grade Grade class type object.
+     */
+    public void addGrade(Grade grade) { allGradesOfExam.add(grade);}
+
+    /**
+     * A method that removes a student Grade object into the allGradesOfExam ArrayList.
+     * @param grade Grade class type object.
+     */
+    public void removeGrade(Grade grade) { allGradesOfExam.remove(grade);}
+    /**
+     * Method that generates report in a String type.
+     * @return String type information about exam name, score, and recorded date in order.
+     */
     @Override
     public String generateReport() {
         // TODO: 5/10/24 Fix me for instructor report
-        return null;
+        String result = "";
+        for (int i = 0; i < allGradesOfExam.size(); i++) {
+            Grade currentGrade = allGradesOfExam.get(i);
+            result += currentGrade.getExamName() + " " + String.valueOf(currentGrade.getScore()) + " "
+                    + currentGrade.getDateRecorded() + "\n";
+        }
+        return result;
     }
 
+    /**
+     * a method that returns the Grade objects as an Arraylist.
+     * @return List<Grade> ArrayList of student grades of an exam.
+     */
     @Override
-    public List<Grade> viewReportGrades() {
+    public List<Grade> getReportGrades() {
         // TODO: 5/10/24 Fix me for instructor report
-        return allGrades;
+        return allGradesOfExam;
     }
 }

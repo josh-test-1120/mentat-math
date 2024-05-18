@@ -61,7 +61,15 @@ public class Grade {
      * A getter method for the score of the Grade object
      * @return int score of the Grade object
      */
-    public int getGrade() {return score;}
+    public int getScore() {return score;}
+
+    /**
+     * Getter method for recorded date of the grade.
+     * @return String recorded date of the grade YYYY-MM-DD
+     */
+    public String getDateRecorded() {
+        return dateRecorded;
+    }
 
     /**
      * A setter method that records the score of the exam
