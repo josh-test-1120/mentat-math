@@ -9,30 +9,47 @@ public class Grade {
     private String studentID;
     //The unique exam ID of the grade
     private String examID;
+    //Exam name
+    private String examName;
     //The score of the grade
     public int score;
     //The recorded date of the exam grade
     public String dateRecorded;
 
+    /**
+     * Constructor for the Grade class.
+     * @param gradeID      String type unique grade ID.
+     * @param studentID    String type unique student ID.
+     * @param examID       String type unique exam ID.
+     * @param examName     String type exam name.
+     * @param dateRecorded String type recorded date of the exam grade.
+     */
     //Constructor for the Grade object
-    public Grade(String gradeID, String studentID, String examID, String dateRecorded){
+    public Grade(String gradeID, String studentID, String examID, String examName, String dateRecorded){
         this.gradeID      = gradeID;
         this.studentID    = studentID;
         this.examID       = examID;
+        this.examName     = examName;
         this.dateRecorded = dateRecorded;
     }
 
     /**
-     * A getter method for gradeID
-     * @return String grade ID
+     * A getter method for gradeID.
+     * @return String grade ID.
      */
     public String getGradeID() {return gradeID;}
 
     /**
-     * A getter method for exam ID of the Grade object
-     * @return String exam ID
+     * A getter method for exam ID of the Grade object.
+     * @return String exam ID.
      */
     public String getExamID() {return examID;}
+
+    /**
+     * A getter method for exam name of the Grade object.
+     * @return String exam name.
+     */
+    public String getExamName() {return examName;}
 
     /**
      * A getter method for the studentID of the Grade object

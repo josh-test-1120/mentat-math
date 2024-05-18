@@ -3,6 +3,9 @@
  * @author Telmen Enkhtuvshin
  */
 public class Course {
+    /**
+     * Course class fields.
+     */
     // Course ID for this course
      private String courseID;
     // The course name
@@ -15,6 +18,15 @@ public class Course {
     public String term;
     public String section;
 
+    /**
+     * Course class constructor.
+     * @param courseID       String type course ID.
+     * @param courseName     String type course name.
+     * @param instructorID   String type instructor ID.
+     * @param instructorName String type name of the instructor.
+     * @param term           String type term of the course.
+     * @param section        String type section of the course.
+     */
     //Course object constructor
     public Course(String courseID, String courseName, String instructorID, String instructorName,
                   String term, String section){
@@ -57,7 +69,7 @@ public class Course {
         Course newCourse = new Course(courseID, courseName, courseInstructorID,
                 courseInstructorName, courseTerm, section);
 
-        // TODO: 5/10/24 Continue adding new course to the system and database
+        // TODO: 5/10/24 Continue adding new course to the system and database. (Still needs careful logic.)
     }
 
     /**
@@ -90,7 +102,7 @@ public class Course {
             this.section = courseSection;
         }
 
-        // TODO: 5/10/24 Continue updating the system and database
+        // TODO: 5/10/24 Continue updating the system and database ✅
     }
 
     /**
@@ -104,7 +116,8 @@ public class Course {
         this.term           = null;
         this.section        = null;
 
-        // TODO: 5/10/24 Continue delete the course from the database and system
+
+        // TODO: 5/10/24 Continue delete the course from the database and system. (Still needs careful logic.)
     }
 
 }
