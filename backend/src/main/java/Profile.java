@@ -1,23 +1,28 @@
-/** This class represents a profile for both students and instructors; it holds
+/** This class represents a Profile entity for both students and instructors; it holds
  * details such as a student or instructor's name, email, department, etc.
  * @author Phillip Ho
  */
+
+
+
 public abstract class Profile{
 
+
     private String name;
-    private String profileID;
+    private int profileID;
     private String email;
 
     //Profile constructor
-    public Profile(String name, String profileID, String email){
+    public Profile(String name, int profileID, String email){
         this.name = name;
         this.profileID = profileID;
         this.email = email;
     }
 
+
     //Profile getter functions
     public String getName(){return name;}
-    public String getProfileID(){
+    public int getProfileID(){
         return profileID;
     }
     public String getEmail(){
@@ -26,7 +31,7 @@ public abstract class Profile{
 
     //Profile setter functions
     public void setName(String name){this.name = name;}
-    public void setProfileID(String profileID){
+    public void setProfileID(int profileID){
         this.profileID = profileID;
     }
     public void setEmail(String email){
@@ -48,7 +53,7 @@ class Student extends Profile{
     private String course;
 
     //constructor
-    public Student(String name, String profileID, String email, String course){
+    public Student(String name, int profileID, String email, String course){
         super(name, profileID, email);
         this.course = course;
     }
@@ -69,7 +74,7 @@ class Instructor extends Profile{
     private String department;
 
     //constructor
-    public Instructor(String name, String profileID, String email, String department){
+    public Instructor(String name, int profileID, String email, String department){
         super(name, profileID, email);
         this.department = department;
     }

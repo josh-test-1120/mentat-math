@@ -1,0 +1,43 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-9a8e58cc69e2e6fe.js",
+      "static/chunks/fd9d1056-2821b0f0cabcd8bd.js",
+      "static/chunks/23-432f74a8b1479502.js",
+      "static/chunks/main-app-78e0a66300fbe47a.js",
+      "static/chunks/app/_not-found/page-05886c10710171db.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-9a8e58cc69e2e6fe.js",
+      "static/chunks/fd9d1056-2821b0f0cabcd8bd.js",
+      "static/chunks/23-432f74a8b1479502.js",
+      "static/chunks/main-app-78e0a66300fbe47a.js",
+      "static/css/06dd18a282f214b0.css",
+      "static/chunks/app/layout-77e02d6428fe75d3.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-9a8e58cc69e2e6fe.js",
+      "static/chunks/fd9d1056-2821b0f0cabcd8bd.js",
+      "static/chunks/23-432f74a8b1479502.js",
+      "static/chunks/main-app-78e0a66300fbe47a.js",
+      "static/chunks/173-76227e637eefcefb.js",
+      "static/chunks/app/page-87f84f853360276b.js"
+    ],
+    "/ezmath/page": [
+      "static/chunks/webpack-9a8e58cc69e2e6fe.js",
+      "static/chunks/fd9d1056-2821b0f0cabcd8bd.js",
+      "static/chunks/23-432f74a8b1479502.js",
+      "static/chunks/main-app-78e0a66300fbe47a.js",
+      "static/chunks/173-76227e637eefcefb.js",
+      "static/chunks/app/ezmath/page-c1d511566a007b09.js"
+    ],
+    "/ezmath/layout": [
+      "static/chunks/webpack-9a8e58cc69e2e6fe.js",
+      "static/chunks/fd9d1056-2821b0f0cabcd8bd.js",
+      "static/chunks/23-432f74a8b1479502.js",
+      "static/chunks/main-app-78e0a66300fbe47a.js",
+      "static/css/06dd18a282f214b0.css",
+      "static/chunks/app/ezmath/layout-01186ffc67a60632.js"
+    ]
+  }
+}

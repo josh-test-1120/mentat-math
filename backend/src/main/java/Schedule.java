@@ -1,46 +1,54 @@
-/**
+/** This class represents a Schedule entity that will be used to schedule exams with input fields such
+ * as scheduleDate, etc.
  * @author Phillip Ho
  */
+
+import java.util.Date;
+
+
 public class Schedule {
 
-        private String scheduleID;
-        private String studentID;
-        private String examID;
-        private String scheduleDate;
+
+        private int scheduleID;
+        private int studentID;
+        private int examID;
+        private Date scheduleDate;
 
         //Schedule constructor
-        public Schedule(String scheduleID, String studentID, String examID, String scheduleDate) {
+        public Schedule(int scheduleID, int studentID, int examID, Date scheduleDate) {
             this.scheduleID = scheduleID;
             this.studentID = studentID;
             this.examID = examID;
             this.scheduleDate = scheduleDate;
         }
 
+
+
         //Schedule getter functions
-        public String getScheduleID() {
+        public int getScheduleID() {
             return scheduleID;
         }
-        public String getStudentID() {
+        public int getStudentID() {
             return studentID;
         }
-        public String getExamID() {
+        public int getExamID() {
             return examID;
         }
-        public String getScheduleDate() {
+        public Date getScheduleDate() {
             return scheduleDate;
         }
 
         //Schedule setter functions
-        public void setScheduleID(String scheduleID) {
+        public void setScheduleID(int scheduleID) {
             this.scheduleID = scheduleID;
         }
-        public void setStudentID(String studentID) {
+        public void setStudentID(int studentID) {
             this.studentID = studentID;
         }
-        public void setExamID(String examID) {
+        public void setExamID(int examID) {
             this.examID = examID;
         }
-        public void setScheduleDate(String scheduleDate) {
+        public void setScheduleDate(Date scheduleDate) {
             this.scheduleDate = scheduleDate;
         }
 
