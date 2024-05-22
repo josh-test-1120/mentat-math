@@ -1,4 +1,4 @@
-/** This is a class that contains and manages the individual report for a single student
+package Report; /** This is a class that contains and manages the individual report for a single student
  *  and a generalized report for an instructor.
  * @author Telmen Enkhtuvshin
  */
@@ -26,8 +26,8 @@ class StudentReport extends Report {
     private List<Grade> allGrades;
 
     /**
-     * Constructor for the Student Report class.
-     * @param reportID      String type Report ID.
+     * Constructor for the Student Report.Report class.
+     * @param reportID      String type Report.Report ID.
      * @param type          String type of what kind of report it is.
      * @param generatedDate String type generated date of the report.
      */
@@ -39,16 +39,16 @@ class StudentReport extends Report {
     }
 
     /**
-     * A method that adds a Grade object to the allGrades ArrayList.
-     * @param grade Grade class type object.
+     * A method that adds a Report.Report.Grade object to the allGrades ArrayList.
+     * @param grade Report.Report.Grade class type object.
      */
     public void addGradeToReport(Grade grade) {
         allGrades.add(grade);
     }
 
     /**
-     * A method that removes a Grade object from the allGrades ArrayList.
-     * @param grade Grade class type object.
+     * A method that removes a Report.Report.Grade object from the allGrades ArrayList.
+     * @param grade Report.Report.Grade class type object.
      */
     public void removeGradeFromReport(Grade grade) {
         allGrades.remove(grade);
@@ -72,8 +72,8 @@ class StudentReport extends Report {
     }
 
     /**
-     * A method that returns an ArrayList of Grade type objects of the student.
-     * @return List<Grade> type ArrayList full of grades.
+     * A method that returns an ArrayList of Report.Report.Grade type objects of the student.
+     * @return List<Report.Report.Grade> type ArrayList full of grades.
      */
     @Override
     public List<Grade> getReportGrades() {
@@ -99,16 +99,17 @@ class InstructorReport extends Report {
     }
 
     /**
-     * A method that adds a student Grade object into the allGradesOfExam ArrayList.
-     * @param grade Grade class type object.
+     * A method that adds a student Report.Report.Grade object into the allGradesOfExam ArrayList.
+     * @param grade Report.Report.Grade class type object.
      */
     public void addGrade(Grade grade) { allGradesOfExam.add(grade);}
 
     /**
-     * A method that removes a student Grade object into the allGradesOfExam ArrayList.
-     * @param grade Grade class type object.
+     * A method that removes a student Report.Report.Grade object into the allGradesOfExam ArrayList.
+     * @param grade Report.Report.Grade class type object.
      */
     public void removeGrade(Grade grade) { allGradesOfExam.remove(grade);}
+
     /**
      * Method that generates report in a String type.
      * @return String type information about exam name, score, and recorded date in order.
@@ -126,8 +127,8 @@ class InstructorReport extends Report {
     }
 
     /**
-     * a method that returns the Grade objects as an Arraylist.
-     * @return List<Grade> ArrayList of student grades of an exam.
+     * a method that returns the Report.Report.Grade objects as an Arraylist.
+     * @return List<Report.Report.Grade> ArrayList of student grades of an exam.
      */
     @Override
     public List<Grade> getReportGrades() {

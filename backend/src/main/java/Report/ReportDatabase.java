@@ -1,4 +1,4 @@
-/**
+package Report; /**
  * This is the class that interacts with the database on reports.
  * @author Telmen Enkhtuvshin
  */
@@ -11,7 +11,7 @@ public class ReportDatabase {
      */
     public static void connection() {
         //Connection variables
-        String url      = "jdbc:mysql://localhost:3306/ezmath_schema_db";
+        String url      = "jdbc:mysql://localhost:3306/mydb";
         String userName = "root";
         String pass     = "Tmysql7;";
 
@@ -59,7 +59,37 @@ public class ReportDatabase {
             rs.close();
 
         } catch (Exception e) {
-            System.out.println("Exeption" + e.getMessage());
+            System.out.println("Exception" + e.getMessage());
+        }
+        return printST;
+    }
+
+    /**
+     * This method prints the Student Report in String,
+     * @return String type one student report information.
+     */
+    public static String printStudentReport(int SID) {
+        String printST = "";
+
+        try {
+            Statement st = con.createStatement();
+            //ADDED ";" BEWARE OF BUG
+            ResultSet rs = st.executeQuery("SELECT exam_name, exam_taken_date, exam_score"
+                    + "FROM ExamResult exr JOIN Exam ON Exam_exam_id = exam_id WHERE exam_student_id = " + SID);
+
+            //Printing ResultSet
+            while (rs.next()) {
+
+                printST += rs.getString("exam_name") + " " + rs.getString("exam_taken_date") + " "
+                        + rs.getString("exam_score");
+
+                printST += "\n";
+            }
+            st.close();
+            rs.close();
+
+        } catch (Exception e) {
+            System.out.println("Exception" + e.getMessage());
         }
         return printST;
     }
@@ -87,7 +117,7 @@ public class ReportDatabase {
             st.close();
 
         } catch (Exception e) {
-            System.out.println("Exeption" + e.getMessage());
+            System.out.println("Exception" + e.getMessage());
         }
     }
 

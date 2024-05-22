@@ -1,3 +1,5 @@
+package Report;
+
 /** This class stores all information regarding what x student got on x test and has data such as when
  *  the test was taken (an attribute from the Exam class)
  * @author Telmen Enkhtuvshin
@@ -17,14 +19,14 @@ public class Grade {
     public String dateRecorded;
 
     /**
-     * Constructor for the Grade class.
+     * Constructor for the Report.Report.Grade class.
      * @param gradeID      String type unique grade ID.
      * @param studentID    String type unique student ID.
      * @param examID       String type unique exam ID.
      * @param examName     String type exam name.
      * @param dateRecorded String type recorded date of the exam grade.
      */
-    //Constructor for the Grade object
+    //Constructor for the Report.Report.Grade object
     public Grade(String gradeID, String studentID, String examID, String examName, String dateRecorded){
         this.gradeID      = gradeID;
         this.studentID    = studentID;
@@ -40,26 +42,26 @@ public class Grade {
     public String getGradeID() {return gradeID;}
 
     /**
-     * A getter method for exam ID of the Grade object.
+     * A getter method for exam ID of the Report.Report.Grade object.
      * @return String exam ID.
      */
     public String getExamID() {return examID;}
 
     /**
-     * A getter method for exam name of the Grade object.
+     * A getter method for exam name of the Report.Report.Grade object.
      * @return String exam name.
      */
     public String getExamName() {return examName;}
 
     /**
-     * A getter method for the studentID of the Grade object
+     * A getter method for the studentID of the Report.Report.Grade object
      * @return String grade ID
      */
     public String getStudentID() {return studentID;}
 
     /**
-     * A getter method for the score of the Grade object
-     * @return int score of the Grade object
+     * A getter method for the score of the Report.Report.Grade object
+     * @return int score of the Report.Report.Grade object
      */
     public int getScore() {return score;}
 

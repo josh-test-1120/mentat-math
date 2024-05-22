@@ -1,25 +1,27 @@
+package Report;
+
 /** This class stores data of any course an instructor wants to add i.e. Professor Black adds MATH260; should try to
  * have logic that shows all students registered for the class (may have to extend another class not build yet; TBD)
  * @author Telmen Enkhtuvshin
  */
 public class Course {
     /**
-     * Course class fields.
+     * Report.Report.Course class fields.
      */
-    // Course ID for this course
+    // Report.Report.Course ID for this course
      private String courseID;
     // The course name
     public String courseName;
-    //Course's instructor ID
+    //Report.Report.Course's instructor ID
     private String instructorID;
-    //Course's instructor name
+    //Report.Report.Course's instructor name
     public String instructorName;
-    //Course term (i.e. Winter 2024)
+    //Report.Report.Course term (i.e. Winter 2024)
     public String term;
     public String section;
 
     /**
-     * Course class constructor.
+     * Report.Report.Course class constructor.
      * @param courseID       String type course ID.
      * @param courseName     String type course name.
      * @param instructorID   String type instructor ID.
@@ -27,7 +29,7 @@ public class Course {
      * @param term           String type term of the course.
      * @param section        String type section of the course.
      */
-    //Course object constructor
+    //Report.Report.Course object constructor
     public Course(String courseID, String courseName, String instructorID, String instructorName,
                   String term, String section){
         this.courseID       = courseID;
