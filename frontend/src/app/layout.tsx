@@ -1,6 +1,7 @@
 import "./styles/globals.css";
 import Header from "./_components/layout/header";
 import Footer from "./_components/layout/footer";
+import Sidebar from "./_components/layout/sidebar";
 
 export default function RootLayout({
   children,
@@ -14,6 +15,7 @@ export default function RootLayout({
         <body>
         {/* @ts-expect-error Props default type */}
         <Header />
+        <Sidebar />
           {children}
         <Footer />
         </body>

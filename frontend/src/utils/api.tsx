@@ -1,5 +1,5 @@
 import { BACKEND_API } from "./constants";
-export default async function apiAuthSignIn(credentials: Record<"email" | "username" | "password", string> | undefined) {
+export default async function apiAuthSignIn(credentials: Record<"firstname" | "lastname" | "email" | "username" | "password", string> | undefined) {
     try {
         debugger;
         console.log(credentials);

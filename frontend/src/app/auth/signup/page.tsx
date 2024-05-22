@@ -6,15 +6,19 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import Link from "next/link";
 
+const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+
 export default function SignUp() {
 
     const [formData, setFormData] = useState({
+        firstname: "",
+        lastname: "",
         username: "",
         email: "",
         password: "",
         confirmPassword: "",
     });
-    const { username, email, password, confirmPassword } = formData;
+    const { firstname, lastname, username, email, password, confirmPassword } = formData;
 
     const data = (e: any) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,17 +27,25 @@ export default function SignUp() {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
+        //var BACKEND_API = process.env.BACKEND_API;
+        console.log(BACKEND_API);
+        console.log(lastname);
+
         if (formData.password !== formData.confirmPassword) {
             toast.error("Passwords do not match");
             return;
         }
         try {
-            const res = await fetch("http://localhost:8080/api/auth/signup", {
+            console.log(BACKEND_API);
+            console.log()
+            const res = await fetch(`${BACKEND_API}/api/auth/signup`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    firstname,
+                    lastname,
                     username,
                     email,
                     password,
@@ -47,6 +59,8 @@ export default function SignUp() {
 
             // start session after signup
             await signIn("credentials", {
+                firstname,
+                lastname,
                 email,
                 password,
                 callbackUrl:"/dashboard",
@@ -64,6 +78,37 @@ export default function SignUp() {
             >
                 <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
                 <div className="mb-4">
+                    <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="firstname"
+                    >
+                        First Name
+                    </label>
+                    <input
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        type="text"
+                        name="firstname"
+                        placeholder="First Name"
+                        value={firstname}
+                        onChange={data}
+                        required={true}
+                    />
+                    <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="lastname"
+                    >
+                        Last Name
+                    </label>
+                    <input
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        type="text"
+                        name="lastname"
+                        placeholder="Last Name"
+                        value={lastname}
+                        onChange={data}
+                        required={true}
+                    />
+
                     <label
                         className="block text-gray-700 text-sm font-bold mb-2"
                         htmlFor="username"

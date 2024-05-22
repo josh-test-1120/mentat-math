@@ -3,7 +3,7 @@ import {  SignnOutButton } from "./ClientLayout";
 import { getServerAuthSession } from "@/utils/auth";
 
 
-export default async function Header(): Promise<JSX.Element> {
+export default async function Header() {
   const session = await getServerAuthSession();
 
   return (
