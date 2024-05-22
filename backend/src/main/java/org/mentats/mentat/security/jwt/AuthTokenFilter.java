@@ -32,8 +32,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
-//import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
-
+/**
+ * Customer component for Authentication token filtering
+ * @see https://docs.spring.io/spring-security/reference/servlet/architecture.html#adding-custom-filter
+ */
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -49,10 +51,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            if (true==true) {
-//            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-//                String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                String username = "user";
+            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+                String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =

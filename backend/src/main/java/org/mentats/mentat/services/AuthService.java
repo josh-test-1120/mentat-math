@@ -87,6 +87,8 @@ public class AuthService {
 
         // Create user object
         User user = new User(
+                signUpRequest.getFirstname(),
+                signUpRequest.getLastname(),
                 signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword())

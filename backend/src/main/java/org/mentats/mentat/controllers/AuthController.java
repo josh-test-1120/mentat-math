@@ -3,8 +3,6 @@ package org.mentats.mentat.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//import jakarta.validation.Valid;
-
 import org.mentats.mentat.services.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +19,11 @@ import org.mentats.mentat.repositories.UserRepository;
 import org.mentats.mentat.security.jwt.JwtUtils;
 import org.mentats.mentat.security.services.UserDetailsImpl;
 
-//create handlers for the endpoints
+/**
+ * Authorization Controller
+ * Methods that drive and control auth mappings
+ * base URI is /api/auth
+ */
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/auth")
@@ -33,6 +35,16 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final AuthService authService;
 
+    /**
+     * Default constructor with Dependency Injection (DI)
+     * for access to pipeline services
+     * @param authenticationManager
+     * @param userRepository
+     * @param roleRepository
+     * @param encoder
+     * @param jwtUtils
+     * @param authService
+     */
     public AuthController(AuthenticationManager authenticationManager,
                           UserRepository userRepository,
                           RoleRepository roleRepository,
@@ -47,6 +59,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * Mapping for signin requests
+     * @param loginRequest
+     * @return JSON response (serialized user)
+     */
     @PostMapping("/signin")
     //public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     public ResponseEntity<JwtResponse> authenticateUser( @RequestBody LoginRequest loginRequest) {
@@ -64,17 +81,29 @@ public class AuthController {
                 roles));
     }
 
+    /**
+     * Mapping for signin requests
+     * @param signUpRequest
+     * @return JSON response (allowed empty)
+     */
     @PostMapping("/signup")
     //public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     public ResponseEntity<?> registerUser( @RequestBody SignupRequest signUpRequest) {
         authService.validateSignupRequest(signUpRequest);
-
+        System.out.println("This is the signup request");
+        System.out.println(signUpRequest.getUsername());
+        System.out.println(signUpRequest.getLastname());
         User user = authService.createNewUser(signUpRequest);
         userRepository.save(user);
-
+        // Clean way to wrap text into an Entity
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
+    /**
+     * Get user information based on email address
+     * @param email
+     * @return JSON response (serialized user)
+     */
     @GetMapping("/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         try {

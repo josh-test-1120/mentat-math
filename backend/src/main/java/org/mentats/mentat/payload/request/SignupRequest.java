@@ -4,7 +4,20 @@ import java.util.Set;
 
 import jakarta.validation.constraints.*;
 
+/**
+ * Form request validation serializer
+ * Signup request objects
+ * new User creation
+ */
 public class SignupRequest {
+    @NotBlank
+    @Size(min = 3, max = 20)
+    private String firstname;
+
+    @NotBlank
+    @Size(min = 3, max = 20)
+    private String lastname;
+
     @NotBlank
     @Size(min = 3, max = 20)
     private String username;
@@ -19,6 +32,20 @@ public class SignupRequest {
     @NotBlank
     @Size(min = 6, max = 40)
     private String password;
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() { return lastname; }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
 
     public String getUsername() {
         return username;

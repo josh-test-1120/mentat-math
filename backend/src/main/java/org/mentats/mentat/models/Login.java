@@ -1,7 +1,9 @@
 package org.mentats.mentat.models;
 
-import java.util.Date;
-
+/**
+ * Login interface class
+ * describes login actions for compliant objects
+ */
 public interface Login {
     /**
      * Authenticate against Spring Security Backend

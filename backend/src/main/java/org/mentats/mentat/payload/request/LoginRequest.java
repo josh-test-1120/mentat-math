@@ -2,6 +2,10 @@ package org.mentats.mentat.payload.request;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * Form request validation serializer
+ * Login request objects
+ */
 public class LoginRequest {
     @NotBlank
     private String username;

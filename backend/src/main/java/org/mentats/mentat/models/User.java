@@ -4,9 +4,6 @@ package org.mentats.mentat.models;
  * New stuff for Authentication
  */
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,7 +26,9 @@ import jakarta.validation.constraints.Size;
                 @UniqueConstraint(columnNames = "email")
         })
 public class User {
-    // Default Roles
+    /**
+     * Roles configured for users
+     */
     protected enum Level {
         STUDENT,
         INSTRUCTOR,
@@ -57,7 +56,9 @@ public class User {
     @NotBlank
     @Size(max = 50)
     public String firstName;
+
     public char middleInit;
+
     @NotBlank
     @Size(max = 50)
     public String lastName;
@@ -69,16 +70,22 @@ public class User {
     protected Set<Role> roles = new HashSet<>();
     protected Level roleType;
 
+    /**
+     * Empty constructor
+     * Lazy reference
+     */
     public User() {
     }
+
     /**
      * Default Constructor
      */
-    public User(int userID, String firstName, char middleInit, String lastName, Level role) {
-        this.userID = userID;
+    public User(String firstName, String lastName, String username, String email, String password) {
         this.firstName = firstName;
-        this.middleInit = middleInit;
         this.lastName = lastName;
+        this.username = username;
+        this.email = email;
+        this.password = password;
         /**
          * TBD Role validation for Instructor and Administrators
          * Add feature here
