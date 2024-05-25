@@ -32,9 +32,13 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
     }
 }
 
-export async function apiHandler(inputs: any | undefined, method: string, uri: string) {
+export async function apiHandler(inputs: any | undefined, method: string, uri: string,backendURL: string) {
     try {
-        const response = await fetch(`${BACKEND_API}/${uri}`, {
+        console.log(method);
+        console.log(uri);
+        console.log(JSON.stringify(inputs as any));
+        console.log(`${backendURL}/${uri}`);
+        const response = await fetch(`${backendURL}/${uri}`, {
             method: `${method}`,
             headers: {
                 "Content-Type": "application/json",

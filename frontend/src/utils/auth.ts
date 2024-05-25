@@ -85,6 +85,7 @@ export const authOptions:NextAuthOptions = {
         async jwt({ token, account, user }) {
             // Persist the OAuth access_token to the token right after signin
             console.log(`This is the user object: ${user}`)
+            console.log(`This is the account object: ${account}`)
             if (account) {
                 token.accessToken = user?.accessToken;
             }

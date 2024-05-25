@@ -5,6 +5,7 @@ import { useSession, signIn } from "next-auth/react";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import Link from "next/link";
+import apiAuthSignIn, {apiHandler} from "@/utils/api";
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -38,33 +39,31 @@ export default function SignUp() {
         try {
             console.log(BACKEND_API);
             console.log()
-            const res = await fetch(`${BACKEND_API}/api/auth/signup`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+
+            const res = await apiHandler(
+                {
                     firstname,
                     lastname,
                     username,
                     email,
                     password,
-                }),
-            });
+                },
+                "POST",
+                "api/auth/signup",
+                `${BACKEND_API}`
+            )
 
-            const data = await res.json();
-            console.log("data", data);
-
-            if (!res.ok) throw Error(data.message);
+            if (!res.message.includes('success')) throw Error(res.message);
 
             // start session after signup
             await signIn("credentials", {
                 firstname,
                 lastname,
                 email,
+                username,
                 password,
                 callbackUrl:"/dashboard",
-            }      );
+            });
         } catch (error) {
             toast.error("Invalid credentials");
         }

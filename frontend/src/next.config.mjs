@@ -10,7 +10,8 @@ const nextConfig = {
                 pathname: "/about/**"
             },
         ]
-    }
+    },
+    crossOrigin: 'anonymous'
 };
 
 export default nextConfig;
