@@ -175,9 +175,49 @@
       console.error('Error fetching exams:', error);
     }
   }
+  //TELMEN's CODE
+  async function fetchReport() {
+    try {
+      console.log("BACKUP!");
+      const response = await fetch('http://localhost:8080/api/studentReportString1');
+
+      const data = await response.json(); //parse data as json and await response
+
+      const tableBody = document.getElementById('examResultsTable').getElementsByTagName('tbody')[0];
+
+      console.log(data);
+      //const myObj = JSON.parse(data);
+      //const strStream = myObj.gradeData;
+      //const separateLines = strStream.split(/\r?\n|\r|\n/g);
+
+      //loops through each exam item
+      data.forEach(reportRow => {
+        //Splitting string by space
+        let line = reportRow.split(" ");
+
+        let row = tableBody.insertRow();
+
+        let cellDate = row.insertCell(0);
+        cellDate.textContent = line[0];
+
+        let cellName = row.insertCell(1);
+        cellName.textContent = line[1];
+
+        let cellVersion = row.insertCell(2);
+        cellVersion.textContent = line[2];
+
+        let cellScore = row.insertCell(3);
+        cellScore.textContent = line[3];
+      });
+
+    }catch (error) {
+      console.error('Error fetching exam results:', error);
+    }
+  }
 
   // Fetch the exams when the page loads
-  window.onload = fetchExams;
+  //window.onload = fetchExams;
+  window.onload = fetchReport();
 </script>
 
 </body>

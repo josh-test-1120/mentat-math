@@ -80,8 +80,8 @@ public class ReportDatabase {
             //Printing ResultSet
             while (rs.next()) {
 
-                printST += rs.getString("exam_name") + " " + rs.getString("exam_version")
-                        + " " + rs.getString("exam_taken_date") + " "
+                printST += rs.getString("exam_taken_date") + " " + rs.getString("exam_name")
+                        + " " + rs.getString("exam_version") + " "
                         + rs.getString("exam_score");
 
                 printST += "\n";
