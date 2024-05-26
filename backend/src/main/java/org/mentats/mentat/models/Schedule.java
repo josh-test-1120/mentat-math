@@ -1,4 +1,4 @@
-/** This class represents a Schedule entity that will be used to schedule exams with input fields such
+package org.mentats.mentat.models; /** This class represents a Schedule entity that will be used to schedule exams with input fields such
  * as scheduleDate, etc.
  * @author Phillip Ho
  */
@@ -22,9 +22,12 @@ public class Schedule {
             this.scheduleDate = scheduleDate;
         }
 
+    public Schedule() {
+
+    }
 
 
-        //Schedule getter functions
+    //Schedule getter functions
         public int getScheduleID() {
             return scheduleID;
         }

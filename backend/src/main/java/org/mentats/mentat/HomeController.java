@@ -38,4 +38,16 @@ public class HomeController {
         return "Settings.html";
     }
 
+    @GetMapping("/teacherdashboard")
+    public String teacherdashboard() {
+        //student dashboard for ezmath
+        return "Instructor_Dashboard.html";
+    }
+
+    @GetMapping("/teacherscheduling")
+    public String teacherscheduling() {
+        //student dashboard for ezmath
+        return "Instructor-Scheduling.html";
+    }
+
 }

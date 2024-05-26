@@ -14,7 +14,7 @@
     <a href="/grades">See Test Scores & Requirements</a>
     <a href="">Schedule Quiz</a>
     <a href="">About</a>
-    <a href="/profile">org.mentats.mentat.Profile</a>
+    <a href="/profile">Profile</a>
     <a href="/settings">Settings</a>
 
     <a href="#logout" id="logout">Log Out</a>
@@ -22,12 +22,19 @@
 </div>
 <div class="main">
     <h1>Schedule Quizzes</h1>
-    <form>
+    <form action="http://localhost:8080/api/schedule" method="post">
         <label for="testDate">Test Date:</label>
-        <input type="date" id="testDate" name="testDate"><br><br>
-        <input type="submit" value="Schedule Test">
+            <input type="date" id="testDate" name="testDate"><br><br>
+        <label>Exam:
+            <select name="Exam">
+                <option value="1">Exam 1</option>
+                <option value="2">Exam 2</option>
+                <option value="3">Exam 3</option>
+            </select>
+        </label>
+        <br><br>
+            <input type="submit" value="Schedule Test">
     </form>
 </div>
-    <script src="script.js"></script>
 </body>
 </html>

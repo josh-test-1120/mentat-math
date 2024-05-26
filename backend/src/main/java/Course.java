@@ -47,7 +47,7 @@ public class Course {
      * @param courseID String course ID
      * @param courseName String course name
      * @param courseInstructorID String instructor ID
-     * @param courseInstructorName String org.mentats.mentat.Profile.Instructor name teaching the course
+     * @param courseInstructorName String Profile.Instructor name teaching the course
      * @param courseTerm String period of the year the course is taking place
      * @param section String the exact section number of the course
      */

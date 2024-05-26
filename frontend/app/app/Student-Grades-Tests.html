@@ -87,15 +87,6 @@
             height: 18%;
             width: 93%;
         }
-        #currentDate {
-            position: absolute;
-            left: 500px;
-            top: -10px;
-            font-size: 1rem;
-        }
-        #totalScheduled {
-            color: #dc3d5d;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -121,7 +112,7 @@
     <a href="">See Test Scores & Requirements</a>
     <a href="/schedule">Schedule Quiz</a>
     <a href="">About</a>
-    <a href="/profile">org.mentats.mentat.Profile</a>
+    <a href="/profile">Profile</a>
     <a href="/settings">Settings</a>
 
     <a href="#logout" id="logout">Log Out</a>
@@ -132,16 +123,10 @@
     <table id="examResultsTable">
         <thead>
         <tr>
-            <th>Student ID</th>
-            <th>First Name</th>
-            <th>Middle Initial</th>
-            <th>Last Name</th>
-            <th>Exam Result ID</th>
-            <th>Exam Version</th>
             <th>Exam Taken Date</th>
+            <th>Exam Name</th>
+            <th>Exam Version</th>
             <th>Exam Score</th>
-            <th>Exam Scheduled Date</th>
-            <th>Exam ID</th>
         </tr>
         </thead>
         <tbody>
@@ -150,25 +135,49 @@
     </table>
 
     <h1>See Tests</h1>
-    <p>List of tests will be displayed here.</p>
+    <table id="testsTable">
+        <thead>
+        <tr>
+            <th>Exam Name</th>
+            <th>Exam Difficulty</th>
+            <th>Required Y/N</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Rows will be added here dynamically -->
+        </tbody>
+    </table>
 </div>
 <script>
-    const examResultsData = [
-        {"exam_taken_date":"2023-04-01","exam_score":"A","exam_result_id":1,"student_middle_init":"A","student_last_name":"Doe","student_id":1,"exam_scheduled_date":"2023-04-05","student_first_name":"John","exam_version":1,"exam_exam_id":1},
-        {"exam_taken_date":"2023-05-01","exam_score":"B","exam_result_id":2,"student_middle_init":"B","student_last_name":"Smith","student_id":2,"exam_scheduled_date":"2023-05-05","student_first_name":"Jane","exam_version":1,"exam_exam_id":2},
-        {"exam_taken_date":"2023-06-01","exam_score":"C","exam_result_id":3,"student_middle_init":"C","student_last_name":"Johnson","student_id":3,"exam_scheduled_date":"2023-06-05","student_first_name":"Alice","exam_version":1,"exam_exam_id":3}
-    ];
+    async function fetchExams() {
+        try {
+            const response = await fetch('http://localhost:8080/api/grades'); //tries to send GET request to specified API endpoint
 
-    const tableBody = document.getElementById('examResultsTable').getElementsByTagName('tbody')[0];
+            const data = await response.json(); //parse data as json and await response
 
-    examResultsData.forEach(result => {
-        let row = tableBody.insertRow();
+            const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
 
-        Object.values(result).forEach(text => {
-            let cell = row.insertCell();
-            cell.textContent = text;
-        });
-    });
+
+            //loops through each exam item
+            data.forEach(exam => {
+                let row = tableBody.insertRow();
+
+                let cellName = row.insertCell(0);
+                cellName.textContent = exam.exam_name;
+
+                let cellDifficulty = row.insertCell(1);
+                cellDifficulty.textContent = exam.exam_difficulty;
+
+                let cellRequired = row.insertCell(2);
+                cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+            });
+        } catch (error) {
+            console.error('Error fetching exams:', error);
+        }
+    }
+
+    // Fetch the exams when the page loads
+    window.onload = fetchExams;
 </script>
 
 </body>

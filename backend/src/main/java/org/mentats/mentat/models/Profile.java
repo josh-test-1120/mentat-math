@@ -1,4 +1,4 @@
-package org.mentats.mentat;
+package org.mentats.mentat.models;
 
 /**
  * This class represents a Profile entity for both students and instructors; it holds
