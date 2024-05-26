@@ -28,12 +28,12 @@ export default function SignInForm() {
     }
 
     return (
-        <div className="container mx-auto max-w-md">
-            <h1 className="text-3xl font-bold text-gray-800">Sign In</h1>
+        <div className="container mx-auto max-w-md ">
+            <h1 className="text-3xl font-bold text-amber-400">Sign In</h1>
             <form className="mt-4" onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-400 text-sm font-bold mb-2"
                         htmlFor="username"
                     >
                         Username

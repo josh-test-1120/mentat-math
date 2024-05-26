@@ -1,9 +1,12 @@
 'use client'
 
 import React, { useState } from 'react';
+import logoPic from '../../public/logo.png';
 
 //import * as React from "react"
 import Image from "next/image";
+import {bool} from "prop-types";
+
 
 const OverviewSvgComponent = (props) => (
     <svg
@@ -208,6 +211,34 @@ const EnglishSvgComponent = (props) => (
     </svg>
 )
 
+const ItalianSvgComponent = (props) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        viewBox="0 0 512 512"
+        {...props}
+    >
+        <g fillRule="evenodd" strokeWidth="1pt">
+            <path fill="#fff" d="M0 0h512v512H0z" />
+            <path fill="#009246" d="M0 0h170.7v512H0z" />
+            <path fill="#ce2b37" d="M341.3 0H512v512H341.3z" />
+        </g>
+    </svg>
+)
+
+const GermanSvgComponent = (props) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        viewBox="0 0 512 512"
+        {...props}
+    >
+        <path fill="#ffce00" d="M0 341.3h512V512H0z" />
+        <path d="M0 0h512v170.7H0z" />
+        <path fill="#d00" d="M0 170.7h512v170.6H0z" />
+    </svg>
+)
+
 const MenuSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -253,30 +284,138 @@ const MenuSvgComponent = (props) => (
     </svg>
 )
 
-//export default OverviewSvgComponent
+const SliderSvgComponent = (props) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor"
+        aria-hidden="true"
+        viewBox="0 0 20 20"
+        {...props}
+    >
+        <path d="M5 4a1 1 0 0 0-2 0v7.268a2 2 0 0 0 0 3.464V16a1 1 0 1 0 2 0v-1.268a2 2 0 0 0 0-3.464V4zm6 0a1 1 0 1 0-2 0v1.268a2 2 0 0 0 0 3.464V16a1 1 0 1 0 2 0V8.732a2 2 0 0 0 0-3.464V4zm5-1a1 1 0 0 1 1 1v7.268a2 2 0 0 1 0 3.464V16a1 1 0 1 1-2 0v-1.268a2 2 0 0 1 0-3.464V4a1 1 0 0 1 1-1z" />
+    </svg>
+)
 
-//const [showSidebar, setShowSidebar] = useState(false);
+const SettingsSvgComponent = (props) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor"
+        aria-hidden="true"
+        viewBox="0 0 20 20"
+        {...props}
+    >
+        <path
+            fillRule="evenodd"
+            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 0 1 .947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 0 1-2.287-.947zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+            clipRule="evenodd"
+        />
+    </svg>
+)
+
+const HamburgerSvgComponent = (props) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        xmlSpace="preserve"
+        width={800}
+        height={800}
+        viewBox="0 0 32 32"
+        {...props}
+    >
+        <path
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeMiterlimit={10}
+            strokeWidth={2}
+            d="M7 16h18M7 25h18M7 7h18"
+        />
+    </svg>
+)
 
 export default function Sidebar() {
-//const Sidebar = () => {
     // State to manage the open/close state of the sidebar
-    //const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
+    //const [showSidebar, setShowSidebar] = useState(false);
+
+    const sidebarhandler = async (e) => {
+        e.preventDefault();
+        console.log('Sidebar Handler');
+
+        // Get the elements to modify
+        var parent = document.getElementById('sidebar');
+        var middle = document.getElementById('sidebar-middle');
+        var bottom = document.getElementById('sidebar-bottom');
+        var hamburgerSlider = document.getElementById('hgSlider');
+
+        // Only handle if elements exists
+        if (parent != null && middle != null && bottom != null && hamburgerSlider != null) {
+            // Determine current sidebar status
+            if (isOpen) {
+                setIsOpen(false);
+                // Main sidebar collapse
+                parent.classList.remove("w-64")
+                parent.classList.add("w-0");
+                // Middle elements padding and border updates
+                middle.classList.remove("py-5");
+                middle.classList.remove("px-3");
+                middle.classList.remove("border-r");
+                middle.classList.add("py-0");
+                middle.classList.add("px-0");
+                // Bottom element visibility
+                bottom.classList.add("invisible")
+                // Slide the top header with hamburger
+                hamburgerSlider.classList.remove("w-56")
+                hamburgerSlider.classList.add("w-0")
+            } else {
+                setIsOpen(true);
+                // Main sidebar uncollapse
+                parent.classList.remove("w-0")
+                parent.classList.add("w-64");
+                // Middle elements padding and border updates
+                middle.classList.remove("py-0");
+                middle.classList.remove("px-0");
+                middle.classList.add("border-r");
+                middle.classList.add("py-5");
+                middle.classList.add("px-3");
+                // Bottom element visibility
+                bottom.classList.remove("invisible")
+                // Slide the top header with hamburger
+                hamburgerSlider.classList.remove("w-0")
+                hamburgerSlider.classList.add("w-56")
+            }
+        }
+    }
 
     return (
-        <aside className="fixed top-0 left-0 w-64 h-full" aria-label="Sidenav">
-            <div
-                className="overflow-y-auto py-5 px-3 h-full bg-red-700 border-r border-red-600 dark:bg-red-700 dark:border-red-600">
-                <div style={{width: '100%', height: 'auto', position: 'relative'}}>
+        <aside id="sidebar" className="fixed top-0 left-0 w-64 h-full transition-[width] ease-in-out delay-50" aria-label="Sidenav">
+            <div id="sidebar-header">
+                <div className="bg-white w-64 inline-block">
+                    <div id="hgSlider" className="w-56 h-8 inline-block align-top transition-[width] ease-in-out delay-50" style={{backgroundColor: "#212121"}}>&nbsp;
+                    </div>
+                    <div className="inline-block w-8" style={{backgroundColor: "#212121"}}>
+                        <a href="#" onClick={sidebarhandler}
+                           className="flex items-center w-8 p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <HamburgerSvgComponent
+                                className={"w-4 h-4 text-white transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                        </a>
+                    </div>
+                </div>
+                <div className={""}
+                     style={{width: '100%', height: 'auto', position: 'relative', padding: 0}}>
                     <Image
-                        src = "https://www.cwu.edu/about/media-resources/brand/_images/cwu-athletics-logo.png"
-                        alt = "CWU Logo"
+                        src={logoPic}
+                        alt="CWU Logo"
                         width={0}
                         height={0}
                         sizes="100vw"
-                        style={{ width: '100%', height: 'auto' }} // optional
+                        style={{width: '100%', height: 'auto', zIndex: 0}} // optional
                         priority={true}
                     />
                 </div>
+            </div>
+            <div
+                id="sidebar-middle" className="overflow-y-auto py-5 px-3 h-full bg-red-700 border-r border-red-600 dark:bg-red-700 dark:border-red-600">
                 <ul className="space-y-2">
                     <li>
                         <a href="#"
@@ -401,24 +540,15 @@ export default function Sidebar() {
                     </li>
                 </ul>
             </div>
-            <div
+            <div id="sidebar-bottom"
                 className="hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">
                 <a href="#"
                    className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600">
-                    <svg aria-hidden="true" className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path>
-                    </svg>
+                   <SliderSvgComponent className="w-6 h-6"/>
                 </a>
                 <a href="#" data-tooltip-target="tooltip-settings"
                    className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
-                    <svg aria-hidden="true" className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd"
-                              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                              clip-rule="evenodd"></path>
-                    </svg>
+                    <SettingsSvgComponent className="w-6 h-6"/>
                 </a>
                 <div id="tooltip-settings" role="tooltip"
                      className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip">
@@ -448,12 +578,7 @@ export default function Sidebar() {
                                className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
                                role="menuitem">
                                 <div className="inline-flex items-center">
-                                    <svg aria-hidden="true" className="h-3.5 w-3.5 rounded-full mr-2"
-                                         xmlns="http://www.w3.org/2000/svg" id="flag-icon-css-de" viewBox="0 0 512 512">
-                                        <path fill="#ffce00" d="M0 341.3h512V512H0z"/>
-                                        <path d="M0 0h512v170.7H0z"/>
-                                        <path fill="#d00" d="M0 170.7h512v170.6H0z"/>
-                                    </svg>
+                                    <GermanSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>
                                     Deutsch
                                 </div>
                             </a>
@@ -463,14 +588,7 @@ export default function Sidebar() {
                                className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
                                role="menuitem">
                                 <div className="inline-flex items-center">
-                                    <svg aria-hidden="true" className="h-3.5 w-3.5 rounded-full mr-2"
-                                         xmlns="http://www.w3.org/2000/svg" id="flag-icon-css-it" viewBox="0 0 512 512">
-                                        <g fill-rule="evenodd" stroke-width="1pt">
-                                            <path fill="#fff" d="M0 0h512v512H0z"/>
-                                            <path fill="#009246" d="M0 0h170.7v512H0z"/>
-                                            <path fill="#ce2b37" d="M341.3 0H512v512H341.3z"/>
-                                        </g>
-                                    </svg>
+                                    <ItalianSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>
                                     Italiano
                                 </div>
                             </a>
