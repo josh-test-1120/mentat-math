@@ -87,9 +87,17 @@
 
     <div class="main">
         <h1>Create Exam</h1>
-        <form action="http://localhost:8080/api/createExam" method="post">
+        <form id="createExamForm" action="http://localhost:8080/api/createExam" method="post">
             <label>Exam Name:
                 <input type="text" name="exam_name" required>
+            </label><br><br>
+            <label>
+                Exam Course:
+                <select name="exam_course_id" required>
+                    <option value="1">Mathematics</option>
+                    <option value="2">Physics</option>
+                    <option value="3">Chemistry</option>
+                </select>
             </label><br><br>
             <label>Exam Difficulty:
                 <select name="exam_difficulty" required>
@@ -158,5 +166,34 @@
             box3.checked = false;
         }
     });
+
+    async function submitForm() {
+        const form = document.getElementById('createExamForm');
+        const formData = new FormData(form);
+
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = (value === 'true' ? true : (value === 'false' ? false : value));
+        });
+
+        try {
+            const response = await fetch('http://localhost:8080/api/createExam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Exam created successfully');
+            } else {
+                alert('Failed to create exam');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred');
+        }
+    }
 </script>
 </html>

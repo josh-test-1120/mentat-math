@@ -9,14 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -35,7 +29,7 @@ public class HomeAPIController {
 //        if (isPublished == null) {
 //            isPublished = false;
 //        }
-//        int examID = 101;
+//        int examID = 105;
 //        String sql = "INSERT INTO exam (exam_id, exam_name, exam_difficulty, is_required, is_published) VALUES (?, ?, ?, ?)";
 //
 //        try (Connection conn = Database.getConnection();
@@ -59,6 +53,42 @@ public class HomeAPIController {
 //        }
 //    }
 
+    @PostMapping("/api/createExam")
+    public String createExam(
+            @RequestParam String exam_name,
+            @RequestParam int exam_difficulty,
+            @RequestParam(defaultValue = "false") boolean is_required,
+            @RequestParam(defaultValue = "false") boolean is_published,
+            @RequestParam int exam_course_ID)
+            {
+
+        int examID = 200;
+        String sql = "INSERT INTO exams (exam_id,exam_name, exam_state, exam_required, exam_difficulty,exam_course_id) VALUES (?,?,?, ?, ?, ?)";
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, examID);
+            statement.setString(2, exam_name);
+            statement.setBoolean(3, is_required);
+            statement.setInt(4, exam_difficulty);
+            statement.setBoolean(5, is_published);
+            statement.setInt(6, exam_course_ID);
+
+
+            int rows = statement.executeUpdate();
+            examID++;
+            if (rows > 0) {
+                return "Exam created successfully";
+            } else {
+                return "Failed to create exam";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Database error: " + e.getMessage();
+        }
+    }
 
     @GetMapping("/grades")
     /*
