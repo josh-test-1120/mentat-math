@@ -16,6 +16,7 @@ export default async function Dashboard() {
 
             <div className="bg-gray-500 p-4 rounded shadow">
                 <p className="text-white">User: {session?.user?.email}</p>
+                <p className="text-white">User: {session?.user?.id}</p>
             </div>
         </div>
     );
