@@ -6,6 +6,8 @@ export default async function Dashboard() {
     const session = await getServerAuthSession();
     // Add error handling for failed authentication
 
+    console.log(session);
+
     return (
         <div className="container mx-auto max-w-md px-4 py-8">
             <h1 className="text-3xl font-bold text-gray-800">EZMath Dashboard</h1>

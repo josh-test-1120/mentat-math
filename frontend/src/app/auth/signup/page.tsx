@@ -70,15 +70,15 @@ export default function SignUp() {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center h-screen text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700">
             <form
                 onSubmit={handleSubmit}
                 className="bg-gray-200 shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-col"
             >
-                <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
+                <h1 className="text-3xl text-mentat-gold font-bold mb-4">Sign Up</h1>
                 <div className="mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="firstname"
                     >
                         First Name
@@ -93,7 +93,7 @@ export default function SignUp() {
                         required={true}
                     />
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="lastname"
                     >
                         Last Name
@@ -109,7 +109,7 @@ export default function SignUp() {
                     />
 
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="username"
                     >
                         Username
@@ -124,7 +124,7 @@ export default function SignUp() {
                         required={true}
                     />
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="email"
                     >
                         Email
@@ -141,7 +141,7 @@ export default function SignUp() {
                 </div>
                 <div className="mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="password"
                     >
                         Password
@@ -157,7 +157,7 @@ export default function SignUp() {
                         required={true}
                     />
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="confirmPassword"
                     >
                         Confirm Password
@@ -175,13 +175,13 @@ export default function SignUp() {
                 </div>
                 <div className="flex items-center justify-between">
                     <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                         type="submit"
                     >
                         Sign Up
                     </button>
                     <Link
-                        className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                        className="inline-block align-baseline ml-2 font-bold text-sm text-amber-600 hover:text-amber-500"
                         href="/auth/signin"
                     >
                         Already have an account?
