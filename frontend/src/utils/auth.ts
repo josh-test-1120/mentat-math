@@ -5,6 +5,7 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import apiAuthSignIn from "./api";
 import { JWT } from "next-auth/jwt";
+import {getSession} from "next-auth/react";
 
 declare module "next-auth" {
     interface User {
@@ -82,12 +83,24 @@ export const authOptions:NextAuthOptions = {
          * @param account this is the account object
          * @param user this is the user object
          */
-        async jwt({ token, account, user }) {
+        async jwt({ token, account, user, trigger, isNewUser,session }) {
             // Persist the OAuth access_token to the token right after signin
             console.log(`This is the user object: ${user}`)
             console.log(`This is the account object: ${account}`)
             if (account) {
                 token.accessToken = user?.accessToken;
+                console.log(account.userId);
+            }
+            if (user) {
+                console.log(user.id);
+                console.log(user.name);
+            }
+            console.log('This is the session data');
+            session = getSession();
+            console.log(session.email);
+
+            if (session) {
+                console.log(session.id)
             }
             return user as unknown as JWT;
         },
@@ -100,6 +113,10 @@ export const authOptions:NextAuthOptions = {
          */
         async session({ session, token, user }) {
             // Send properties to the client, like an access_token from a provider.
+            console.log("Session callback");
+            console.log(user);
+            console.log(session);
+            console.log(token);
             return session;
         },
     },

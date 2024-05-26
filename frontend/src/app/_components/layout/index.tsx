@@ -7,8 +7,13 @@ export default function Layout({ children }: any) {
     <>
         {/* @ts-expect-error Async Server Component */}
         <Header />
-        <Sidebar />
+        <div id={"sidebar-box"} className="w-64">
+            <Sidebar />
+        </div>
+        <div id={"mainbar-box"} className="w-auto">
             {children}
+        </div>
+
         {/*<Footer />*/}
     </>
   );

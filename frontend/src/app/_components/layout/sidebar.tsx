@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import logoPic from '../../public/logo.png';
+import logoPic from '../../public/logo-new.png';
 
 //import * as React from "react"
 import Image from "next/image";
@@ -340,7 +340,7 @@ export default function Sidebar() {
 
     const sidebarhandler = async (e) => {
         e.preventDefault();
-        console.log('Sidebar Handler');
+        //console.log('Sidebar Handler');
 
         // Get the elements to modify
         var parent = document.getElementById('sidebar');
@@ -348,16 +348,23 @@ export default function Sidebar() {
         var bottom = document.getElementById('sidebar-bottom');
         var hamburgerSlider = document.getElementById('hgSlider');
         var hamburgerSliderBlock = document.getElementById('hgslider-block');
+        var hamburgerSliderParent = document.getElementById('hgslider-parent');
+        var sidebarBox = document.getElementById('sidebar-box');
+        var mainBox = document.getElementById('mainbar-box');
+
+
 
         // Only handle if elements exists
         if (parent != null && middle != null && bottom != null && hamburgerSlider != null
-                                            && hamburgerSliderBlock) {
+                && hamburgerSliderBlock != null && hamburgerSliderParent != null
+                && sidebarBox != null && mainBox != null) {
             // Determine current sidebar status
             if (isOpen) {
                 setIsOpen(false);
                 // Main sidebar collapse
-                parent.classList.remove("w-64")
+                // parent.classList.remove("w-64")
                 parent.classList.add("w-0");
+                parent.classList.remove("min-w-52")
                 // Middle elements padding and border updates
                 middle.classList.remove("py-5");
                 middle.classList.remove("px-3");
@@ -367,15 +374,38 @@ export default function Sidebar() {
                 // Bottom element visibility
                 bottom.classList.add("invisible")
                 // Slide the top header with hamburger
-                hamburgerSlider.classList.remove("w-56")
+                hamburgerSlider.classList.remove("w-5/6")
                 hamburgerSlider.classList.add("w-0")
-                hamburgerSliderBlock.classList.remove("w-64");
-                hamburgerSliderBlock.classList.add("w-8");
+                hamburgerSlider.classList.remove("h-8")
+                hamburgerSlider.classList.add("h-0")
+                // Update the sizes of all blocks and round them
+                hamburgerSliderParent.classList.remove("w-1/6");
+                hamburgerSliderParent.classList.add("w-8");
+                hamburgerSliderParent.classList.remove("text-logo-black")
+
+                hamburgerSliderBlock.classList.add("rounded-xl");
+                hamburgerSliderParent.classList.add("rounded-xl");
+
+                // Update the box sizes
+                sidebarBox.classList.remove("w-1/5")
+                sidebarBox.classList.add("w-9")
+                sidebarBox.classList.add("h-9")
+                sidebarBox.classList.add("fixed")
+                mainBox.classList.remove("w-4/5")
+                mainBox.classList.add("w-full")
+
+                // Shift the hamburger into absolute position
+                hamburgerSliderParent.classList.add("absolute")
+                hamburgerSliderParent.classList.remove("bg-mentat-black");
+                hamburgerSliderParent.classList.add("bg-red-700");
+
+
             } else {
                 setIsOpen(true);
                 // Main sidebar uncollapse
                 parent.classList.remove("w-0")
-                parent.classList.add("w-64");
+                parent.classList.add("min-w-52")
+                // parent.classList.add("w-full");
                 // Middle elements padding and border updates
                 middle.classList.remove("py-0");
                 middle.classList.remove("px-0");
@@ -386,32 +416,49 @@ export default function Sidebar() {
                 bottom.classList.remove("invisible")
                 // Slide the top header with hamburger
                 hamburgerSlider.classList.remove("w-0")
-                hamburgerSlider.classList.add("w-56")
-                hamburgerSlider.classList.add
+                hamburgerSlider.classList.remove("h-0")
+                hamburgerSlider.classList.add("w-5/6")
+                hamburgerSlider.classList.add("h-8")
 
-                hamburgerSliderBlock.classList.remove("w-8");
-                hamburgerSliderBlock.classList.add("w-64");
+                hamburgerSliderParent.classList.remove("w-8");
+                hamburgerSliderParent.classList.remove("w-1/6");
+                // hamburgerSliderBlock.classList.add("w-");
+                hamburgerSliderBlock.classList.remove("rounded-xl");
+                hamburgerSliderParent.classList.remove("rounded-xl");
+
+                // Update the box sizes
+                sidebarBox.classList.remove("w-9")
+                sidebarBox.classList.remove("h-9")
+                sidebarBox.classList.remove("fixed")
+                sidebarBox.classList.add("w-1/5")
+                mainBox.classList.remove("w-full")
+                mainBox.classList.add("w-4/5")
+
+                // Normalize the hamburger
+                hamburgerSliderParent.classList.remove("absolute")
+                hamburgerSliderParent.classList.remove("bg-mentat-gold");
+                hamburgerSliderParent.classList.add("bg-mentat-black");
 
             }
         }
     }
 
     return (
-        <aside id="sidebar" className="fixed top-0 left-0 w-64 h-full transition-[width] ease-in-out delay-50" aria-label="Sidenav">
+        <aside id="sidebar" className="top-0 left-0 h-full min-w-52 transition-[width] ease-in-out delay-50" aria-label="Sidenav">
             <div id="sidebar-header">
-                <div id="hgslider-block" className="w-64 inline-block" style={{backgroundColor: "#212121"}}>
-                    <div id="hgSlider" className="w-56 h-8 inline-block align-top transition-[width] ease-in-out delay-50" style={{backgroundColor: "#212121"}}>&nbsp;
+                <div id="hgslider-block" className="w-full inline-block bg-mentat-black" >
+                    <div id="hgSlider" className="w-5/6 h-8 inline-block bg-mentat-black align-top transition-[width] ease-in-out delay-50">&nbsp;
                     </div>
-                    <div className="inline-block w-8" style={{backgroundColor: "#212121"}}>
+                    <div id="hgslider-parent" className="inline-block w-1/6 bg-mentat-black">
                         <a href="#" onClick={sidebarhandler}
-                           className="flex items-center w-8 p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                           className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <HamburgerSvgComponent
                                 className={"w-4 h-4 text-white transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
                         </a>
                     </div>
                 </div>
                 <div className={""}
-                     style={{width: '100%', height: 'auto', position: 'relative', padding: 0}}>
+                     style={{width: '100%', height: '75%', position: 'relative', padding: 0}}>
                     <Image
                         src={logoPic}
                         alt="CWU Logo"
@@ -424,24 +471,24 @@ export default function Sidebar() {
                 </div>
             </div>
             <div
-                id="sidebar-middle" className="overflow-y-auto py-5 px-3 h-full bg-red-700 border-r border-red-600 dark:bg-red-700 dark:border-red-600">
+                id="sidebar-middle" className="overflow-y-auto py-5 px-3 h-full bg-gradient-to-r from-red-600 via-red-700 to-red-800 border-r border-red-600 dark:bg-red-700 dark:border-red-600">
                 <ul className="space-y-2">
                     <li>
-                        <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <a href="/dashboard"
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <OverviewSvgComponent
-                                className={"w-6 h-6 text-gray-400 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className={"w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
                             <span className="ml-3">Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <button type="button"
-                                className="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                 aria-controls="dropdown-pages" data-collapse-toggle="dropdown-pages">
                             <PagesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="flex-1 ml-3 text-left whitespace-nowrap">Exams</span>
-                            <CarretSvgComponent className={"w-6 h-6"}/>
+                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
                         </button>
                         <ul id="dropdown-pages" className="hidden py-2 space-y-2">
                             <li>
@@ -460,12 +507,12 @@ export default function Sidebar() {
                     </li>
                     <li>
                         <button type="button"
-                                className="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                 aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
                             <SalesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"} />
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"} />
                             <span className="flex-1 ml-3 text-left whitespace-nowrap">Schedule</span>
-                            <CarretSvgComponent className={"w-6 h-6"}/>
+                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
                         </button>
                         <ul id="dropdown-sales" className="hidden py-2 space-y-2">
                             <li>
@@ -484,24 +531,25 @@ export default function Sidebar() {
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <MessagesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
                             <span className="flex-1 ml-3 whitespace-nowrap">Messages</span>
                             <span
-                                className="inline-flex justify-center items-center w-5 h-5 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800">
+                                className="inline-flex justify-center items-center w-5 h-5 text-yellow-500 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800">
                               6
                           </span>
                         </a>
                     </li>
                     <li>
                         <button type="button"
-                                className="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg
+                                    transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                 aria-controls="dropdown-authentication" data-collapse-toggle="dropdown-authentication">
                             <AuthenticationSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="flex-1 ml-3 text-left whitespace-nowrap">Authentication</span>
-                            <CarretSvgComponent className={"w-6 h-6"}/>
+                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
                         </button>
                         <ul id="dropdown-authentication" className="hidden py-2 space-y-2">
                             <li>
@@ -525,32 +573,32 @@ export default function Sidebar() {
                 <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
                             <DocsSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
                             <span className="ml-3">Profile</span>
                         </a>
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
                             <ComponentsSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
                             <span className="ml-3">Components</span>
                         </a>
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
                             <HelpSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-gray-400 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
                             <span className="ml-3">Help</span>
                         </a>
                     </li>
                 </ul>
             </div>
             <div id="sidebar-bottom"
-                className="hidden absolute bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">
+                className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">
                 <a href="#"
                    className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600">
                    <SliderSvgComponent className="w-6 h-6"/>

@@ -7,7 +7,7 @@ export default async function Header() {
   const session = await getServerAuthSession();
 
   return (
-    <header className="flex justify-between items-center bg-gradient-to-r from-red-700 to-neutral-950 py-4 px-6 border-b-4 border-stone-400">
+    <header className="flex justify-between items-center bg-gradient-to-r from-red-700 via-zinc-900 to-neutral-950 py-4 px-6 border-b-4 border-stone-400">
       <Link href="/" className="text-2xl font-bold text-gray-800">
 
       </Link>

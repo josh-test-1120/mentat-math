@@ -28,12 +28,12 @@ export default function SignInForm() {
     }
 
     return (
-        <div className="container mx-auto max-w-md ">
-            <h1 className="text-3xl font-bold text-amber-400">Sign In</h1>
+        <div className="container mx-auto max-w-md">
+            <h1 className="text-3xl font-bold text-mentat-gold">Sign In</h1>
             <form className="mt-4" onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label
-                        className="block text-amber-400 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="username"
                     >
                         Username
@@ -48,7 +48,7 @@ export default function SignInForm() {
                         onChange={(e) => setUsername(e.target.value)}
                     />
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="email"
                     >
                         Email
@@ -64,7 +64,7 @@ export default function SignInForm() {
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="password"
                     >
                         Password
@@ -80,7 +80,7 @@ export default function SignInForm() {
                     />
                 </div>
                 <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                    className="bg-gradient-to-r from-red-700 to-red-800 border border-gray-300 text-amber-400 font-bold hover:bg-fuchsia-600 py-2 px-4 rounded"
                     type="submit"
                 >
                     Sign In

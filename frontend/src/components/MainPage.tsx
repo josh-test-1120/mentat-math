@@ -6,7 +6,7 @@ export default function MainPage() {
   return (
     <section
         id={"mainPage"}
-        className="bg-gray-900 text-amber-400 font-bold bg-gradient-to-r from-zinc-700 via-black-500 to-zinc-800"
+        className="text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700"
         style={{ borderBottomLeftRadius: "5%", borderBottomRightRadius: "5%"}}
       >
         <div className="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
