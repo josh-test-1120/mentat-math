@@ -5,6 +5,7 @@ export default function Hero() {
   const img = "/ux-design.png";
   return (
     <section
+      id={"mainPage"}
       className="bg-gray-900 text-white"
       style={{ borderBottomLeftRadius: "5%", borderBottomRightRadius: "5%" }}
     >

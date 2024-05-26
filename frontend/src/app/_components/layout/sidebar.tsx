@@ -363,7 +363,7 @@ export default function Sidebar() {
                 middle.classList.add("py-0");
                 middle.classList.add("px-0");
                 // Bottom element visibility
-                bottom.classList.toggle("visibility")
+                bottom.classList.add("invisible")
                 // Slide the top header with hamburger
                 hamburgerSlider.classList.remove("w-56")
                 hamburgerSlider.classList.add("w-0")
