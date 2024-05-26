@@ -347,9 +347,11 @@ export default function Sidebar() {
         var middle = document.getElementById('sidebar-middle');
         var bottom = document.getElementById('sidebar-bottom');
         var hamburgerSlider = document.getElementById('hgSlider');
+        var hamburgerSliderBlock = document.getElementById('hgslider-block');
 
         // Only handle if elements exists
-        if (parent != null && middle != null && bottom != null && hamburgerSlider != null) {
+        if (parent != null && middle != null && bottom != null && hamburgerSlider != null
+                                            && hamburgerSliderBlock) {
             // Determine current sidebar status
             if (isOpen) {
                 setIsOpen(false);
@@ -367,6 +369,8 @@ export default function Sidebar() {
                 // Slide the top header with hamburger
                 hamburgerSlider.classList.remove("w-56")
                 hamburgerSlider.classList.add("w-0")
+                hamburgerSliderBlock.classList.remove("w-64");
+                hamburgerSliderBlock.classList.add("w-8");
             } else {
                 setIsOpen(true);
                 // Main sidebar uncollapse
@@ -383,6 +387,11 @@ export default function Sidebar() {
                 // Slide the top header with hamburger
                 hamburgerSlider.classList.remove("w-0")
                 hamburgerSlider.classList.add("w-56")
+                hamburgerSlider.classList.add
+
+                hamburgerSliderBlock.classList.remove("w-8");
+                hamburgerSliderBlock.classList.add("w-64");
+
             }
         }
     }
@@ -390,7 +399,7 @@ export default function Sidebar() {
     return (
         <aside id="sidebar" className="fixed top-0 left-0 w-64 h-full transition-[width] ease-in-out delay-50" aria-label="Sidenav">
             <div id="sidebar-header">
-                <div className="bg-white w-64 inline-block">
+                <div id="hgslider-block" className="w-64 inline-block" style={{backgroundColor: "#212121"}}>
                     <div id="hgSlider" className="w-56 h-8 inline-block align-top transition-[width] ease-in-out delay-50" style={{backgroundColor: "#212121"}}>&nbsp;
                     </div>
                     <div className="inline-block w-8" style={{backgroundColor: "#212121"}}>
