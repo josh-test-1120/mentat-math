@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scores & Requirements</title>
+    <link rel="stylesheet" href="globals.css">
+    <style>
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        :root {
+            --foreground-rgb: 0, 0, 0;
+            --background-start-rgb: 214, 219, 220;
+            --background-end-rgb: 255, 255, 255;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --foreground-rgb: 255, 255, 255;
+                --background-start-rgb: 0, 0, 0;
+                --background-end-rgb: 0, 0, 0;
+            }
+        }
+
+        body {
+            color: rgb(var(--foreground-rgb));
+            background: linear-gradient(
+                    to bottom,
+                    transparent,
+                    rgb(var(--background-end-rgb))
+            )
+            rgb(var(--background-start-rgb));
+        }
+
+        @layer utilities {
+            .text-balance {
+                text-wrap: balance;
+            }
+        }
+
+        body {
+            font-family: sans-serif, "Lato";
+            background: #404040;
+            color: #dab05a;
+        }
+
+        .sidenav {
+            height: 100%;
+            width: 160px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: rgb(171,0,50);
+            overflow-x: hidden;
+        }
+
+        .sidenav a {
+            padding: 6px 8px 6px 16px;
+            margin-top: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: #AFAFAF;
+            display: block;
+        }
+        #logout {
+            margin-top: 195px;
+        }
+
+        .sidenav a:hover {
+            color: #FFC000;
+        }
+
+        .main {
+            margin-left: 160px; /* Same as the width of the sidenav */
+            font-size: 28px; /* Increased text to enable scrolling */
+            padding: 0px 10px;
+        }
+
+        @media screen and (max-height: 450px) {
+            .sidenav {padding-top: 15px;}
+            .sidenav a {font-size: 18px;}
+        }
+        #logo {
+            height: 18%;
+            width: 93%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+<div class="sidenav">
+    <img src="https://www.cwu.edu/about/media-resources/brand/_images/cwu-athletics-logo.png" id="logo" alt="CWU Logo">
+
+    <a href="/dashboard">Home</a>
+    <a href="">See Test Scores & Requirements</a>
+    <a href="/schedule">Schedule Quiz</a>
+    <a href="">About</a>
+    <a href="/profile">Profile</a>
+    <a href="/settings">Settings</a>
+
+    <a href="#logout" id="logout">Log Out</a>
+
+</div>
+<div class="main">
+    <h1>See Student Grades</h1>
+    <table id="instructorExamResultsTable">
+        <thead>
+        <tr>
+            <th>Student First Name</th>
+            <th>Student Last Name</th>
+            <th>Exam Name</th>
+            <th>Exam Version</th>
+            <th>Exam Taken Date</th>
+            <th>Exam Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Rows will be added here dynamically -->
+        </tbody>
+    </table>
+    <p><i>Sorted in Descending order by exam date</i></p>
+
+</div>
+<script>
+    //TELMEN's CODE
+
+
+    async function fetchInstructorReport(corID) {
+        try {
+            console.log("FOOBAR");
+            const url = new URL('http://localhost:8080/api/instructorReportString1');
+            url.searchParams.append('corID', corID);
+
+            const response = await fetch(url);
+
+            // fetch plain text instead of JSON
+            const text = await response.text();
+
+            // split text into an array of words
+            const words = text.trim().split(/\s+/);
+
+            // slice each part of the text by 6 columns
+            const tuples = [];
+            for (let i = 0; i < words.length; i += 6) {
+                tuples.push(words.slice(i, i + 6));
+            }
+
+            const tableBody = document.getElementById('instructorExamResultsTable').getElementsByTagName('tbody')[0];
+            console.log(tuples);
+
+            // clears the table before adding new rows
+            tableBody.innerHTML = '';
+
+            // Loop through each tuple and populate the table
+            tuples.forEach(tuple => {
+                let row = tableBody.insertRow();
+
+                let cellFName = row.insertCell(0);
+                cellFName.textContent = tuple[0];
+
+                let cellLName = row.insertCell(1);
+                cellLName.textContent = tuple[1];
+
+                let cellExamName = row.insertCell(2);
+                cellExamName.textContent = tuple[2];
+
+                let cellDate = row.insertCell(3);
+                cellDate.textContent = tuple[3];
+
+                let cellVersion = row.insertCell(4);
+                cellVersion.textContent = tuple[4];
+
+                let cellScore = row.insertCell(5);
+                cellScore.textContent = tuple[5];
+            });
+
+        } catch (error) {
+            console.error('Error fetching exam results:', error);
+        }
+    }
+
+
+    // Fetch the exams when the page loads
+    window.onload = fetchInstructorReport(1); // TODO Based on Course ID, Report will change.
+</script>
+
+</body>
+</html>

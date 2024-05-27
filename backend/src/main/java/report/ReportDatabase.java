@@ -12,9 +12,9 @@ public class ReportDatabase {
      */
     public static void connection() {
         //Connection variables
-        String url      = "jdbc:mysql://localhost:3306/ezmath";
+        String url      = "jdbc:mysql://localhost:3306/mydb";
         String userName = "root";
-        String pass     = "2580";
+        String pass     = "Tmysql7;";
 
         try {
             con = DriverManager.getConnection(url, userName, pass);
@@ -99,14 +99,14 @@ public class ReportDatabase {
      * This method prints the Instructor Report in String,
      * @return String type one student report information.
      */
-    public static String printInstructorReport(String eName) {
+    public static String printInstructorReport(int corID) {
         String printST = "";
 
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT student_first_name, student_last_name, exam_name, exam_version, "
                     + "exam_taken_date, exam_score FROM ExamResult JOIN Exam ON Exam_exam_id = exam_id JOIN Student " +
-                    "ON exam_student_id = student_id WHERE exam_name = '" + eName + "';");
+                    "ON exam_student_id = student_id WHERE exam_course_id = " + corID);
 
             //Printing ResultSet
             while (rs.next()) {
