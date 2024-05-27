@@ -12,9 +12,9 @@ public class ReportDatabase {
      */
     public static void connection() {
         //Connection variables
-        String url      = "jdbc:mysql://localhost:3306/mydb";
+        String url      = "jdbc:mysql://localhost:3306/ezmath";
         String userName = "root";
-        String pass     = "Tmysql7;";
+        String pass     = "2580";
 
         try {
             con = DriverManager.getConnection(url, userName, pass);

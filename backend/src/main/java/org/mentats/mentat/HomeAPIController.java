@@ -78,18 +78,19 @@ public class HomeAPIController {
     }
 
     @GetMapping("/studentReportString1")
-    public TestStudentReport getStudentReport1() {// TODO: 5/23/24 FIX ME!
+    public String getStudentReport1() {// TODO: 5/23/24 FIX ME!
         ReportDatabase.connection();
-        TestStudentReport result = new TestStudentReport(ReportDatabase.printStudentReport(1));
-
-        //Report report = new StudentReport(RepID, "StudentReport", );
+//        TestStudentReport result = new TestStudentReport(ReportDatabase.printStudentReport(1));
+        String result = ReportDatabase.printStudentReport(1);
         return result;
+        //Report report = new StudentReport(RepID, "StudentReport", );
+//        return result;
     }
 
     @GetMapping("/instructorReportString1")
-    public TestStudentReport getInstructorReport1() {
+    public String getInstructorReport1() {
         ReportDatabase.connection();
-        TestStudentReport result = new TestStudentReport(ReportDatabase.printInstructorReport("NUM1"));
+        String result = String.valueOf(new TestStudentReport(ReportDatabase.printInstructorReport("NUM1")));
         // TODO: 5/23/24 FIX ME!
         //ReportDatabase.printStudentReport(1)
         return result;
