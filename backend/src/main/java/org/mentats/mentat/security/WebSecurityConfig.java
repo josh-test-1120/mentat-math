@@ -113,6 +113,9 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
+                .requestMatchers("api/studentReportString1").permitAll() // TODO: 5/23/24 REMEMBER TO FIX
+                .requestMatchers("api/instructorReportString1").permitAll()
+                .requestMatchers("api/grades").permitAll()
                 .anyRequest().authenticated();
 
         http.authenticationProvider(authenticationProvider());

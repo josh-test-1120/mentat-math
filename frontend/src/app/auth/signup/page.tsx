@@ -25,6 +25,7 @@ export default function SignUp() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    //Submit event handling
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
@@ -32,10 +33,12 @@ export default function SignUp() {
         console.log(BACKEND_API);
         console.log(lastname);
 
+        //Password validation
         if (formData.password !== formData.confirmPassword) {
             toast.error("Passwords do not match");
             return;
         }
+        //Catch failure of response & API Call
         try {
             console.log(BACKEND_API);
             console.log()
