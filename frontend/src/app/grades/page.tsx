@@ -18,7 +18,7 @@ export default async function Grades() {
 
             </style>
             <Script
-                src="./page.js"
+                src="./grades.js"
             />
             <div className="mx-auto px-4 pt-32 h-dvh">
                 <h1 className="">See Grades</h1>
