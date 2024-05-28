@@ -15,45 +15,6 @@ import java.util.*;
 @RequestMapping("/api")
 public class HomeAPIController {
 
-    private static int examID = 400;
-
-//    @PostMapping("/createExam")
-//    public String addExam(@RequestParam("exam_name") String name,
-//                          @RequestParam("exam_difficulty") String difficulty,
-//                          @RequestParam(value = "is_required", required = false) Boolean isRequired,
-//                          @RequestParam(value = "is_published", required = false) Boolean isPublished) {
-//
-//        // Default values for checkboxes if they are not checked
-//        if (isRequired == null) {
-//            isRequired = false;
-//        }
-//        if (isPublished == null) {
-//            isPublished = false;
-//        }
-//        int examID = 105;
-//        String sql = "INSERT INTO exam (exam_id, exam_name, exam_difficulty, is_required, is_published) VALUES (?, ?, ?, ?)";
-//
-//        try (Connection conn = Database.getConnection();
-//             PreparedStatement stmt = conn.prepareStatement(sql)) {
-//
-//            stmt.setString(1, name);
-//            stmt.setString(2, difficulty);
-//            stmt.setBoolean(3, isRequired);
-//            stmt.setBoolean(4, isPublished);
-//            int result = stmt.executeUpdate();
-//
-//            if (result > 0) {
-//                examID++;
-//                return "Exam added successfully!";
-//            } else {
-//                return "Error adding exam.";
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "Error: " + e.getMessage();
-//        }
-//    }
-
     @GetMapping("/lastExamID")
     public int findExam() {
         String sql = "SELECT MAX(exam_id) FROM exam;";
@@ -121,61 +82,6 @@ public class HomeAPIController {
             return "Database error: " + e.getMessage();
         }
     }
-
-
-
-//    @GetMapping("/createExam1")
-//        public String createExam1(
-////                @RequestParam("exam_name") String exam_name,
-////                @RequestParam("is_published") boolean is_published,
-////                @RequestParam("is_required") boolean is_required,
-////                @RequestParam("exam_difficulty") int exam_difficulty,
-////                @RequestParam("exam_course_id") int exam_course_ID
-//
-//
-//    ){
-//
-//
-//
-//    }
-
-
-//    @GetMapping("/createExam")
-//    public String createExam(
-//            @RequestParam (name = "exam_name")String exam_name,
-//            @RequestParam (name="exam_difficulty") int exam_difficulty,
-//            @RequestParam(name="is_required",defaultValue = "false") boolean is_required,
-//            @RequestParam(name="is_published",defaultValue = "false") boolean is_published,
-//            @RequestParam (name="exam_course_id")int exam_course_ID )
-//            {
-//        System.out.println("hello world");
-//        int examID = 200;
-//        String sql = "INSERT INTO exams (exam_id,exam_name, exam_state, exam_required, exam_difficulty,exam_course_id) VALUES (?,?,?, ?, ?, ?)";
-//
-//        try (Connection connection = Database.getConnection();
-//             PreparedStatement statement = connection.prepareStatement(sql)) {
-//
-////            statement.setInt(1, examID);
-//            statement.setString(2, exam_name);
-//            statement.setBoolean(3, is_published);
-//            statement.setBoolean(4, is_required);
-//            statement.setInt(5, exam_difficulty);
-//            statement.setInt(6, exam_course_ID);
-//
-//
-//            int rows = statement.executeUpdate();
-//
-//            if (rows > 0) {
-//                return "Exam created successfully";
-//            } else {
-//                return "Failed to create exam";
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return "Database error: " + e.getMessage();
-//        }
-//    }
 
     @GetMapping("/grades")
     /*
