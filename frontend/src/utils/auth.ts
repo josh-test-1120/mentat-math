@@ -11,6 +11,17 @@ declare module "next-auth" {
     interface User {
         // Add your additional properties here:
         accessToken?: string | null;
+        id?: string | null;
+        roles? : string[] | null;
+        username? : string | null;
+    }
+    interface Session {
+        // Add your additional properties here:
+        user: {
+            id?: string | null;
+            roles?: string[] | null
+            username?: string | null
+        }
     }
 }
 
@@ -85,24 +96,18 @@ export const authOptions:NextAuthOptions = {
          */
         async jwt({ token, account, user, trigger, isNewUser,session }) {
             // Persist the OAuth access_token to the token right after signin
-            console.log(`This is the user object: ${user}`)
-            console.log(`This is the account object: ${account}`)
-            if (account) {
-                token.accessToken = user?.accessToken;
-                console.log(account.userId);
-            }
             if (user) {
-                console.log(user.id);
-                console.log(user.name);
+                // Persist the access token
+                token.accessToken = user?.accessToken;
+                // Persist the user ID to the token
+                token.id = user?.id;
+                // Persist the roles
+                token.role = user?.roles;
+                // Persist the First name of the user
+                token.username = user?.username;
             }
-            console.log('This is the session data');
-            session = getSession();
-            console.log(session.email);
-
-            if (session) {
-                console.log(session.id)
-            }
-            return user as unknown as JWT;
+            //return user as unknown as JWT;
+            return token;
         },
         /**
          * This is the session handler for the provider
@@ -113,10 +118,9 @@ export const authOptions:NextAuthOptions = {
          */
         async session({ session, token, user }) {
             // Send properties to the client, like an access_token from a provider.
-            console.log("Session callback");
-            console.log(user);
-            console.log(session);
-            console.log(token);
+            session.user.id = token?.id; // Add the token ID to the session
+            session.user.roles = token?.roles; // Add the token roles to the session
+            session.user.username = token?.username // Add the token username to the session
             return session;
         },
     },

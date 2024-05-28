@@ -7,10 +7,6 @@ import { createPortal } from 'react-dom'
 
 import Script from "next/script";
 
-import IFrameSetup from "./iFrameSetup";
-import {element} from "prop-types";
-
-
 
 export default function RootLayout({
   children,
