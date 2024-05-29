@@ -51,7 +51,9 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
             return new Error("Error with POST call");
         }
 
+        console.log('inside API handler');
         const data = await response.json();
+        console.log(data);
         // Handle the errors from the JSON response if the query failed for some reason
         if (data.error) {
             return { error: data.message };
