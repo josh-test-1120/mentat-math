@@ -73,4 +73,4 @@
 
 // Fetch the exams when the page loads
 //window.onload = fetchExams;
-window.onload = fetchReport;
+//window.onload = fetchReport;

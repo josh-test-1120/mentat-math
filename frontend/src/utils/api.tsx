@@ -1,7 +1,10 @@
 import { BACKEND_API } from "./constants";
+import {getServerSession} from "next-auth";
+import {authOptions} from "@/utils/auth";
+const getServerAuthSession = () => getServerSession(authOptions);
+
 export default async function apiAuthSignIn(credentials: Record<"firstname" | "lastname" | "email" | "username" | "password", string> | undefined) {
     try {
-        debugger;
         console.log(credentials);
         console.log(BACKEND_API);
         const response = await fetch(`${BACKEND_API}/api/auth/signin`, {
@@ -32,19 +35,42 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
     }
 }
 
-export async function apiHandler(inputs: any | undefined, method: string, uri: string,backendURL: string) {
+export async function apiHandler(inputs: any | undefined, method: string, uri: string, backendURL: string) {
     try {
         console.log(method);
         console.log(uri);
         console.log(JSON.stringify(inputs as any));
         console.log(`${backendURL}/${uri}`);
-        const response = await fetch(`${backendURL}/${uri}`, {
-            method: `${method}`,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(inputs as any),
-        });
+
+        var response;
+
+        var url = "";
+
+        if (backendURL) url = `${backendURL}/${uri}`
+        else url = uri;
+
+        var session = getServerAuthSession;
+        console.log("This is the session");
+        console.log(session);
+        console.log(inputs);
+        if (method != 'GET'){
+            response = await fetch(url, {
+                method: `${method}`,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(inputs as any),
+            });
+        }
+        else {
+            response = await fetch(url, {
+                method: `${method}`,
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+        }
+        console.log('after fetch');
 
         // Error response from HTTP call
         if (!response.ok) {
@@ -62,6 +88,7 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
         const result = data.data;
         return { ...data, result };
     } catch (error) {
+        console.log(error)
         // return { error: error.message };
         return { error: error };
     }

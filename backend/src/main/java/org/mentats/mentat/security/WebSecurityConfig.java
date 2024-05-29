@@ -8,6 +8,7 @@ import org.mentats.mentat.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -108,12 +109,13 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http.cors(Customizer.withDefaults()).csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().requestMatchers("/api/auth/**").permitAll()
+                .authorizeRequests().requestMatchers(HttpMethod.OPTIONS,"/api/auth/**","/api/grades/**","/api/studentReportString1").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated();
+        //http.cors(Customizer.withDefaults());
 
         http.authenticationProvider(authenticationProvider());
 
