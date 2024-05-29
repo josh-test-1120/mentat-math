@@ -1,4 +1,4 @@
-package org.mentats.mentat;
+package org.mentats.mentat.services;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
