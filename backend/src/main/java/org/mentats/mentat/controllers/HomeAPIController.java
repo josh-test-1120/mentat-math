@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.mentats.mentat.services.Database;
+import org.mentats.mentat.services.ReportDatabase;
 
 import java.sql.*;
 import java.util.*;
@@ -92,8 +93,8 @@ public class HomeAPIController {
 
         // SQL query to select from the 'exam' table where the exam state is 1
         String sql = "SELECT exam_name, exam_difficulty, exam_required \n" +
-                     "FROM exam \n" +
-                     "WHERE exam_state = 1;\n";
+                "FROM exam \n" +
+                "WHERE exam_state = 1;\n";
         //// list to store retrieved exam details
         List<Map<String, Object>> exams = new ArrayList<>();
 
@@ -115,6 +116,71 @@ public class HomeAPIController {
 
         //returns list of exams
         return exams;
+    }
+    /**
+     * This method returns the ArrayList grades of the student's grades.
+     *
+     * @param report Report class type single student's report object.
+     * @return An ArrayList of single student's Grades object.
+     */
+    @GetMapping("/studentReportGradeList")
+    public List<Grade> getStudentReportGradeList(Report report) {
+        List<Grade> result = report.getReportGrades();
+        return result;
+    }
+
+    /**
+     * This method returns the student grades as a string.
+     *
+     * @param report Report class type student's report.
+     * @return String type student report to display.
+     */
+    @GetMapping("/studentReportString")
+    public String getStudentReport(Report report) {
+        String result = report.generateReport();
+        return result;
+    }
+
+    class TestStudentReport {
+        private String gradeData;
+
+        public TestStudentReport(String gradeData) {
+            this.gradeData = gradeData;
+        }
+
+        public String getGradeData() {
+            return gradeData;
+        }
+    }
+
+    @GetMapping("/studentReportString1")
+    public String getStudentReport1(@RequestParam int SID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
+        ReportDatabase.connection();
+//        TestStudentReport result = new TestStudentReport(ReportDatabase.printStudentReport(1));
+        String result = ReportDatabase.printStudentReport(SID);
+        return result;
+        //Report report = new StudentReport(RepID, "StudentReport", );
+//        return result;
+    }
+
+    @GetMapping("/instructorReportString1")
+    public String getInstructorReport1(@RequestParam int corID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
+        ReportDatabase.connection();
+        String result = ReportDatabase.printInstructorReport(corID);
+        //ReportDatabase.printStudentReport(1)
+        return result;
+    }
+
+    @GetMapping("/instructorReportGradeList")
+    public List<Grade> getInstructorReportGradeList(Report report) {
+        List<Grade> result = report.getReportGrades();
+        return result;
+    }
+
+    @GetMapping("/instructorReportString")
+    public String getInstructorReport(Report report) {
+        String result = report.generateReport();
+        return result;
     }
 }
 

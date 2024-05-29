@@ -12,7 +12,21 @@ export function middleware(req: NextRequest, event: NextFetchEvent) {
         }
 
         // Authentication successful, continue to the requested page
-        return NextResponse.next();
+        //return NextResponse.next();
+
+        // retrieve the current response
+        const res = NextResponse.next()
+
+        // add the CORS headers to the response
+        res.headers.append('Access-Control-Allow-Credentials', "true")
+        res.headers.append('Access-Control-Allow-Origin', '*') // replace this your actual origin
+        res.headers.append('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT')
+        res.headers.append(
+            'Access-Control-Allow-Headers',
+            'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+        )
+
+        return res
     } catch (error) {
         // Handle authentication errors
         console.error("Authentication error:", error);
@@ -24,5 +38,5 @@ export function middleware(req: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-    matcher: "/dashboard/:path",
+    matcher: "/(dashboard|api)/:path",
 };

@@ -534,11 +534,11 @@ export default function Sidebar() {
                            className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <MessagesSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
-                            <span className="flex-1 ml-3 whitespace-nowrap">Messages</span>
-                            <span
-                                className="inline-flex justify-center items-center w-5 h-5 text-yellow-500 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800">
-                              6
-                          </span>
+                            <span className="flex-1 ml-3 whitespace-nowrap">Exams</span>
+                          {/*  <span*/}
+                          {/*      className="inline-flex justify-center items-center w-5 h-5 text-yellow-500 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800">*/}
+                          {/*    6*/}
+                          {/*</span>*/}
                         </a>
                     </li>
                     <li>
