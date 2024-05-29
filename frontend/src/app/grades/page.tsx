@@ -86,7 +86,7 @@ async function fetchReport() {
 
 function windowOnload() {
     // Fetch the exams when the page loads
-    //window.onload = fetchExams;
+    window.onload = fetchExams;
     window.onload = fetchReport;
 }
 
