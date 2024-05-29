@@ -9,40 +9,66 @@ import { getServerAuthSession } from "@/utils/auth";
 import { fetchExams, fetchReport } from "./grades";
 
 import { useState, useEffect } from "react";
+import {apiHandler} from "@/utils/api";
 
+import { toast, ToastContainer } from "react-toastify";
+
+const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 async function fetchExams() {
     try {
-        const response = await fetch('http://localhost:8080/api/grades'); //tries to send GET request to specified API endpoint
+        //const response = await fetch('http://localhost:8080/api/grades'); //tries to send GET request to specified API endpoint
+        try {
+            const response = await apiHandler({},'GET',
+                'api/grades/',
+                `${BACKEND_API}`
+            );
 
-        const data = await response.json(); //parse data as json and await response
+            const data = await response.json(); //parse data as json and await response
 
-        const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
+            const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
 
 
-        //loops through each exam item
-        data.forEach(exam => {
-            let row = tableBody.insertRow();
+            //loops through each exam item
+            data.forEach(exam => {
+                let row = tableBody.insertRow();
 
-            let cellName = row.insertCell(0);
-            cellName.textContent = exam.exam_name;
+                let cellName = row.insertCell(0);
+                cellName.textContent = exam.exam_name;
 
-            let cellDifficulty = row.insertCell(1);
-            cellDifficulty.textContent = exam.exam_difficulty;
+                let cellDifficulty = row.insertCell(1);
+                cellDifficulty.textContent = exam.exam_difficulty;
 
-            let cellRequired = row.insertCell(2);
-            cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
-        });
+                let cellRequired = row.insertCell(2);
+                cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+            });
 
-    } catch (error) {
-        console.error('Error fetching exams:', error);
-    }
+        } catch (error) {
+            console.error('Error fetching exams:', error);
+        }
+
+        }
+        catch (error) {
+            toast.error("Failed to create exams");
+        }
+
+
 }
 //TELMEN's CODE
-async function fetchReport() {
+async function fetchReport(SID:any) {
     try {
         console.log("BACKUP!");
-        const response = await fetch('http://localhost:8080/api/studentReportString1');
+        //const response = await fetch('http://localhost:8080/api/studentReportString1');
+
+        const url = new URL('http://localhost:8080/api/studentReportString1');
+        url.searchParams.append('SID', SID);
+
+        // const response = await fetch(url);
+
+        const response = await apiHandler({'id':SID},'GET',
+            url,
+            `${BACKEND_API}`
+        );
 
         // fetch plain text instead of JSON
         const text = await response.text();
@@ -86,8 +112,8 @@ async function fetchReport() {
 
 function windowOnload() {
     // Fetch the exams when the page loads
-    //window.onload = fetchExams;
-    window.onload = fetchReport;
+    fetchExams();
+    fetchReport(1);
 }
 
 
