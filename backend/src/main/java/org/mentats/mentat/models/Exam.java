@@ -13,20 +13,22 @@ public class Exam{
     private boolean examStatus;
     private boolean examRequired;
     private int examDifficulty;
+    private int examCourseID;
 
 
     //Exam constructor
-    public Exam(int examID, String examName,  boolean examStatus, boolean examRequired, int examDifficulty){
+    public Exam(int examID, String examName,  boolean examStatus, boolean examRequired, int examDifficulty, int examCourseID){
         this.examID = examID;
         this.examName = examName;
         this.examStatus = examStatus;
         this.examRequired = false; //initial state of not required exams
         this.examDifficulty = 0; //initial difficulty of 0 out of 5
+        this.examCourseID = examCourseID;
     }
 
-    public Exam() {
-
-    }
+//    public Exam() {
+//
+//    }
 
 
     //Exam getter functions
@@ -46,6 +48,10 @@ public class Exam{
     }
     public int getExamDifficulty(){
         return examDifficulty;
+    }
+
+    public int getExamCourseID(){
+        return examCourseID;
     }
 
     //Exam setter functions
