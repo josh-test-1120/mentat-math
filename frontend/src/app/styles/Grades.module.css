@@ -1,7 +1,7 @@
 .th, .td {
     @apply px-8 border-collapse;
 }
-.th {
+.th-grades {
     @apply bg-white;
 }
 .tr:hover {

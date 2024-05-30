@@ -18,7 +18,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-        <Script src={"https://kit.fontawesome.com/dad875225f.js"} crossOrigin={"anonymous"} />
+        <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
         <body>
         {/* @ts-expect-error Props default type */}
         <Header/>

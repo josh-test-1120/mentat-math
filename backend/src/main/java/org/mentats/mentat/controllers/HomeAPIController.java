@@ -1,13 +1,13 @@
 package org.mentats.mentat.controllers;
 import org.mentats.mentat.models.*;
 
-import org.mentats.mentat.services.Database;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.mentats.mentat.services.Database;
 
 import java.sql.*;
 import java.util.*;
@@ -15,45 +15,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api")
 public class HomeAPIController {
-
-    private static int examID = 400;
-
-//    @PostMapping("/createExam")
-//    public String addExam(@RequestParam("exam_name") String name,
-//                          @RequestParam("exam_difficulty") String difficulty,
-//                          @RequestParam(value = "is_required", required = false) Boolean isRequired,
-//                          @RequestParam(value = "is_published", required = false) Boolean isPublished) {
-//
-//        // Default values for checkboxes if they are not checked
-//        if (isRequired == null) {
-//            isRequired = false;
-//        }
-//        if (isPublished == null) {
-//            isPublished = false;
-//        }
-//        int examID = 105;
-//        String sql = "INSERT INTO exam (exam_id, exam_name, exam_difficulty, is_required, is_published) VALUES (?, ?, ?, ?)";
-//
-//        try (Connection conn = Database.getConnection();
-//             PreparedStatement stmt = conn.prepareStatement(sql)) {
-//
-//            stmt.setString(1, name);
-//            stmt.setString(2, difficulty);
-//            stmt.setBoolean(3, isRequired);
-//            stmt.setBoolean(4, isPublished);
-//            int result = stmt.executeUpdate();
-//
-//            if (result > 0) {
-//                examID++;
-//                return "Exam added successfully!";
-//            } else {
-//                return "Error adding exam.";
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "Error: " + e.getMessage();
-//        }
-//    }
 
     @GetMapping("/lastExamID")
     public int findExam() {
@@ -155,9 +116,5 @@ public class HomeAPIController {
         //returns list of exams
         return exams;
     }
-
-
-
-
 }
 
