@@ -9,15 +9,17 @@ import { getServerAuthSession } from "@/utils/auth";
 //import { fetchExams, fetchReport } from "./grades";
 
 import { useState, useEffect } from "react";
-import {apiHandler} from "@/utils/api";
+import { apiHandler } from "@/utils/api";
 
 import { toast, ToastContainer } from "react-toastify";
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 export default function Grades() {
-    //const session = await getServerAuthSession();
+
     const [windowReady, setWindowReady] = useState(true);
+    const [testTable, setTestTable] = useState();
+    async function session() { await getServerAuthSession(); };
 
     useEffect(() => {
         if (document.readyState !== 'complete') {
@@ -26,7 +28,6 @@ export default function Grades() {
                 setWindowReady(false);
             };
             window.addEventListener('load', handler);
-
             return () => {
                 window.removeEventListener('load', handler);
             };
@@ -35,9 +36,24 @@ export default function Grades() {
                 console.log('timeout');
                 setWindowReady(false);
             }, 0);
+
+            console.log('DOM handler');
+            console.log(document.getElementById('testsTable').getElementsByTagName('tbody')[0]);
+            // Assign dom variables
+            setTestTable(document.getElementById('testsTable').getElementsByTagName('tbody')[0]);
+
             return () => window.clearTimeout(timeout);
         }
     }, []);
+
+    async function getSession(){
+       const session =  await getServerAuthSession();
+       console.log("This is the session")
+       console.log(session);
+       if (session) return session.user;
+    }
+
+
 
     async function fetchExams() {
         try {
@@ -50,7 +66,6 @@ export default function Grades() {
                 console.log('api call done');
                 console.log(response);
                 if (!response.message.includes('success')) throw Error(response.message);
-                console.log('api call done');
                 const data = await response.message; //parse data as json and await response\
                 console.log("This is the data");
                 console.log(data);
@@ -83,7 +98,7 @@ export default function Grades() {
 
 
     }
-//TELMEN's CODE
+    //TELMEN's CODE
     async function fetchReport(SID:any) {
         try {
             console.log("BACKUP!");
@@ -98,12 +113,14 @@ export default function Grades() {
                 url.toString(),
                 ``
             );
-
+            console.log("This is the response from exam student");
+            console.log(response);
             // fetch plain text instead of JSON
-            const text = await response.text();
+            var words = Object.keys(response).map((key) => [key, response[key]]);
+            console.log(words);
 
             // split text into an array of words
-            const words = text.trim().split(/\s+/);
+            //const words = text.trim().split(/\s+/);
 
             // slice each part of the text by 4 columns
             const tuples = [];
@@ -111,7 +128,8 @@ export default function Grades() {
                 tuples.push(words.slice(i, i + 4));
             }
 
-            const tableBody = document.getElementById('examResultsTable').getElementsByTagName('tbody')[0];
+            console.log(testTable);
+            const tableBody= document.getElementById('examResultsTable').getElementsByTagName('tbody')[0];
             console.log(tuples);
 
             // clears the table before adding new rows
@@ -141,7 +159,8 @@ export default function Grades() {
 
     function windowOnload() {
         // Fetch the exams when the page loads
-        fetchExams();
+        //fetchExams();
+
         fetchReport(1);
     }
 

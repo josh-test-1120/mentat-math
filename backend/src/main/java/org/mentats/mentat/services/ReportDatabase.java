@@ -3,7 +3,17 @@ package org.mentats.mentat.services;
  * This is the class that interacts with the database on reports.
  * @author Telmen Enkhtuvshin
  */
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.mentats.mentat.services.DatabaseConfiguration;
+
+import java.lang.annotation.Annotation;
 import java.sql.*;
+
 public class ReportDatabase {
     public static Connection con = null;
 
@@ -11,13 +21,14 @@ public class ReportDatabase {
      * This is a method used for making connection with the MySQL database.
      */
     public static void connection() {
+
         //Connection variables
-        String url      = "jdbc:mysql://localhost:3306/mydb";
-        String userName = "root";
-        String pass     = "Tmysql7;";
+        String url = "jdbc:mysql://localhost:3306/ezmath";
+        String username = "AuthTestuser";
+        String pass = "password";
 
         try {
-            con = DriverManager.getConnection(url, userName, pass);
+            con = DriverManager.getConnection(url, username, pass);
             System.out.println("Connected to Database");
         } catch(Exception e) {
             System.out.println("Exception" + e.getMessage());
