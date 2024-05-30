@@ -2,6 +2,7 @@ package org.mentats.mentat.controllers;
 import org.mentats.mentat.models.*;
 
 
+import org.mentats.mentat.payload.request.ExamRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -40,11 +41,12 @@ public class HomeAPIController {
 
     @PostMapping("/createExam")
     public String createExam(
-            @RequestParam("exam_name") String examName,
-            @RequestParam("is_published") boolean isPublished,
-            @RequestParam("is_required") boolean isRequired,
-            @RequestParam("exam_difficulty") int examDifficulty,
-            @RequestParam("exam_course_id") int examCourseId) {
+            @RequestBody ExamRequest exam) {
+//            @RequestParam("exam_name") String examName,
+//            @RequestParam("is_published") boolean isPublished,
+//            @RequestParam("is_required") boolean isRequired,
+//            @RequestParam("exam_difficulty") int examDifficulty,
+//            @RequestParam("exam_course_id") int examCourseId) {
 
         int examID = findExam() +1;
         String sql = "INSERT INTO exam (exam_id, exam_name, exam_state, exam_required, exam_difficulty, exam_course_id) " +
@@ -56,26 +58,30 @@ public class HomeAPIController {
 
 
             statement.setInt(1, examID);  // Set to 0 if auto-incremented
-            statement.setString(2, examName);
-            statement.setBoolean(3, isPublished);
-            statement.setBoolean(4, isRequired);
-            statement.setInt(5, examDifficulty);
-            statement.setInt(6, examCourseId);
+            statement.setString(2, exam.getExam_name());
+            statement.setBoolean(3, exam.getIs_published());
+            statement.setBoolean(4, exam.getIs_required());
+            statement.setInt(5, exam.getExam_difficulty());
+            statement.setInt(6, exam.getExam_course_id());
+            System.out.println(exam.getExam_name());
+            System.out.println(exam.getExam_course_id());
 
             int rows = statement.executeUpdate();
 
+            System.out.printf("These are the rows: %s\n", rows);
 
             if (rows > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1);
-                        System.out.println("Inserted exam ID: " + generatedId);
-                    }
-                }
-                examID +=1;
+//                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+//                    if (generatedKeys.next()) {
+//                        int generatedId = generatedKeys.getInt(1);
+//                        System.out.println("Inserted exam ID: " + generatedId);
+//                    }
+//                }
+                System.out.println("Inserted exam ID: " + examID);
+                System.out.println("exam was created fine");
                 return "Exam created successfully";
             } else {
-                examID +=1;
+                System.out.println("exam was created wrong");
                 return "Exam could not be created";
             }
 

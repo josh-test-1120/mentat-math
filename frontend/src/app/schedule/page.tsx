@@ -5,7 +5,7 @@ import { apiHandler } from "@/utils/api";
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-export default async function Grades() {
+export default function Grades() {
 
     const [formData, setFormData] = useState({
         exam_course_id: 0,
@@ -17,7 +17,11 @@ export default async function Grades() {
     const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
 
     const data = (e: any) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type, checked } = e.target;
+        setFormData({
+            ...formData,
+            [name]: type === 'checkbox' ? checked : value,
+        });
     };
 
 
@@ -28,26 +32,36 @@ export default async function Grades() {
     // const [is_required, setIsRequired] = useState(false);
     // const [is_validated, setError] = useState("");
 
-    //async function handleSubmit(event: any) {
-    const handleSubmit = async (event: any) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        try{
-            await apiHandler({
-                exam_course_id,
-                exam_name,
-                exam_difficulty,
-                is_published,
-                is_required
-                }, 'GET',
-                'api/createExam/',
-                `${BACKEND_API}`
-            );
 
+        try {
+            let index = 1;
+            console.log(`This is the exam course id: ${exam_course_id}`)
+            const response = await fetch("http://localhost:8080/api/createExam", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    exam_name,
+                    is_published: is_published ? 1 : 0,
+                    is_required: is_required ? 1 : 0,
+                    exam_difficulty,
+                    exam_course_id,
+                })
+            });
+            console.log(`This is the response:`);
+            console.log(response);
+            if (response.ok) {
+                toast.success("Exam created successfully");
+            } else {
+                toast.error("Failed to create exam");
+            }
+        } catch (error) {
+            toast.error("Failed to create exam");
         }
-        catch(error){
-            toast.error("Failed to create exams");
-        }
-    }
+    };
 
     return (
         <div>
@@ -93,26 +107,22 @@ export default async function Grades() {
                     </select>
                 </label><br/><br/>
                 <label>Make Exam Required?
-                    <input type="hidden" name="is_required" value="false"/>
                     <input
                         id="is_required"
                         type="checkbox"
                         name="is_required"
-                        value={is_required}
+                        checked={is_required}
                         onChange={data}
-                        required={true}
                     />
                 </label>
                 <br/><br/>
                 <label>Publish Exam?
-                    <input type="hidden" name="is_published" value="false"/>
                     <input
                         id="is_published"
                         type="checkbox"
                         name="is_published"
-                        value={is_published}
+                        checked={is_published}
                         onChange={data}
-                        required={true}
                     />
                 </label>
                 <br/><br/>
@@ -124,6 +134,7 @@ export default async function Grades() {
                 </button>
                 {/*<input type="submit" value="Create Exam" onClick={handleSubmit}/>*/}
             </form>
+            <ToastContainer autoClose={3000} hideProgressBar />
         </div>
     );
 }
