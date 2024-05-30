@@ -6,6 +6,7 @@ import Script from "next/script";
 import { getServerAuthSession } from "@/utils/auth";
 
 import "../styles/Grades.module.css"
+// @ts-ignore
 import {useEffect, useState} from "react";
 
 
