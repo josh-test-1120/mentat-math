@@ -439,7 +439,7 @@ export default function Sidebar() {
 
                 // Normalize the hamburger
                 hamburgerSliderParent.classList.remove("absolute")
-                hamburgerSliderParent.classList.remove("bg-mentat-gold");
+                hamburgerSliderParent.classList.remove("bg-red-700");
                 hamburgerSliderParent.classList.add("bg-mentat-black");
 
             }
@@ -514,57 +514,60 @@ export default function Sidebar() {
                     {/*    </Link>*/}
                     {/*</li>*/}
                     <li>
-                        <button type="button"
-                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg
-                                transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                aria-controls="dropdown-authentication"
-                                data-collapse-toggle="dropdown-authentication">
+                        <Link href="/reports/instructor"
+                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                              aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
                             <AuthenticationSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
-                            <span className="flex-1 ml-3 text-left whitespace-nowrap">Authentication</span>
-                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
-                        </button>
-                        <ul id="dropdown-authentication" className="hidden py-2 space-y-2">
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign
-                                    In</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign
-                                    Up</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Forgot
-                                    Password</a>
-                            </li>
-                        </ul>
+                            <span className="ml-3">Reports</span>
+                        </Link>
+                        {/*<ul id="dropdown-authentication" className="hidden py-2 space-y-2">*/}
+                        {/*    <li>*/}
+                        {/*        <a href="#"*/}
+                        {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
+                        {/*            In</a>*/}
+                        {/*    </li>*/}
+                        {/*    <li>*/}
+                        {/*        <a href="#"*/}
+                        {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
+                        {/*            Up</a>*/}
+                        {/*    </li>*/}
+                        {/*    <li>*/}
+                        {/*        <a href="#"*/}
+                        {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Forgot*/}
+                        {/*            Password</a>*/}
+                        {/*    </li>*/}
+                        {/*</ul>*/}
                     </li>
                 </ul>
                 <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition
+                                duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group disabled">
                             <DocsSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
+                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
                             <span className="ml-3">Profile</span>
                         </a>
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition
+                                duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group disabled">
                             <ComponentsSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
+                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
                             <span className="ml-3">Administration</span>
                         </a>
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition
+                                duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group disabled">
                             <HelpSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
+                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
                             <span className="ml-3">Help</span>
                         </a>
                     </li>
@@ -573,15 +576,18 @@ export default function Sidebar() {
             <div id="sidebar-bottom"
                 className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">
                 <a href="#"
-                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600">
+                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400
+                        hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 disabled">
                    <SliderSvgComponent className="w-6 h-6"/>
                 </a>
                 <a href="#" data-tooltip-target="tooltip-settings"
-                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400
+                        dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600 disabled">
                     <SettingsSvgComponent className="w-6 h-6"/>
                 </a>
                 <div id="tooltip-settings" role="tooltip"
-                     className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip">
+                     className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900
+                        rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip disabled">
                     Settings page
                     <div className="tooltip-arrow" data-popper-arrow></div>
                 </div>

@@ -11,7 +11,7 @@ export default async function Dashboard() {
     console.log(session);
 
     return (
-        <div className="conatainer h-full max-w-screen-xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold">
+        <div className="conatainer h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold">
         {/*<div className="container mx-auto max-w-md px-4 py-8 bg-mentat-black ">*/}
             <div>
                 <h1 className="text-3xl font-bold">EZMath Dashboard</h1>

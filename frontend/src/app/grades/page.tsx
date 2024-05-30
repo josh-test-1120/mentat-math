@@ -224,26 +224,26 @@ export default function Grades() {
 
         <section
             id={"gradePage"}
-            className=" font-bold conatainer h-full max-w-screen-xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
+            className=" font-bold conatainer h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
         >
 
             {/*custom window onload*/}
             {windowReady ? (windowOnload()) : (<></>)}
 
-            <div className="mx-auto px-4 h-dvh">
+            <div className="mx-auto px-4 h-dvh bg-mentat-black">
                 <h1 className="text-center text-2xl mb-3">See Grades</h1>
                 <table id="examResultsTable"
                        className="w-full mb-5 border border-white"
                 >
                     <thead>
-                    <tr>
+                    <tr className="hover:bg-gray-500">
                         <th className="border border-white">Exam Taken Date</th>
                         <th className="border border-white">Exam Name</th>
                         <th className="border border-white">Exam Version</th>
                         <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="hover:bg-gray-500">
 
                     </tbody>
                 </table>
@@ -252,13 +252,13 @@ export default function Grades() {
                        className="w-full mb-5 border border-white"
                 >
                     <thead>
-                    <tr>
+                    <tr className="hover:bg-gray-500">
                         <th className="border border-white">Exam Name</th>
                         <th className="border border-white">Exam Difficulty</th>
                         <th className="border border-white">Required Y/N</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="hover:bg-gray-500">
 
                     </tbody>
                 </table>

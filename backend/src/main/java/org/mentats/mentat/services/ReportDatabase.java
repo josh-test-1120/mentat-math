@@ -29,7 +29,6 @@ public class ReportDatabase {
 
         try {
             con = DriverManager.getConnection(url, username, pass);
-            System.out.println("Connected to Database");
         } catch(Exception e) {
             System.out.println("Exception" + e.getMessage());
         }

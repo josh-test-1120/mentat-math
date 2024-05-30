@@ -17,15 +17,19 @@ export default async function Header() {
               <div>Today's Date: <span>{currDate}</span></div>
               <div>Current Time: <span>{currTime}</span></div>
           </div>
-          <div className="text-mentat-gold p-4 rounded shadow">
-              <p>Email: {session?.user?.email}</p>
-              <p>Username: {session?.user?.username}</p>
-          </div>
+          {session ? (
+              <div className="text-mentat-gold rounded shadow">
+                  <p>Email: {session?.user?.email}</p>
+                  <p>Username: {session?.user?.username}</p>
+              </div>
+          ) : (
+              <></>
+          )}
               <div className="flex items-center space-x-4">
                   {session ? (
                       <>
                           <Link href="/dashboard"
-                                className="px-4 py-2 bg-gradient-to-r from-red-700 to-red-800 border border-gray-300 text-yellow-300 font-bold rounded-xl">
+                                className="text-yellow-300 bg-red-700 hover:bg-red-600 py-2 px-4 rounded-xl">
                               Dashboard
                           </Link>
                           <SignnOutButton/>
@@ -33,11 +37,11 @@ export default async function Header() {
                   ) : (
                       <>
                           <Link href="/auth/signin"
-                                className="px-4 py-2 bg-gradient-to-r from-red-700 to-red-800 border border-gray-300 text-amber-400 font-bold rounded-xl">
+                                className="text-yellow-300 bg-red-700 hover:bg-red-600 py-2 px-4 rounded-xl">
                               Log in
                           </Link>
                           <Link href="/auth/signup"
-                                className="px-4 py-2 bg-gradient-to-r from-red-700 to-red-800 border border-gray-300 text-yellow-300 font-bold rounded-xl">
+                                className="text-yellow-300 bg-red-700 hover:bg-red-600 py-2 px-4 rounded-xl">
                               Sign up
                           </Link>
                       </>
