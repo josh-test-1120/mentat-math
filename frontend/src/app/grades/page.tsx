@@ -21,31 +21,31 @@ export default async function Grades() {
                 src="./grades.js"
             />
             <div className="mx-auto px-4 pt-32 h-dvh">
-                <h1 className="">See Grades</h1>
+                <h1 className="text-center text-3xl pb-2">See Grades</h1>
                 <table id="examResultsTable"
-                       className="w-full border-collapse mb-5"
+                       className="w-full border-collapse mb-5 border-4"
                 >
-                    <thead>
-                    <tr>
-                        <th>Exam Taken Date</th>
-                        <th>Exam Name</th>
-                        <th>Exam Version</th>
-                        <th>Exam Score</th>
+                    <thead className="border-4">
+                    <tr className="hover:bg-gray-500">
+                        <th className="border border-white">Exam Taken Date</th>
+                        <th className="border border-white">Exam Name</th>
+                        <th className="border border-white">Exam Version</th>
+                        <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="border-4">
 
                     </tbody>
                 </table>
-                <h1>See Tests</h1>
+                <h1 className="text-center text-3xl pb-2">See Tests</h1>
                 <table id="testsTable"
-                       className="w-full border-collapse mb-5"
+                       className="w-full border-collapse mb-5 border-4"
                 >
                     <thead>
-                    <tr>
-                        <th>Exam Name</th>
-                        <th>Exam Difficulty</th>
-                        <th>Required Y/N</th>
+                    <tr className="hover:bg-gray-500">
+                        <th className="border border-white">Exam Name</th>
+                        <th className="border border-white">Exam Difficulty</th>
+                        <th className="border border-white">Required Y/N</th>
                     </tr>
                     </thead>
                     <tbody>
