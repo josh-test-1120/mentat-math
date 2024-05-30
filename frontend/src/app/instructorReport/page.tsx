@@ -1,76 +1,32 @@
-//"use client";
+"use client";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import Script from "next/script";
+
 import { getServerAuthSession } from "@/utils/auth";
 
-import "../styles/Grades.module.css"
-// @ts-ignore
-import {useEffect, useState} from "react";
+//import { fetchExams, fetchReport } from "./grades";
 
+import { useState, useEffect } from "react";
+import { apiHandler } from "@/utils/api";
 
-async function fetchInstructorReport(corID: any) {
-    try {
-        console.log("FOOBAR");
-        const url = new URL('http://localhost:8080/api/instructorReportString1');
-        url.searchParams.append('corID',corID);
+import { toast, ToastContainer } from "react-toastify";
 
-        const response = await fetch(url);
+import { useRef } from 'react';
 
-        // fetch plain text instead of JSON
-        const text = await response.text();
+import dynamic from 'next/dynamic'
 
-        // split text into an array of words
-        const words = text.trim().split(/\s+/);
+const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-        // slice each part of the text by 6 columns
-        const tuples = [];
-        for (let i = 0; i < words.length; i += 6) {
-            tuples.push(words.slice(i, i + 6));
-        }
+export default function InstructorReport() {
 
-        const tableBody = document.getElementById('instructorExamResultsTable').getElementsByTagName('tbody')[0];
-        console.log(tuples);
-
-        // clears the table before adding new rows
-        tableBody.innerHTML = '';
-
-        // Loop through each tuple and populate the table
-        tuples.forEach(tuple => {
-            let row = tableBody.insertRow();
-
-            let cellFName = row.insertCell(0);
-            cellFName.textContent = tuple[0];
-
-            let cellLName = row.insertCell(1);
-            cellLName.textContent = tuple[1];
-
-            let cellExamName = row.insertCell(2);
-            cellExamName.textContent = tuple[2];
-
-            let cellDate = row.insertCell(3);
-            cellDate.textContent = tuple[3];
-
-            let cellVersion = row.insertCell(4);
-            cellVersion.textContent = tuple[4];
-
-            let cellScore = row.insertCell(5);
-            cellScore.textContent = tuple[5];
-        });
-
-    } catch (error) {
-        console.error('Error fetching exam results:', error);
-    }
-}
-
-function windowOnLoad() {
-    fetchInstructorReport(1);
-}
-export default async function InstructorReport() {
-
-    const session = await getServerAuthSession();
     const [windowReady, setWindowReady] = useState(true);
+    const [testTable, setTestTable] = useState();
+    async function session() { await getServerAuthSession(); };
+
+    const tableBody = useRef(null);
+
 
     useEffect(() => {
         if (document.readyState !== 'complete') {
@@ -79,7 +35,6 @@ export default async function InstructorReport() {
                 setWindowReady(false);
             };
             window.addEventListener('load', handler);
-
             return () => {
                 window.removeEventListener('load', handler);
             };
@@ -88,9 +43,75 @@ export default async function InstructorReport() {
                 console.log('timeout');
                 setWindowReady(false);
             }, 0);
+
             return () => window.clearTimeout(timeout);
         }
     }, []);
+
+    async function getSession(){
+        const session =  await getServerAuthSession();
+        console.log("This is the session")
+        console.log(session);
+        if (session) return session.user;
+    }
+
+    async function fetchInstructorReport(corID: any) {
+        try {
+            console.log("FOOBAR");
+            const url = new URL('http://localhost:8080/api/instructorReportString1');
+            url.searchParams.append('corID',corID);
+
+            const response = await fetch(url);
+
+            // fetch plain text instead of JSON
+            const text = await response.text();
+
+            // split text into an array of words
+            const words = text.trim().split(/\s+/);
+
+            // slice each part of the text by 6 columns
+            const tuples = [];
+            for (let i = 0; i < words.length; i += 6) {
+                tuples.push(words.slice(i, i + 6));
+            }
+
+            const tableBody = document.getElementById('instructorExamResultsTable').getElementsByTagName('tbody')[0];
+            console.log(tuples);
+
+            // clears the table before adding new rows
+            tableBody.innerHTML = '';
+
+            // Loop through each tuple and populate the table
+            tuples.forEach(tuple => {
+                let row = tableBody.insertRow();
+
+                let cellFName = row.insertCell(0);
+                cellFName.textContent = tuple[0];
+
+                let cellLName = row.insertCell(1);
+                cellLName.textContent = tuple[1];
+
+                let cellExamName = row.insertCell(2);
+                cellExamName.textContent = tuple[2];
+
+                let cellDate = row.insertCell(3);
+                cellDate.textContent = tuple[3];
+
+                let cellVersion = row.insertCell(4);
+                cellVersion.textContent = tuple[4];
+
+                let cellScore = row.insertCell(5);
+                cellScore.textContent = tuple[5];
+            });
+
+        } catch (error) {
+            console.error('Error fetching exam results:', error);
+        }
+    }
+
+    function windowOnload() {
+        fetchInstructorReport(1);
+    }
 
     return (
         <section
@@ -98,18 +119,18 @@ export default async function InstructorReport() {
             className="text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700"
         >
             {/*custom window onload*/}
-            {windowReady ? (windowOnLoad()) : (<></>)}
+            {windowReady ? (windowOnload()) : (<></>)}
             <style>
 
             </style>
 
             <script></script>
-            <div className="mx-auto px-4 pt-32 h-dvh">
+            <div className="mx-auto px-4 pt-32 h-dvh bg-mentat-black">
                 <h1 className="text-center text-3xl pb-2">See Student Grades</h1>
                 <table id="instructorExamResultsTable"
-                       className="w-full border-collapse mb-5 border-4"
+                       className="w-full mb-5 border border-white"
                 >
-                    <thead className="border-4">
+                    <thead>
                     <tr className="hover:bg-gray-500">
                         <th className="border border-white">Student First Name</th>
                         <th className="border border-white">Student Last Name</th>
@@ -119,7 +140,7 @@ export default async function InstructorReport() {
                         <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>
-                    <tbody className="border-4">
+                    <tbody className="hover:bg-gray-500">
 
                     </tbody>
                 </table>

@@ -1,4 +1,7 @@
-package report;
+package org.mentats.mentat.models;
+
+import org.mentats.mentat.models.Grade;
+import org.mentats.mentat.models.Report;
 
 import java.util.ArrayList;
 import java.util.List;

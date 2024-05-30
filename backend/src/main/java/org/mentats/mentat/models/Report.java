@@ -1,9 +1,10 @@
-package report;
+package org.mentats.mentat.models;
 /** This is a class that contains and manages the individual report for a single student
  *  and a generalized report for an instructor.
  * @author Telmen Enkhtuvshin
  */
-import java.util.ArrayList;
+import org.mentats.mentat.models.Grade;
+
 import java.util.List;
 public abstract class Report {
     /**

@@ -1,4 +1,4 @@
-package report;
+package org.mentats.mentat.models;
 
 import java.util.List;
 

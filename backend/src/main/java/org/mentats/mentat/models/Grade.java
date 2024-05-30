@@ -1,4 +1,4 @@
-package report;
+package org.mentats.mentat.models;
 
 /** This class stores all information regarding what x student got on x test and has data such as when
  *  the test was taken (an attribute from the Exam class)

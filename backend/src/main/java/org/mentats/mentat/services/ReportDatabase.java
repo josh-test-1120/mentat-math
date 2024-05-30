@@ -1,4 +1,4 @@
-package report;
+package org.mentats.mentat.services;
 /**
  * This is the class that interacts with the database on reports.
  * @author Telmen Enkhtuvshin
