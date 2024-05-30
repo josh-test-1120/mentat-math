@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 
@@ -64,9 +65,10 @@ export default function Grades() {
     };
 
     return (
-        <div>
-            <h1>Create Exam</h1>
-            <form id="createExamForm" onSubmit={handleSubmit}>
+        <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
+            <h1 className="text-2xl text-center mb-5">Create Exam</h1>
+            <form id="createExamForm" className="mx-auto w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-1 flex-col align-bottom"
+                  onSubmit={handleSubmit}>
                 <label>Exam Name:
                     <input
                         type="text"
@@ -75,6 +77,7 @@ export default function Grades() {
                         value={exam_name}
                         onChange={data}
                         required={true}
+                        className="float-right"
                     />
                 </label>
                 <label><br/><br/>
@@ -85,6 +88,7 @@ export default function Grades() {
                         value={exam_course_id}
                         onChange={data}
                         required={true}
+                        className="float-right"
                     >
                         <option value="1">Mathematics</option>
                         <option value="2">Physics</option>
@@ -98,6 +102,7 @@ export default function Grades() {
                         value={exam_difficulty}
                         onChange={data}
                         required={true}
+                        className="float-right"
                     >
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -113,6 +118,7 @@ export default function Grades() {
                         name="is_required"
                         checked={is_required}
                         onChange={data}
+                        className="float-right"
                     />
                 </label>
                 <br/><br/>
@@ -123,6 +129,7 @@ export default function Grades() {
                         name="is_published"
                         checked={is_published}
                         onChange={data}
+                        className="float-right"
                     />
                 </label>
                 <br/><br/>

@@ -38,5 +38,5 @@ export function middleware(req: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-    matcher: "/(dashboard|api)/:path",
+    matcher: "/(dashboard|grades|schedule|reports/instructor)/:path",
 };
