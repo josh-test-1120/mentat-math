@@ -55,7 +55,8 @@ export default function Grades() {
        if (session) return session.user;
     }
 
-
+    // Josh Test work for general API handler
+    // TDB in future iteration
     // async function fetchExams() {
     //     try {
     //
@@ -116,12 +117,21 @@ export default function Grades() {
 
                 let cellName = row.insertCell(0);
                 cellName.textContent = exam.exam_name;
+                cellName.classList.add("border");
+                cellName.classList.add("border-white");
+                cellName.classList.add("text-center");
 
                 let cellDifficulty = row.insertCell(1);
                 cellDifficulty.textContent = exam.exam_difficulty;
+                cellDifficulty.classList.add("border");
+                cellDifficulty.classList.add("border-white");
+                cellDifficulty.classList.add("text-center");
 
                 let cellRequired = row.insertCell(2);
                 cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+                cellRequired.classList.add("border");
+                cellRequired.classList.add("border-white");
+                cellRequired.classList.add("text-center");
             });
         } catch (error) {
             console.error('Error fetching exams:', error);
@@ -175,15 +185,27 @@ export default function Grades() {
 
                 let cellDate = row.insertCell(0);
                 cellDate.textContent = tuple[0];
+                cellDate.classList.add("border");
+                cellDate.classList.add("border-white");
+                cellDate.classList.add("text-center");
 
                 let cellName = row.insertCell(1);
                 cellName.textContent = tuple[1];
+                cellName.classList.add("border");
+                cellName.classList.add("border-white");
+                cellName.classList.add("text-center");
 
                 let cellVersion = row.insertCell(2);
                 cellVersion.textContent = tuple[2];
+                cellVersion.classList.add("border");
+                cellVersion.classList.add("border-white");
+                cellVersion.classList.add("text-center");
 
                 let cellScore = row.insertCell(3);
                 cellScore.textContent = tuple[3];
+                cellScore.classList.add("border");
+                cellScore.classList.add("border-white");
+                cellScore.classList.add("text-center");
             });
 
         } catch (error) {
@@ -202,38 +224,38 @@ export default function Grades() {
 
         <section
             id={"gradePage"}
-            className="text-amber-400 font-bold "
+            className=" font-bold conatainer h-full max-w-screen-xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
         >
 
             {/*custom window onload*/}
             {windowReady ? (windowOnload()) : (<></>)}
 
-            <div className="mx-auto px-4 pt-32 h-dvh">
-                <h1 className="">See Grades</h1>
+            <div className="mx-auto px-4 h-dvh">
+                <h1 className="text-center text-2xl mb-3">See Grades</h1>
                 <table id="examResultsTable"
-                       className="w-full mb-5 border border-gray-900"
+                       className="w-full mb-5 border border-white"
                 >
                     <thead>
                     <tr>
-                        <th className="border border-gray-900">Exam Taken Date</th>
-                        <th className="border border-gray-900">Exam Name</th>
-                        <th className="border border-gray-900">Exam Version</th>
-                        <th className="border border-gray-900">Exam Score</th>
+                        <th className="border border-white">Exam Taken Date</th>
+                        <th className="border border-white">Exam Name</th>
+                        <th className="border border-white">Exam Version</th>
+                        <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>
                     <tbody>
 
                     </tbody>
                 </table>
-                <h1>See Tests</h1>
+                <h1 className="text-center text-2xl mb-3">See Tests</h1>
                 <table id="testsTable"
-                       className="w-full border-collapse mb-5 border-4"
+                       className="w-full mb-5 border border-white"
                 >
                     <thead>
                     <tr>
-                        <th>Exam Name</th>
-                        <th>Exam Difficulty</th>
-                        <th>Required Y/N</th>
+                        <th className="border border-white">Exam Name</th>
+                        <th className="border border-white">Exam Difficulty</th>
+                        <th className="border border-white">Required Y/N</th>
                     </tr>
                     </thead>
                     <tbody>
