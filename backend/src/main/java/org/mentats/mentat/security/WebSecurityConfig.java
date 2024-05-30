@@ -112,7 +112,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
         http.cors(Customizer.withDefaults()).csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().requestMatchers(HttpMethod.OPTIONS,"/api/auth/**","/api/grades/**","/api/studentReportString1").permitAll()
+                .authorizeRequests().requestMatchers("/api/auth/**","/api/grades/**","/api/studentReportString1").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated();
         //http.cors(Customizer.withDefaults());

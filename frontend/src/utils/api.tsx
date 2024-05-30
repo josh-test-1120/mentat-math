@@ -49,9 +49,6 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
         if (backendURL) url = `${backendURL}/${uri}`
         else url = uri;
 
-        var session = getServerAuthSession;
-        console.log("This is the session");
-        console.log(session);
         console.log(inputs);
         if (method != 'GET'){
             response = await fetch(url, {
