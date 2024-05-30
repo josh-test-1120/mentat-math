@@ -15,6 +15,8 @@ import { toast, ToastContainer } from "react-toastify";
 
 import { useRef } from 'react';
 
+import userSession from "./userSession";
+
 import dynamic from 'next/dynamic'
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -22,7 +24,7 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 export default function Grades() {
 
     const [windowReady, setWindowReady] = useState(true);
-    const [testTable, setTestTable] = useState();
+    const [userID, setUserID] = useState();
     async function session() { await getServerAuthSession(); };
 
     const tableBody = useRef(null);
@@ -48,11 +50,34 @@ export default function Grades() {
         }
     }, []);
 
-    async function getSession(){
-       const session =  await getServerAuthSession();
-       console.log("This is the session")
-       console.log(session);
-       if (session) return session.user;
+    function getSession(data){
+        console.log("inside the get session");
+        console.log(data);
+        return data?.user?.id;
+
+       // const session =  getSessionAsync();
+       // console.log("This is the session")
+       // console.log(session);
+       // let id = 0;
+       // let user = session.then((data) => {
+       //     id = data;
+       //     console.log("This is the data")
+       //     console.log(data);
+       // })
+       //     .finally(() => { console.log("done with session grab")});
+       // console.log(id);
+       // //let id = user?.id;
+       // return id;
+    }
+
+    function getSessionAsync(){
+        const session =  getServerAuthSession();
+        console.log("This is the session")
+        session.then(getSession);
+        // console.log(session);
+        // console.log(session?.user?.id);
+        // let id = session?.user?.id;
+        // return id;
     }
 
     // Josh Test work for general API handler
@@ -216,6 +241,14 @@ export default function Grades() {
     function windowOnload() {
         // Fetch the exams when the page loads
         fetchExams();
+
+        let testSession = getSessionAsync();
+
+
+        //let userSession = getSession();
+        console.log("This is the user id:");
+        console.log(userID);
+
         fetchReport(1);
     }
 

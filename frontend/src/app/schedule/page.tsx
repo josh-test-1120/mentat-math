@@ -77,7 +77,7 @@ export default function Grades() {
                         value={exam_name}
                         onChange={data}
                         required={true}
-                        className="float-right"
+                        className="float-right text-mentat-black"
                     />
                 </label>
                 <label><br/><br/>
@@ -88,7 +88,7 @@ export default function Grades() {
                         value={exam_course_id}
                         onChange={data}
                         required={true}
-                        className="float-right"
+                        className="float-right text-mentat-black"
                     >
                         <option value="1">Mathematics</option>
                         <option value="2">Physics</option>
@@ -102,7 +102,7 @@ export default function Grades() {
                         value={exam_difficulty}
                         onChange={data}
                         required={true}
-                        className="float-right"
+                        className="float-right text-mentat-black"
                     >
                         <option value="1">1</option>
                         <option value="2">2</option>
