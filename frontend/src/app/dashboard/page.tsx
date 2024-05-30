@@ -4,22 +4,22 @@ import { getServerAuthSession } from "@/utils/auth";
 
 export default async function Dashboard() {
     const session = await getServerAuthSession();
+    const currDate = new Date().toLocaleDateString(); //variable for current date
+    const currTime = new Date().toLocaleTimeString(); //variable for current time
     // Add error handling for failed authentication
 
     console.log(session);
 
     return (
-        <div className="container mx-auto max-w-md px-4 py-8">
-            <h1 className="text-3xl font-bold text-gray-800">EZMath Dashboard</h1>
-
-            <p className="text-gray-700 mt-2 mb-4">
-                This works! Hello from Team Mentat
-            </p>
-
-            <div className="bg-gray-500 p-4 rounded shadow">
-                <p className="text-white">User: {session?.user?.email}</p>
-                <p className="text-white">User: {session?.user?.id}</p>
+        <div className="conatainer h-full max-w-screen-xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold">
+        {/*<div className="container mx-auto max-w-md px-4 py-8 bg-mentat-black ">*/}
+            <div>
+                <h1 className="text-3xl font-bold">EZMath Dashboard</h1>
             </div>
+            
+            <p className="mt-2 mb-4">
+                Welcome to EZMath Quiz Scheduler!
+            </p>
         </div>
     );
 }
