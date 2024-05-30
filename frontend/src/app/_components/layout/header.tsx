@@ -4,9 +4,9 @@ import { getServerAuthSession } from "@/utils/auth";
 
 
 export default async function Header() {
-  const session = await getServerAuthSession();
-    const currDate = new Date().toLocaleDateString(); //variable for current date
-    const currTime = new Date().toLocaleTimeString();
+    const session = await getServerAuthSession();
+    let currDate = new Date().toLocaleDateString();
+    let currTime = new Date().toLocaleTimeString();
 
   return (
       <header
@@ -14,8 +14,8 @@ export default async function Header() {
           {/*<Link href="/" className="text-2xl font-bold text-gray-800">*/}
           {/*</Link>*/}
           <div className="text-mentat-gold">
-              <div>Today's Date: <span>{currDate}</span></div>
-              <div>Current Time: <span>{currTime}</span></div>
+              <div>Today's Date: <span id="date">{currDate}</span></div>
+              <div>Current Time: <span id="time">{currTime}</span></div>
           </div>
           {session ? (
               <div className="text-mentat-gold rounded shadow">
