@@ -87,10 +87,10 @@ public class HomeAPIController {
 
     @GetMapping("/grades")
     /*
-    * Function that retrieves a list of exams from the database where the exam state is 1 (published exams only)
+     * Function that retrieves a list of exams from the database where the exam state is 1 (published exams only)
      */
     public List<Map<String, Object>> getExams() {
-        System.out.println("Inside Exam API Handler");
+
         // SQL query to select from the 'exam' table where the exam state is 1
         String sql = "SELECT exam_name, exam_difficulty, exam_required \n" +
                 "FROM exam \n" +
@@ -185,15 +185,11 @@ public class HomeAPIController {
     }
 
     @GetMapping("/studentReportString1")
-    public ReportResponse getStudentReport1(@RequestParam int SID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
+    public String getStudentReport1(@RequestParam int SID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
         ReportDatabase.connection();
-        System.out.println("Inside Student Record String API");
 //        TestStudentReport result = new TestStudentReport(ReportDatabase.printStudentReport(1));
         String result = ReportDatabase.printStudentReport(SID);
-        System.out.println(result);
-        String[] results = result.split(" ");
-        ReportResponse resultJSON = new ReportResponse(results[0],results[1],results[2],results[3]);
-        return resultJSON;
+        return result;
         //Report report = new StudentReport(RepID, "StudentReport", );
 //        return result;
     }

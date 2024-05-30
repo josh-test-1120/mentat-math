@@ -13,6 +13,10 @@ import { apiHandler } from "@/utils/api";
 
 import { toast, ToastContainer } from "react-toastify";
 
+import { useRef } from 'react';
+
+import dynamic from 'next/dynamic'
+
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 export default function Grades() {
@@ -20,6 +24,9 @@ export default function Grades() {
     const [windowReady, setWindowReady] = useState(true);
     const [testTable, setTestTable] = useState();
     async function session() { await getServerAuthSession(); };
+
+    const tableBody = useRef(null);
+
 
     useEffect(() => {
         if (document.readyState !== 'complete') {
@@ -37,11 +44,6 @@ export default function Grades() {
                 setWindowReady(false);
             }, 0);
 
-            console.log('DOM handler');
-            console.log(document.getElementById('testsTable').getElementsByTagName('tbody')[0]);
-            // Assign dom variables
-            setTestTable(document.getElementById('testsTable').getElementsByTagName('tbody')[0]);
-
             return () => window.clearTimeout(timeout);
         }
     }, []);
@@ -54,50 +56,78 @@ export default function Grades() {
     }
 
 
+    // async function fetchExams() {
+    //     try {
+    //
+    //         try {
+    //             // const response = await apiHandler({},'GET',
+    //             //     'api/grades/',
+    //             //     `${BACKEND_API}`
+    //             // );
+    //             const response = await fetch('http://localhost:8080/api/grades'); //tries to send GET request to specified API endpoint
+    //             // console.log('api call done');
+    //             // console.log(response);
+    //             // if (!response.message.includes('success')) throw Error(response.message);
+    //             // const data = await response.message; //parse data as json and await response\
+    //             // console.log("This is the data");
+    //             // console.log(data);
+    //             const data = await response.json(); //parse data as json and await response
+    //
+    //             const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
+    //
+    //
+    //             //loops through each exam item
+    //             data.forEach(exam => {
+    //                 let row = tableBody.insertRow();
+    //
+    //                 let cellName = row.insertCell(0);
+    //                 cellName.textContent = exam.exam_name;
+    //
+    //                 let cellDifficulty = row.insertCell(1);
+    //                 cellDifficulty.textContent = exam.exam_difficulty;
+    //
+    //                 let cellRequired = row.insertCell(2);
+    //                 cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+    //             });
+    //
+    //         } catch (error) {
+    //             console.error('Error fetching exams:', error.toString());
+    //         }
+    //
+    //     }
+    //     catch (error) {
+    //         toast.error("Failed to create exams");
+    //     }
+    //
+    //
+    // }
 
     async function fetchExams() {
         try {
-            //const response = await fetch('http://localhost:8080/api/grades'); //tries to send GET request to specified API endpoint
-            try {
-                const response = await apiHandler({},'GET',
-                    'api/grades/',
-                    `${BACKEND_API}`
-                );
-                console.log('api call done');
-                console.log(response);
-                if (!response.message.includes('success')) throw Error(response.message);
-                const data = await response.message; //parse data as json and await response\
-                console.log("This is the data");
-                console.log(data);
+            const response = await fetch('http://localhost:8080/api/grades'); // Send GET request to the specified API endpoint
+            const data = await response.json(); // Parse data as JSON and await response
 
-                const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
+            const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Clear existing rows in the table body
 
+            // Loop through each exam item
+            data.forEach(exam => {
+                let row = tableBody.insertRow();
 
-                //loops through each exam item
-                data.forEach(exam => {
-                    let row = tableBody.insertRow();
+                let cellName = row.insertCell(0);
+                cellName.textContent = exam.exam_name;
 
-                    let cellName = row.insertCell(0);
-                    cellName.textContent = exam.exam_name;
+                let cellDifficulty = row.insertCell(1);
+                cellDifficulty.textContent = exam.exam_difficulty;
 
-                    let cellDifficulty = row.insertCell(1);
-                    cellDifficulty.textContent = exam.exam_difficulty;
-
-                    let cellRequired = row.insertCell(2);
-                    cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
-                });
-
-            } catch (error) {
-                console.error('Error fetching exams:', error.toString());
-            }
-
+                let cellRequired = row.insertCell(2);
+                cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+            });
+        } catch (error) {
+            console.error('Error fetching exams:', error);
         }
-        catch (error) {
-            toast.error("Failed to create exams");
-        }
-
-
     }
+
     //TELMEN's CODE
     async function fetchReport(SID:any) {
         try {
@@ -106,21 +136,24 @@ export default function Grades() {
 
             const url = new URL('http://localhost:8080/api/studentReportString1');
             url.searchParams.append('SID', SID);
+            const response = await fetch(url);
 
-              // const response = await fetch(url);
             console.log(url.toString());
-            const response = await apiHandler({'id':SID},'GET',
-                url.toString(),
-                ``
-            );
+            // const response = await apiHandler({'id':SID},'GET',
+            //     url.toString(),
+            //     ``
+            // );
             console.log("This is the response from exam student");
             console.log(response);
             // fetch plain text instead of JSON
-            var words = Object.keys(response).map((key) => [key, response[key]]);
-            console.log(words);
+            // var words = Object.keys(response).map((key) => [key, response[key]]);
+            // console.log(words);
+
+            // fetch plain text instead of JSON
+            const text = await response.text();
 
             // split text into an array of words
-            //const words = text.trim().split(/\s+/);
+            const words = text.trim().split(/\s+/);
 
             // slice each part of the text by 4 columns
             const tuples = [];
@@ -128,12 +161,13 @@ export default function Grades() {
                 tuples.push(words.slice(i, i + 4));
             }
 
-            console.log(testTable);
+            //console.log(tableBody)
             const tableBody= document.getElementById('examResultsTable').getElementsByTagName('tbody')[0];
             console.log(tuples);
 
+            console.log(tableBody.innerHTML);
             // clears the table before adding new rows
-            tableBody.innerHTML = '';
+            tableBody.innerText = '';
 
             // Loop through each tuple and populate the table
             tuples.forEach(tuple => {
@@ -159,8 +193,7 @@ export default function Grades() {
 
     function windowOnload() {
         // Fetch the exams when the page loads
-        //fetchExams();
-
+        fetchExams();
         fetchReport(1);
     }
 

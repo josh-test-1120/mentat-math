@@ -7,6 +7,9 @@ import logoPic from '../../public/logo-new.png';
 import Image from "next/image";
 import {bool} from "prop-types";
 
+import Grades from "../../grades/page";
+import Link from "next/link";
+
 
 const OverviewSvgComponent = (props) => (
     <svg
@@ -474,78 +477,48 @@ export default function Sidebar() {
                 id="sidebar-middle" className="overflow-y-auto py-5 px-3 h-full bg-gradient-to-r from-red-600 via-red-700 to-red-800 border-r border-red-600 dark:bg-red-700 dark:border-red-600">
                 <ul className="space-y-2">
                     <li>
-                        <a href="/dashboard"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <Link href="/dashboard"
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                    dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <OverviewSvgComponent
-                                className={"w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
+                                className="w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
+                                group-hover:text-gray-900 dark:group-hover:text-white"/>
                             <span className="ml-3">Dashboard</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <button type="button"
-                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                aria-controls="dropdown-pages" data-collapse-toggle="dropdown-pages">
+                        <Link href="/grades"
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                    dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <PagesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
-                            <span className="flex-1 ml-3 text-left whitespace-nowrap">Exams</span>
-                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
-                        </button>
-                        <ul id="dropdown-pages" className="hidden py-2 space-y-2">
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Settings</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Kanban</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Calendar</a>
-                            </li>
-                        </ul>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                    group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
+                            <span className="ml-3">Grades/Exams</span>
+                        </Link>
                     </li>
                     <li>
-                        <button type="button"
+                        <Link href="/schedule"
                                 className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                                 aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
                             <SalesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"} />
-                            <span className="flex-1 ml-3 text-left whitespace-nowrap">Schedule</span>
-                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
-                        </button>
-                        <ul id="dropdown-sales" className="hidden py-2 space-y-2">
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Products</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Billing</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Invoice</a>
-                            </li>
-                        </ul>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                            <span className="ml-3">Schedule</span>s
+                        </Link>
                     </li>
-                    <li>
-                        <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                            <MessagesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
-                            <span className="flex-1 ml-3 whitespace-nowrap">Exams</span>
-                          {/*  <span*/}
-                          {/*      className="inline-flex justify-center items-center w-5 h-5 text-yellow-500 text-xs font-semibold rounded-full text-primary-800 bg-primary-100 dark:bg-primary-200 dark:text-primary-800">*/}
-                          {/*    6*/}
-                          {/*</span>*/}
-                        </a>
-                    </li>
+                    {/*<li>*/}
+                    {/*    <Link href="/exams"*/}
+                    {/*          className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">*/}
+                    {/*        <MessagesSvgComponent*/}
+                    {/*            className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>*/}
+                    {/*        <span className="flex-1 ml-3 whitespace-nowrap">Exams</span>*/}
+                    {/*    </Link>*/}
+                    {/*</li>*/}
                     <li>
                         <button type="button"
                                 className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg
-                                    transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                aria-controls="dropdown-authentication" data-collapse-toggle="dropdown-authentication">
+                                transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                                aria-controls="dropdown-authentication"
+                                data-collapse-toggle="dropdown-authentication">
                             <AuthenticationSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="flex-1 ml-3 text-left whitespace-nowrap">Authentication</span>
@@ -584,7 +557,7 @@ export default function Sidebar() {
                            className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group">
                             <ComponentsSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>
-                            <span className="ml-3">Components</span>
+                            <span className="ml-3">Administration</span>
                         </a>
                     </li>
                     <li>
