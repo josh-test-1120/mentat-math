@@ -16,7 +16,7 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * Default
  * @constructor
  */
-export default async function Grades() {
+export default function Grades() {
 
     // State information
     const [windowReady, setWindowReady] = useState(true);
