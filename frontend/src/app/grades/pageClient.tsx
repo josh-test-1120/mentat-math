@@ -134,6 +134,7 @@ export default function Grades() {
             // Loop through each exam item
             data.forEach(exam => {
                 let row = tableBody.insertRow();
+                row.classList.add("hover:bg-gray-500");
 
                 let cellName = row.insertCell(0);
                 cellName.textContent = exam.exam_name;
@@ -206,6 +207,7 @@ export default function Grades() {
             // Loop through each tuple and populate the table
             tuples.forEach(tuple => {
                 let row = tableBody.insertRow();
+                row.classList.add("hover:bg-gray-500");
 
                 let cellDate = row.insertCell(0);
                 cellDate.textContent = tuple[0];
@@ -269,14 +271,14 @@ export default function Grades() {
                        className="w-full mb-5 border border-white"
                 >
                     <thead>
-                    <tr className="hover:bg-gray-500">
+                    <tr>
                         <th className="border border-white">Exam Taken Date</th>
                         <th className="border border-white">Exam Name</th>
                         <th className="border border-white">Exam Version</th>
                         <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>
-                    <tbody className="hover:bg-gray-500">
+                    <tbody>
 
                     </tbody>
                 </table>
@@ -285,13 +287,13 @@ export default function Grades() {
                        className="w-full mb-5 border border-white"
                 >
                     <thead>
-                    <tr className="hover:bg-gray-500">
+                    <tr>
                         <th className="border border-white">Exam Name</th>
                         <th className="border border-white">Exam Difficulty</th>
                         <th className="border border-white">Required Y/N</th>
                     </tr>
                     </thead>
-                    <tbody className="hover:bg-gray-500">
+                    <tbody>
 
                     </tbody>
                 </table>
