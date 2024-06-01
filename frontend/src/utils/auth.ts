@@ -21,6 +21,7 @@ declare module "next-auth" {
             id?: string | null;
             roles?: string[] | null
             username?: string | null
+            email?: string | null
         }
     }
 }
@@ -121,6 +122,9 @@ export const authOptions:NextAuthOptions = {
             session.user.id = token?.id; // Add the token ID to the session
             session.user.roles = token?.roles; // Add the token roles to the session
             session.user.username = token?.username // Add the token username to the session
+            session.user.email = token?.email // Add the token email to the session
+            // console.log(session);
+            // console.log(token);
             return session;
         },
     },

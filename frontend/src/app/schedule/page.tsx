@@ -9,7 +9,7 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 export default function Grades() {
 
     const [formData, setFormData] = useState({
-        exam_course_id: 0,
+        exam_course_id: 1,
         exam_name: "",
         exam_difficulty: "",
         is_published: "",

@@ -3,6 +3,8 @@ package org.mentats.mentat.models;
 /**
  * Login interface class
  * describes login actions for compliant objects
+ * @author Joshua Summers
+ * @apiNote This might be deprecated due to Spring security overrides
  */
 public interface Login {
     /**
