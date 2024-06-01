@@ -14,7 +14,7 @@ public class Grade {
     //Exam name
     private String examName;
     //The score of the grade
-    public int score;
+    public String score;
     //The recorded date of the exam grade
     public String dateRecorded;
 
@@ -27,11 +27,12 @@ public class Grade {
      * @param dateRecorded String type recorded date of the exam grade.
      */
     //Constructor for the Report.Report.Grade object
-    public Grade(String gradeID, String studentID, String examID, String examName, String dateRecorded){
+    public Grade(String gradeID, String studentID, String examID, String examName, String score, String dateRecorded){
         this.gradeID      = gradeID;
         this.studentID    = studentID;
         this.examID       = examID;
         this.examName     = examName;
+        this.score        = score;
         this.dateRecorded = dateRecorded;
     }
 
@@ -63,7 +64,7 @@ public class Grade {
      * A getter method for the score of the Report.Report.Grade object
      * @return int score of the Report.Report.Grade object
      */
-    public int getScore() {return score;}
+    public String getScore() {return score;}
 
     /**
      * Getter method for recorded date of the grade.
@@ -77,7 +78,7 @@ public class Grade {
      * A setter method that records the score of the exam
      * @param examScore int score of the taken exam
      */
-    public void recordUpdateGrade(int examScore){
+    public void recordUpdateGrade(String examScore){
         this.score = examScore;
 
         // TODO: 5/10/24 Continue update the system and the database
