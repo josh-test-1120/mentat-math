@@ -1,7 +1,11 @@
-import Footer from "./footer";
 import Header from "./header";
 import Sidebar from "./sidebar";
 
+/**
+ * Default Layout
+ * @param children
+ * @constructor
+ */
 export default function Layout({ children }: any) {
   return (
     <>
@@ -13,8 +17,6 @@ export default function Layout({ children }: any) {
         <div id={"mainbar-box"} className="w-auto">
             {children}
         </div>
-
-        {/*<Footer />*/}
     </>
   );
 }

@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 // import { verifyToken } from "./auth"; // Assuming you have an authentication function
 
+/**
+ * Middleware functions for NextJS
+ * @param req NextRequest
+ * @param event NextFetchEvent
+ */
 export function middleware(req: NextRequest, event: NextFetchEvent) {
     try {
         const token = req.cookies.get("next-auth.session-token");
@@ -37,6 +42,9 @@ export function middleware(req: NextRequest, event: NextFetchEvent) {
     }
 }
 
+/**
+ * Matcher for routing middleware
+ */
 export const config = {
     matcher: "/(dashboard|grades|schedule|reports/instructor)/:path",
 };

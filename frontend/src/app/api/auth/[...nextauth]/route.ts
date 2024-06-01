@@ -1,3 +1,7 @@
+/**
+ * Next JS route handler
+ */
+
 import NextAuth from "next-auth";
 
 import { authOptions } from "@/utils/auth";

@@ -7,6 +7,9 @@ import apiAuthSignIn from "./api";
 import { JWT } from "next-auth/jwt";
 import {getSession} from "next-auth/react";
 
+/**
+ * Declare the authentication interfaces for the objects
+ */
 declare module "next-auth" {
     interface User {
         // Add your additional properties here:
@@ -25,13 +28,6 @@ declare module "next-auth" {
         }
     }
 }
-
-// declare module "@auth/core/adapters" {
-//     interface AdapterUser {
-//         // Add your additional properties here:
-//         accessToken: string | null;
-//     }
-// }
 
 /**
  * NextJS Authentication Options custom provider handlers

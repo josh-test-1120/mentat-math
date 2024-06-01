@@ -2,7 +2,10 @@ import Link from "next/link";
 import {  SignnOutButton } from "./ClientLayout";
 import { getServerAuthSession } from "@/utils/auth";
 
-
+/**
+ * Default Header used in default Layout
+ * @constructor
+ */
 export default async function Header() {
     const session = await getServerAuthSession();
     let currDate = new Date().toLocaleDateString();
@@ -11,8 +14,6 @@ export default async function Header() {
   return (
       <header
           className="flex justify-between items-center bg-gradient-to-r from-red-700 via-zinc-900 to-neutral-950 py-4 px-6 border-b-4 border-stone-400">
-          {/*<Link href="/" className="text-2xl font-bold text-gray-800">*/}
-          {/*</Link>*/}
           <div className="text-mentat-gold">
               <div>Today's Date: <span id="date">{currDate}</span></div>
               <div>Current Time: <span id="time">{currTime}</span></div>

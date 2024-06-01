@@ -4,10 +4,16 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 
+// Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-export default function Grades() {
+/**
+ * Default Schedule Page
+ * @constructor
+ */
+export default function Schedule() {
 
+    // State information
     const [formData, setFormData] = useState({
         exam_course_id: 1,
         exam_name: "",
@@ -15,6 +21,8 @@ export default function Grades() {
         is_published: "",
         is_required: "",
     });
+
+    // Form Mapping
     const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
 
     const data = (e: any) => {
@@ -25,17 +33,14 @@ export default function Grades() {
         });
     };
 
-
-    // const [exam_course_id , setCourseID] = useState(0);
-    // const [exam_name, setCourseName] = useState("");
-    // const [exam_difficulty, setCourseDifficulty] = useState(0);
-    // const [is_published, setIsPublished] = useState(false);
-    // const [is_required, setIsRequired] = useState(false);
-    // const [is_validated, setError] = useState("");
-
+    /**
+     * Submit button for Form
+     * @param event Event from DOM
+     */
     const handleSubmit = async (event) => {
-        event.preventDefault();
+        event.preventDefault(); // Prevent default events
 
+        // Try wrapper to handle async exceptions
         try {
             let index = 1;
             console.log(`This is the exam course id: ${exam_course_id}`)
@@ -54,6 +59,7 @@ export default function Grades() {
             });
             console.log(`This is the response:`);
             console.log(response);
+            // Response handler
             if (response.ok) {
                 toast.success("Exam created successfully");
             } else {

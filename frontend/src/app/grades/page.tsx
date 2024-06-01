@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import Script from "next/script";
-
 import { getServerAuthSession } from "@/utils/auth";
-import { apiHandler } from "@/utils/api";
 import GradesPage from "./pageClient";
-import { toast, ToastContainer } from "react-toastify";
 import { AuthProvider } from "@/components/authProvider"
 
-const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
+/**
+ * Backend Server Side Page with AuthProvider session handler
+ * injection into Client Side Page
+ * @constructor
+ */
 export default async function Grades() {
-
+    // Session variable
     const session =  await getServerAuthSession();
 
     return (

@@ -3,6 +3,10 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 
+/**
+ * SignInForm Page (Component)
+ * @constructor
+ */
 export default function SignInForm() {
     const [username , setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -10,6 +14,10 @@ export default function SignInForm() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
+    /**
+     * Handle the Submit button event
+     * @param event DOM event
+     */
     async function handleSubmit(event: any) {
         event.preventDefault();
         try{

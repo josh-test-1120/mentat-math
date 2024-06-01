@@ -9,10 +9,16 @@ import {SessionProvider, useSession} from 'next-auth/react'
 import { apiHandler } from "@/utils/api";
 import { toast, ToastContainer } from "react-toastify";
 
+// Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-export default function Grades() {
+/**
+ * Default
+ * @constructor
+ */
+export default async function Grades() {
 
+    // State information
     const [windowReady, setWindowReady] = useState(true);
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
@@ -21,12 +27,15 @@ export default function Grades() {
         email: ''
     });
 
+    // Session information
     const { data: session } = useSession()
 
+    // Table Body React Reference
     const tableBody = useRef(null);
 
     /**
      * Used to handle windows ready checks
+     * Pre-flight and loading effects
      */
     useEffect(() => {
         if (document.readyState !== 'complete') {
@@ -111,6 +120,9 @@ export default function Grades() {
     //
     // }
 
+    /**
+     * Fetch Exams
+     */
     async function fetchExams() {
         try {
             const response = await fetch('http://localhost:8080/api/grades'); // Send GET request to the specified API endpoint
@@ -146,7 +158,10 @@ export default function Grades() {
         }
     }
 
-    //TELMEN's CODE
+    /**
+     * Fetch Reports
+     * @param SID Student ID
+     */
     async function fetchReport(SID:any) {
         try {
             console.log("BACKUP!");
@@ -222,6 +237,9 @@ export default function Grades() {
         }
     }
 
+    /**
+     * Windows on Load function for UseAffects handler
+     */
     function windowOnload() {
         // Fetch the exams when the page loads
         fetchExams();
@@ -230,10 +248,6 @@ export default function Grades() {
         console.log(userSession);
 
         fetchReport(Number.parseInt(userSession.id));
-    }
-
-    function loadAuth() {
-        console.log(userSession)
     }
 
     return (
