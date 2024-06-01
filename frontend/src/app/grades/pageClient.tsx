@@ -248,6 +248,7 @@ export default function Grades() {
         console.log(userSession);
 
         fetchReport(Number.parseInt(userSession.id));
+        //fetchReport(Number.parseInt("1"));
     }
 
     return (

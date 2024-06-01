@@ -593,7 +593,7 @@ export default function Sidebar() {
                                 aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
                             <SalesSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
-                            <span className="ml-3">Schedule</span>
+                            <span className="ml-3">Create Exam</span>
                         </Link>
                     </li>
                     {/*<li>*/}
