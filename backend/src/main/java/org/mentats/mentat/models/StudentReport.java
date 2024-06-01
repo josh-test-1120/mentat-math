@@ -53,7 +53,7 @@ public class StudentReport extends Report {
         String result = "";
         for (int i = 0; i < allGrades.size(); i++) {
             Grade currentGrade = allGrades.get(i);
-            result += currentGrade.getExamName() + " " + String.valueOf(currentGrade.getScore()) + " "
+            result += currentGrade.getExamName() + " " + currentGrade.getScore() + " "
                     + currentGrade.getDateRecorded() + "\n";
         }
         // TODO: 5/10/24 Adapt to the necessities ✅
