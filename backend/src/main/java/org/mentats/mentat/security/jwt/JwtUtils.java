@@ -12,6 +12,7 @@ import io.jsonwebtoken.*;
 
 /**
  * Component for JWT Utilities
+ * @author Joshua Summers
  */
 @Component
 public class JwtUtils {

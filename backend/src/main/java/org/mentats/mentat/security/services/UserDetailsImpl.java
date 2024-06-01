@@ -12,6 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.mentats.mentat.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * User Details Implementation of User Details from
+ * Spring Security
+ */
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -26,6 +30,14 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
+    /**
+     * Default constructor
+     * @param id Long o user ID
+     * @param username string of username
+     * @param email string of email
+     * @param password string of password
+     * @param authorities Collection of objects extended from GrantedAuthority
+     */
     public UserDetailsImpl(Long id, String username, String email, String password,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -35,6 +47,12 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
+    /**
+     * Builds the User Implementation Authority
+     * Static class that makes an instance
+     * @param user User object
+     * @return UserDetailsImpl
+     */
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
@@ -48,49 +66,90 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
+    /**
+     * Override the get authorities Getter
+     * @return Collection of objects extended from GrantedAuthority
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
 
+    /**
+     * Getter for the user ID
+     * @return Long of user ID
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Getter of the User email
+     * @return string of the email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Override the default Password Getter
+     * @return string of password
+     */
     @Override
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Override the default Username Getter
+     * @return string of username
+     */
     @Override
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Checks to see if account has expired
+     * @return boolean of the check
+     */
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * Checks to see if the account is locked
+     * @return boolean of the check
+     */
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    /**
+     * Checks to see if the credential are expired
+     * @return boolean of that check
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * Check to see if the account is enabled
+     * @return boolean of the check
+     */
     @Override
     public boolean isEnabled() {
         return true;
     }
 
+    /**
+     * Overide the default equals method
+     * @param o other Object
+     * @return boolean of equals on the ID
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
