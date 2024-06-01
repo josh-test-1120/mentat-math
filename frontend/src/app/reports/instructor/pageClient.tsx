@@ -101,6 +101,7 @@ export default function InstructorReport() {
             // Loop through each tuple and populate the table
             tuples.forEach(tuple => {
                 let row = tableBody.insertRow();
+                row.classList.add("hover:bg-gray-500");
 
                 let cellFName = row.insertCell(0);
                 cellFName.textContent = tuple[0];
@@ -169,7 +170,7 @@ export default function InstructorReport() {
                        className="w-full mb-5 border border-white"
                 >
                     <thead>
-                    <tr className="hover:bg-gray-500">
+                    <tr>
                         <th className="border border-white">Student First Name</th>
                         <th className="border border-white">Student Last Name</th>
                         <th className="border border-white">Exam Name</th>
@@ -178,7 +179,7 @@ export default function InstructorReport() {
                         <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>
-                    <tbody className="hover:bg-gray-500">
+                    <tbody>
 
                     </tbody>
                 </table>
