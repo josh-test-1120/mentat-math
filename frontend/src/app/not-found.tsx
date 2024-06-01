@@ -2,6 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Oops from "../public/oops.svg";
 
+/**
+ * Default Not Found page handler
+ * @constructor
+ */
 export default function NotFound() {
     return (
         <div className="global mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">

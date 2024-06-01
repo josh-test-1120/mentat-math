@@ -1,9 +1,5 @@
-import Head from "next/head";
-import Image from "next/image";
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 import MainPage from "@/components/MainPage";
-import Services from "@/app/_components/home/serviceMain";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,13 +8,15 @@ export const metadata: Metadata = {
 };
 
 const inter = Inter({ subsets: ["latin"] });
-
+/**
+ * Main Home page Loader. This is the initial home page
+ * @constructor
+ */
 export default async function Home() {
   return (
     <>
       <main>
         <MainPage />
-        {/*<Services />*/}
       </main>
     </>
   );

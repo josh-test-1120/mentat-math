@@ -1,8 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 
+/**
+ * Default Main Page Component
+ * @constructor
+ */
 export default function MainPage() {
-  const img = "/ux-design.png";
+
   return (
     <section
         id={"mainPage"}

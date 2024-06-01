@@ -9,6 +9,12 @@ import React, { ReactNode } from "react";
 //     // any props that come into the component
 // }
 
+/**
+ * Default Client provider for session Provider
+ * @param children
+ * @param session
+ * @constructor
+ */
 export default function ClientProviders({ children, session }:{ children:React.ReactNode,session:Session}) {
     return <SessionProvider session={session}>{children}</SessionProvider>;
 }

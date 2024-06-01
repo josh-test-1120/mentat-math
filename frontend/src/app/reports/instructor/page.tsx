@@ -1,33 +1,31 @@
 "use client";
-import type { Metadata } from "next";
-import Link from "next/link";
-
-import Script from "next/script";
-
-import { getServerAuthSession } from "@/utils/auth";
-
-//import { fetchExams, fetchReport } from "./grades";
 
 import { useState, useEffect } from "react";
-import { apiHandler } from "@/utils/api";
-
+import { useRef } from 'react';
 import { toast, ToastContainer } from "react-toastify";
 
-import { useRef } from 'react';
+import { getServerAuthSession } from "@/utils/auth";
+import { apiHandler } from "@/utils/api";
 
-import dynamic from 'next/dynamic'
-
+// Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
+/**
+ * Instructor Report Page
+ * @constructor
+ */
 export default function InstructorReport() {
 
+    // State information
     const [windowReady, setWindowReady] = useState(true);
     const [testTable, setTestTable] = useState();
+    // Session Handler for SSR pages
     async function session() { await getServerAuthSession(); };
 
+    // Table Body React Reference
     const tableBody = useRef(null);
 
-
+    // Pre-flight and loading effects
     useEffect(() => {
         if (document.readyState !== 'complete') {
             const handler = () => {
@@ -48,6 +46,9 @@ export default function InstructorReport() {
         }
     }, []);
 
+    /**
+     * Get the session of the user
+     */
     async function getSession(){
         const session =  await getServerAuthSession();
         console.log("This is the session")
@@ -55,6 +56,10 @@ export default function InstructorReport() {
         if (session) return session.user;
     }
 
+    /**
+     * Fetch the Instructor report based on the course ID
+     * @param corID string of the course ID
+     */
     async function fetchInstructorReport(corID: any) {
         try {
             console.log("FOOBAR");
@@ -127,7 +132,9 @@ export default function InstructorReport() {
         }
     }
 
-    //Window Loading Helper Function2
+    /**
+     * Window On Load function for UseEffects handler
+     */
     function windowOnload() {
         fetchInstructorReport(1);
     }

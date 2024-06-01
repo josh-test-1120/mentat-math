@@ -10,7 +10,11 @@ import {bool} from "prop-types";
 import Grades from "../../grades/page";
 import Link from "next/link";
 
-
+/**
+ * Overview SVG
+ * @param props client props
+ * @constructor
+ */
 const OverviewSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -24,6 +28,11 @@ const OverviewSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Pages SVG
+ * @param props client props
+ * @constructor
+ */
 const PagesSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -40,6 +49,11 @@ const PagesSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * DropDown SVG
+ * @param props client props
+ * @constructor
+ */
 const DropDownSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -81,6 +95,11 @@ const DropDownSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Carret SVG
+ * @param props client props
+ * @constructor
+ */
 const CarretSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -97,6 +116,11 @@ const CarretSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Sales SVG
+ * @param props client props
+ * @constructor
+ */
 const SalesSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -113,6 +137,11 @@ const SalesSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Messages SVG
+ * @param props client props
+ * @constructor
+ */
 const MessagesSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -126,6 +155,11 @@ const MessagesSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Authentication SVG
+ * @param props client props
+ * @constructor
+ */
 const AuthenticationSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -142,6 +176,11 @@ const AuthenticationSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Docs SVG
+ * @param props client props
+ * @constructor
+ */
 const DocsSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -159,6 +198,11 @@ const DocsSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Component SVG
+ * @param props client props
+ * @constructor
+ */
 const ComponentsSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -171,6 +215,11 @@ const ComponentsSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Help SVG
+ * @param props client props
+ * @constructor
+ */
 const HelpSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -187,6 +236,11 @@ const HelpSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * English Language SVG
+ * @param props client props
+ * @constructor
+ */
 const EnglishSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -214,6 +268,11 @@ const EnglishSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Italian Language SVG
+ * @param props client props
+ * @constructor
+ */
 const ItalianSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -229,6 +288,11 @@ const ItalianSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * German Language SVG
+ * @param props client props
+ * @constructor
+ */
 const GermanSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -242,6 +306,11 @@ const GermanSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Menu SVG
+ * @param props client props
+ * @constructor
+ */
 const MenuSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -287,6 +356,11 @@ const MenuSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Sider SVG
+ * @param props client props
+ * @constructor
+ */
 const SliderSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -299,6 +373,11 @@ const SliderSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Settings SVG
+ * @param props client props
+ * @constructor
+ */
 const SettingsSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -315,6 +394,11 @@ const SettingsSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Hamburger SVG
+ * @param props client props
+ * @constructor
+ */
 const HamburgerSvgComponent = (props) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -336,11 +420,19 @@ const HamburgerSvgComponent = (props) => (
     </svg>
 )
 
+/**
+ * Default Sidebar Navigation Component
+ * @constructor
+ */
 export default function Sidebar() {
     // State to manage the open/close state of the sidebar
     const [isOpen, setIsOpen] = useState(true);
     //const [showSidebar, setShowSidebar] = useState(false);
 
+    /**
+     * Collapse and Uncollapse Toggle event
+     * @param e DOM event
+     */
     const sidebarhandler = async (e) => {
         e.preventDefault();
         //console.log('Sidebar Handler');
@@ -354,7 +446,6 @@ export default function Sidebar() {
         var hamburgerSliderParent = document.getElementById('hgslider-parent');
         var sidebarBox = document.getElementById('sidebar-box');
         var mainBox = document.getElementById('mainbar-box');
-
 
 
         // Only handle if elements exists
