@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 /**
  * This is the User model to represent users
+ * @author Joshua Summers
  */
 
 @Entity
@@ -26,7 +27,8 @@ public class Role {
     }
 
     /**
-     * Default Constructor
+     * Default constructor
+     * @param name ERole object
      */
     public Role(ERole name) {
         this.name = name;
