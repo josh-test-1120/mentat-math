@@ -4,6 +4,8 @@ package org.mentats.mentat.services;
  * @author Telmen Enkhtuvshin
  */
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.sql.*;
 
 public class ReportDatabase {

@@ -7,8 +7,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class EZMathApplicationTests {
 
+	@Autowired
+	private HomeAPIController controller;
+
 	@Test
-	void contextLoads() {
+	void contextLoads() throws Exception {
+		throws Exception {
+			assertThat(controller).isNotNull();
+	}
+
+	@Test
+	void getGrades() {
+		assertS
 	}
 
 }

@@ -569,7 +569,7 @@ export default function Sidebar() {
                 <ul className="space-y-2">
                     <li>
                         <Link href="/dashboard"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                              className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
                                     dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <OverviewSvgComponent
                                 className="w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
@@ -577,20 +577,58 @@ export default function Sidebar() {
                             <span className="ml-3">Dashboard</span>
                         </Link>
                     </li>
+                    {/*<li>*/}
+                    {/*    <Link href="/grades"*/}
+                    {/*          className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg*/}
+                    {/*                dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">*/}
+                    {/*        <PagesSvgComponent*/}
+                    {/*            className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75*/}
+                    {/*                group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>*/}
+                    {/*        <span className="ml-3">Grades/Exams</span>*/}
+                    {/*    </Link>*/}
+                    {/*</li>*/}
                     <li>
-                        <Link href="/grades"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                    dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <button type="button"
+                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg
+                                    transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                                aria-controls="dropdown-exams" data-collapse-toggle="dropdown-exams">
                             <PagesSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
-                                    group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
-                            <span className="ml-3">Grades/Exams</span>
-                        </Link>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900
+                             dark:text-gray-400 dark:group-hover:text-white"/>
+                            <span className="flex-1 ml-3 text-left whitespace-nowrap">Grades</span>
+                            <CarretSvgComponent className={"w-6 h-6 text-yellow-500"}/>
+                        </button>
+                        <ul id="dropdown-exams" className="hidden py-2 space-y-2">
+                            <li>
+                                <a href="/grades"
+                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900
+                                rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                                dark:hover:bg-gray-700">
+                                    Schedule Exam
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/grades"
+                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900
+                               rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                               dark:hover:bg-gray-700">
+                                    Exam Report
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                   className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900
+                               rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                               dark:hover:bg-gray-700">
+                                    Forgot Password
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
                         <Link href="/schedule"
-                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
+                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                              aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
                             <SalesSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="ml-3">Create Exam</span>

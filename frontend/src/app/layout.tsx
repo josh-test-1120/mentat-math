@@ -1,6 +1,7 @@
 import "./styles/globals.css";
 import Header from "./_components/layout/header";
 import Sidebar from "./_components/layout/sidebar";
+import SidebarNew from "./_components/layout/sidebar-new";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -19,7 +20,8 @@ export default function RootLayout({
             <Header/>
             <div className="inline-block w-full">
                 <div id="sidebar-box" className="w-1/5 inline-block">
-                    <Sidebar/>
+                    {/*<Sidebar/>*/}
+                    <SidebarNew />
                 </div>
                 <div id="mainbar-box" className="w-4/5 inline-block align-top">
                     {children}
