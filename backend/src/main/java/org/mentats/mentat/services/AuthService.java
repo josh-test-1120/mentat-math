@@ -134,35 +134,37 @@ public class AuthService {
                 signUpRequest.getLastname(),
                 signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
+                signUpRequest.getUserType(),
                 encoder.encode(signUpRequest.getPassword())
         );
-        // Role setting
-        Set<Role> roles = new HashSet<>(); // Initialize roles as an empty set
 
-        // Check if getRole() returns null before proceeding
-        if (signUpRequest.getRole() != null) {
-            // Map string roles to ERole values
-            Map<String, ERole> roleMap = Map.of(
-                    "admin", ERole.ROLE_ADMIN,
-                    "mod", ERole.ROLE_MODERATOR,
-                    // Default role
-                    "", ERole.ROLE_USER
-            );
+//        Set<Role> roles = new HashSet<>(); // Initialize roles as an empty set
+//
+//        // Check if getRole() returns null before proceeding
+//        if (signUpRequest.getRole() != null) {
+//            // Map string roles to ERole values
+//            Map<String, ERole> roleMap = Map.of(
+//                    "admin", ERole.ROLE_ADMIN,
+//                    "mod", ERole.ROLE_MODERATOR,
+//                    // Default role
+//                    "", ERole.ROLE_USER
+//            );
+//
+//            // Get roles from request and map to ERole
+//            roles = signUpRequest.getRole().stream()
+//                    .map(roleName -> {
+//                        try {
+//                            return roleRepository.findByName(roleMap.getOrDefault(roleName, ERole.ROLE_USER))
+//                                    .orElseThrow(() -> new RoleNotFoundException("Role not found: " + roleName));
+//                        } catch (RoleNotFoundException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                    })
+//                    .collect(Collectors.toSet());
+//        } // End of null check for getRole()
 
-            // Get roles from request and map to ERole
-            roles = signUpRequest.getRole().stream()
-                    .map(roleName -> {
-                        try {
-                            return roleRepository.findByName(roleMap.getOrDefault(roleName, ERole.ROLE_USER))
-                                    .orElseThrow(() -> new RoleNotFoundException("Role not found: " + roleName));
-                        } catch (RoleNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .collect(Collectors.toSet());
-        } // End of null check for getRole()
+//        user.setRoles(roles);
 
-        user.setRoles(roles);
         // Save the user into the database through the JPA
         return userRepository.save(user);
     }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getServerAuthSession } from "@/utils/auth";
+import CreateCourse from "@/app/courses/CreateCourse";
 
 /**
  * Default Dashboard Page
@@ -18,6 +19,7 @@ export default async function Dashboard() {
             <p className="mt-2 mb-4">
                 Welcome to EZMath Quiz Scheduler!
             </p>
+            <CreateCourse/>
         </div>
     );
 }
