@@ -63,12 +63,18 @@ public class User {
     @Size(max = 50)
     public String lastName;
 
+    @NotBlank
+    @Size(max = 20)
+    public String userType;
+
+    // @Telmen Unnecessary code for now. Will revive later.
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(  name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     protected Set<Role> roles = new HashSet<>();
     protected Level roleType;
+
 
     /**
      * Empty constructor
@@ -80,7 +86,7 @@ public class User {
     /**
      * Default Constructor
      */
-    public User(String firstName, String lastName, String username, String email, String password) {
+    public User(String firstName, String lastName, String username, String email, String userType, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -90,8 +96,8 @@ public class User {
          * TBD Role validation for Instructor and Administrators
          * Add feature here
          */
-//        if (role == null) this.role = Level.STUDENT;
-//        else this.role = role;
+        if (userType == null) this.userType = String.valueOf(Level.STUDENT);
+        else this.userType = userType;
     }
 
     public User(String username, String email, String password) {
@@ -178,4 +184,8 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+
+    public String getUserType() {return userType;}
+
+    public void setUserType(String userType) {this.userType = userType;}
 }

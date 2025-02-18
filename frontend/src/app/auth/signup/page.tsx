@@ -16,10 +16,11 @@ export default function SignUp() {
         lastname: "",
         username: "",
         email: "",
+        userType: "Student",
         password: "",
         confirmPassword: "",
     });
-    const { firstname, lastname, username, email, password, confirmPassword } = formData;
+    const { firstname, lastname, username, email, userType, password, confirmPassword } = formData;
 
     const data = (e: any) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,6 +47,7 @@ export default function SignUp() {
                     lastname,
                     username,
                     email,
+                    userType,
                     password,
                 },
                 "POST",
@@ -60,6 +62,7 @@ export default function SignUp() {
                 firstname,
                 lastname,
                 email,
+                userType,
                 username,
                 password,
                 callbackUrl:"/dashboard",
@@ -67,16 +70,18 @@ export default function SignUp() {
         } catch (error) {
             toast.error("Invalid credentials");
         }
+
     };
 
     return (
-        <div className="flex justify-center items-center h-screen text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700">
+        <div
+            className="flex justify-center items-center h-screen text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700">
             <form
                 onSubmit={handleSubmit}
-                className="bg-gray-200 shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-col"
+                className="bg-gray-200 shadow-md rounded px-8 pt-2 pb-8 mb-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-col mt-5"
             >
                 <h1 className="text-3xl text-mentat-gold font-bold mb-4">Sign Up</h1>
-                <div className="mb-4">
+                <div className="mb-1">
                     <label
                         className="block text-amber-600 text-sm font-bold mb-2"
                         htmlFor="firstname"
@@ -138,6 +143,65 @@ export default function SignUp() {
                         value={email}
                         onChange={data}
                     />
+                    <div className="flex flex-col gap-1">
+                        <label className="block text-amber-600 text-sm font-bold">User Type</label>
+
+                        {/* Instructor Radio Button */}
+                        <label
+                            className={`flex items-center gap-3 cursor-pointer px-4 py-2 border-2 rounded-lg transition-all ${
+                                userType === "Instructor"
+                                    ? "border-blue-500 shadow-[0_0_10px_#3b82f6] bg-blue-100"
+                                    : "border-gray-300 bg-white"
+                            }`}
+                        >
+                            <input
+                                type="radio"
+                                name="userType"
+                                value="Instructor"
+                                checked={userType === "Instructor"}
+                                onChange={data}
+                                className="hidden"
+                            />
+                            <div
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    userType === "Instructor" ? "border-blue-500" : "border-gray-400"
+                                }`}
+                            >
+                                {userType === "Instructor" && (
+                                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span className="text-gray-700 font-medium">Instructor</span>
+                        </label>
+
+                        {/* Student Radio Button */}
+                        <label
+                            className={`flex items-center gap-3 cursor-pointer px-4 py-2 border-2 rounded-lg transition-all ${
+                                userType === "Student"
+                                    ? "border-green-500 shadow-[0_0_10px_#22c55e] bg-green-100"
+                                    : "border-gray-300 bg-white"
+                            }`}
+                        >
+                            <input
+                                type="radio"
+                                name="userType"
+                                value="Student"
+                                checked={userType === "Student"}
+                                onChange={data}
+                                className="hidden"
+                            />
+                            <div
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    userType === "Student" ? "border-green-500" : "border-gray-400"
+                                }`}
+                            >
+                                {userType === "Student" && (
+                                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                )}
+                            </div>
+                            <span className="text-gray-700 font-medium">Student</span>
+                        </label>
+                    </div>
                 </div>
                 <div className="mb-4">
                     <label
@@ -173,15 +237,15 @@ export default function SignUp() {
                         required={true}
                     />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col items-center justify-between">
                     <button
-                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold w-full py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                         type="submit"
                     >
                         Sign Up
                     </button>
                     <Link
-                        className="inline-block align-baseline ml-2 font-bold text-sm text-amber-600 hover:text-amber-500"
+                        className="align-baseline ml-2 font-bold text-sm text-amber-600 hover:text-amber-500 mt-3"
                         href="/auth/signin"
                     >
                         Already have an account?
