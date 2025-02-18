@@ -1,10 +1,18 @@
 import SignInForm from "./signInForm";
+
+/**
+ * Page Metadata
+ */
 export const metadata = {
     title: "Login Page",
-    description: "Login page for AP Stocks",
+    description: "Login page for EZMath Application",
     icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+/**
+ * Login Page
+ * @constructor
+ */
 export default async function LoginPage() {
     return (
         <div className="flex min-h-screen items-center justify-center text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700 p-4">

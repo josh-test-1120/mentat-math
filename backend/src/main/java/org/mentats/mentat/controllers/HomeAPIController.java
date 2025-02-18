@@ -14,10 +14,18 @@ import org.mentats.mentat.services.ReportDatabase;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * Rest API Controller
+ * Methods that drive and control api mappings
+ * base URI is /api/
+ */
 @RestController
 @RequestMapping("/api")
 public class HomeAPIController {
-
+    /**
+     * Get the last exam id from the database to increment
+     * @return integer of last exam id
+     */
     @GetMapping("/lastExamID")
     public int findExam() {
         String sql = "SELECT MAX(exam_id) FROM exam;";
@@ -36,9 +44,11 @@ public class HomeAPIController {
         }
         return -1; // return a sentinel value if no result is found or an error occurs
     }
-
-
-
+    /**
+     * Create a new exam
+     * @param exam an exam object that reflects the exam attributes
+     * @return String of the exam results
+     */
     @PostMapping("/createExam")
     public String createExam(
             @RequestBody ExamRequest exam) {
@@ -69,10 +79,12 @@ public class HomeAPIController {
         }
     }
 
-    @GetMapping("/grades")
-    /*
-     * Function that retrieves a list of exams from the database where the exam state is 1 (published exams only)
+    /**
+     * Get the grades from the database
+     * where the exam state is 1 (published exams only)
+     * @return List of Map objects that have {string, object} types
      */
+    @GetMapping("/grades")
     public List<Map<String, Object>> getExams() {
 
         // SQL query to select from the 'exam' table where the exam state is 1
@@ -156,6 +168,9 @@ public class HomeAPIController {
         return result;
     }
 
+    /**
+     * Grades JSON serializer class for Grades
+     */
     class TestStudentReport {
         private String gradeData;
 
@@ -168,6 +183,11 @@ public class HomeAPIController {
         }
     }
 
+    /**
+     * Get student grade report
+     * @param SID student id
+     * @return String of the tuple from the database
+     */
     @GetMapping("/studentReportString1")
     public String getStudentReport1(@RequestParam int SID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
         ReportDatabase.connection();
@@ -178,6 +198,11 @@ public class HomeAPIController {
 //        return result;
     }
 
+    /**
+     * Get instructor report of student grades by course
+     * @param corID course id
+     * @return String of the tuples from the database
+     */
     @GetMapping("/instructorReportString1")
     public String getInstructorReport1(@RequestParam int corID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
         ReportDatabase.connection();
@@ -186,12 +211,22 @@ public class HomeAPIController {
         return result;
     }
 
+    /**
+     * Get the instructor report for all grades
+     * @param report if the report object
+     * @return List of Grade objects
+     */
     @GetMapping("/instructorReportGradeList")
     public List<Grade> getInstructorReportGradeList(Report report) {
         List<Grade> result = report.getReportGrades();
         return result;
     }
 
+    /**
+     * Get instructor report
+     * @param report Report object
+     * @return String of the tuples from the database
+     */
     @GetMapping("/instructorReportString")
     public String getInstructorReport(Report report) {
         String result = report.generateReport();

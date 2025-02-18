@@ -1,4 +1,4 @@
-package org.mentats.mentat.models.JunitTest;
+package org.mentats.mentat.JunitTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

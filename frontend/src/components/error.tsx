@@ -1,11 +1,17 @@
+/**
+ * Default Toast Error Component
+ * @param error
+ * @param onClose
+ * @constructor
+ */
 export default function ErrorToast({
-   error,
-   onClose,
-}:
-   {
-    error: string;
-    onClose: () => void;
-}) {
+       error,
+       onClose,
+    }:
+       {
+        error: string;
+        onClose: () => void;
+    }) {
     return (
         <div>
             <div

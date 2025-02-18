@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * This is the User model to represent users
+ * @author Joshua Summers
  */
 @Entity
 @Table(name = "users",
@@ -84,7 +85,12 @@ public class User {
     }
 
     /**
-     * Default Constructor
+     * Default constructor
+     * @param firstName first name of user
+     * @param lastName last name of user
+     * @param username username for user
+     * @param email email for user
+     * @param password password for user
      */
     public User(String firstName, String lastName, String username, String email, String userType, String password) {
         this.firstName = firstName;
@@ -100,6 +106,12 @@ public class User {
         else this.userType = userType;
     }
 
+    /**
+     * Alternative constructor for login checks
+     * @param username username for user
+     * @param email email for user
+     * @param password password for user
+     */
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
@@ -144,43 +156,82 @@ public class User {
 
     }
 
-
+    /**
+     * Getter for the ID
+     * @return Long of ID
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Setter for ID
+     * @param id Long of ID
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Getter for the username
+     * @return String of username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Setter for username
+     * @param username String of username
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Setter for email
+     * @return String of email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Setter for email
+     * @param email String of email
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Getter for password
+     * @return String of password
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Setter for password
+     * @param password String of password
+     */
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Getter for the roles
+     * @return Set of Role objects
+     */
     public Set<Role> getRoles() {
         return roles;
     }
 
+    /**
+     * Setter for the roles
+     * @param roles Set of Role objects
+     */
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }

@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Link from "next/link";
 import apiAuthSignIn, {apiHandler} from "@/utils/api";
 
+// Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 export default function SignUp() {
@@ -26,6 +27,10 @@ export default function SignUp() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    /**
+     * Submit button handler
+     * @param e DOM event
+     */
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 

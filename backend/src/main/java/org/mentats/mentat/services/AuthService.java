@@ -20,10 +20,14 @@ import org.springframework.stereotype.Service;
 import javax.management.relation.RoleNotFoundException;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Authorization Service for interacting with the
+ * Various repositories needed for authenticating
+ * users
+ */
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -32,6 +36,14 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Default constructor using Dependency Injection (DI)
+     * @param userRepository UserRepository
+     * @param roleRepository RoleRepository
+     * @param encoder PasswordEncoder
+     * @param jwtUtils JwtUtils
+     * @param authenticationManager AuthenticationManager
+     */
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        PasswordEncoder encoder,
@@ -44,6 +56,11 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     * Authenticate method
+     * @param loginRequest LoginRequest
+     * @return string of the token
+     */
     public String authenticate(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -51,12 +68,21 @@ public class AuthService {
         return jwtUtils.generateJwtToken(authentication);
     }
 
+    /**
+     * Get the User Details
+     * @param username string of the username
+     * @return UserDetailsImpl
+     */
     public UserDetailsImpl getUserDetails(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
         return UserDetailsImpl.build(user);
     }
 
+    /**
+     * Validator for the Sing Up Request serializer
+     * @param signUpRequest SignupRequest
+     */
     public void validateSignupRequest(SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             throw new Error("Error: Username is already taken!");
@@ -67,15 +93,32 @@ public class AuthService {
         }
     }
 
-    //Get User by email
+    /**
+     * Gets the user by email
+     * @param email string of the email
+     * @return User object
+     */
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
     }
+
+    /**
+     * Checks to see if the str is empty
+     * formats the return automatically
+     * @param str string
+     * @return boolean of check
+     */
     public static boolean isBlank(String str) {
         return str == null || str.isEmpty() || str.trim().isEmpty();
     }
 
+    /**
+     * Create new user method
+     * Validator and JPA injector
+     * @param signUpRequest SignupRequest
+     * @return User object
+     */
     public User createNewUser(SignupRequest signUpRequest) {
         // Validate input data (example)
         if (isBlank(signUpRequest.getUsername())) {
@@ -85,7 +128,7 @@ public class AuthService {
             throw new IllegalArgumentException("Username cannot be empty");
         }
 
-        // Create user object
+        // All looks good, now create a new user object
         User user = new User(
                 signUpRequest.getFirstname(),
                 signUpRequest.getLastname(),
@@ -121,6 +164,8 @@ public class AuthService {
 //        } // End of null check for getRole()
 
 //        user.setRoles(roles);
+
+        // Save the user into the database through the JPA
         return userRepository.save(user);
     }
 }

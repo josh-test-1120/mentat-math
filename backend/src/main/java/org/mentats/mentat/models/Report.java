@@ -3,6 +3,7 @@ package org.mentats.mentat.models;
  *  and a generalized report for an instructor.
  * @author Telmen Enkhtuvshin
  */
+
 import java.util.ArrayList;
 import java.util.List;
 public abstract class Report {

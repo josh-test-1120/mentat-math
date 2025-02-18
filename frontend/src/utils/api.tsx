@@ -3,6 +3,10 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "@/utils/auth";
 const getServerAuthSession = () => getServerSession(authOptions);
 
+/**
+ * API functions for authenticating sign in
+ * @param credentials Record of user attributes
+ */
 export default async function apiAuthSignIn(credentials: Record<"firstname" | "lastname" | "email" | "username" | "password", string> | undefined) {
     try {
         console.log(credentials);
@@ -35,6 +39,10 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
     }
 }
 
+/**
+ * API functions for general data calls to backend
+ * @param inputs Objects
+ */
 export async function apiHandler(inputs: any | undefined, method: string, uri: string, backendURL: string) {
     try {
         console.log(method);

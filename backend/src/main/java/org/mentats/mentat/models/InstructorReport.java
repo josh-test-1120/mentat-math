@@ -2,6 +2,9 @@ package org.mentats.mentat.models;
 
 import java.util.List;
 
+/** This is the Instructor Report class that defines
+ * the entity attributes for instructor report data sets
+ */
 public class InstructorReport extends Report {
 
     private String reportID;
@@ -10,7 +13,13 @@ public class InstructorReport extends Report {
     public String generatedDate;
     private List<Grade> allGradesOfExam;
 
-    //The studentReport object constructor
+    /**
+     * Default constructor
+     * @param reportID string of reportID
+     * @param type string of type
+     * @param examID string of examID
+     * @param generatedDate String of date generated
+     */
     public InstructorReport(String reportID, String type, String examID, String generatedDate) {
         this.reportID = reportID;
         this.type = type;
