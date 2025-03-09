@@ -5,6 +5,14 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+/frontend/src/node_modules
+
+
+### DATABASE AUTHENTICATION ###
+/backend/src/main/java/org/mentats/mentat/services/Database.java
+/backend/src/main/java/org/mentats/mentat/services/ReportDatabase.java
+/backend/src/main/resources/application.properties
+
 ### STS ###
 .apt_generated
 .classpath

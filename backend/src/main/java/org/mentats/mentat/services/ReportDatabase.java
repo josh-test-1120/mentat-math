@@ -23,9 +23,9 @@ public class ReportDatabase {
     public static void connection() {
 
         //Connection variables
-        String url = "jdbc:mysql://localhost:3306/ezmath";
-        String username = "AuthTestuser";
-        String pass = "password";
+        String url = "jdbc:mysql://mentat-math-db.cp0ek2eguzro.us-west-2.rds.amazonaws.com:3306/mentat_math_db";
+        String username = "admin";
+        String pass = "mentat123!";
 
         try {
             con = DriverManager.getConnection(url, username, pass);
