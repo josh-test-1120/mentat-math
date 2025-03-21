@@ -1,7 +1,8 @@
 "use client";
-
 import { useState } from "react";
-
+import {apiHandler} from "@/utils/api";
+import {signIn} from "next-auth/react";
+import {toast} from "react-toastify";
 
 export default function CreateCourse() {
     const [courseName, setCourseName] = useState("");
@@ -9,12 +10,54 @@ export default function CreateCourse() {
     const [quarter, setQuarter] = useState("Fall");
     const [sectionNumber, setSectionNumber] = useState("");
 
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const courseData = { courseName, year, quarter };
+        const courseData = { courseName, year, quarter, sectionNumber };
         console.log("Course Created:", courseData);
-        //
+        // const userInfo = await fetchUserInfo();
+        // console.log("User info:", userInfo);
+
+        // Creating Course through backend API call
+        try {
+            console.log(BACKEND_API);
+
+            const res = await apiHandler(
+                courseData,
+                "POST",
+                "course/createCourse",
+                `${BACKEND_API}`
+            )
+            // Error message
+            if (!res.message.includes('success')) throw Error(res.message);
+
+        } catch (error) {
+            toast.error("Course Creation Failed");
+        }
+    };
+
+    // Function to fetch user information from the context backend
+    const fetchUserInfo = async () => {
+        // const token = localStorage.getItem("authToken");
+        // if (!token) {
+        //     console.log("NO TOKEN!!!")
+        //     return null;
+        // }
+
+        const response = await fetch(`${BACKEND_API}/api/auth/me`
+            // headers: {
+            //     Authorization: `Bearer ${token}`,
+            // },
+        );
+
+        if (response.ok) {
+            console.log("okay!!!")
+            return response.json();
+        } else {
+            console.log("Not okay!!!");
+            return response.json();
+        }
     };
 
     return (

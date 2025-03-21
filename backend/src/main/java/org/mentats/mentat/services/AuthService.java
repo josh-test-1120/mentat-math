@@ -1,10 +1,13 @@
 package org.mentats.mentat.services;
 
+import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.ERole;
 import org.mentats.mentat.models.Role;
 import org.mentats.mentat.models.User;
+import org.mentats.mentat.payload.request.CourseRequest;
 import org.mentats.mentat.payload.request.LoginRequest;
 import org.mentats.mentat.payload.request.SignupRequest;
+import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.RoleRepository;
 import org.mentats.mentat.repositories.UserRepository;
 import org.mentats.mentat.security.jwt.JwtUtils;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private  final CourseRepository courseRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -46,11 +50,13 @@ public class AuthService {
      */
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
+                       CourseRepository courseRepository,
                        PasswordEncoder encoder,
                        JwtUtils jwtUtils,
                        AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.courseRepository = courseRepository;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
@@ -80,7 +86,7 @@ public class AuthService {
     }
 
     /**
-     * Validator for the Sing Up Request serializer
+     * Validator for the Sign-Up Request serializer
      * @param signUpRequest SignupRequest
      */
     public void validateSignupRequest(SignupRequest signUpRequest) {

@@ -31,9 +31,15 @@ public class JwtUtils {
      */
     private Claims generateClaims(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        return Jwts.claims().setSubject(userPrincipal.getUsername())
+        Claims claims = Jwts.claims().setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)).build();
+
+        claims.put("id", userPrincipal.getId()); // Add User ID
+        claims.put("email", userPrincipal.getEmail()); // Add Email
+        claims.put("role", userPrincipal.getAuthorities()); // Add Role
+
+        return claims;
     }
 
     /**
@@ -89,13 +95,13 @@ public class JwtUtils {
      * @param claimName
      * @return string of claim
      */
-    private String getClaim(String token, String claimName) {
+    private Object getClaim(String token, String claimName) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get(claimName, String.class);
+                .get(claimName, Object.class);
     }
 
     /**
@@ -104,6 +110,33 @@ public class JwtUtils {
      * @return username
      */
     public String getUserNameFromJwtToken(String jwt) {
-        return getClaim(jwt, "sub");
+        return getClaim(jwt, "sub").toString();
+    }
+
+    /**
+     * Gets the userID from the token
+     * @param jwt
+     * @return ID
+     */
+    public Long getUserIdFromJwtToken(String jwt) {
+        return Long.valueOf(getClaim(jwt, "id").toString());
+    }
+
+    /**
+     * Gets the user email from the token
+     * @param jwt
+     * @return user email
+     */
+    public String getEmailFromJwtToken(String jwt) {
+        return getClaim(jwt, "email").toString();
+    }
+
+    /**
+     * Gets the user role from the token
+     * @param jwt
+     * @return user role
+     */
+    public String getUserRoleFromJwtToken(String jwt) {
+        return getClaim(jwt, "role").toString();
     }
 }

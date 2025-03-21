@@ -1,9 +1,14 @@
 package org.mentats.mentat.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.services.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,10 +34,17 @@ import org.mentats.mentat.security.services.UserDetailsImpl;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
     private final UserRepository userRepository;
+
     private final RoleRepository roleRepository;
+
     private final PasswordEncoder encoder;
+
+    @Autowired
     private final JwtUtils jwtUtils;
+
     private final AuthService authService;
 
     /**
@@ -111,6 +123,31 @@ public class AuthController {
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Get the current logged-in user's details
+     * @param token HTTP request containing JWT
+     * @return User details
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
+        try {
+            String jwt = token.substring(7); // Remove 'Bearer ' prefix
+            String username = jwtUtils.getUserNameFromJwtToken(jwt);
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Map<String, Object> userDetails = new HashMap<>();
+            userDetails.put("id", user.getId());
+            userDetails.put("username", user.getUsername());
+            userDetails.put("email", user.getEmail());
+            userDetails.put("role", user.getUserType());
+
+            return ResponseEntity.ok(userDetails);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
         }
     }
 }
