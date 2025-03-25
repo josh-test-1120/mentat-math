@@ -28,6 +28,8 @@ public class CourseRequest {
     @Size(max = 20)
     private String sectionNumber;
 
+    private String creatorName;
+
     public String getCourseName() {return courseName;}
 
     public void setCourseName(String courseName) {this.courseName = courseName;}
@@ -43,4 +45,8 @@ public class CourseRequest {
     public String getSectionNumber() {return sectionNumber;}
 
     public void setSectionNumber(String sectionNumber) {this.sectionNumber = sectionNumber;}
+
+    public String getName() {return creatorName;}
+
+    public void setName(String userName) {this.creatorName = userName;}
 }

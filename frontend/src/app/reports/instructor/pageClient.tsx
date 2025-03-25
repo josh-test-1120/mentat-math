@@ -66,6 +66,7 @@ export default function InstructorReport() {
             }));
             if (userSession.id != "") { setSessionReady(true); }
         }
+        console.log("LOGGING USERNAME" + session?.user?.username);
     }, [session]);
 
     /**

@@ -98,83 +98,83 @@ export default function Schedule() {
     };
 
     return (
-        <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
-            <h1 className="text-2xl text-center mb-5">Create Exam</h1>
-            <form id="createExamForm" className="mx-auto w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-1 flex-col align-bottom"
-                  onSubmit={handleSubmit}>
-                <label>Exam Name:
-                    <input
-                        type="text"
-                        id="exam_name"
-                        name="exam_name"
-                        value={exam_name}
-                        onChange={data}
-                        required={true}
-                        className="float-right text-mentat-black"
-                    />
-                </label>
-                <label><br/><br/>
-                    Exam Course:
-                    <select
-                        id="exam_course_id"
-                        name="exam_course_id"
-                        value={exam_course_id}
-                        onChange={data}
-                        required={true}
-                        className="float-right text-mentat-black"
+            <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
+                <h1 className="text-2xl text-center mb-5">Create Exam</h1>
+                <form id="createExamForm" className="mx-auto w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-1 flex-col align-bottom"
+                      onSubmit={handleSubmit}>
+                    <label>Exam Name:
+                        <input
+                            type="text"
+                            id="exam_name"
+                            name="exam_name"
+                            value={exam_name}
+                            onChange={data}
+                            required={true}
+                            className="float-right text-mentat-black"
+                        />
+                    </label>
+                    <label><br/><br/>
+                        Exam Course:
+                        <select
+                            id="exam_course_id"
+                            name="exam_course_id"
+                            value={exam_course_id}
+                            onChange={data}
+                            required={true}
+                            className="float-right text-mentat-black"
+                        >
+                            <option value="1">Mathematics</option>
+                            <option value="2">Physics</option>
+                            <option value="3">Chemistry</option>
+                        </select>
+                    </label><br/><br/>
+                    <label>Exam Difficulty:
+                        <select
+                            id="exam_difficulty"
+                            name="exam_difficulty"
+                            value={exam_difficulty}
+                            onChange={data}
+                            required={true}
+                            className="float-right text-mentat-black"
+                        >
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </label><br/><br/>
+                    <label>Make Exam Required?
+                        <input
+                            id="is_required"
+                            type="checkbox"
+                            name="is_required"
+                            checked={is_required}
+                            onChange={data}
+                            className="float-right"
+                        />
+                    </label>
+                    <br/><br/>
+                    <label>Publish Exam?
+                        <input
+                            id="is_published"
+                            type="checkbox"
+                            name="is_published"
+                            checked={is_published}
+                            onChange={data}
+                            className="float-right"
+                        />
+                    </label>
+                    <br/><br/>
+                    <button
+                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        type="submit"
                     >
-                        <option value="1">Mathematics</option>
-                        <option value="2">Physics</option>
-                        <option value="3">Chemistry</option>
-                    </select>
-                </label><br/><br/>
-                <label>Exam Difficulty:
-                    <select
-                        id="exam_difficulty"
-                        name="exam_difficulty"
-                        value={exam_difficulty}
-                        onChange={data}
-                        required={true}
-                        className="float-right text-mentat-black"
-                    >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </label><br/><br/>
-                <label>Make Exam Required?
-                    <input
-                        id="is_required"
-                        type="checkbox"
-                        name="is_required"
-                        checked={is_required}
-                        onChange={data}
-                        className="float-right"
-                    />
-                </label>
-                <br/><br/>
-                <label>Publish Exam?
-                    <input
-                        id="is_published"
-                        type="checkbox"
-                        name="is_published"
-                        checked={is_published}
-                        onChange={data}
-                        className="float-right"
-                    />
-                </label>
-                <br/><br/>
-                <button
-                    className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    type="submit"
-                >
-                    Create Exam
-                </button>
-                {/*<input type="submit" value="Create Exam" onClick={handleSubmit}/>*/}
-            </form>
-            <ToastContainer autoClose={3000} hideProgressBar />
-        </div>
+                        Create Exam
+                    </button>
+                    {/*<input type="submit" value="Create Exam" onClick={handleSubmit}/>*/}
+                </form>
+                <ToastContainer autoClose={3000} hideProgressBar />
+            </div>
     );
 }

@@ -6,6 +6,7 @@ import org.mentats.mentat.payload.response.MessageResponse;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.security.jwt.AuthEntryPointJwt;
 import org.mentats.mentat.security.services.UserDetailsImpl;
+import org.mentats.mentat.services.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,27 +23,31 @@ public class CourseController {
      */
     private final CourseRepository courseRepository;
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+    private final AuthService authService;
+
 
 
     /**
      * Course Controller Constructor
      * @param courseRepository
      */
-    public CourseController(CourseRepository courseRepository) {
+    public CourseController(CourseRepository courseRepository, AuthService authService) {
         this.courseRepository = courseRepository;
+        this.authService = authService;
     }
 
     /**
      * A method to creates a course and writes into the database.
      */
     @PostMapping("/createCourse")
-    public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest,
-                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest) {
 
-        if (userDetails == null) {
-            logger.error("User Details is NULL!!!!!");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authService.getUserDetails(courseRequest.getName());
+
+//        if (userDetails == null) {
+//            logger.error("User Details is NULL!!!!!");
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+//        }
         Course course = new Course(
                 courseRequest.getCourseName(),
                 userDetails.getId().toString(),
