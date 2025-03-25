@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import {useSession} from "next-auth/react";
 
 
 export default function CreateCourse() {
@@ -9,12 +10,15 @@ export default function CreateCourse() {
     const [quarter, setQuarter] = useState("Fall");
     const [sectionNumber, setSectionNumber] = useState("");
 
+    // Session information
+    const { data: session } = useSession()
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const courseData = { courseName, year, quarter };
         console.log("Course Created:", courseData);
-        //
+        // User session
+        console.log(session?.user.accessToken);
     };
 
     return (
