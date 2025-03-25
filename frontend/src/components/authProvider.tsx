@@ -10,9 +10,6 @@ interface AuthProviderProps {
     children: React.ReactNode
     session: Session
 }
-export const AuthProvider = ({ children, session }: AuthProviderProps) => {
-    return (<SessionProvider session={session}>
-            {children}
-            </SessionProvider>
-    )
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+    return (<SessionProvider>{children}</SessionProvider>)
 }

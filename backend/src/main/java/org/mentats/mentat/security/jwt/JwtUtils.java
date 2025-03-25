@@ -31,15 +31,9 @@ public class JwtUtils {
      */
     private Claims generateClaims(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        Claims claims = Jwts.claims().setSubject(userPrincipal.getUsername())
+        return Jwts.claims().setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)).build();
-
-        claims.put("id", userPrincipal.getId()); // Add User ID
-        claims.put("email", userPrincipal.getEmail()); // Add Email
-        claims.put("role", userPrincipal.getAuthorities()); // Add Role
-
-        return claims;
     }
 
     /**
@@ -95,13 +89,13 @@ public class JwtUtils {
      * @param claimName
      * @return string of claim
      */
-    private Object getClaim(String token, String claimName) {
+    private String getClaim(String token, String claimName) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get(claimName, Object.class);
+                .get(claimName, String.class);
     }
 
     /**

@@ -95,18 +95,17 @@ export const authOptions:NextAuthOptions = {
          */
         async jwt({ token, account, user, trigger, isNewUser,session }) {
             // Persist the OAuth access_token to the token right after signin
-            console.log("JWT Callback - Token before update:", token);
+            // console.log("JWT Callback - Token before update:", token);
             if (user) {
                 // Persist the access token
                 token.accessToken = user?.accessToken;
-                console.log("TOKEN BLAH:" + token.accessToken);
+                // console.log("TOKEN BLAH:" + token.accessToken);
                 // Persist the user ID to the token
                 token.id = user?.id;
                 // Persist the roles
                 token.role = user?.roles;
                 // Persist the First name of the user
                 token.username = user?.username;
-                token.accessToken = user?.accessToken
             }
             //return user as unknown as JWT;
             console.log("JWT Callback - Token after update:", token);
@@ -125,9 +124,9 @@ export const authOptions:NextAuthOptions = {
             session.user.roles = token?.roles; // Add the token roles to the session
             session.user.username = token?.username // Add the token username to the session
             session.user.email = token?.email // Add the token email to the session
-            session.user.accessToken = token?.accessToken;
-            console.log(session);
-            console.log(token);
+            session.user.accessToken = token;
+            // console.log(session);
+            // console.log(token);
             return session;
         },
     },
@@ -139,7 +138,7 @@ export const authOptions:NextAuthOptions = {
         maxAge: 30 * 24 * 60 * 60, // Maximum session age in seconds (30 days)
     },
     /**
-     * pageClient.tsx that are assigned to the provider
+     * CreateCourse.tsx that are assigned to the provider
      */
     pages: {
         // signIn: "/auth/signin",

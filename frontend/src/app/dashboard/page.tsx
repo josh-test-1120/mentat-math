@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getServerAuthSession } from "@/utils/auth";
-import CreateCourse from "@/app/courses/pageClient";
+import CreateCourse from "@/app/courses/CreateCourse";
 import { AuthProvider } from "@/components/authProvider"
 
 /**
