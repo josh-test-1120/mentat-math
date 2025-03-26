@@ -26,6 +26,7 @@ declare module "next-auth" {
             username?: string | null
             email?: string | null
         }
+        expires: string
     }
 }
 
@@ -42,11 +43,15 @@ export const authOptions:NextAuthOptions = {
             name: "Central Washington University",
             type: "oauth",
             version: "2.0",
-            scope: "",
-            params: { grant_type: "authorization_code" },
+            authorization: {
+                params: {
+                    grant_type: "authorization_code",
+                    scope: "",
+                    url: ""
+                }
+            },
             accessTokenUrl: "",
             requestTokenUrl: "",
-            authorizationUrl: "",
             profileUrl: "",
             async profile(profile, tokens) {
                 // You can use the tokens, in case you want to fetch more profile information
@@ -115,9 +120,16 @@ export const authOptions:NextAuthOptions = {
          */
         async session({ session, token, user }) {
             // Send properties to the client, like an access_token from a provider.
-            session.user.id = token?.id; // Add the token ID to the session
-            session.user.roles = token?.roles; // Add the token roles to the session
-            session.user.username = token?.username // Add the token username to the session
+            // Add the token ID to the session
+            session.user.id = typeof token.id === 'string' ? token.id : null;
+            // Add the token roles to the session
+            if (Array.isArray(token.roles) && token.roles.every(item => typeof item === 'string')) {
+                session.user.roles = token.roles
+            }
+            else session.user.roles = null
+            //session.user.roles = typeof token.roles === 'string' ? token.roles : null;
+            // Add the token username to the session
+            session.user.username = typeof token.username === 'string' ? token.username: null
             session.user.email = token?.email // Add the token email to the session
             // console.log(session);
             // console.log(token);

@@ -1,6 +1,19 @@
 import { getServerAuthSession } from "@/utils/auth";
 import GradesPage from "./pageClient";
 import { AuthProvider } from "@/components/authProvider"
+import {Session} from "next-auth";
+
+/**
+ * Default session for users no logged in
+ */
+const DEFAULT_SESSION: Session = {
+    user: {
+        id: '',
+        username: 'Guest',
+        email: '',
+    },
+    expires: ''
+};
 
 /**
  * Backend Server Side Page with AuthProvider session handler
@@ -9,7 +22,7 @@ import { AuthProvider } from "@/components/authProvider"
  */
 export default async function Grades() {
     // Session variable
-    const session =  await getServerAuthSession();
+    const session: Session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
     return (
 

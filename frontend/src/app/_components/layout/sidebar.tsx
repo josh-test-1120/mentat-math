@@ -15,7 +15,7 @@ import Link from "next/link";
  * @param props client props
  * @constructor
  */
-const OverviewSvgComponent = (props) => (
+const OverviewSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -33,7 +33,7 @@ const OverviewSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const PagesSvgComponent = (props) => (
+const PagesSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -54,7 +54,7 @@ const PagesSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const DropDownSvgComponent = (props) => (
+const DropDownSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -100,7 +100,7 @@ const DropDownSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const CarretSvgComponent = (props) => (
+const CarretSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -121,7 +121,7 @@ const CarretSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const SalesSvgComponent = (props) => (
+const SalesSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -142,7 +142,7 @@ const SalesSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const MessagesSvgComponent = (props) => (
+const MessagesSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -160,7 +160,7 @@ const MessagesSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const AuthenticationSvgComponent = (props) => (
+const AuthenticationSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -181,7 +181,7 @@ const AuthenticationSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const DocsSvgComponent = (props) => (
+const DocsSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -203,7 +203,7 @@ const DocsSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const ComponentsSvgComponent = (props) => (
+const ComponentsSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -220,7 +220,7 @@ const ComponentsSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const HelpSvgComponent = (props) => (
+const HelpSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -241,7 +241,7 @@ const HelpSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const EnglishSvgComponent = (props) => (
+const EnglishSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -273,7 +273,7 @@ const EnglishSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const ItalianSvgComponent = (props) => (
+const ItalianSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -293,7 +293,7 @@ const ItalianSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const GermanSvgComponent = (props) => (
+const GermanSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -311,7 +311,7 @@ const GermanSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const MenuSvgComponent = (props) => (
+const MenuSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -361,7 +361,7 @@ const MenuSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const SliderSvgComponent = (props) => (
+const SliderSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -378,7 +378,7 @@ const SliderSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const SettingsSvgComponent = (props) => (
+const SettingsSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -399,7 +399,7 @@ const SettingsSvgComponent = (props) => (
  * @param props client props
  * @constructor
  */
-const HamburgerSvgComponent = (props) => (
+const HamburgerSvgComponent = (props : any) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         xmlSpace="preserve"
@@ -433,7 +433,7 @@ export default function Sidebar() {
      * Collapse and Uncollapse Toggle event
      * @param e DOM event
      */
-    const sidebarhandler = async (e) => {
+    const sidebarhandler = async (e : any) => {
         e.preventDefault();
         //console.log('Sidebar Handler');
 

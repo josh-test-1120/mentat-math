@@ -70,7 +70,7 @@ export default function Grades() {
             }));
             if (userSession.id != "") { setSessionReady(true); }
         }
-    }, [session]);
+    }, [session, userSession.id]);
 
     // Josh Test work for general API handler
     // TDB in future iteration
@@ -128,31 +128,37 @@ export default function Grades() {
             const response = await fetch('http://localhost:8080/api/grades'); // Send GET request to the specified API endpoint
             const data = await response.json(); // Parse data as JSON and await response
 
-            const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
-            tableBody.innerHTML = ''; // Clear existing rows in the table body
+            const tableBody = document?.getElementById('testsTable')?.getElementsByTagName('tbody')[0];
+            if (tableBody != undefined) tableBody.innerHTML = ''; // Clear existing rows in the table body
 
             // Loop through each exam item
-            data.forEach(exam => {
-                let row = tableBody.insertRow();
-                row.classList.add("hover:bg-gray-500");
+            data.forEach((exam: any) => {
+                let row = tableBody?.insertRow();
+                if (row != undefined) row.classList.add("hover:bg-gray-500");
 
-                let cellName = row.insertCell(0);
-                cellName.textContent = exam.exam_name;
-                cellName.classList.add("border");
-                cellName.classList.add("border-white");
-                cellName.classList.add("text-center");
+                let cellName = row?.insertCell(0);
+                if (cellName != undefined) {
+                    cellName.textContent = exam.exam_name;
+                    cellName.classList.add("border");
+                    cellName.classList.add("border-white");
+                    cellName.classList.add("text-center");
+                }
 
-                let cellDifficulty = row.insertCell(1);
-                cellDifficulty.textContent = exam.exam_difficulty;
-                cellDifficulty.classList.add("border");
-                cellDifficulty.classList.add("border-white");
-                cellDifficulty.classList.add("text-center");
+                let cellDifficulty = row?.insertCell(1);
+                if (cellDifficulty != undefined) {
+                    cellDifficulty.textContent = exam.exam_difficulty;
+                    cellDifficulty.classList.add("border");
+                    cellDifficulty.classList.add("border-white");
+                    cellDifficulty.classList.add("text-center");
+                }
 
-                let cellRequired = row.insertCell(2);
-                cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
-                cellRequired.classList.add("border");
-                cellRequired.classList.add("border-white");
-                cellRequired.classList.add("text-center");
+                let cellRequired = row?.insertCell(2);
+                if (cellRequired != undefined) {
+                    cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+                    cellRequired.classList.add("border");
+                    cellRequired.classList.add("border-white");
+                    cellRequired.classList.add("text-center");
+                }
             });
         } catch (error) {
             console.error('Error fetching exams:', error);
@@ -197,41 +203,51 @@ export default function Grades() {
             }
 
             //console.log(tableBody)
-            const tableBody= document.getElementById('examResultsTable').getElementsByTagName('tbody')[0];
+            const tableBody=
+                document?.getElementById('examResultsTable')?.
+                    getElementsByTagName('tbody')[0];
             console.log(tuples);
 
-            console.log(tableBody.innerHTML);
+            console.log(tableBody?.innerHTML);
             // clears the table before adding new rows
-            tableBody.innerText = '';
+            if (tableBody != undefined) tableBody.innerText = '';
 
             // Loop through each tuple and populate the table
             tuples.forEach(tuple => {
-                let row = tableBody.insertRow();
-                row.classList.add("hover:bg-gray-500");
+                let row = tableBody?.insertRow();
+                if (row != undefined) row.classList.add("hover:bg-gray-500");
 
-                let cellDate = row.insertCell(0);
-                cellDate.textContent = tuple[0];
-                cellDate.classList.add("border");
-                cellDate.classList.add("border-white");
-                cellDate.classList.add("text-center");
+                let cellDate = row?.insertCell(0);
+                if (cellDate != undefined) {
+                    cellDate.textContent = tuple[0];
+                    cellDate.classList.add("border");
+                    cellDate.classList.add("border-white");
+                    cellDate.classList.add("text-center");
+                }
 
-                let cellName = row.insertCell(1);
-                cellName.textContent = tuple[1];
-                cellName.classList.add("border");
-                cellName.classList.add("border-white");
-                cellName.classList.add("text-center");
+                let cellName = row?.insertCell(1);
+                if (cellName != undefined) {
+                    cellName.textContent = tuple[1];
+                    cellName.classList.add("border");
+                    cellName.classList.add("border-white");
+                    cellName.classList.add("text-center");
+                }
 
-                let cellVersion = row.insertCell(2);
-                cellVersion.textContent = tuple[2];
-                cellVersion.classList.add("border");
-                cellVersion.classList.add("border-white");
-                cellVersion.classList.add("text-center");
+                let cellVersion = row?.insertCell(2);
+                if (cellVersion != undefined) {
+                    cellVersion.textContent = tuple[2];
+                    cellVersion.classList.add("border");
+                    cellVersion.classList.add("border-white");
+                    cellVersion.classList.add("text-center");
+                }
 
-                let cellScore = row.insertCell(3);
-                cellScore.textContent = tuple[3];
-                cellScore.classList.add("border");
-                cellScore.classList.add("border-white");
-                cellScore.classList.add("text-center");
+                let cellScore = row?.insertCell(3);
+                if (cellScore != undefined) {
+                    cellScore.textContent = tuple[3];
+                    cellScore.classList.add("border");
+                    cellScore.classList.add("border-white");
+                    cellScore.classList.add("text-center");
+                }
             });
 
         } catch (error) {
@@ -260,10 +276,10 @@ export default function Grades() {
             id={"gradeComponentPage"}
             className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
         >
-            {/*custom window onload*/}
-            {/*{userSession ? <span>Loading...</span>: }*/}
-            {/*custom session onload*/}
-            {sessionReady ? (windowOnload()) : (<></>)}
+            {null /*custom window onload*/}
+            {null /*{userSession ? <span>Loading...</span>: }*/}
+            {null /*custom session onload*/}
+            {void (sessionReady ? windowOnload() : <></>)}
 
             <div className="mx-auto px-4 h-dvh bg-mentat-black">
                 <h1 className="text-center text-2xl mb-3">See Grades</h1>
