@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.sql.*;
 
+/**
+ * Report Database connector for report interactions
+ */
 @Component
 public class ReportDatabase {
     public static Connection con = null;
