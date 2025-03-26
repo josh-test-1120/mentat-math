@@ -46,9 +46,10 @@ export default function Schedule() {
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            if (userSession.id != "") { setSessionReady(true); }
+            setSessionReady(prev => prev || userSession.id !== "");
+            //if (userSession.id != "") { setSessionReady(true); }
         }
-    }, [session, userSession.id]);
+    }, [session]);
 
 
     const data = (e: any) => {

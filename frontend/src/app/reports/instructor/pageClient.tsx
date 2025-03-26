@@ -64,9 +64,10 @@ export default function InstructorReport() {
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            if (userSession.id != "") { setSessionReady(true); }
+            setSessionReady(prev => prev || userSession.id !== "");
+            //if (userSession.id != "") { setSessionReady(true); }
         }
-    }, [session, userSession.id]);
+    }, [session]);
 
     /**
      * Fetch the Instructor report based on the course ID

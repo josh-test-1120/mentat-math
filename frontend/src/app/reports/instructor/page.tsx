@@ -8,7 +8,7 @@ import {Session} from "next-auth";
  */
 const DEFAULT_SESSION: Session = {
     user: {
-        id: '',
+        id: '0',
         username: 'Guest',
         email: '',
     },

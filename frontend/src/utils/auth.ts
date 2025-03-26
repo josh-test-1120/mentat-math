@@ -22,11 +22,11 @@ declare module "next-auth" {
         // Add your additional properties here:
         user: {
             id?: string | null;
-            roles?: string[] | null
-            username?: string | null
-            email?: string | null
+            roles?: string[] | null;
+            username?: string | null;
+            email?: string | null;
         }
-        expires: string
+        expires: string;
     }
 }
 
@@ -121,7 +121,9 @@ export const authOptions:NextAuthOptions = {
         async session({ session, token, user }) {
             // Send properties to the client, like an access_token from a provider.
             // Add the token ID to the session
-            session.user.id = typeof token.id === 'string' ? token.id : null;
+            let userID = typeof token.id === 'string' ||
+                typeof token.id === 'number';
+            session.user.id = userID ? String(token.id) :  null;
             // Add the token roles to the session
             if (Array.isArray(token.roles) && token.roles.every(item => typeof item === 'string')) {
                 session.user.roles = token.roles

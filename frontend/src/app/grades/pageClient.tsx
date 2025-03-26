@@ -68,9 +68,10 @@ export default function Grades() {
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            if (userSession.id != "") { setSessionReady(true); }
+            setSessionReady(prev => prev || userSession.id !== "");
+            //if (userSession.id != "") { setSessionReady(true); }
         }
-    }, [session, userSession.id]);
+    }, [session]);
 
     // Josh Test work for general API handler
     // TDB in future iteration
