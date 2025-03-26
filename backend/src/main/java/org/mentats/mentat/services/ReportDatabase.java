@@ -4,20 +4,27 @@ package org.mentats.mentat.services;
  * @author Telmen Enkhtuvshin
  */
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.sql.*;
 
 public class ReportDatabase {
     public static Connection con = null;
+
+    @Value("${DB_URL}")
+    private static String url;
+
+    @Value("${DB_USER}")
+    private static String username;
+
+    @Value("${DB_PASSWORD}")
+    private static String pass;
 
     /**
      * This is a method used for making connection with the MySQL database.
      */
     public static void connection() {
 
-        //Connection variables
-        String url = "jdbc:mysql://localhost:3306/ezmath";
-        String username = "AuthTestuser";
-        String pass = "password";
 
         try {
             con = DriverManager.getConnection(url, username, pass);
