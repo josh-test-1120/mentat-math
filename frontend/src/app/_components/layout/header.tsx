@@ -13,9 +13,11 @@ export default async function Header() {
 
   return (
       <header
-          className="flex justify-between items-center bg-gradient-to-r from-red-700 via-zinc-900 to-neutral-950 py-4 px-6 border-b-4 border-stone-400">
+          className="flex justify-between items-center bg-gradient-to-r
+          from-red-700 via-zinc-900 to-neutral-950 py-4 px-6 border-b-4
+          border-stone-400">
           <div className="text-mentat-gold">
-              <div>Today's Date: <span id="date">{currDate}</span></div>
+              <div>Today&#39;s Date: <span id="date">{currDate}</span></div>
               <div>Current Time: <span id="time">{currTime}</span></div>
           </div>
           {session ? (

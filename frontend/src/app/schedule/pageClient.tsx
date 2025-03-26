@@ -19,8 +19,8 @@ export default function Schedule() {
         exam_course_id: 1,
         exam_name: "",
         exam_difficulty: "",
-        is_published: "",
-        is_required: "",
+        is_published: undefined,
+        is_required: undefined,
     });
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -46,7 +46,8 @@ export default function Schedule() {
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            if (userSession.id != "") { setSessionReady(true); }
+            setSessionReady(prev => prev || userSession.id !== "");
+            //if (userSession.id != "") { setSessionReady(true); }
         }
     }, [session]);
 
@@ -63,7 +64,7 @@ export default function Schedule() {
      * Submit button for Form
      * @param event Event from DOM
      */
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event : any) => {
         event.preventDefault(); // Prevent default events
 
         // Try wrapper to handle async exceptions

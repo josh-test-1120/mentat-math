@@ -1,6 +1,19 @@
 import { getServerAuthSession } from "@/utils/auth";
 import InstructorReportPage from "./pageClient";
 import { AuthProvider } from "@/components/authProvider"
+import {Session} from "next-auth";
+
+/**
+ * Default session for users no logged in
+ */
+const DEFAULT_SESSION: Session = {
+    user: {
+        id: '0',
+        username: 'Guest',
+        email: '',
+    },
+    expires: ''
+};
 
 /**
  * Backend Server Side Page with AuthProvider session handler
@@ -9,7 +22,7 @@ import { AuthProvider } from "@/components/authProvider"
  */
 export default async function Schedule() {
     // Session variable
-    const session =  await getServerAuthSession();
+    const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
     return (
 
