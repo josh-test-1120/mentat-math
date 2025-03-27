@@ -91,6 +91,7 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
         }
         // Parse the data from the response
         const result = data.data;
+        console.log({ ...data, result });
         return { ...data, result };
     } catch (error) {
         console.log(error)

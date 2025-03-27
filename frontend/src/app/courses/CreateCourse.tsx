@@ -87,16 +87,23 @@ export default function CreateCourse() {
                 "course/createCourse",
                 `${BACKEND_API}`
             );
+
+            // Response handler
+            if (res.ok) {
+                toast.success("Course created successfully");
+            } else {
+                toast.error("Failed to create course");
+            }
+
             // Error message
             if (!res.message.includes('success')) throw Error(res.message);
-
         } catch (error) {
             toast.error("Course Creation Failed");
         }
     };
 
     return (
-        <section className="p-6 bg-zinc-900 rounded-lg shadow-md w-1/2 mx-auto">
+        <section className="p-4 bg-zinc-900 rounded-lg shadow-md w-1/2 mx-auto">
             <h2 className="text-xl font-bold mb-4 text-center underline">Create a Course</h2>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {/* Course Name */}

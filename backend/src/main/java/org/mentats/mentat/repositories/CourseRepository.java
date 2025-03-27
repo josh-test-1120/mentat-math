@@ -4,6 +4,7 @@ import org.mentats.mentat.models.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,4 +13,6 @@ import java.util.Optional;
  */
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
+    // Find courses by professor ID
+    List<Course> findByCourseProfessorId(String courseProfessorId);
 }

@@ -2,6 +2,7 @@ package org.mentats.mentat.models;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.Min;
@@ -25,25 +26,30 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     // Report.Report.Course ID for this course
-    private Long course_ID;
+    private int course_ID;
 
+    // The course name
     @NotBlank
     @Size(max = 50)
-    // The course name
+    @JsonProperty("courseName") // Map JSON field to Java field
     protected String course_name;
 
     //Report.Report.Course's instructor ID
-    private String course_professor_id;
+    @JsonProperty("courseProfessorId") // Map JSON field to Java field
+    private String courseProfessorId;
 
-    @Size (max = 20)
     // Course section
+    @Size (max = 20)
+    @JsonProperty("courseSection") // Map JSON field to Java field
     public String course_section;
 
     @Min(2000)
+    @JsonProperty("courseYear") // Map JSON field to Java field
     private int courseYear;
 
     @NotBlank
     @Size(max = 20)
+    @JsonProperty("courseQuarter") // Map JSON field to Java field
     //Report.Report.Course term (i.e. Winter 2024)
     public String course_quarter;
 
@@ -61,7 +67,7 @@ public class Course {
     public Course(String courseName, String courseProfessorId,
                   String courseQuarter, String courseSection, int courseYear){
         this.course_name        = courseName;
-        this.course_professor_id = courseProfessorId;
+        this.courseProfessorId = courseProfessorId;
         this.course_quarter     = courseQuarter;
         this.course_section    = courseSection;
         this.courseYear        = courseYear;
@@ -78,7 +84,7 @@ public class Course {
      * A getter method that returns the course ID
      * @return String course ID
      */
-    public Long getCourseID() {
+    public int getCourseID() {
         return course_ID;
     }
 
@@ -86,8 +92,40 @@ public class Course {
      * A getter method that returns the instructor ID
      * @return String instructor ID
      */
-    public String getInstructorID() {
-        return course_professor_id;
+    public String getCourseProfessorId() {
+        return courseProfessorId;
+    }
+
+    /**
+     * A getter method that returns the Course name
+     * @return String Course name
+     */
+    public String getCourseName() {
+        return course_name;
+    }
+
+    /**
+     * A getter method that returns the Course Section
+     * @return String Course section
+     */
+    public String getCourseSection() {
+        return course_section;
+    }
+
+    /**
+     * A getter method that returns the Course year
+     * @return String Course year
+     */
+    public int getCourseYear() {
+        return courseYear;
+    }
+
+    /**
+     * A getter method that returns the Course quarter
+     * @return String Course quarter
+     */
+    public String getCourseQuarter() {
+        return course_quarter;
     }
 
     /**
@@ -115,7 +153,7 @@ public class Course {
      * @param courseTerm String course term of the year
      * @param courseSection String exact section identifier
      */
-    public void updateCourse(Long courseID, String courseName, String courseProfessorId,
+    public void updateCourse(int courseID, String courseName, String courseProfessorId,
                              String courseTerm, String courseSection){
         if (!Objects.equals(courseID, "")) {
             this.course_ID = courseID;
@@ -124,7 +162,7 @@ public class Course {
             this.course_name = courseName;
         }
         if (!Objects.equals(courseProfessorId, "")) {
-            this.course_professor_id = courseProfessorId;
+            this.courseProfessorId = courseProfessorId;
         }
         if (!Objects.equals(courseTerm, "")) {
             this.course_quarter = courseTerm;
@@ -140,9 +178,9 @@ public class Course {
      * A method that deleted the course object and connected information from the database as well as system.
      */
     public void deleteCourse(){
-        this.course_ID       = null;
+        this.course_ID       = 0;
         this.course_name     = null;
-        this.course_professor_id   = null;
+        this.courseProfessorId   = null;
         this.course_quarter  = null;
         this.course_section  = null;
 

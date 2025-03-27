@@ -8,7 +8,7 @@ import Sidebar from "./sidebar";
  */
 export default function Layout({ children }: any) {
   return (
-    <>
+    <div className="min-h-screen overflow-auto">
         {/* @ts-expect-error Async Server Component */}
         <Header />
         <div id={"sidebar-box"} className="w-64">
@@ -17,6 +17,6 @@ export default function Layout({ children }: any) {
         <div id={"mainbar-box"} className="w-auto">
             {children}
         </div>
-    </>
+    </div>
   );
 }

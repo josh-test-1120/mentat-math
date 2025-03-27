@@ -22,6 +22,7 @@ export default async function Header() {
               <div className="text-mentat-gold rounded shadow">
                   <p>Email: {session?.user?.email}</p>
                   <p>Username: {session?.user?.username}</p>
+                  {/*<p>User Type: {session.user}</p>*/}
               </div>
           ) : (
               <></>

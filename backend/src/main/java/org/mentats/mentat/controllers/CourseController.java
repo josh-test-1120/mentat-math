@@ -14,6 +14,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/course")
 public class CourseController {
@@ -51,5 +53,20 @@ public class CourseController {
         // Saving course into the database;
         courseRepository.save(course);
         return ResponseEntity.ok(new MessageResponse("Course created successfully"));
+    }
+
+    @GetMapping("/listCourses")
+    public ResponseEntity<?> listCourses(@RequestParam String id) {
+        System.out.println("Telmen Was here" + id);
+        // Create Course List
+        List<Course> courses = courseRepository.findByCourseProfessorId(id);
+
+        // Empty check
+        if (courses.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Return list of course by the Professor ID
+        return ResponseEntity.ok(courses);
     }
 }

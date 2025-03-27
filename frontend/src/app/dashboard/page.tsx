@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getServerAuthSession } from "@/utils/auth";
 import CreateCourse from "@/app/courses/CreateCourse";
 import {AuthProvider} from "@/components/authProvider";
+import CoursesList from "@/app/coursesList/CoursesList";
 
 /**
  * Default Dashboard Page
@@ -13,7 +14,7 @@ export default async function Dashboard() {
 
     return (
         <AuthProvider session={session}>
-            <div className="h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold">
+            <div className="min-h-screen overflow-auto h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold">
                 <div>
                     <h1 className="text-3xl font-bold">EZMath Dashboard</h1>
                 </div>
@@ -21,7 +22,7 @@ export default async function Dashboard() {
                 <p className="mt-2 mb-4">
                     Welcome to EZMath Quiz Scheduler!
                 </p>
-                <CreateCourse/>
+                <CoursesList/>
             </div>
         </AuthProvider>
     );
