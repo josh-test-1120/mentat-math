@@ -4,21 +4,49 @@ package org.mentats.mentat.services;
  * @author Telmen Enkhtuvshin
  */
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import java.sql.*;
 
+/**
+ * Report Database connector for report interactions
+ */
+@Component
 public class ReportDatabase {
     public static Connection con = null;
+
+    // Variables for the static functions
+    private static String url;
+    private static String username;
+    private static String pass;
+
+    // Environmental variable loading
+    @Value("${DB_URL}")
+    private String url_env;
+
+    @Value("${DB_USER}")
+    private String username_env;
+
+    @Value("${DB_PASSWORD}")
+    private String pass_env;
+
+    /**
+     * Runs after the dependency injection to hydrate
+     * the static parameters
+     */
+    @PostConstruct
+    public void init() {
+        url = url_env;
+        username = username_env;
+        pass = pass_env;
+    }
 
     /**
      * This is a method used for making connection with the MySQL database.
      */
     public static void connection() {
-
-        //Connection variables
-        String url = "jdbc:mysql://localhost:3306/ezmath";
-        String username = "AuthTestuser";
-        String pass = "password";
-
         try {
             con = DriverManager.getConnection(url, username, pass);
         } catch(Exception e) {
