@@ -5,6 +5,7 @@ import org.mentats.mentat.models.Role;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.LoginRequest;
 import org.mentats.mentat.payload.request.SignupRequest;
+import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.RoleRepository;
 import org.mentats.mentat.repositories.UserRepository;
 import org.mentats.mentat.security.jwt.JwtUtils;
@@ -35,6 +36,7 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final CourseRepository courseRepository;
 
     /**
      * Default constructor using Dependency Injection (DI)
@@ -48,12 +50,14 @@ public class AuthService {
                        RoleRepository roleRepository,
                        PasswordEncoder encoder,
                        JwtUtils jwtUtils,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager,
+                       CourseRepository courseRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
+        this.courseRepository = courseRepository;
     }
 
     /**
@@ -80,7 +84,7 @@ public class AuthService {
     }
 
     /**
-     * Validator for the Sing Up Request serializer
+     * Validator for the SignUp Request serializer
      * @param signUpRequest SignupRequest
      */
     public void validateSignupRequest(SignupRequest signUpRequest) {

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
@@ -64,7 +64,7 @@ export default function Schedule() {
      * Submit button for Form
      * @param event Event from DOM
      */
-    const handleSubmit = async (event : any) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Prevent default events
 
         // Try wrapper to handle async exceptions
@@ -150,7 +150,7 @@ export default function Schedule() {
                         id="is_required"
                         type="checkbox"
                         name="is_required"
-                        checked={is_required}
+                        checked={Boolean(is_required)}
                         onChange={data}
                         className="float-right"
                     />
@@ -161,7 +161,7 @@ export default function Schedule() {
                         id="is_published"
                         type="checkbox"
                         name="is_published"
-                        checked={is_published}
+                        checked={Boolean(is_published)}
                         onChange={data}
                         className="float-right"
                     />

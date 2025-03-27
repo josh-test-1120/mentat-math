@@ -1,6 +1,7 @@
 import { getServerAuthSession } from "@/utils/auth";
 import SchedulesPage from "./pageClient";
 import { AuthProvider } from "@/components/authProvider"
+import CreateCourse from "@/app/courses/CreateCourse";
 import {Session} from "next-auth";
 
 /**
@@ -29,9 +30,10 @@ export default async function Schedule() {
         <AuthProvider session={session}>
             <section
                 id={"schedulePageMain"}
-                className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
+                className=" flex font-bold bg-mentat-black text-mentat-gold"
             >
                 <SchedulesPage/>
+                <CreateCourse/>
             </section>
         </AuthProvider>
 
