@@ -22,7 +22,6 @@ export default function SignUp() {
         confirmPassword: "",
     });
     const { firstname, lastname, username, email, userType, password, confirmPassword } = formData;
-
     const data = (e: any) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
