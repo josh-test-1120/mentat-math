@@ -9,8 +9,7 @@ const getServerAuthSession = () => getServerSession(authOptions);
  */
 export default async function apiAuthSignIn(credentials: Record<"firstname" | "lastname" | "email" | "username" | "password", string> | undefined) {
     try {
-        console.log(credentials);
-        console.log(BACKEND_API);
+
         const response = await fetch(`${BACKEND_API}/api/auth/signin`, {
             method: "POST",
             headers: {
@@ -23,7 +22,6 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
         if (!response.ok) {
             return new Error("Invalid credentials");
         }
-
         const data = await response.json();
         //verify jwt access token
         // const decoded = jwt.verify(data.accessToken, process.env.JWT_SECRET);
@@ -31,7 +29,7 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
             return { error: data.message };
         }
 
-        const userID = data.userID;
+        const userID = data.id;
         return { ...data, userID };
     } catch (error) {
         // return { error: error.message };

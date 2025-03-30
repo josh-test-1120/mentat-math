@@ -39,7 +39,6 @@ export default function CourseList() {
             console.log("User session NAME: " + session.user.username)
         }
 
-        console.log("FUZZ!!!: " + userSession.id);
         const res =
             apiHandler(
             null,
@@ -56,8 +55,6 @@ export default function CourseList() {
                         }
                         return acc;
                     }, {});
-                    console.log("BAABABOY");
-                    console.log({filteredData});
                     // Convert the filtered data into an array of courses
                     const coursesArray: Course[] = Object.keys(filteredData)
                         // Extract all course objects by key
