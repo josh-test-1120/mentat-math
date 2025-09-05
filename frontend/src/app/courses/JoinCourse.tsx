@@ -1,15 +1,59 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Card, CardContent, Button } from "@/app/_components/UI/ui"
+import {useSession} from "next-auth/react";
+import {apiHandler} from "@/utils/api";
+import {toast} from "react-toastify";
 
 export default function JoinCourseComponent() {
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     const [courseId, setCourseId] = useState("");
 
-    const handleSubmit = (event: React.FormEvent) => {
+    // Session Information
+    const { data: session, status } = useSession();
+
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: ''
+    });
+
+    useEffect(() => {
+        // Fetch courses from backend
+        if (status !== "authenticated") return;
+
+        if (session) {
+            setSession(() => ({
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || ''
+            }));
+            if (userSession.id != "") {
+                setSessionReady(true);
+            }
+            console.log("User session NAME: " + session.user.username)
+        }
+    }, [session]);
+
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         console.log("Joining course with ID:", courseId);
+
         // Add your joining logic here
+        try {
+            const res = await apiHandler({
+                userID: userSession.id,
+                courseId,
+            },
+            "POST",
+                "course/joinCourse",
+                `${BACKEND_API}`
+            );
+        }catch (error) {
+            toast.error("Join Course Failed");
+        }
     };
 
     return (

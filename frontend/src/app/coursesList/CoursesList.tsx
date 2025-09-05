@@ -74,7 +74,7 @@ export default function CourseList() {
 
     return (
         <section className="max-w-2xl mx-auto p-6 bg-zinc-900 text-white rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 text-center underline">Available Courses</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center underline">Your Created Courses</h2>
 
             {courses.length === 0 ? (
                 <p className="text-center text-gray-400">No courses available.</p>
@@ -84,7 +84,10 @@ export default function CourseList() {
                         <div key={index} className="p-4 bg-zinc-800 rounded-lg shadow-md flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-semibold">{course.courseName}</h3>
-                                <p className="text-gray-400">Section {course.courseSection} - {course.courseYear} {course.courseQuarter}</p>
+                                <p className="text-gray-400">
+                                    Section {course.courseSection} - {course.courseYear} {course.courseQuarter} -
+                                    Course ID: {course.courseID}
+                                </p>
                             </div>
                             <button className="bg-red-700 hover:bg-red-600 text-mentat-gold px-3 py-1 rounded">
                                 View

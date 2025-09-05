@@ -1,8 +1,11 @@
 package org.mentats.mentat.controllers;
 
 import org.mentats.mentat.models.Course;
+import org.mentats.mentat.models.StudentCourse;
 import org.mentats.mentat.payload.request.CourseRequest;
+import org.mentats.mentat.payload.request.JoinCourseRequest;
 import org.mentats.mentat.payload.response.MessageResponse;
+import org.mentats.mentat.repositories.CourseEnrollmentRepository;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.security.jwt.AuthEntryPointJwt;
 import org.mentats.mentat.security.services.UserDetailsImpl;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/course")
@@ -23,21 +27,27 @@ public class CourseController {
      * CourseController Fields
      */
     private final CourseRepository courseRepository;
+    private final CourseEnrollmentRepository enrollmentRepository;
     private final AuthenticationManager authenticationManager;
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+    private final CourseEnrollmentRepository courseEnrollmentRepository;
 
 
     /**
      * Course Controller Constructor
      * @param courseRepository
      */
-    public CourseController(CourseRepository courseRepository, AuthenticationManager authenticationManager) {
+    public CourseController(CourseRepository courseRepository, AuthenticationManager authenticationManager, CourseEnrollmentRepository enrollmentRepository) {
         this.courseRepository = courseRepository;
+        this.enrollmentRepository = enrollmentRepository;
         this.authenticationManager = authenticationManager;
+        this.courseEnrollmentRepository = enrollmentRepository;
     }
 
     /**
      * A method to creates a course and writes into the database.
+     * @param courseRequest CourseRequest type object that masks request info
+     * @return Returns message response.
      */
     @PostMapping("/createCourse")
     public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest) {
@@ -55,9 +65,13 @@ public class CourseController {
         return ResponseEntity.ok(new MessageResponse("Course created successfully"));
     }
 
+    /**
+     * API Method for retrieving list of course with User ID
+     * @param id String type user ID
+     * @return Returns successful response with list of course information
+     */
     @GetMapping("/listCourses")
     public ResponseEntity<?> listCourses(@RequestParam String id) {
-        System.out.println("Telmen Was here" + id);
         // Create Course List
         List<Course> courses = courseRepository.findByCourseProfessorId(id);
 
@@ -69,4 +83,19 @@ public class CourseController {
         // Return list of course by the Professor ID
         return ResponseEntity.ok(courses);
     }
+
+    @PostMapping("/joinCourse")
+    public ResponseEntity<?> joinCourse(@RequestBody JoinCourseRequest req) {
+        int cid = req.getCourseId();
+        if (!courseRepository.existsById(cid)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Course not found"));
+        }
+        if (enrollmentRepository.existsByCourseIdAndStudentId(cid, req.getUserID())) {
+            return ResponseEntity.ok(new MessageResponse("Already joined"));
+        }
+        LocalDateTime now = LocalDateTime.now();
+        enrollmentRepository.save(new StudentCourse(cid, req.getUserID(), now));
+        return ResponseEntity.ok(new MessageResponse("Course joined successful!"));
+    }
+
 }

@@ -4,7 +4,7 @@ import { getServerAuthSession } from "@/utils/auth";
 import CreateCourse from "@/app/courses/CreateCourse";
 import {AuthProvider} from "@/components/authProvider";
 import JoinCourse from "@/app/courses/JoinCourse";
-
+import ListCourse from "@/app/coursesList/CoursesList";
 /**
  * Default Dashboard Page
  * @constructor
