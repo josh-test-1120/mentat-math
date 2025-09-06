@@ -87,6 +87,8 @@ export const authOptions:NextAuthOptions = {
                     throw new Error("Invalid credentials");
                 }
                 const user = await apiAuthSignIn(credentials);
+                // Print statement
+                console.log({user});
 
                 return user;
             },
@@ -145,10 +147,10 @@ export const authOptions:NextAuthOptions = {
             else session.user.roles = null
             
             // Add the token username to the session
-            session.user.username = typeof token.username === 'string' ? token.username: null
+            session.user.username = typeof token.username === 'string' ? token.username: null;
             
             // Add the token email to the session - FIXED: was missing proper null check
-            session.user.email = typeof token.email === 'string' ? token.email : null
+            session.user.email = typeof token.email === 'string' ? token.email : null;
             
             session.user.accessToken = typeof token.accessToken === 'string' ? token.accessToken: null;
             
