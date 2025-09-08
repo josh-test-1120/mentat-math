@@ -68,7 +68,7 @@ public class User {
     @Size(max = 20)
     public String userType;
 
-    // @Telmen Unnecessary code for now. Will revive later.
+//    // @Telmen Unnecessary code for now. Will revive later.
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(  name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

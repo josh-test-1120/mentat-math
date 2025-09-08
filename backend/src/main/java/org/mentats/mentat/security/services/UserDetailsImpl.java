@@ -30,6 +30,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
+    private String userType;
+
     /**
      * Default constructor
      * @param id Long o user ID
@@ -39,12 +41,14 @@ public class UserDetailsImpl implements UserDetails {
      * @param authorities Collection of objects extended from GrantedAuthority
      */
     public UserDetailsImpl(Long id, String username, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
+                           Collection<? extends GrantedAuthority> authorities,
+                           String userType) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+        this.userType = userType;
     }
 
     /**
@@ -63,7 +67,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
-                authorities);
+                authorities,
+                user.getUserType());
     }
 
     /**
@@ -107,6 +112,14 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    /**
+     * Override the default Username Getter
+     * @return string of username
+     */
+    public String getUserType() {
+        return userType;
     }
 
     /**

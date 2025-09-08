@@ -17,6 +17,7 @@ declare module "next-auth" {
         id?: string | null;
         roles? : string[] | null;
         username? : string | null;
+        userType? : string | null;
     }
     interface Session {
         // Add your additional properties here:
@@ -26,6 +27,7 @@ declare module "next-auth" {
             username?: string | null;
             email?: string | null;
             accessToken?: string | null;
+            userType? : string | null;
         }
         expires: string;
     }
@@ -85,6 +87,9 @@ export const authOptions:NextAuthOptions = {
                     throw new Error("Invalid credentials");
                 }
                 const user = await apiAuthSignIn(credentials);
+                // Print statement
+                console.log({user});
+
                 return user;
             },
         }),
@@ -100,14 +105,20 @@ export const authOptions:NextAuthOptions = {
         async jwt({ token, account, user, trigger, isNewUser,session }) {
             // Persist the OAuth access_token to the token right after signin
             if (user) {
+                console.log("JWT callback - user data:", user);
+                
                 // Persist the access token
                 token.accessToken = user?.accessToken;
                 // Persist the user ID to the token
                 token.id = user?.id;
                 // Persist the roles
-                token.role = user?.roles;
+                token.roles = user?.roles;
                 // Persist the First name of the user
                 token.username = user?.username;
+                // Persist the User Type
+                token.userType = user.userType;
+                
+                console.log("JWT callback - token after update:", token);
             }
             //return user as unknown as JWT;
             return token;
@@ -120,23 +131,33 @@ export const authOptions:NextAuthOptions = {
          * @param user this is the user object
          */
         async session({ session, token, user }) {
+            console.log("Session callback - token data:", token);
+            console.log("Session callback - initial session:", session);
+            
             // Send properties to the client, like an access_token from a provider.
             // Add the token ID to the session
             let userID = typeof token.id === 'string' ||
                 typeof token.id === 'number';
             session.user.id = userID ? String(token.id) :  null;
+            
             // Add the token roles to the session
             if (Array.isArray(token.roles) && token.roles.every(item => typeof item === 'string')) {
                 session.user.roles = token.roles
             }
             else session.user.roles = null
-            //session.user.roles = typeof token.roles === 'string' ? token.roles : null;
+            
             // Add the token username to the session
-            session.user.username = typeof token.username === 'string' ? token.username: null
-            session.user.email = token?.email // Add the token email to the session
-            session.user.accessToken = token;
-            // console.log(session);
-            // console.log(token);
+            session.user.username = typeof token.username === 'string' ? token.username: null;
+            
+            // Add the token email to the session - FIXED: was missing proper null check
+            session.user.email = typeof token.email === 'string' ? token.email : null;
+            
+            session.user.accessToken = typeof token.accessToken === 'string' ? token.accessToken: null;
+            
+            // Add the userType to session
+            session.user.userType = typeof token.userType === 'string' ? token.userType : null;
+
+            console.log("Session callback - final session:", session);
             return session;
         },
     },

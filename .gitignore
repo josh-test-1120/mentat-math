@@ -38,4 +38,5 @@ out/
 package-lock.json
 
 ### Environmentals ###
+frontend/src/.env
 .env

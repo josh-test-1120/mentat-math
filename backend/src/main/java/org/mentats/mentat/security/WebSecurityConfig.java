@@ -96,7 +96,9 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                 .requestMatchers("/api/test/**","/api/grades/**","/api/*","/api/createExam/**",
                         "/course/*",
                         "/course/createCourse/**",
-                        "/course/listCourses/**")
+                        "/course/listCourses/**",
+                        "/course/joinCourse/**")
+
                 .permitAll()
                 .anyRequest().authenticated();
         // Inject the provider into the http handler

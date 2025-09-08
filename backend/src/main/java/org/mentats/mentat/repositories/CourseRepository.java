@@ -12,7 +12,8 @@ import java.util.Optional;
  * @author Telmen Enkhtuvshin
  */
 @Repository
-public interface CourseRepository extends JpaRepository<Course, Long> {
+public interface CourseRepository extends JpaRepository<Course, Integer> {
     // Find courses by professor ID
     List<Course> findByCourseProfessorId(String courseProfessorId);
+   boolean existsById(int courseId);
 }
