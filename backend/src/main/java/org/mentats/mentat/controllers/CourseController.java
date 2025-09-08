@@ -30,7 +30,6 @@ public class CourseController {
     private final CourseEnrollmentRepository enrollmentRepository;
     private final AuthenticationManager authenticationManager;
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
-    private final CourseEnrollmentRepository courseEnrollmentRepository;
 
 
     /**
@@ -41,7 +40,6 @@ public class CourseController {
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.authenticationManager = authenticationManager;
-        this.courseEnrollmentRepository = enrollmentRepository;
     }
 
     /**
@@ -86,15 +84,32 @@ public class CourseController {
 
     @PostMapping("/joinCourse")
     public ResponseEntity<?> joinCourse(@RequestBody JoinCourseRequest req) {
-        int cid = req.getCourseId();
+        // Get course ID
+        int cid = Integer.parseInt(req.getCourseId());
+        int sid = Integer.parseInt(req.getUserId());
+        System.out.println("Course ID: " + cid);
+        System.out.println("\nStudent ID: " + sid);
+
+        // Check if course exists
         if (!courseRepository.existsById(cid)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Course not found"));
         }
-        if (enrollmentRepository.existsByCourseIdAndStudentId(cid, req.getUserID())) {
+        // Check if student already joined course
+        if (enrollmentRepository.existsByCourseIdAndStudentId(cid, sid)) {
+            System.out.println("\nYO, the student already joined the course with " + cid + " " + sid + "\n\n");
             return ResponseEntity.ok(new MessageResponse("Already joined"));
         }
+        // Local date time now
         LocalDateTime now = LocalDateTime.now();
-        enrollmentRepository.save(new StudentCourse(cid, req.getUserID(), now));
+        System.out.println("Now BABY: " + now);
+        System.out.println("Course ID: " + cid);
+        System.out.println("Student ID: " + sid);
+
+        
+        // Save student course
+        StudentCourse studentCourse = enrollmentRepository.save(new StudentCourse(cid, sid, now));
+        boolean lolzmaa = enrollmentRepository.existsByCourseIdAndStudentId(cid, sid);
+        System.out.println("Did you enroll just now?: " + lolzmaa);
         return ResponseEntity.ok(new MessageResponse("Course joined successful!"));
     }
 

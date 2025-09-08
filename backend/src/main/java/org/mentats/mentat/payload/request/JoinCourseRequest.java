@@ -1,9 +1,15 @@
 // src/main/java/org/mentats/mentat/payload/request/JoinCourseRequest.java
 package org.mentats.mentat.payload.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class JoinCourseRequest {
-    private int userID;
-    private int courseId;
-    public int getUserID() { return userID; }
-    public int getCourseId() { return courseId; }
+    @NotBlank
+    private String userId;
+
+    @NotBlank
+    private String courseId;
+
+    public String getUserId() { return userId; }
+    public String getCourseId() { return courseId; }
 }

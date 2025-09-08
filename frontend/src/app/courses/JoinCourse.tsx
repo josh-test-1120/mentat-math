@@ -66,10 +66,13 @@ export default function JoinCourseComponent() {
 
         // Try wrapper to handle async exceptions
         try {
-
+            console.log("USER SESSION ID IS:", userSession.id);
+            console.log("USER SESSION ID IS TYPE:", typeof userSession.id);
+            console.log("COURSE ID IS TYPEOF:", typeof courseId);
+            console.log("COURSE ID IS:", courseId);
             // API Handler
             const res = await apiHandler(
-                { userid: userSession.id, courseId },
+                { userId: userSession.id, courseId },
                 "POST",
                 "course/joinCourse",
                 `${BACKEND_API}`
@@ -81,6 +84,8 @@ export default function JoinCourseComponent() {
             } else {
                 toast.success("Successfully joined the course!");
                 setCourseId("");
+                console.log("LOGGING COURSE SUCCESS.");
+                console.log(res.toString());
             }
         } catch (e) {
             toast.error("Join Course Failed");
