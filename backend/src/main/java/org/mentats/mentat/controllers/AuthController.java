@@ -3,7 +3,10 @@ package org.mentats.mentat.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.mentats.mentat.security.jwt.AuthEntryPointJwt;
 import org.mentats.mentat.services.AuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +21,9 @@ import org.mentats.mentat.repositories.RoleRepository;
 import org.mentats.mentat.repositories.UserRepository;
 import org.mentats.mentat.security.jwt.JwtUtils;
 import org.mentats.mentat.security.services.UserDetailsImpl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Authorization Controller
@@ -34,6 +40,8 @@ public class AuthController {
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
     private final AuthService authService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 
     /**
      * Default constructor with Dependency Injection (DI)
@@ -67,11 +75,18 @@ public class AuthController {
     @PostMapping("/signin")
     //public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     public ResponseEntity<JwtResponse> authenticateUser( @RequestBody LoginRequest loginRequest) {
+        
+        System.out.println("Login request: " + loginRequest);
+        System.out.println("Login request username: " + loginRequest.getUsername());
+        System.out.println("Login request password: " + loginRequest.getPassword());
         // Generating jwt
         String jwt = authService.authenticate(loginRequest);
 
+        System.out.println("Hello I am being authenticated !!!!!!!!!!!!!!!!!!!!!!!!!!  " + jwt);
+        logger.error("What the shaboinsky?");
         // User info
         UserDetailsImpl userDetails = (UserDetailsImpl) authService.getUserDetails(loginRequest.getUsername());
+        System.out.println("User details: " + userDetails);
         // List of roles
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())

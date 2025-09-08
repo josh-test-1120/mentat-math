@@ -20,7 +20,7 @@ export default async function Header() {
               <div>Today&#39;s Date: <span id="date">{currDate}</span></div>
               <div>Current Time: <span id="time">{currTime}</span></div>
           </div>
-          {/* {session ? (
+          {session ? (
               <div className="text-mentat-gold rounded shadow">
                   <p>Email: {session?.user?.email}</p>
                   <p>Username: {session?.user?.username}</p>
@@ -28,18 +28,6 @@ export default async function Header() {
               </div>
           ) : (
               <></>
-          )} */}
-                    {session ? (
-              <div className="text-mentat-gold rounded shadow">
-                  <p>Email: {session?.user?.email || 'No email'}</p>
-                  <p>Username: {session?.user?.username || 'No username'}</p>
-                  <p>User Type: {session?.user?.userType || 'No user type'}</p>
-                  <p>User ID: {session?.user?.id || 'No ID'}</p>
-                  {/* Debug: Show full session object */}
-                  <pre className="text-xs">{JSON.stringify(session, null, 2)}</pre>
-              </div>
-          ) : (
-              <div className="text-red-400">No session found</div>
           )}
               <div className="flex items-center space-x-4">
                   {session ? (

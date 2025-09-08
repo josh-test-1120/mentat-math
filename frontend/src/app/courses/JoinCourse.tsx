@@ -20,39 +20,72 @@ export default function JoinCourseComponent() {
         email: ''
     });
 
-    useEffect(() => {
-        // Fetch courses from backend
-        if (status !== "authenticated") return;
+    // Joining State
+    const [isJoining, setIsJoining] = useState(false);
 
+    // Session Hydration
+    useEffect(() => {
+        if (status !== "authenticated") return;
+    
         if (session) {
-            setSession(() => ({
+            const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
                 email: session?.user.email || ''
-            }));
-            if (userSession.id != "") {
-                setSessionReady(true);
-            }
-            console.log("User session NAME: " + session.user.username)
+            };
+            
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+            
+            console.log("User session NAME: " + session.user.username);
+            console.log("User session ID: " + newUserSession.id);
         }
-    }, [session]);
+    }, [session, status]); // Added status to dependencies
 
+
+    // Handle Submit
     const handleSubmit = async (event: React.FormEvent) => {
+        // Prevent default events
         event.preventDefault();
-        console.log("Joining course with ID:", courseId);
+        // Prevent double submission
+        if (isJoining) return;
+    
+        // Validate user ID
+        if (!userSession.id) {
+            toast.error("Please log in to join a course");
+            return;
+        }
+        // Validate course ID
+        if (!courseId.trim()) {
+            toast.error("Please enter a course ID");
+            return;
+        }
+    
+        // Set joining state
+        setIsJoining(true);
 
-        // Add your joining logic here
+        // Try wrapper to handle async exceptions
         try {
-            const res = await apiHandler({
-                userID: userSession.id,
-                courseId,
-            },
-            "POST",
+
+            // API Handler
+            const res = await apiHandler(
+                { userid: userSession.id, courseId },
+                "POST",
                 "course/joinCourse",
                 `${BACKEND_API}`
             );
-        }catch (error) {
+    
+            // Handle errors properly
+            if (res instanceof Error || (res && res.error)) {
+                toast.error(res?.error || "Failed to join course");
+            } else {
+                toast.success("Successfully joined the course!");
+                setCourseId("");
+            }
+        } catch (e) {
             toast.error("Join Course Failed");
+        } finally {
+            setIsJoining(false);
         }
     };
 
@@ -70,9 +103,13 @@ export default function JoinCourseComponent() {
                             onChange={(e) => setCourseId(e.target.value)}
                             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <Button type="submit" className="w-full py-2 rounded-lg">
-                            Join Course
-                        </Button>
+                        <button 
+                            type="submit" 
+                            className="w-full py-2 rounded-lg bg-red-700 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isJoining || !userSession.id}
+                        >
+                            {isJoining ? "Joining..." : "Join Course"}
+                        </button>
                     </form>
                 </CardContent>
             </Card>
