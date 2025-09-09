@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "StudentCourse",
@@ -28,13 +28,13 @@ public class StudentCourse {
     private String studentCourseGrade;
 
     @Column(name = "student_date_registered", nullable = false)
-    private LocalDateTime studentDateRegistered;
+    private LocalDate studentDateRegistered;
 
     public StudentCourse() {}
-    public StudentCourse(int courseId, int studentId, LocalDateTime student_date_registered) {
-        this.courseId = courseId; 
+    public StudentCourse(int courseId, int studentId, LocalDate studentDateRegistered) {
+        this.courseId = courseId;
         this.studentId = studentId;
-        this.studentDateRegistered = student_date_registered;
+        this.studentDateRegistered = studentDateRegistered;
     }
 
     public int getCourseId() {
@@ -45,7 +45,7 @@ public class StudentCourse {
         return studentId;
     }
 
-    public LocalDateTime getStudentDateRegistered() {
+    public LocalDate getStudentDateRegistered() {
         return studentDateRegistered;
     }
 
@@ -61,7 +61,7 @@ public class StudentCourse {
         this.studentId = studentId;
     }
 
-    public void setStudentDateRegistered(LocalDateTime studentDateRegistered) {
+    public void setStudentDateRegistered(LocalDate studentDateRegistered) {
         this.studentDateRegistered = studentDateRegistered;
     }
     
