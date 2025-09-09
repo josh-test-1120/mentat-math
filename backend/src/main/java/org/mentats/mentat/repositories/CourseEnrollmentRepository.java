@@ -5,14 +5,18 @@
 
 package org.mentats.mentat.repositories;
 
+import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.StudentCourse;
 import org.springframework.stereotype.Repository;
 import org.mentats.mentat.models.StudentCourseId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 @Repository
 public interface CourseEnrollmentRepository extends JpaRepository<StudentCourse, StudentCourseId> {
     boolean existsByCourseIdAndStudentId(int courseId, int studentId);
+    List<StudentCourse> findByCourseId(int courseId);
 }
 
 

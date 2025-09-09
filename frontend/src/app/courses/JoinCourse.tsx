@@ -72,7 +72,7 @@ export default function JoinCourseComponent() {
             console.log("COURSE ID IS:", courseId);
             // API Handler
             const res = await apiHandler(
-                { userId: userSession.id, courseId },
+                { studentId: userSession.id, courseId },
                 "POST",
                 "course/joinCourse",
                 `${BACKEND_API}`
