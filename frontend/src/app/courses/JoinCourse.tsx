@@ -100,6 +100,8 @@ export default function JoinCourseComponent() {
                 <CardContent>
                     <h1 className="text-2xl font-bold mb-4">Join a Course</h1>
                     <p className="text-white mb-6">Enter the Course ID to join a course.</p>
+                    <p className="text-white mb-6">Tip: Ask your instructor for the Course ID.</p>
+
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <input
                             type="text"
