@@ -162,4 +162,30 @@ public class CourseService {
         }
         return allEnrollments;
     }
+
+    /**
+     * Gets all courses a student is enrolled in
+     * @param studentIdStr Student ID
+     * @return List of courses
+     */
+    @Transactional(readOnly = true)
+    public List<Course> getEnrolledCourses(String studentIdStr) {
+        // Parse student ID
+        int studentId = Integer.parseInt(studentIdStr);
+
+        // Get all enrollments for the student
+        List<StudentCourse> enrollments = enrollmentRepository.findByStudentId(studentId);
+
+        // If no enrollments, return empty list
+        if (enrollments.isEmpty()) return List.of();
+
+        // Get all course IDs for the student
+        List<Integer> courseIds = enrollments.stream()
+                .map(StudentCourse::getCourseId)
+                .distinct()
+                .toList();
+
+        // Get all courses for the student
+        return courseRepository.findAllById(courseIds);
+    }
 }

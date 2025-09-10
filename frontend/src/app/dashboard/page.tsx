@@ -5,6 +5,7 @@ import CreateCourse from "@/app/courses/CreateCourse";
 import {AuthProvider} from "@/components/authProvider";
 import JoinCourse from "@/app/courses/JoinCourse";
 import ListCourse from "@/app/coursesList/CoursesList";
+import MyCoursesPage from "@/app/my-courses/page";
 /**
  * Default Dashboard Page
  * @constructor
@@ -23,6 +24,7 @@ export default async function Dashboard() {
                     Welcome to EZMath Quiz Scheduler!
                 </p>
                 <JoinCourse/>
+                <MyCoursesPage/>
             </div>
         </AuthProvider>
     );

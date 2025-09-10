@@ -107,4 +107,23 @@ public class CourseController {
         }
     }
 
+    /**
+     * API method for getting all courses a student is enrolled in
+     * @param studentId Student ID
+     * @return Response with list of courses
+     */
+    @GetMapping("/enrollments")
+    public ResponseEntity<?> getEnrolledCourses(@RequestParam String studentId) {
+        try {
+            // Get all courses a student is enrolled in
+            List<Course> courses = courseService.getEnrolledCourses(studentId);
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            // Error fetching enrolled courses
+            logger.error("Error fetching enrolled courses: " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error fetching enrolled courses"));
+        }
+    }
+
 }
