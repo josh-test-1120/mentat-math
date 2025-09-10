@@ -108,10 +108,10 @@ export default function MyCoursesPage() {
                 <div className="text-lg font-bold">
                   {c.courseName || 'Unknown Course'}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="text-sm text-white mt-1">
                   Section: {c.courseSection || 'Not specified'}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-white">
                 Quarter: {c.courseQuarter || 'Not specified'} {c.courseYear || ''}
                 </div>
               </div>
