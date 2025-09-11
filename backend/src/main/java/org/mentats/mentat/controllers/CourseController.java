@@ -33,6 +33,12 @@ public class CourseController {
     @PostMapping("/createCourse")
     public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest) {
         try {
+            System.out.println("Creating course: " + courseRequest.getCourseName());
+            System.out.println("Course section: " + courseRequest.getCourseSection());
+            System.out.println("Course quarter: " + courseRequest.getCourseQuarter());
+            System.out.println("Course year: " + courseRequest.getCourseYear());
+            System.out.println("User ID: " + courseRequest.getUserId());
+            
             Course course = courseService.createCourse(courseRequest);
             System.out.println("Course successfully created: " + course.getCourseName());
             return ResponseEntity.ok(new MessageResponse("Course created successfully"));
@@ -44,13 +50,14 @@ public class CourseController {
     }
 
     /**
-     * API Method for retrieving list of course with User ID
+     * API Method for retrieving list of course with User Instructor ID
      * @param id String type user ID
      * @return Returns successful response with list of course information
      */
     @GetMapping("/listCourses")
     public ResponseEntity<?> listCourses(@RequestParam String id) {
         try {
+            // Get courses by their creator Professor ID
             List<Course> courses = courseService.getCoursesByProfessorId(id);
 
             // Empty check
@@ -104,6 +111,25 @@ public class CourseController {
             logger.error("Error retrieving enrollments: " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error retrieving enrollments: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * API method for getting all courses a student is enrolled in
+     * @param studentId Student ID
+     * @return Response with list of courses
+     */
+    @GetMapping("/enrollments")
+    public ResponseEntity<?> getEnrolledCourses(@RequestParam String studentId) {
+        try {
+            // Get all courses a student is enrolled in
+            List<Course> courses = courseService.getEnrolledCourses(studentId);
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            // Error fetching enrolled courses
+            logger.error("Error fetching enrolled courses: " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error fetching enrolled courses"));
         }
     }
 

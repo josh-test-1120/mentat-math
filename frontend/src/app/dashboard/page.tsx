@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getServerAuthSession } from "@/utils/auth";
-import CreateCourse from "@/app/courses/CreateCourse";
+import CreateCourse from "@/app/courses/createCourse/page";
 import {AuthProvider} from "@/components/authProvider";
 import JoinCourse from "@/app/courses/JoinCourse";
 import ListCourse from "@/app/coursesList/CoursesList";
+import MyCoursesPage from "@/app/my-courses/page";
 /**
  * Default Dashboard Page
  * @constructor
@@ -23,6 +24,7 @@ export default async function Dashboard() {
                     Welcome to EZMath Quiz Scheduler!
                 </p>
                 <JoinCourse/>
+                <MyCoursesPage/>
             </div>
         </AuthProvider>
     );

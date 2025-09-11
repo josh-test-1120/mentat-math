@@ -33,12 +33,18 @@ public class CourseService {
      */
     @Transactional
     public Course createCourse(CourseRequest courseRequest) {
+        System.out.println("CourseName in createCourse: " + courseRequest.getCourseName());
+        System.out.println("Quarter in createCourse: " + courseRequest.getCourseQuarter());
+        System.out.println("SectionNumber in createCourse: " + courseRequest.getCourseSection());
+        System.out.println("Year in createCourse: " + courseRequest.getCourseYear());
+        System.out.println("UserID in createCourse: " + courseRequest.getUserId());
+        
         Course course = new Course(
                 courseRequest.getCourseName(),
-                courseRequest.getUserID(),
-                courseRequest.getQuarter(),
-                courseRequest.getSectionNumber(),
-                courseRequest.getYear()
+                courseRequest.getUserId(),
+                courseRequest.getCourseQuarter(),
+                courseRequest.getCourseSection(),
+                courseRequest.getCourseYear()
         );
         
         System.out.println("Creating course: " + course.getCourseName());
@@ -161,5 +167,31 @@ public class CourseService {
                              ", Date=" + enrollment.getStudentDateRegistered());
         }
         return allEnrollments;
+    }
+
+    /**
+     * Gets all courses a student is enrolled in
+     * @param studentIdStr Student ID
+     * @return List of courses
+     */
+    @Transactional(readOnly = true)
+    public List<Course> getEnrolledCourses(String studentIdStr) {
+        // Parse student ID
+        int studentId = Integer.parseInt(studentIdStr);
+
+        // Get all enrollments for the student
+        List<StudentCourse> enrollments = enrollmentRepository.findByStudentId(studentId);
+
+        // If no enrollments, return empty list
+        if (enrollments.isEmpty()) return List.of();
+
+        // Get all course IDs for the student
+        List<Integer> courseIds = enrollments.stream()
+                .map(StudentCourse::getCourseId)
+                .distinct()
+                .toList();
+
+        // Get all courses for the student
+        return courseRepository.findAllById(courseIds);
     }
 }

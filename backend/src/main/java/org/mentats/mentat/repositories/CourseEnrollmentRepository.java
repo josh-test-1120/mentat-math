@@ -1,6 +1,8 @@
 /**
  * @author Telmen Enkhtuvshin
  * JPA Repository interface for storing Student course enrollment DB entity and JPA object.
+ * @see org.mentats.mentat.models.StudentCourse
+ * The interface method names are directly derived from the entity names and functions by verb conjugation.
  */
 
 package org.mentats.mentat.repositories;
@@ -15,8 +17,12 @@ import java.util.List;
 
 @Repository
 public interface CourseEnrollmentRepository extends JpaRepository<StudentCourse, StudentCourseId> {
+    // Check if a student is enrolled in a course
     boolean existsByCourseIdAndStudentId(int courseId, int studentId);
+    // Find all enrollments for a course
     List<StudentCourse> findByCourseId(int courseId);
+    // Find all enrollments for a student
+    List<StudentCourse> findByStudentId(int studentId);
 }
 
 
