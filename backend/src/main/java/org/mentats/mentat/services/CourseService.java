@@ -33,12 +33,18 @@ public class CourseService {
      */
     @Transactional
     public Course createCourse(CourseRequest courseRequest) {
+        System.out.println("CourseName in createCourse: " + courseRequest.getCourseName());
+        System.out.println("Quarter in createCourse: " + courseRequest.getCourseQuarter());
+        System.out.println("SectionNumber in createCourse: " + courseRequest.getCourseSection());
+        System.out.println("Year in createCourse: " + courseRequest.getCourseYear());
+        System.out.println("UserID in createCourse: " + courseRequest.getUserId());
+        
         Course course = new Course(
                 courseRequest.getCourseName(),
-                courseRequest.getUserID(),
-                courseRequest.getQuarter(),
-                courseRequest.getSectionNumber(),
-                courseRequest.getYear()
+                courseRequest.getUserId(),
+                courseRequest.getCourseQuarter(),
+                courseRequest.getCourseSection(),
+                courseRequest.getCourseYear()
         );
         
         System.out.println("Creating course: " + course.getCourseName());

@@ -33,6 +33,12 @@ public class CourseController {
     @PostMapping("/createCourse")
     public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest) {
         try {
+            System.out.println("Creating course: " + courseRequest.getCourseName());
+            System.out.println("Course section: " + courseRequest.getCourseSection());
+            System.out.println("Course quarter: " + courseRequest.getCourseQuarter());
+            System.out.println("Course year: " + courseRequest.getCourseYear());
+            System.out.println("User ID: " + courseRequest.getUserId());
+            
             Course course = courseService.createCourse(courseRequest);
             System.out.println("Course successfully created: " + course.getCourseName());
             return ResponseEntity.ok(new MessageResponse("Course created successfully"));
@@ -44,13 +50,14 @@ public class CourseController {
     }
 
     /**
-     * API Method for retrieving list of course with User ID
+     * API Method for retrieving list of course with User Instructor ID
      * @param id String type user ID
      * @return Returns successful response with list of course information
      */
     @GetMapping("/listCourses")
     public ResponseEntity<?> listCourses(@RequestParam String id) {
         try {
+            // Get courses by their creator Professor ID
             List<Course> courses = courseService.getCoursesByProfessorId(id);
 
             // Empty check
