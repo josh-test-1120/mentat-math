@@ -93,7 +93,7 @@ export default function MyCoursesPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-semibold mb-4">My Enrolled Courses</h1>
       {courses.length === 0 ? (
-        <div className="text-gray-600">You are not enrolled in any courses yet.</div>
+        <div className="text-zinc-200">You are not enrolled in any courses yet.</div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {courses.map((c, index) => {
