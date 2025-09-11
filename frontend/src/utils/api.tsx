@@ -71,58 +71,29 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
  */
 export async function apiHandler(inputs: any | undefined, method: string, uri: string, backendURL: string) {
     try {
-        console.log(method);
-        console.log(uri);
-        console.log(JSON.stringify(inputs as any));
-        console.log(`${backendURL}/${uri}`);
-
-        var response;
-
-        var url = "";
-
-        if (backendURL) url = `${backendURL}/${uri}`
-        else url = uri;
-
-        console.log(inputs);
-        if (method != 'GET'){
-            response = await fetch(url, {
-                method: `${method}`,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(inputs as any),
-            });
-        }
-        else {
-            response = await fetch(url, {
-                method: `${method}`,
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            });
-        }
-        console.log('after fetch');
-
-        // Error response from HTTP call
-        if (!response.ok) {
-            return new Error("Error with POST call");
-        }
-
-        console.log('inside API handler');
-        const data = await response.json();
-        console.log(data);
-        // Handle the errors from the JSON response if the query failed for some reason
-        if (data.error) {
-            return { error: data.message };
-        }
-        // Parse the data from the response
-        const result = data.data;
-        console.log({ ...data, result });
-        return { ...data, result };
-    } catch (error) {
-        console.log(error)
-        // return { error: error.message };
-        return { error: error };
+      const url = backendURL ? `${backendURL}/${uri}` : uri;
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        ...(method !== 'GET' ? { body: JSON.stringify(inputs ?? {}) } : {})
+      });
+  
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        // Never return Error(); return a structured object
+        return { error: true, status: response.status, message: text || `HTTP ${response.status}` };
+      }
+  
+      const data = await response.json().catch(() => ({}));
+      // Normalize server-declared errors too
+      if (data && data.error) {
+        return { error: true, status: 200, message: data.message ?? 'Unknown error', data };
+      }
+  
+      return data; // success
+    } catch (e: any) {
+      // Network/catch-all path: also return structured error
+      return { error: true, status: 0, message: e?.message ?? 'Network error' };
     }
 }
 
