@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
+import Modal from "@/app/_components/UI/Modal";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -15,12 +16,13 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 export default function Schedule() {
 
     // State information
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         exam_course_id: 1,
         exam_name: "",
         exam_difficulty: "",
-        is_published: undefined,
-        is_required: undefined,
+        is_published: "",
+        is_required: "",
     });
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -47,15 +49,17 @@ export default function Schedule() {
                 email: session?.user.email || ''
             }));
             setSessionReady(prev => prev || userSession.id !== "");
-            //if (userSession.id != "") { setSessionReady(true); }
         }
     }, [session]);
 
 
+    // Setting data by name, value, type, and checked value
     const data = (e: any) => {
         const { name, value, type, checked } = e.target;
         setFormData({
+            // Spread data
             ...formData,
+            // Override field name's value by type checkbox for correctness
             [name]: type === 'checkbox' ? checked : value,
         });
     };
@@ -90,6 +94,14 @@ export default function Schedule() {
             // Response handler
             if (response.ok) {
                 toast.success("Exam created successfully");
+                setIsModalOpen(false);
+                setFormData({
+                    exam_course_id: 1,
+                    exam_name: "",
+                    exam_difficulty: "",
+                    is_published: "",
+                    is_required: "",
+                });
             } else {
                 toast.error("Failed to create exam");
             }
@@ -100,81 +112,107 @@ export default function Schedule() {
 
     return (
         <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
-            <h1 className="text-2xl text-center mb-5">Create Exam</h1>
-            <form id="createExamForm" className="mx-auto w-full sm:w-1/2 md:w-1/3 lg:w-1/4 flex flex-1 flex-col align-bottom"
-                  onSubmit={handleSubmit}>
-                <label>Exam Name:
-                    <input
-                        type="text"
-                        id="exam_name"
-                        name="exam_name"
-                        value={exam_name}
-                        onChange={data}
-                        required={true}
-                        className="float-right text-mentat-black"
-                    />
-                </label>
-                <label><br/><br/>
-                    Exam Course:
-                    <select
-                        id="exam_course_id"
-                        name="exam_course_id"
-                        value={exam_course_id}
-                        onChange={data}
-                        required={true}
-                        className="float-right text-mentat-black"
-                    >
-                        <option value="1">Mathematics</option>
-                        <option value="2">Physics</option>
-                        <option value="3">Chemistry</option>
-                    </select>
-                </label><br/><br/>
-                <label>Exam Difficulty:
-                    <select
-                        id="exam_difficulty"
-                        name="exam_difficulty"
-                        value={exam_difficulty}
-                        onChange={data}
-                        required={true}
-                        className="float-right text-mentat-black"
-                    >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </label><br/><br/>
-                <label>Make Exam Required?
-                    <input
-                        id="is_required"
-                        type="checkbox"
-                        name="is_required"
-                        checked={Boolean(is_required)}
-                        onChange={data}
-                        className="float-right"
-                    />
-                </label>
-                <br/><br/>
-                <label>Publish Exam?
-                    <input
-                        id="is_published"
-                        type="checkbox"
-                        name="is_published"
-                        checked={Boolean(is_published)}
-                        onChange={data}
-                        className="float-right"
-                    />
-                </label>
-                <br/><br/>
+            <div className="p-6">
                 <button
                     className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    type="submit"
+                    onClick={() => setIsModalOpen(true)}
                 >
                     Create Exam
                 </button>
-                {/*<input type="submit" value="Create Exam" onClick={handleSubmit}/>*/}
-            </form>
+            </div>
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
+                <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
+                            <input
+                                type="text"
+                                id="exam_name"
+                                name="exam_name"
+                                value={exam_name}
+                                onChange={data}
+                                required={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                                placeholder="Enter exam name"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
+                            <select
+                                id="exam_course_id"
+                                name="exam_course_id"
+                                value={exam_course_id}
+                                onChange={data}
+                                required={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            >
+                                <option value="1">Mathematics</option>
+                                <option value="2">Physics</option>
+                                <option value="3">Chemistry</option>
+                            </select>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
+                            <select
+                                id="exam_difficulty"
+                                name="exam_difficulty"
+                                value={exam_difficulty}
+                                onChange={data}
+                                required={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            >
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    id="is_required"
+                                    type="checkbox"
+                                    name="is_required"
+                                    checked={Boolean(is_required)}
+                                    onChange={data}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                />
+                                <label htmlFor="is_required" className="select-none">Make Exam Required</label>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    id="is_published"
+                                    type="checkbox"
+                                    name="is_published"
+                                    checked={Boolean(is_published)}
+                                    onChange={data}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                />
+                                <label htmlFor="is_published" className="select-none">Publish Exam</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setIsModalOpen(false)}
+                            className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
+                            type="submit"
+                        >
+                            Create Exam
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
             <ToastContainer autoClose={3000} hideProgressBar />
         </div>
     );
