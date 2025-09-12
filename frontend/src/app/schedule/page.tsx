@@ -1,7 +1,6 @@
 import { getServerAuthSession } from "@/utils/auth";
 import SchedulesPage from "./pageClient";
 import { AuthProvider } from "@/components/authProvider"
-import CreateCourse from "@/app/courses/createCourse/page";
 import {Session} from "next-auth";
 import InstructorCoursesClient from "@/app/instructorCourses/pageClient";
 
@@ -33,9 +32,8 @@ export default async function Schedule() {
                 id={"schedulePageMain"}
                 className=" flex font-bold bg-mentat-black text-mentat-gold"
             >
-                {/*<SchedulesPage/>*/}
-                {/*<CreateCourse/>*/}
-                <InstructorCoursesClient/>
+                <SchedulesPage/>
+                {/* <InstructorCoursesClient/> */}
             </section>
         </AuthProvider>
 
