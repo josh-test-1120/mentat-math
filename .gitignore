@@ -41,3 +41,4 @@ package-lock.json
 frontend/src/.env
 .env
 TRANSACTIONAL_GUIDE.md
+DS_Store
