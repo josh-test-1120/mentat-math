@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/app/_components/UI/Modal";
+import Calendar from "../_components/UI/Calendar";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -212,6 +213,14 @@ export default function Schedule() {
                     </div>
                 </form>
             </Modal>
+            <Calendar
+                events={[
+                    { title: 'Exam 1', start: '2025-09-20' },
+                    { title: 'Exam 2', start: '2025-09-22T14:00:00' },
+                ]}
+                onDateClick={({ dateStr }) => setIsModalOpen(true)}
+                onEventClick={(info) => console.log(info.event)}
+            />
 
             <ToastContainer autoClose={3000} hideProgressBar />
         </div>
