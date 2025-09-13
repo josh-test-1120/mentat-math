@@ -105,7 +105,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT exam_name, exam_version, exam_taken_date, exam_score "
-                    + "FROM exam_result exr JOIN Exam ON exam_id = exam_id WHERE exam_student_id = " + SID);
+                    + "FROM exam_result exr JOIN exam ON exam_id = exam_id WHERE exam_student_id = " + SID);
 
             //Printing ResultSet
             while (rs.next()) {
@@ -135,7 +135,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT student_first_name, student_last_name, exam_name, exam_version, "
-                    + "exam_taken_date, exam_score FROM exam_result JOIN Exam ON exam_id = exam_id JOIN Student " +
+                    + "exam_taken_date, exam_score FROM exam_result JOIN exam ON exam_id = exam_id JOIN Student " +
                     "ON exam_student_id = student_id WHERE exam_course_id = " + corID);
 
             //Printing ResultSet
