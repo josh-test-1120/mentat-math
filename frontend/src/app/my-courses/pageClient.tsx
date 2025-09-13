@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
+import Modal from '@/app/_components/UI/Modal';
+import JoinCourseComponent from '@/app/courses/JoinCourse';
 
 type Course = {
   courseID: number;         // matches `getCourseID()` JSON field
@@ -17,6 +19,8 @@ export default function MyCoursesPage() {
   const { data: session, status } = useSession();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
   // Fetch courses
@@ -82,7 +86,7 @@ export default function MyCoursesPage() {
 
     // Fetch courses
     fetchCourses();
-  }, [status, session, BACKEND_API]);
+  }, [status, session, BACKEND_API, refreshTrigger]);
 
   if (status !== 'authenticated') return <div className="p-6">Please sign in.</div>;
   if (loading) return <div className="p-6">Loading...</div>;
@@ -91,9 +95,34 @@ export default function MyCoursesPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">My Enrolled Courses</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">My Enrolled Courses</h1>
+        <button
+          onClick={() => setIsJoinModalOpen(true)}
+          className="text-white font-bold py-2 px-4 rounded-md transition-all duration-200 hover:brightness-110 flex items-center gap-2"
+          style={{ backgroundColor: '#A30F32' }}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Join New Course
+        </button>
+      </div>
+      
       {courses.length === 0 ? (
-        <div className="text-zinc-200">You are not enrolled in any courses yet.</div>
+        <div className="text-zinc-200 text-center py-8">
+          <p className="mb-4">You are not enrolled in any courses yet.</p>
+          <button
+            onClick={() => setIsJoinModalOpen(true)}
+            className="text-white font-bold py-2 px-4 rounded-md transition-all duration-200 hover:brightness-110 flex items-center gap-2 mx-auto"
+            style={{ backgroundColor: '#A30F32' }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Join Your First Course
+          </button>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {courses.map((c, index) => {
@@ -119,6 +148,20 @@ export default function MyCoursesPage() {
           }).filter(Boolean)} {/* Remove null entries */}
         </div>
       )}
+
+      {/* Join Course Modal */}
+      <Modal 
+        isOpen={isJoinModalOpen} 
+        onClose={() => setIsJoinModalOpen(false)} 
+        title="Join New Course"
+      >
+        <JoinCourseComponent 
+          onJoinSuccess={() => {
+            setIsJoinModalOpen(false);
+            setRefreshTrigger(prev => prev + 1);
+          }}
+        />
+      </Modal>
     </div>
   );
 }
