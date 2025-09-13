@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Size;
  * @author Telmen Enkhtuvshin
  */
 @Entity
-@Table(name = "Course",
+@Table(name = "course",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "course_id"),
                 @UniqueConstraint(columnNames = {"course_section", "course_year", "course_quarter"})
