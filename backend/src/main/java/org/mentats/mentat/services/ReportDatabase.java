@@ -63,7 +63,7 @@ public class ReportDatabase {
     public static final String exam_taken_date     = "exam_taken_date";
     public static final String exam_score          = "exam_score";
     public static final String exam_scheduled_date = "exam_scheduled_date";
-    public static final String exam_exam_id        = "Exam_exam_id";
+    public static final String exam_exam_id        = "exam_id";
     public static final String table               = "exam_result";
 
     /**
@@ -105,7 +105,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT exam_name, exam_version, exam_taken_date, exam_score "
-                    + "FROM exam_result exr JOIN Exam ON Exam_exam_id = exam_id WHERE exam_student_id = " + SID);
+                    + "FROM exam_result exr JOIN Exam ON exam_id = exam_id WHERE exam_student_id = " + SID);
 
             //Printing ResultSet
             while (rs.next()) {
@@ -135,7 +135,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT student_first_name, student_last_name, exam_name, exam_version, "
-                    + "exam_taken_date, exam_score FROM exam_result JOIN Exam ON Exam_exam_id = exam_id JOIN Student " +
+                    + "exam_taken_date, exam_score FROM exam_result JOIN Exam ON exam_id = exam_id JOIN Student " +
                     "ON exam_student_id = student_id WHERE exam_course_id = " + corID);
 
             //Printing ResultSet
@@ -173,7 +173,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             st.executeUpdate("INSERT INTO exam_result(exam_student_id, exam_id, exam_version, exam_taken_date, " +
-                    "exam_score, exam_scheduled_date, Exam_exam_id) "
+                    "exam_score, exam_scheduled_date, exam_id) "
                     + "VALUES (" + eStuID + ", " + eReID + ", " + eVer + ", '" + eTakenDate + "', '" + eScore + "', '"
                     + eScheDate + "', " + eID
                     + ");");
