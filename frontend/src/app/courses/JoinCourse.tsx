@@ -6,7 +6,11 @@ import {useSession} from "next-auth/react";
 import {apiHandler} from "@/utils/api";
 import {toast} from "react-toastify";
 
-export default function JoinCourseComponent() {
+interface JoinCourseComponentProps {
+  onJoinSuccess?: () => void;
+}
+
+export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     const [courseId, setCourseId] = useState("");
 
@@ -86,6 +90,11 @@ export default function JoinCourseComponent() {
                 setCourseId("");
                 console.log("LOGGING COURSE SUCCESS.");
                 console.log(res.toString());
+                
+                // Call the success callback to close modal and refresh courses
+                if (onJoinSuccess) {
+                    onJoinSuccess();
+                }
             }
         } catch (e) {
             toast.error("Join Course Failed");
@@ -112,9 +121,13 @@ export default function JoinCourseComponent() {
                         />
                         <button 
                             type="submit" 
-                            className="w-full py-2 rounded-lg bg-red-700 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-2 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:brightness-110 flex items-center justify-center gap-2"
+                            style={{ backgroundColor: '#A30F32' }}
                             disabled={isJoining || !userSession.id}
                         >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
                             {isJoining ? "Joining..." : "Join Course"}
                         </button>
                     </form>

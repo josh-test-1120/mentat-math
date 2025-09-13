@@ -23,7 +23,6 @@ export default async function Dashboard() {
                 <p className="mt-2 mb-6">
                     Welcome to EZMath Quiz Scheduler!
                 </p>
-                <JoinCourse/>
                 <MyCoursesPage/>
             </div>
         </AuthProvider>
