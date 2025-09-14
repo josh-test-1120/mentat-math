@@ -3,6 +3,8 @@ import SchedulesPage from "./pageClient";
 import { AuthProvider } from "@/components/authProvider"
 import {Session} from "next-auth";
 import InstructorCoursesClient from "@/app/instructorCourses/pageClient";
+import CreateTestWindow from "@/app/_components/testWindow/CreateTestWindow";
+import TestWindowExample from "@/app/_components/testWindow/TestWindowExample";
 
 /**
  * Default session for users no logged in
@@ -32,8 +34,9 @@ export default async function Schedule() {
                 id={"schedulePageMain"}
                 className=" flex font-bold bg-mentat-black text-mentat-gold"
             >
-                <SchedulesPage/>
+                {/* <SchedulesPage/> */}
                 {/* <InstructorCoursesClient/> */}
+                <TestWindowExample/>
             </section>
         </AuthProvider>
 
