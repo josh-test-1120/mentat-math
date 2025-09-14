@@ -101,7 +101,7 @@ export default function Calendar({
   };
 
   return (
-    <div className="bg-mentat-black text-mentat-gold border border-mentat-gold/20 rounded-xl p-4">
+    <div className="bg-mentat-black text-mentat-gold border border-mentat-gold/20 rounded-xl p-4 h-[600px] w-full overflow-hidden">
       <style jsx global>{`
         /* Custom FullCalendar Styling */
         .fc {
@@ -238,6 +238,52 @@ export default function Calendar({
         .fc .fc-scrollgrid-section > * {
           border-style: solid !important;
         }
+        
+        /* Calendar container height and scrolling */
+        .fc {
+          height: 100% !important;
+          max-height: 100% !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        
+        /* Responsive calendar layout */
+        .fc .fc-scrollgrid {
+          width: 100% !important;
+          table-layout: fixed !important;
+        }
+        
+        .fc .fc-col-header-cell {
+          width: auto !important;
+          min-width: 0 !important;
+        }
+        
+        .fc .fc-timegrid-slot {
+          width: 100% !important;
+        }
+        
+        /* Make calendar scrollable */
+        .fc .fc-scroller {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+        }
+        
+        /* Time grid specific scrolling */
+        .fc .fc-timegrid-body {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+        }
+        
+        /* Ensure proper height for 24-hour view */
+        .fc .fc-timegrid-slot {
+          height: 1.5em !important;
+          min-height: 1.5em !important;
+        }
+        
+        .fc .fc-timegrid-slot-minor {
+          height: 0.75em !important;
+          min-height: 0.75em !important;
+        }
       `}</style>
       
       <FullCalendar
@@ -249,7 +295,7 @@ export default function Calendar({
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
-        height="auto"
+        height="100%"
         events={events}
         
         // Interaction settings
@@ -285,10 +331,10 @@ export default function Calendar({
           daysOfWeek: [0, 1, 2, 3, 4, 5, 6] // All days
         }}
         
-        // Time grid settings for better drag experience
-        slotMinTime="06:00:00"
-        slotMaxTime="22:00:00"
-        slotDuration="00:30:00"
+        // Time grid settings for 24-hour view
+        slotMinTime="00:00:00"
+        slotMaxTime="24:00:00"
+        slotDuration="01:00:00"
         snapDuration="00:15:00"
         slotLabelInterval="01:00:00"
         slotLabelFormat={{

@@ -32,7 +32,7 @@ export default async function Schedule() {
         <AuthProvider session={session}>
             <section
                 id={"schedulePageMain"}
-                className=" flex font-bold bg-mentat-black text-mentat-gold"
+                className="w-full h-screen flex font-bold bg-mentat-black text-mentat-gold"
             >
                 <SchedulesPage/>
                 {/* <InstructorCoursesClient/> */}

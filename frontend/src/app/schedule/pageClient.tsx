@@ -146,7 +146,7 @@ export default function Schedule() {
     };
 
     return (
-        <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
+        <div className="w-full h-screen bg-mentat-black text-mentat-gold flex flex-col">
             
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
@@ -239,18 +239,20 @@ export default function Schedule() {
                     </div>
                 </form>
             </Modal>
-            <Calendar
-                events={[
-                    { title: 'Exam 1', start: '2025-09-20', id: '1' },
-                    { title: 'Exam 2', start: '2025-09-22T14:00:00', id: '2' },
-                ]}
-                onDateClick={({ dateStr }) => setIsModalOpen(true)}
-                onEventClick={handleEventClick}
-                onEventCreate={handleEventCreate}
-                initialView="timeGridWeek"
-                editable={true}
-                selectable={true}
-            />
+            <div className="flex-1 w-full p-4">
+                <Calendar
+                    events={[
+                        { title: 'Exam 1', start: '2025-09-20', id: '1' },
+                        { title: 'Exam 2', start: '2025-09-22T14:00:00', id: '2' },
+                    ]}
+                    onDateClick={({ dateStr }) => setIsModalOpen(true)}
+                    onEventClick={handleEventClick}
+                    onEventCreate={handleEventCreate}
+                    initialView="timeGridWeek"
+                    editable={true}
+                    selectable={true}
+                />
+            </div>
 
             <ToastContainer autoClose={3000} hideProgressBar />
         </div>
