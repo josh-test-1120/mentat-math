@@ -34,9 +34,9 @@ export default async function Schedule() {
                 id={"schedulePageMain"}
                 className=" flex font-bold bg-mentat-black text-mentat-gold"
             >
-                {/* <SchedulesPage/> */}
+                <SchedulesPage/>
                 {/* <InstructorCoursesClient/> */}
-                <TestWindowExample/>
+                {/* <TestWindowExample/> */}
             </section>
         </AuthProvider>
 

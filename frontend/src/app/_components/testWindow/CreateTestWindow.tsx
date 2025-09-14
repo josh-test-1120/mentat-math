@@ -15,6 +15,7 @@ interface CreateTestWindowProps {
   onTestWindowCreated?: () => void;
   courses?: Array<{ id: number; name: string; section: string }>;
   exams?: Array<{ id: number; name: string; courseId: number }>;
+  initialFormData?: Partial<TestWindowFormData>;
 }
 
 interface TestWindowFormData {
@@ -36,38 +37,51 @@ export default function CreateTestWindow({
   onClose, 
   onTestWindowCreated,
   courses = [],
-  exams = []
+  exams = [],
+  initialFormData = {}
 }: CreateTestWindowProps) {
   const { data: session } = useSession();
   
   const [formData, setFormData] = useState<TestWindowFormData>({
-    windowName: '',
-    description: '',
-    courseId: 0,
-    examId: 0,
-    startDateTime: '',
-    endDateTime: '',
-    durationMinutes: 60,
-    maxAttempts: 1,
-    isActive: true,
-    allowLateSubmission: false,
-    password: ''
+    windowName: initialFormData.windowName || '',
+    description: initialFormData.description || '',
+    courseId: initialFormData.courseId || 0,
+    examId: initialFormData.examId || 0,
+    startDateTime: initialFormData.startDateTime || '',
+    endDateTime: initialFormData.endDateTime || '',
+    durationMinutes: initialFormData.durationMinutes || 60,
+    maxAttempts: initialFormData.maxAttempts || 1,
+    isActive: initialFormData.isActive !== undefined ? initialFormData.isActive : true,
+    allowLateSubmission: initialFormData.allowLateSubmission || false,
+    password: initialFormData.password || ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filteredExams, setFilteredExams] = useState<Array<{ id: number; name: string; courseId: number }>>([]);
+
+  // Update form data when initialFormData changes
+  useEffect(() => {
+    if (isOpen && initialFormData) {
+      setFormData(prev => ({
+        ...prev,
+        ...initialFormData
+      }));
+    }
+  }, [isOpen, initialFormData]);
 
   // Filter exams based on selected course
   useEffect(() => {
     if (formData.courseId > 0) {
       const courseExams = exams.filter(exam => exam.courseId === formData.courseId);
       setFilteredExams(courseExams);
-      // Reset exam selection when course changes
-      setFormData(prev => ({ ...prev, examId: 0 }));
+      // Reset exam selection when course changes (only if not pre-filled)
+      if (!initialFormData.examId) {
+        setFormData(prev => ({ ...prev, examId: 0 }));
+      }
     } else {
       setFilteredExams([]);
     }
-  }, [formData.courseId, exams]);
+  }, [formData.courseId, exams, initialFormData.examId]);
 
   // Set default start time to current time
   useEffect(() => {

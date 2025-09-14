@@ -111,17 +111,43 @@ export default function Schedule() {
         }
     };
 
+    /**
+     * Handle calendar event creation (drag and drop)
+     * @param info Calendar selection info
+     */
+    const handleEventCreate = (info: { start: string; end: string; allDay: boolean }) => {
+        const startDate = new Date(info.start);
+        const endDate = new Date(info.end);
+        
+        // Pre-fill form with selected time range
+        setFormData(prev => ({
+            ...prev,
+            exam_name: `Exam - ${startDate.toLocaleDateString()}`,
+        }));
+        
+        // Open the modal
+        setIsModalOpen(true);
+        
+        // Store the time range for later use
+        setFormData(prev => ({
+            ...prev,
+            startTime: startDate.toISOString().slice(0, 16),
+            endTime: endDate.toISOString().slice(0, 16),
+        }));
+    };
+
+    /**
+     * Handle calendar event click
+     * @param info Event click info
+     */
+    const handleEventClick = (info: any) => {
+        console.log('Event clicked:', info.event);
+        toast.info(`Clicked on: ${info.event.title}`);
+    };
+
     return (
         <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
-            <div className="p-6">
-                <button
-                    className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    Create Exam
-                </button>
-            </div>
-
+            
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -215,11 +241,15 @@ export default function Schedule() {
             </Modal>
             <Calendar
                 events={[
-                    { title: 'Exam 1', start: '2025-09-20' },
-                    { title: 'Exam 2', start: '2025-09-22T14:00:00' },
+                    { title: 'Exam 1', start: '2025-09-20', id: '1' },
+                    { title: 'Exam 2', start: '2025-09-22T14:00:00', id: '2' },
                 ]}
                 onDateClick={({ dateStr }) => setIsModalOpen(true)}
-                onEventClick={(info) => console.log(info.event)}
+                onEventClick={handleEventClick}
+                onEventCreate={handleEventCreate}
+                initialView="timeGridWeek"
+                editable={true}
+                selectable={true}
             />
 
             <ToastContainer autoClose={3000} hideProgressBar />

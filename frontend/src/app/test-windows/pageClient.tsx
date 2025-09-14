@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
 import { apiHandler } from '@/utils/api';
 import CreateTestWindow from "@/app/_components/testWindow/CreateTestWindow";
+import TestWindowCalendar from "@/app/_components/UI/TestWindowCalendar";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -56,6 +57,21 @@ export default function TestWindowsPageClient() {
     id: '',
     username: '',
     email: ''
+  });
+
+  // Form data for pre-filling when creating from calendar
+  const [formData, setFormData] = useState({
+    windowName: '',
+    description: '',
+    courseId: 0,
+    examId: 0,
+    startDateTime: '',
+    endDateTime: '',
+    durationMinutes: 60,
+    maxAttempts: 1,
+    isActive: true,
+    allowLateSubmission: false,
+    password: ''
   });
 
   // Session handling
@@ -158,6 +174,51 @@ export default function TestWindowsPageClient() {
     toast.success('Test window created successfully!');
   };
 
+  // Handle calendar event creation (drag and drop)
+  const handleCalendarEventCreate = (info: { start: string; end: string; allDay: boolean }) => {
+    const startDate = new Date(info.start);
+    const endDate = new Date(info.end);
+    
+    // Calculate duration in minutes
+    const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
+    
+    // Pre-fill form with selected time range
+    setFormData(prev => ({
+      ...prev,
+      windowName: `Test Window - ${startDate.toLocaleDateString()}`,
+      startDateTime: startDate.toISOString().slice(0, 16),
+      endDateTime: endDate.toISOString().slice(0, 16),
+      durationMinutes: durationMinutes,
+    }));
+    
+    // Open the modal
+    setIsCreateModalOpen(true);
+  };
+
+  // Handle calendar event click
+  const handleCalendarEventClick = (info: any) => {
+    console.log('Test window clicked:', info.event);
+    toast.info(`Clicked on: ${info.event.title}`);
+    // You can add edit functionality here
+  };
+
+  // Convert test windows to calendar events
+  const calendarEvents = testWindows.map(tw => ({
+    id: tw.id.toString(),
+    title: tw.windowName,
+    start: tw.startDateTime,
+    end: tw.endDateTime,
+    backgroundColor: tw.isActive ? '#dc2626' : '#6b7280', // Red if active, gray if inactive
+    borderColor: tw.isActive ? '#b91c1c' : '#4b5563',
+    extendedProps: {
+      courseId: tw.courseId,
+      examId: tw.examId,
+      description: tw.description,
+      maxAttempts: tw.maxAttempts,
+      isActive: tw.isActive,
+    }
+  }));
+
   const formatDateTime = (dateTimeString: string) => {
     return new Date(dateTimeString).toLocaleString();
   };
@@ -204,6 +265,17 @@ export default function TestWindowsPageClient() {
           >
             Create Test Window
           </button>
+        </div>
+
+        {/* Calendar View */}
+        <div className="mb-8">
+          <TestWindowCalendar
+            events={calendarEvents}
+            onEventCreate={handleCalendarEventCreate}
+            onEventClick={handleCalendarEventClick}
+            initialView="timeGridWeek"
+            height={600}
+          />
         </div>
 
         {/* Test Windows List */}
@@ -298,6 +370,7 @@ export default function TestWindowsPageClient() {
           onTestWindowCreated={handleTestWindowCreated}
           courses={courses}
           exams={exams}
+          initialFormData={formData}
         />
       </div>
     </div>
