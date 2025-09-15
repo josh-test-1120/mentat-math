@@ -28,19 +28,9 @@ export default async function Schedule() {
     const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
     return (
-
         <AuthProvider session={session}>
-            <section
-                id={"schedulePageMain"}
-                className="w-full h-screen flex font-bold bg-mentat-black text-mentat-gold"
-            >
-                <SchedulesPage/>
-                {/* <InstructorCoursesClient/> */}
-                {/* <TestWindowExample/> */}
-            </section>
+            <SchedulesPage/>
         </AuthProvider>
-
     );
-
 }
 

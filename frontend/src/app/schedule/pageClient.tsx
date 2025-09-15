@@ -15,7 +15,6 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * @constructor
  */
 export default function Schedule() {
-
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -52,7 +51,6 @@ export default function Schedule() {
             setSessionReady(prev => prev || userSession.id !== "");
         }
     }, [session]);
-
 
     // Setting data by name, value, type, and checked value
     const data = (e: any) => {
@@ -146,8 +144,7 @@ export default function Schedule() {
     };
 
     return (
-        <div className="w-full h-screen bg-mentat-black text-mentat-gold flex flex-col">
-            
+        <div className="h-full w-full flex flex-col">
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -239,7 +236,8 @@ export default function Schedule() {
                     </div>
                 </form>
             </Modal>
-            <div className="flex-1 w-full p-4">
+            
+            <div className="flex-1 w-full">
                 <Calendar
                     events={[
                         { title: 'Exam 1', start: '2025-09-20', id: '1' },
