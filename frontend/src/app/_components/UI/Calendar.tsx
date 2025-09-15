@@ -217,7 +217,7 @@ export default function Calendar({
         
         /* Today styling */
         .fc .fc-day-today {
-          background-color: rgba(255, 215, 0, 0.05) !important;
+          background-color: transparent !important;
         }
         
         /* Event text */
@@ -233,6 +233,20 @@ export default function Calendar({
         /* Make all grid lines solid */
         .fc .fc-scrollgrid {
           border-style: solid !important;
+        }
+
+        /* Today: red text in header + day number */
+        .fc .fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion,
+        .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+          color: #ef4444 !important; /* Tailwind red-500 */
+        }
+
+        /* Today: red border (dayGrid cell + timeGrid column) */
+                /* Today: red border (dayGrid cell + timeGrid column) */
+        .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame,
+        .fc .fc-timegrid-col.fc-day-today {
+          box-shadow: inset 0 0 0 1px #ef4444 !important; /* thinner */
+          border-color: #ef4444 !important;
         }
         
         .fc .fc-scrollgrid-section > * {
@@ -344,11 +358,11 @@ export default function Calendar({
         }}
         
         // Business hours (optional)
-        businessHours={{
-          daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
-          startTime: '08:00',
-          endTime: '18:00',
-        }}
+        // businessHours={{
+        //   daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
+        //   startTime: '08:00',
+        //   endTime: '18:00',
+        // }}
       />
     </div>
   );

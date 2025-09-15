@@ -12,7 +12,7 @@ export default function RootLayout({
     session: any;
 }) {
     return (
-        <html lang="en" className="h-full">
+        <html lang="en" className="h-full bg-mentat-black">
             {/*Load the Font Awesome Pack*/}
             <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
             <body className="h-full overflow-hidden">
