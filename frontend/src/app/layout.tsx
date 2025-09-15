@@ -12,18 +12,18 @@ export default function RootLayout({
     session: any;
 }) {
     return (
-        <html lang="en">
+        <html lang="en" className="h-full">
             {/*Load the Font Awesome Pack*/}
             <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
-            <body className="h-screen overflow-hidden">
+            <body className="h-full overflow-hidden">
                 <ToastProvider>
-                    <div className="h-screen flex flex-col">
+                    <div className="h-full flex flex-col">
                         <Header/>
                         <div className="flex flex-1 overflow-hidden">
                             <div id="sidebar-box" className="w-64 flex-shrink-0">
                                 <Sidebar/>
                             </div>
-                            <div id="mainbar-box" className="flex-1 overflow-auto">
+                            <div id="mainbar-box" className="flex-1 overflow-hidden">
                                 {children}
                             </div>
                         </div>
