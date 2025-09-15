@@ -5,29 +5,30 @@ import Script from "next/script";
 import ToastProvider from '@/components/ToastProvider'
 
 export default function RootLayout({
-      children,
-      session,
-    }: {
-      children: React.ReactNode;
-      session: any;
-    }) {
-
+    children,
+    session,
+}: {
+    children: React.ReactNode;
+    session: any;
+}) {
     return (
         <html lang="en">
             {/*Load the Font Awesome Pack*/}
             <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
-            <body>
-            <ToastProvider>
-                <Header/>
-                <div className="inline-block w-full">
-                    <div id="sidebar-box" className="w-1/5 inline-block">
-                        <Sidebar/>
+            <body className="h-screen overflow-hidden">
+                <ToastProvider>
+                    <div className="h-screen flex flex-col">
+                        <Header/>
+                        <div className="flex flex-1 overflow-hidden">
+                            <div id="sidebar-box" className="w-64 flex-shrink-0">
+                                <Sidebar/>
+                            </div>
+                            <div id="mainbar-box" className="flex-1 overflow-auto">
+                                {children}
+                            </div>
+                        </div>
                     </div>
-                    <div id="mainbar-box" className="w-4/5 inline-block align-top">
-                        {children}
-                    </div>
-                </div>
-            </ToastProvider>
+                </ToastProvider>
             </body>
         </html>
     );
