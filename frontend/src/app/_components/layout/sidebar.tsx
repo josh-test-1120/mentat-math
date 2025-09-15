@@ -540,7 +540,8 @@ export default function Sidebar() {
     return (
         <aside 
             id="sidebar" 
-            className="h-full w-full flex flex-col bg-gradient-to-r from-red-600 via-red-700 to-red-800" 
+            className="h-full w-full flex flex-col"
+            style={{ backgroundColor: '#A30F32' }} 
             aria-label="Sidenav"
         >
             {/* Remove the entire hgslider-block section */}
