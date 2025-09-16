@@ -101,7 +101,7 @@ export default function Calendar({
   };
 
   return (
-    <div className="bg-mentat-black text-mentat-gold border border-mentat-gold/20 rounded-none p-4 h-[600px] w-full overflow-hidden">
+    <div className="bg-mentat-black text-mentat-gold border border-mentat-gold/20 rounded-none p-4 h-full w-full">
       <style jsx global>{`
         /* Custom FullCalendar Styling */
         .fc {

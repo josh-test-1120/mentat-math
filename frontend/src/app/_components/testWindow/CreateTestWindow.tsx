@@ -1,3 +1,5 @@
+// @author Telmen Enkhtuvshin
+// @description Create Test Window Component for testWindow page Instructor Calendar
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -23,13 +25,11 @@ interface TestWindowFormData {
   description: string;
   courseId: number;
   examId: number;
-  startDateTime: string;
-  endDateTime: string;
-  durationMinutes: number;
-  maxAttempts: number;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
   isActive: boolean;
-  allowLateSubmission: boolean;
-  password: string;
 }
 
 export default function CreateTestWindow({ 
@@ -47,13 +47,11 @@ export default function CreateTestWindow({
     description: initialFormData.description || '',
     courseId: initialFormData.courseId || 0,
     examId: initialFormData.examId || 0,
-    startDateTime: initialFormData.startDateTime || '',
-    endDateTime: initialFormData.endDateTime || '',
-    durationMinutes: initialFormData.durationMinutes || 60,
-    maxAttempts: initialFormData.maxAttempts || 1,
+    startDate: initialFormData.startDate || '',
+    endDate: initialFormData.endDate || '',
+    startTime: initialFormData.startTime || '',
+    endTime: initialFormData.endTime || '',
     isActive: initialFormData.isActive !== undefined ? initialFormData.isActive : true,
-    allowLateSubmission: initialFormData.allowLateSubmission || false,
-    password: initialFormData.password || ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,42 +59,47 @@ export default function CreateTestWindow({
 
   // Update form data when initialFormData changes
   useEffect(() => {
-    if (isOpen && initialFormData) {
+    if (initialFormData && (initialFormData.startDate || initialFormData.endDate || initialFormData.startTime || initialFormData.endTime)) {
       setFormData(prev => ({
         ...prev,
         ...initialFormData
       }));
     }
-  }, [isOpen, initialFormData]);
+  }, [initialFormData]);
 
   // Filter exams based on selected course
   useEffect(() => {
     if (formData.courseId > 0) {
       const courseExams = exams.filter(exam => exam.courseId === formData.courseId);
       setFilteredExams(courseExams);
-      // Reset exam selection when course changes (only if not pre-filled)
-      if (!initialFormData.examId) {
-        setFormData(prev => ({ ...prev, examId: 0 }));
-      }
     } else {
       setFilteredExams([]);
     }
-  }, [formData.courseId, exams, initialFormData.examId]);
+  }, [formData.courseId, exams]);
 
-  // Set default start time to current time
+  // Reset exam selection when course changes (only if not pre-filled)
   useEffect(() => {
-    if (isOpen && !formData.startDateTime) {
+    if (formData.courseId > 0 && !initialFormData?.examId) {
+      setFormData(prev => ({ ...prev, examId: 0 }));
+    }
+  }, [formData.courseId, initialFormData?.examId]);
+
+  // Set default start time to current time (only if no initial data provided)
+  useEffect(() => {
+    if (isOpen && !formData.startDate && !initialFormData?.startDate) {
       const now = new Date();
       const startTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
       const endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours later
       
       setFormData(prev => ({
         ...prev,
-        startDateTime: startTime.toISOString().slice(0, 16),
-        endDateTime: endTime.toISOString().slice(0, 16)
+        startDate: startTime.toISOString().slice(0, 10),
+        endDate: endTime.toISOString().slice(0, 10),
+        startTime: startTime.toTimeString().slice(0, 5),
+        endTime: endTime.toTimeString().slice(0, 5)
       }));
     }
-  }, [isOpen, formData.startDateTime]);
+  }, [isOpen, formData.startDate, initialFormData?.startDate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -126,33 +129,34 @@ export default function CreateTestWindow({
       return false;
     }
     
-    if (!formData.startDateTime) {
-      toast.error('Start date and time is required');
+    if (!formData.startDate) {
+      toast.error('Start date is required');
       return false;
     }
     
-    if (!formData.endDateTime) {
-      toast.error('End date and time is required');
+    if (!formData.endDate) {
+      toast.error('End date is required');
       return false;
     }
     
-    const startTime = new Date(formData.startDateTime);
-    const endTime = new Date(formData.endDateTime);
-    
-    if (endTime <= startTime) {
-      toast.error('End time must be after start time');
+    if (!formData.startTime) {
+      toast.error('Start time is required');
       return false;
     }
     
-    if (formData.durationMinutes <= 0) {
-      toast.error('Duration must be greater than 0 minutes');
+    if (!formData.endTime) {
+      toast.error('End time is required');
       return false;
     }
     
-    if (formData.maxAttempts <= 0) {
-      toast.error('Max attempts must be greater than 0');
+    const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
+    const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
+    
+    if (endDateTime <= startDateTime) {
+      toast.error('End date/time must be after start date/time');
       return false;
     }
+    
 
     return true;
   };
@@ -177,13 +181,9 @@ export default function CreateTestWindow({
         description: formData.description,
         courseId: formData.courseId,
         examId: formData.examId,
-        startDateTime: formData.startDateTime,
-        endDateTime: formData.endDateTime,
-        durationMinutes: formData.durationMinutes,
-        maxAttempts: formData.maxAttempts,
+        startDateTime: `${formData.startDate}T${formData.startTime}`,
+        endDateTime: `${formData.endDate}T${formData.endTime}`,
         isActive: formData.isActive,
-        allowLateSubmission: formData.allowLateSubmission,
-        password: formData.password,
         createdBy: session.user.id.toString()
       };
 
@@ -210,13 +210,11 @@ export default function CreateTestWindow({
         description: '',
         courseId: 0,
         examId: 0,
-        startDateTime: '',
-        endDateTime: '',
-        durationMinutes: 60,
-        maxAttempts: 1,
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: '',
         isActive: true,
-        allowLateSubmission: false,
-        password: ''
       });
 
       // Close modal and refresh parent
@@ -323,17 +321,17 @@ export default function CreateTestWindow({
           </div>
         </div>
 
-        {/* Date and Time Selection */}
+        {/* Date Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label htmlFor="startDateTime" className="text-sm font-medium">
-              Start Date & Time *
+            <label htmlFor="startDate" className="text-sm font-medium">
+              Start Date *
             </label>
             <input
-              type="datetime-local"
-              id="startDateTime"
-              name="startDateTime"
-              value={formData.startDateTime}
+              type="date"
+              id="startDate"
+              name="startDate"
+              value={formData.startDate}
               onChange={handleInputChange}
               required
               className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
@@ -341,14 +339,14 @@ export default function CreateTestWindow({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="endDateTime" className="text-sm font-medium">
-              End Date & Time *
+            <label htmlFor="endDate" className="text-sm font-medium">
+              End Date *
             </label>
             <input
-              type="datetime-local"
-              id="endDateTime"
-              name="endDateTime"
-              value={formData.endDateTime}
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={formData.endDate}
               onChange={handleInputChange}
               required
               className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
@@ -356,88 +354,54 @@ export default function CreateTestWindow({
           </div>
         </div>
 
-        {/* Duration and Max Attempts */}
+        {/* Time Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label htmlFor="durationMinutes" className="text-sm font-medium">
-              Duration (minutes) *
+            <label htmlFor="startTime" className="text-sm font-medium">
+              Start Time *
             </label>
             <input
-              type="number"
-              id="durationMinutes"
-              name="durationMinutes"
-              value={formData.durationMinutes}
+              type="time"
+              id="startTime"
+              name="startTime"
+              value={formData.startTime}
               onChange={handleInputChange}
               required
-              min="1"
-              max="480"
               className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="maxAttempts" className="text-sm font-medium">
-              Max Attempts *
+            <label htmlFor="endTime" className="text-sm font-medium">
+              End Time *
             </label>
             <input
-              type="number"
-              id="maxAttempts"
-              name="maxAttempts"
-              value={formData.maxAttempts}
+              type="time"
+              id="endTime"
+              name="endTime"
+              value={formData.endTime}
               onChange={handleInputChange}
               required
-              min="1"
-              max="10"
               className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
             />
           </div>
         </div>
 
-        {/* Password Protection */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Password (Optional)
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-            placeholder="Enter password for test window access"
-          />
-        </div>
+
 
         {/* Checkboxes */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex items-center gap-3">
-            <input
-              id="isActive"
-              type="checkbox"
-              name="isActive"
-              checked={formData.isActive}
-              onChange={handleInputChange}
-              className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-            />
-            <label htmlFor="isActive" className="select-none text-sm">
-              Active Test Window
-            </label>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <input
-              id="allowLateSubmission"
-              type="checkbox"
-              name="allowLateSubmission"
-              checked={formData.allowLateSubmission}
-              onChange={handleInputChange}
-              className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-            />
-            <label htmlFor="allowLateSubmission" className="select-none text-sm">
-              Allow Late Submission
-            </label>
-          </div>
+        <div className="flex items-center gap-3">
+          <input
+            id="isActive"
+            type="checkbox"
+            name="isActive"
+            checked={formData.isActive}
+            onChange={handleInputChange}
+            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+          />
+          <label htmlFor="isActive" className="select-none text-sm">
+            Active Test Window
+          </label>
         </div>
 
         {/* Action Buttons */}

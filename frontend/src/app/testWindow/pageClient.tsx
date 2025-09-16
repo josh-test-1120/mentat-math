@@ -110,6 +110,14 @@ export default function TestWindowPage() {
         }
     };
 
+    // State for calendar time selection
+    const [selectedTimeData, setSelectedTimeData] = useState({
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: ''
+    });
+
     /**
      * Handle calendar event creation (drag and drop)
      * @param info Calendar selection info
@@ -118,21 +126,16 @@ export default function TestWindowPage() {
         const startDate = new Date(info.start);
         const endDate = new Date(info.end);
         
-        // Pre-fill form with selected time range
-        setFormData(prev => ({
-            ...prev,
-            exam_name: `Exam - ${startDate.toLocaleDateString()}`,
-        }));
+        // Store the selected time range
+        setSelectedTimeData({
+            startDate: startDate.toISOString().slice(0, 10),
+            endDate: endDate.toISOString().slice(0, 10),
+            startTime: startDate.toTimeString().slice(0, 5),
+            endTime: endDate.toTimeString().slice(0, 5)
+        });
         
         // Open the modal
         setIsModalOpen(true);
-        
-        // Store the time range for later use
-        setFormData(prev => ({
-            ...prev,
-            startTime: startDate.toISOString().slice(0, 16),
-            endTime: endDate.toISOString().slice(0, 16),
-        }));
     };
 
     /**
@@ -151,12 +154,27 @@ export default function TestWindowPage() {
 
     return (
         <div className="h-full w-full flex flex-col">
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Test Window">
-                <CreateTestWindow isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTestWindowCreated={handleTestWindowCreated}/>
-            </Modal>
+            <CreateTestWindow 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onTestWindowCreated={handleTestWindowCreated}
+                initialFormData={selectedTimeData}
+            />
             
-            <div className="flex-1 w-full">
-                <Calendar
+            <div className="flex-1 w-full flex flex-col">
+                {/* Instructions - fixed height at top */}
+                <div className="mb-2 p-2 bg-mentat-gold/10 rounded-lg border border-mentat-gold/20 flex-shrink-0">
+                    <div className="flex items-center gap-2 text-sm">
+                        <span className="text-mentat-gold">💡</span>
+                        <span className="text-mentat-gold">
+                            <strong>Tip:</strong> Click and drag on the calendar to create test windows.
+                        </span>
+                    </div>
+                </div>
+                
+                {/* Calendar - takes remaining space */}
+                <div className="flex-1 min-h-0">
+                    <Calendar
                     events={[
                         { title: 'Exam 1', start: '2025-09-20', id: '1' },
                         { title: 'Exam 2', start: '2025-09-22T14:00:00', id: '2' },
@@ -168,6 +186,7 @@ export default function TestWindowPage() {
                     editable={true}
                     selectable={true}
                 />
+                </div>
             </div>
 
             <ToastContainer autoClose={3000} hideProgressBar />
