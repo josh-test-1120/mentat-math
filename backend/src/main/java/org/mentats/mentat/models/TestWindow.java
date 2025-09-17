@@ -1,4 +1,7 @@
+// @author Telmen Enkhtuvshin
 // backend/src/main/java/org/mentats/mentat/models/TestWindow.java
+// This is the JPA model for the TestWindow entity.
+// It is used to store the test window data.
 package org.mentats.mentat.models;
 
 import jakarta.persistence.*;
