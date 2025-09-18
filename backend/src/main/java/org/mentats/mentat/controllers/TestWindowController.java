@@ -6,7 +6,7 @@ package org.mentats.mentat.controllers;
 
 import org.mentats.mentat.models.TestWindow;
 import org.mentats.mentat.services.TestWindowService;
-import org.mentats.mentat.dto.TestWindowRequest;
+import org.mentats.mentat.payload.request.TestWindowRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
