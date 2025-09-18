@@ -1,8 +1,8 @@
 // @author Telmen Enkhtuvshin
-// backend/src/main/java/org/mentats/mentat/dto/TestWindowRequest.java
+// backend/src/main/java/org/mentats/mentat/payload/request/TestWindowRequest.java
 // This is the request class for the TestWindow entity.
 // It is used to store the test window data.
-package org.mentats.mentat.dto;
+package org.mentats.mentat.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -5,7 +5,7 @@ package org.mentats.mentat.services;
 
 import org.mentats.mentat.models.TestWindow;
 import org.mentats.mentat.repositories.TestWindowRepository;
-import org.mentats.mentat.dto.TestWindowRequest;
+import org.mentats.mentat.payload.request.TestWindowRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
