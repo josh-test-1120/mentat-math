@@ -22,10 +22,10 @@ public interface TestWindowRepository extends JpaRepository<TestWindow, Integer>
     List<TestWindow> findByCourseIdAndIsActiveTrue(Integer courseId);
     
     // Find test windows by instructor (through course)
-    @Query("SELECT tw FROM TestWindow tw JOIN Course c ON tw.courseId = c.courseID WHERE c.courseProfessorId = :professorId")
+    @Query("SELECT tw FROM TestWindow tw JOIN Course c ON tw.courseId = c.courseId WHERE c.courseProfessorId = :professorId")
     List<TestWindow> findByProfessorId(@Param("professorId") String professorId);
     
     // Find active test windows by instructor
-    @Query("SELECT tw FROM TestWindow tw JOIN Course c ON tw.courseId = c.courseID WHERE c.courseProfessorId = :professorId AND tw.isActive = true")
+    @Query("SELECT tw FROM TestWindow tw JOIN Course c ON tw.courseId = c.courseId WHERE c.courseProfessorId = :professorId AND tw.isActive = true")
     List<TestWindow> findActiveByProfessorId(@Param("professorId") String professorId);
 }
