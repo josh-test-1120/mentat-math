@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from 'next-auth/react'
 import Modal from "../UI/Modal";
+import { toast } from 'react-toastify';
 
 // Course type definition
 type Course = {
@@ -89,22 +90,44 @@ export default function CreateTestWindow({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Basic validation
-        if (!formData.windowName.trim()) {
-            alert('Please enter a window name');
-            return;
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/test-window/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    windowName: formData.windowName,
+                    description: formData.description,
+                    courseId: formData.courseId,
+                    startDate: formData.startDate,
+                    endDate: formData.endDate,
+                    startTime: formData.startTime,
+                    endTime: formData.endTime,
+                    weekdays: JSON.stringify({
+                        monday: false,
+                        tuesday: true,
+                        wednesday: false,
+                        thursday: true,
+                        friday: false,
+                        saturday: false,
+                        sunday: false
+                    }),
+                    exceptions: "{}",
+                    isActive: formData.isActive
+                })
+            });
+            
+            if (response.ok) {
+                toast.success('Test window created successfully!');
+                onTestWindowCreated();
+            } else {
+                toast.error('Failed to create test window');
+            }
+        } catch (error) {
+            console.error('Error creating test window:', error);
+            toast.error('Error creating test window');
         }
-        
-        if (!formData.courseId) {
-            alert('Please select a course');
-            return;
-        }
-        
-        // Here you would typically send the data to your backend
-        console.log('Test window data:', formData);
-        
-        // Call the success callback
-        onTestWindowCreated();
     };
 
     return (
