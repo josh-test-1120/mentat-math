@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from 'next-auth/react'
 import Modal from "../UI/Modal";
 import { toast } from 'react-toastify';
+import { apiHandler } from "@/utils/api";
 
 // Course type definition
 type Course = {
@@ -90,40 +91,58 @@ export default function CreateTestWindow({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        // Basic validation
+        if (!formData.windowName.trim()) {
+            toast.error('Please enter a window name');
+            return;
+        }
+        
+        if (!formData.courseId) {
+            toast.error('Please select a course');
+            return;
+        }
+        
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/test-window/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    windowName: formData.windowName,
-                    description: formData.description,
-                    courseId: formData.courseId,
-                    startDate: formData.startDate,
-                    endDate: formData.endDate,
-                    startTime: formData.startTime,
-                    endTime: formData.endTime,
-                    weekdays: JSON.stringify({
-                        monday: false,
-                        tuesday: true,
-                        wednesday: false,
-                        thursday: true,
-                        friday: false,
-                        saturday: false,
-                        sunday: false
-                    }),
-                    exceptions: "{}",
-                    isActive: formData.isActive
-                })
-            });
+            const requestData = {
+                windowName: formData.windowName,
+                description: formData.description,
+                courseId: formData.courseId,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                startTime: formData.startTime,
+                endTime: formData.endTime,
+                weekdays: JSON.stringify({
+                    monday: false,
+                    tuesday: true,
+                    wednesday: false,
+                    thursday: true,
+                    friday: false,
+                    saturday: false,
+                    sunday: false
+                }),
+                exceptions: "{}",
+                isActive: formData.isActive
+            };
             
-            if (response.ok) {
-                toast.success('Test window created successfully!');
-                onTestWindowCreated();
-            } else {
-                toast.error('Failed to create test window');
+            console.log('Sending test window data:', requestData);
+            
+            const response = await apiHandler(
+                requestData,  // Request body
+                'POST',       // Method
+                'api/test-window/create',  // Endpoint (apiHandler adds /api/ prefix)
+                process.env.NEXT_PUBLIC_BACKEND_API || 'http://localhost:8080'  // Base URL
+            );
+            
+            if (response?.error) {
+                console.error('Error creating test window:', response);
+                toast.error(response.message || 'Failed to create test window');
+                return;
             }
+            
+            console.log('Test window created successfully:', response);
+            toast.success('Test window created successfully!');
+            onTestWindowCreated();
+            
         } catch (error) {
             console.error('Error creating test window:', error);
             toast.error('Error creating test window');

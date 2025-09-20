@@ -11,7 +11,7 @@ interface CreateCourseClientProps {
 
 export default function CreateCourseClient({ onCourseCreated }: CreateCourseClientProps) {
   const { data: session } = useSession();
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     courseName: '',
     courseSection: '',
     courseQuarter: '',

@@ -310,7 +310,10 @@ export default function TestWindowPage() {
                         events={[
                             { title: 'Exam 1', start: '2025-09-20', id: '1' },
                             { title: 'Exam 2', start: '2025-09-22T14:00:00', id: '2' },
-                        ]}
+                        ].map((event, index) => ({
+                            ...event,
+                            key: event.id || `event-${index}` // Add explicit key
+                        }))}
                         onDateClick={({ dateStr }) => setIsModalOpen(true)}
                         onEventClick={handleEventClick}
                         onEventCreate={handleEventCreate}
