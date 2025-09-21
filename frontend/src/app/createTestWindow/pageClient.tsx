@@ -9,7 +9,7 @@ import { apiHandler } from "@/utils/api";
 
 // Course type definition
 type Course = {
-    courseID: number;
+    courseId: number;  // Changed from courseID to courseId to match backend data
     courseName: string;
     courseSection: string;
     courseYear: number;
@@ -79,7 +79,7 @@ export default function CreateTestWindowClient({
     const [formData, setFormData] = useState<TestWindowFormData>({
         windowName: initialFormData.windowName || '',
         description: initialFormData.description || '',
-        courseId: initialFormData.courseId || selectedCourseId || 0,
+        courseId: initialFormData.courseId || (selectedCourseId ? parseInt(selectedCourseId.toString(), 10) : 0),
         examId: initialFormData.examId || 0,
         startDate: initialFormData.startDate || '',
         endDate: initialFormData.endDate || '',
@@ -94,20 +94,51 @@ export default function CreateTestWindowClient({
             setFormData(prev => ({
                 ...prev,
                 ...initialFormData,
-                courseId: selectedCourseId || initialFormData.courseId || prev.courseId
+                courseId: selectedCourseId ? parseInt(selectedCourseId.toString(), 10) : (initialFormData.courseId || prev.courseId)
             }));
         }
     }, [selectedCourseId]);
+
+    // Debug courses array
+    useEffect(() => {
+        console.log('Courses loaded:', courses);
+        console.log('Course IDs:', courses.map(c => ({ id: c.courseId, name: c.courseName, type: typeof c.courseId })));
+    }, [courses]);
 
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         const checked = (e.target as HTMLInputElement).checked;
         
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        console.log('Input change detected:', { name, value, type, coursesLength: courses.length });
+        
+        let processedValue;
+        if (type === 'checkbox') {
+            processedValue = checked;
+        } else if (name === 'courseId') {
+            // Convert courseId to integer, but only if value is not empty
+            const parsedValue = parseInt(value, 10);
+            processedValue = isNaN(parsedValue) ? 0 : parsedValue;
+            console.log('Course selection changed:', { name, value, processedValue, type: typeof processedValue, isNaN: isNaN(parsedValue) });
+        } else {
+            processedValue = value;
+        }
+        
+        setFormData(prev => {
+            // Create a new form data object by spreading the previous state
+            // This ensures we don't mutate the original state (React best practice)
+            const newFormData = {
+                // Copy all existing form fields (windowName, description, etc.)
+                ...prev,
+                // Update only the specific field that changed
+                // name expresses any field name, value expresses the new value
+                [name]: processedValue
+            };
+            // Log the updated form data to help with debugging
+            console.log('Form data updated:', newFormData);
+            // Return the new form data to update the state
+            return newFormData;
+        });
     };
 
     // Handle form submission with session authentication
@@ -159,14 +190,22 @@ export default function CreateTestWindowClient({
             };
             
             console.log('Sending test window data:', requestData);
+            console.log('Current form data:', formData);
+            console.log('Available courses:', courses);
             console.log('User session:', session);
+            console.log('User accessToken:', session?.user?.accessToken);
+            console.log('AccessToken type:', typeof session?.user?.accessToken);
+            console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_API);
             
             const response = await apiHandler(
                 requestData,
                 'POST',
                 'api/test-window/create',
-                process.env.NEXT_PUBLIC_BACKEND_API || ''
+                process.env.NEXT_PUBLIC_BACKEND_API || '',
+                session?.user?.accessToken || undefined
             );
+            
+            console.log('API Response:', response);
             
             if (response?.error) {
                 console.error('Error creating test window:', response);
@@ -254,7 +293,7 @@ export default function CreateTestWindowClient({
                 >
                     <option value={0}>Select a course</option>
                     {courses.map((course) => (
-                        <option key={course.courseID} value={course.courseID}>
+                        <option key={course.courseId} value={course.courseId}>
                             {course.courseName} - {course.courseSection} ({course.courseQuarter} {course.courseYear})
                         </option>
                     ))}

@@ -13,7 +13,7 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 // Course type definition
 type Course = {
-    courseID: number;
+    courseId: number;  // Changed from courseID to courseId to match backend data
     courseName: string;
     courseSection: string;
     courseYear: number;
@@ -59,7 +59,8 @@ export default function TestWindowPage() {
                     undefined,
                     'GET',
                     `course/listCourses?id=${session.user.id}`,
-                    `${BACKEND_API}`
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
                 );
                 
                 if (res?.error) {
@@ -88,7 +89,7 @@ export default function TestWindowPage() {
                 
                 // Set first course as default if available
                 if (coursesData.length > 0) {
-                    setSelectedCourseId(coursesData[0].courseID);
+                    setSelectedCourseId(coursesData[0].courseId);
                 }
             } catch (e) {
                 console.error('Error fetching instructor courses:', e);
@@ -176,7 +177,7 @@ export default function TestWindowPage() {
     };
 
     // Get selected course name for display
-    const selectedCourse = courses.find(course => course.courseID === selectedCourseId);
+    const selectedCourse = courses.find(course => course.courseId === selectedCourseId);
 
     if (loading) {
         return (
@@ -213,7 +214,7 @@ export default function TestWindowPage() {
                     >
                         <option value="">Select a course</option>
                         {courses.map((course) => (
-                            <option key={course.courseID} value={course.courseID}>
+                            <option key={course.courseId} value={course.courseId}>
                                 {course.courseName} - {course.courseSection} ({course.courseQuarter} {course.courseYear})
                             </option>
                         ))}
