@@ -79,7 +79,8 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
                 { studentId: userSession.id, courseId },
                 "POST",
                 "course/joinCourse",
-                `${BACKEND_API}`
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
             );
     
             // Handle errors properly
