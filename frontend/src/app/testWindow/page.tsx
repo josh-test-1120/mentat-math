@@ -3,7 +3,7 @@ import TestWindowPage from "./pageClient";
 import { AuthProvider } from "@/components/authProvider"
 import {Session} from "next-auth";
 import InstructorCoursesClient from "@/app/instructorCourses/pageClient";
-import CreateTestWindow from "@/app/_components/testWindow/CreateTestWindow";
+import CreateTestWindow from "@/app/createTestWindow/pageClient";
 import TestWindowExample from "@/app/_components/testWindow/TestWindowExample";
 import TestWindowCalendar from "@/app/_components/UI/TestWindowCalendar";
 
@@ -30,8 +30,10 @@ export default async function TestWindow() {
 
     return (
         <AuthProvider session={session}>
-            <TestWindowPage/>
-            {/* <TestWindowCalendar/> */}
+            <div className="h-full w-full flex flex-col">
+                <TestWindowPage/>
+                {/* Any other components that need auth */}
+            </div>
         </AuthProvider>
     );
 }

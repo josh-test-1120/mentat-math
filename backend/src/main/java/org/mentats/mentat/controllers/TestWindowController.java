@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/test-window")
-@CrossOrigin(origins = "*")
 public class TestWindowController {
     
     @Autowired
@@ -23,6 +22,20 @@ public class TestWindowController {
     @PostMapping("/create")
     public ResponseEntity<?> createTestWindow(@RequestBody TestWindowRequest request) {
         try {
+            System.out.println("TestWindowController.createTestWindow() called YOLO");
+            System.out.println("Creating test window: " + request);
+            System.out.println("Test window request: " + request);
+            System.out.println("Test window request windowName: " + request.getWindowName());
+            System.out.println("Test window request description: " + request.getDescription());
+            System.out.println("Test window request courseId: " + request.getCourseId());
+            System.out.println("Test window request startDate: " + request.getStartDate());
+            System.out.println("Test window request endDate: " + request.getEndDate());
+            System.out.println("Test window request startTime: " + request.getStartTime());
+            System.out.println("Test window request endTime: " + request.getEndTime());
+            System.out.println("Test window request weekdays: " + request.getWeekdays());
+            System.out.println("Test window request exceptions: " + request.getExceptions());
+            System.out.println("Test window request isActive: " + request.getIsActive());
+                
             TestWindow testWindow = testWindowService.createTestWindow(request);
             return ResponseEntity.ok(testWindow);
         } catch (Exception e) {

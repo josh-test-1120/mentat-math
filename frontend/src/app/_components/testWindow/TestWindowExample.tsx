@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import CreateTestWindow from "./CreateTestWindow";
+import CreateTestWindow from "../../createTestWindow/pageClient";
 
 // Example component showing how to use CreateTestWindow
 export default function TestWindowExample() {

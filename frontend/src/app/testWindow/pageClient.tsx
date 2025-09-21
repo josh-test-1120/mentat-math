@@ -6,7 +6,7 @@ import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import Modal from "@/app/_components/UI/Modal";
 import Calendar from "../_components/UI/Calendar";
-import CreateTestWindow from "../_components/testWindow/CreateTestWindow";
+import CreateTestWindow from "@/app/createTestWindow/pageClient";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -32,14 +32,7 @@ export default function TestWindowPage() {
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
-    const [formData, setFormData] = useState({
-        exam_course_id: 1,
-        exam_name: "",
-        exam_difficulty: "",
-        is_published: "",
-        is_required: "",
-    });
+
 
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
@@ -49,15 +42,14 @@ export default function TestWindowPage() {
     });
 
     // Session information
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
 
-    // Form Mapping
-    const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
 
     /**
      * Fetch instructor courses
      */
     const fetchInstructorCourses = useCallback(async () => {
+        if (status !== 'authenticated') return;
         if (session?.user?.id) {
             try {
                 setLoading(true);
@@ -120,7 +112,7 @@ export default function TestWindowPage() {
             }));
             setSessionReady(prev => prev || userSession.id !== "");
         }
-    }, [session]);
+    }, [session, status]);
 
     // Fetch courses when session is ready
     useEffect(() => {
@@ -129,16 +121,6 @@ export default function TestWindowPage() {
         }
     }, [sessionReady, fetchInstructorCourses]);
 
-    // Setting data by name, value, type, and checked value
-    const data = (e: any) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            // Spread data
-            ...formData,
-            // Override field name's value by type checkbox for correctness
-            [name]: type === 'checkbox' ? checked : value,
-        });
-    };
 
     /**
      * Handle course selection change
@@ -148,51 +130,6 @@ export default function TestWindowPage() {
         setSelectedCourseId(courseId);
     };
 
-    /**
-     * Submit button for Form
-     * @param event Event from DOM
-     */
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault(); // Prevent default events
-
-        // Try wrapper to handle async exceptions
-        try {
-            console.log(`This is the session info: ${userSession}`)
-            let index = 1;
-            console.log(`This is the exam course id: ${exam_course_id}`)
-            const response = await fetch("http://localhost:8080/api/createExam", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    exam_name,
-                    is_published: is_published ? 1 : 0,
-                    is_required: is_required ? 1 : 0,
-                    exam_difficulty,
-                    exam_course_id,
-                })
-            });
-            console.log(`This is the response:`);
-            console.log(response);
-            // Response handler
-            if (response.ok) {
-                toast.success("Exam created successfully");
-                setIsModalOpen(false);
-                setFormData({
-                    exam_course_id: 1,
-                    exam_name: "",
-                    exam_difficulty: "",
-                    is_published: "",
-                    is_required: "",
-                });
-            } else {
-                toast.error("Failed to create exam");
-            }
-        } catch (error) {
-            toast.error("Failed to create exam");
-        }
-    };
 
     // State for calendar time selection
     const [selectedTimeData, setSelectedTimeData] = useState({
@@ -244,7 +181,7 @@ export default function TestWindowPage() {
     if (loading) {
         return (
             <div className="h-full w-full flex items-center justify-center">
-                <div className="text-mentat-gold">Loading courses...</div>
+                <div className="text-mentat-gold">Loading page...</div>
             </div>
         );
     }
@@ -259,71 +196,60 @@ export default function TestWindowPage() {
 
     return (
         <div className="h-full w-full flex flex-col">
-            <CreateTestWindow 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                onTestWindowCreated={handleTestWindowCreated}
-                initialFormData={{
-                    ...selectedTimeData,
-                    courseId: selectedCourseId || undefined
-                }}
-                courses={courses}
-                selectedCourseId={selectedCourseId}
-            />
-            
-            <div className="flex-1 w-full flex flex-col">
-                {/* Course Selection and Instructions - fixed height at top */}
-                <div className="mb-2 p-4 bg-mentat-gold/10 rounded-lg border border-mentat-gold/20 flex-shrink-0">
-                    <div className="flex items-center justify-between gap-4">
-                        {/* Course Selection */}
-                        <div className="flex items-center gap-3">
-                            <label htmlFor="course-select" className="text-sm font-medium text-mentat-gold">
-                                Select Course:
-                            </label>
-                            <select
-                                id="course-select"
-                                value={selectedCourseId || ''}
-                                onChange={handleCourseChange}
-                                className="px-3 py-2 bg-white/5 text-mentat-gold border border-mentat-gold/20 rounded-md focus:border-mentat-gold/60 focus:ring-0 focus:outline-none"
-                            >
-                                {courses.map((course) => (
-                                    <option key={course.courseID} value={course.courseID}>
-                                        {course.courseName} - {course.courseSection} ({course.courseQuarter} {course.courseYear})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        
-                        {/* Instructions */}
-                        <div className="flex items-center gap-2 text-sm">
-                            <span className="text-mentat-gold">💡</span>
-                            <span className="text-mentat-gold">
-                                <strong>Tip:</strong> Click and drag on the calendar to create test windows for <strong>{selectedCourse?.courseName || 'selected course'}</strong>.
-                            </span>
-                        </div>
-                    </div>
-                </div>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-mentat-gold/20">
+                <h1 className="text-2xl font-bold text-mentat-gold">Test Window Management</h1>
                 
-                {/* Calendar - takes remaining space */}
-                <div className="flex-1 min-h-0">
-                    <Calendar
-                        events={[
-                            { title: 'Exam 1', start: '2025-09-20', id: '1' },
-                            { title: 'Exam 2', start: '2025-09-22T14:00:00', id: '2' },
-                        ].map((event, index) => ({
-                            ...event,
-                            key: event.id || `event-${index}` // Add explicit key
-                        }))}
-                        onDateClick={({ dateStr }) => setIsModalOpen(true)}
-                        onEventClick={handleEventClick}
-                        onEventCreate={handleEventCreate}
-                        initialView="timeGridWeek"
-                        editable={true}
-                        selectable={true}
-                    />
+                {/* Course Selection */}
+                <div className="flex items-center gap-3">
+                    <label htmlFor="course-select" className="text-sm font-medium text-mentat-gold">
+                        Select Course:
+                    </label>
+                    <select
+                        id="course-select"
+                        value={selectedCourseId || ''}
+                        onChange={handleCourseChange}
+                        className="px-3 py-2 bg-white/5 text-mentat-gold border border-mentat-gold/20 rounded-md focus:border-mentat-gold/60 focus:ring-0 focus:outline-none"
+                    >
+                        <option value="">Select a course</option>
+                        {courses.map((course) => (
+                            <option key={course.courseID} value={course.courseID}>
+                                {course.courseName} - {course.courseSection} ({course.courseQuarter} {course.courseYear})
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
+            {/* Calendar */}
+            <div className="flex-1 p-4">
+                <Calendar
+                    events={[]}
+                    onDateClick={({ dateStr }) => setIsModalOpen(true)}
+                    onEventCreate={handleEventCreate}
+                    initialView="timeGridWeek"
+                    editable={true}
+                    selectable={true}
+                />
+            </div>
+
+            {/* Create Test Window Modal */}
+            <Modal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                title="Create Test Window"
+            >
+                <CreateTestWindow
+                    courses={courses}
+                    selectedCourseId={selectedCourseId}
+                    onTestWindowCreated={() => {
+                        setIsModalOpen(false);
+                        toast.success('Test window created successfully!');
+                    }}
+                />
+            </Modal>
+
+            {/* Toast Container */}
             <ToastContainer autoClose={3000} hideProgressBar />
         </div>
     );

@@ -584,8 +584,7 @@ export default function Sidebar() {
                     </li>
                     <li>
                         <Link href="/testWindow"
-                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
+                                className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             <SalesSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="ml-3">Create Test Window</span>
@@ -601,8 +600,7 @@ export default function Sidebar() {
                     {/*</li>*/}
                     <li>
                         <Link href="/reports/instructor"
-                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                              aria-controls="dropdown-sales" data-collapse-toggle="dropdown-sales">
+                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             <AuthenticationSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="ml-3">Reports</span>
