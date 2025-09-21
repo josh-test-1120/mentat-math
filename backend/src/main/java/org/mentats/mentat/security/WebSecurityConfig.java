@@ -99,9 +99,10 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf().disable()
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-            .authorizeRequests()
-            .requestMatchers("/api/**", "/course/**")
-            .permitAll().anyRequest().authenticated();
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/**", "/course/**").permitAll()
+                .anyRequest().authenticated()
+            );
         // Inject the provider into the http handler
         http.authenticationProvider(authenticationProvider());
         // Shift where this filter is added into the chain

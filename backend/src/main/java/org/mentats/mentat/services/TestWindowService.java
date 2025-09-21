@@ -9,6 +9,7 @@ import org.mentats.mentat.payload.request.TestWindowRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -36,6 +37,9 @@ public class TestWindowService {
         testWindow.setWeekdays(request.getWeekdays() != null ? request.getWeekdays() : "{}");
         testWindow.setExceptions(request.getExceptions());
         testWindow.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
+        
+        // Set the creation datetime to current time
+        testWindow.setTestWindowCreatedDatetime(LocalDateTime.now());
         
         return testWindowRepository.save(testWindow);
     }

@@ -58,7 +58,7 @@ public class TestWindow {
     public TestWindow(String testWindowTitle, LocalTime testStartTime, LocalTime testEndTime, 
                      LocalDate testWindowStartDate, LocalDate testWindowEndDate, 
                      Integer courseId, String description, String weekdays, 
-                     String exceptions, Boolean isActive) {
+                     String exceptions, Boolean isActive, LocalDateTime testWindowCreatedDatetime) {
         this.testWindowTitle = testWindowTitle;
         this.testStartTime = testStartTime;
         this.testEndTime = testEndTime;
@@ -69,7 +69,7 @@ public class TestWindow {
         this.weekdays = weekdays;
         this.exceptions = exceptions;
         this.isActive = isActive;
-        this.testWindowCreatedDatetime = LocalDateTime.now();
+        this.testWindowCreatedDatetime = testWindowCreatedDatetime;
     }
     
     // Getters and Setters
