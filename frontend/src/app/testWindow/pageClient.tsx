@@ -87,10 +87,8 @@ export default function TestWindowPage() {
                 console.log('Processed instructor courses:', coursesData);
                 setCourses(coursesData);
                 
-                // Set first course as default if available
-                if (coursesData.length > 0) {
-                    setSelectedCourseId(coursesData[0].courseId);
-                }
+                // Don't auto-select - force user to make conscious choice
+                // This prevents accidental test window creation for wrong course
             } catch (e) {
                 console.error('Error fetching instructor courses:', e);
                 setError('Failed to fetch courses');
