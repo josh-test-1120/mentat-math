@@ -8,7 +8,7 @@ import CreateCourseClient from '../courses/createCourse/pageClient';
 import { toast } from 'react-toastify';
 
 type Course = {
-    courseID: number;
+    courseId: number;
     courseName: string;
     courseSection: string;
     courseYear: number;
@@ -131,7 +131,7 @@ export default function InstructorCoursesClient() {
     };
 
     return (
-        <div className="p-6 max-w-6xl mx-auto">
+        <div className="min-h-screen overflow-auto p-6 max-w-6xl mx-auto pb-12">
             <div className="mb-6">
                 <h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>
                 <p className="text-white mt-2">
@@ -150,19 +150,19 @@ export default function InstructorCoursesClient() {
                     </p>
                 </div>
             ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {courses.map((course) => (
-                        <div key={course.courseID} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+                    {courses.map((course, index) => (
+                        <div key={`${course?.courseId ?? 'no-id'}-${index}`} className="bg-white/5 border border-mentat-gold/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex justify-between items-start mb-4">
-                                <h3 className="text-xl font-semibold text-gray-800 line-clamp-2">
+                                <h3 className="text-xl font-semibold text-mentat-gold line-clamp-2">
                                     {course.courseName || 'Untitled Course'}
                                 </h3>
-                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                  ID: {course.courseID}
-                </span>
+                                <span className="bg-mentat-gold/20 text-mentat-gold text-xs px-2 py-1 rounded-full border border-mentat-gold/30">
+                                    ID: {course.courseId}
+                                </span>
                             </div>
 
-                            <div className="space-y-2 text-sm text-gray-600">
+                            <div className="space-y-2 text-sm text-mentat-gold/80">
                                 <div className="flex items-center">
                                     <span className="font-medium w-20">Section:</span>
                                     <span>{course.courseSection || 'Not specified'}</span>
@@ -181,10 +181,10 @@ export default function InstructorCoursesClient() {
 
                             <div className="mt-4 pt-4 border-t border-gray-100">
                                 <div className="flex space-x-2">
-                                    <button className="flex-1 px-3 py-2 text-yellow-300 bg-red-700 hover:bg-red-600 text-sm rounded-lg transition-colors">
+                                    <button className="flex-1 px-3 py-2 text-white bg-[#A30F32] hover:bg-[#8e0d2b] text-sm rounded-lg transition-colors">
                                         View Details
                                     </button>
-                                    <button className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors">
+                                    <button className="flex-1 px-3 py-2 bg-gray-400 text-black text-sm rounded-lg hover:bg-gray-200 transition-colors">
                                         Edit Course
                                     </button>
                                 </div>
@@ -194,7 +194,7 @@ export default function InstructorCoursesClient() {
                 </div>
             )}
 
-            <div className="mt-8 text-center">
+            <div className="mt-4 mb-6 text-center">
                 <button 
                     onClick={handleCreateCourse}
                     className="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
@@ -212,7 +212,7 @@ export default function InstructorCoursesClient() {
                 onClose={handleCloseModal}
                 title="Create New Course"
             >
-                <CreateCourseClient onCourseCreated={handleCourseCreated} />
+                <CreateCourseClient onCourseCreated={handleCourseCreated} onCancel={handleCloseModal} />
             </Modal>
         </div>
     );
