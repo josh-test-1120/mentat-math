@@ -37,6 +37,7 @@ interface CreateTestWindowProps {
     initialFormData?: Partial<TestWindowFormData>;
     selectedCourseId?: number | null;
     onTestWindowCreated: () => void;
+    onCancel: () => void;
 }
 
 export default function CreateTestWindowClient({ 
@@ -44,7 +45,8 @@ export default function CreateTestWindowClient({
     exams = [],
     initialFormData = {},
     selectedCourseId,
-    onTestWindowCreated
+    onTestWindowCreated,
+    onCancel
 }: CreateTestWindowProps) {
 
     const { data: session, status } = useSession();
@@ -120,6 +122,21 @@ export default function CreateTestWindowClient({
             const parsedValue = parseInt(value, 10);
             processedValue = isNaN(parsedValue) ? 0 : parsedValue;
             console.log('Course selection changed:', { name, value, processedValue, type: typeof processedValue, isNaN: isNaN(parsedValue) });
+        } else if (type === 'date') {
+            // Validate date input - ensure year is 4 digits
+            if (value && value.length > 0) {
+                const year = value.split('-')[0];
+                if (year && year.length > 4) {
+                    // If year has more than 4 digits, truncate to 4 digits
+                    const truncatedYear = year.substring(0, 4);
+                    const [month, day] = value.split('-').slice(1);
+                    processedValue = `${truncatedYear}-${month || ''}-${day || ''}`;
+                } else {
+                    processedValue = value;
+                }
+            } else {
+                processedValue = value;
+            }
         } else {
             processedValue = value;
         }
@@ -140,6 +157,7 @@ export default function CreateTestWindowClient({
             return newFormData;
         });
     };
+
 
     // Handle form submission with session authentication
     const handleSubmit = async (e: React.FormEvent) => {
@@ -312,6 +330,8 @@ export default function CreateTestWindowClient({
                         name="startDate"
                         value={formData.startDate}
                         onChange={handleInputChange}
+                        min="1900-01-01"
+                        max="9999-12-31"
                         required
                         className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                     />
@@ -326,6 +346,8 @@ export default function CreateTestWindowClient({
                         name="endDate"
                         value={formData.endDate}
                         onChange={handleInputChange}
+                        min="1900-01-01"
+                        max="9999-12-31"
                         required
                         className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                     />
@@ -383,7 +405,7 @@ export default function CreateTestWindowClient({
             <div className="flex justify-end gap-3 pt-4">
                 <button
                     type="button"
-                    onClick={() => onTestWindowCreated()}
+                    onClick={onCancel}
                     className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
                 >
                     Cancel

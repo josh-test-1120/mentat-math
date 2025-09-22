@@ -239,11 +239,18 @@ export default function TestWindowPage() {
                 title="Create Test Window"
             >
                 <CreateTestWindow
+                    // Passes the courses to the CreateTestWindow component
                     courses={courses}
+                    // Passes the selected course id to the CreateTestWindow component
                     selectedCourseId={selectedCourseId}
+                    // Passes function to handle test window creation
                     onTestWindowCreated={() => {
                         setIsModalOpen(false);
                         toast.success('Test window created successfully!');
+                    }}
+                    // Passes function to handle cancel
+                    onCancel={() => {
+                        setIsModalOpen(false);
                     }}
                 />
             </Modal>
