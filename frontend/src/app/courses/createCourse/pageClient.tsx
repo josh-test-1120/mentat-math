@@ -7,9 +7,10 @@ import { toast } from 'react-toastify';
 
 interface CreateCourseClientProps {
   onCourseCreated?: () => void;
+  onCancel?: () => void;
 }
 
-export default function CreateCourseClient({ onCourseCreated }: CreateCourseClientProps) {
+export default function CreateCourseClient({ onCourseCreated, onCancel }: CreateCourseClientProps) {
   const { data: session } = useSession();
   const [formData, setFormData] = useState({
     courseName: '',
@@ -92,9 +93,9 @@ export default function CreateCourseClient({ onCourseCreated }: CreateCourseClie
     };
 
     return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="w-full space-y-6">
       <div>
-        <label htmlFor="courseName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="courseName" className="text-sm font-medium text-mentat-gold">
           Course Name *
         </label>
                     <input
@@ -102,13 +103,14 @@ export default function CreateCourseClient({ onCourseCreated }: CreateCourseClie
           id="courseName"
           value={formData.courseName}
           onChange={(e) => setFormData({ ...formData, courseName: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+          placeholder="Enter course name"
                         required
                     />
       </div>
 
       <div>
-        <label htmlFor="courseSection" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="courseSection" className="text-sm font-medium text-mentat-gold">
           Section
                 </label>
                     <input
@@ -116,19 +118,20 @@ export default function CreateCourseClient({ onCourseCreated }: CreateCourseClie
           id="courseSection"
           value={formData.courseSection}
           onChange={(e) => setFormData({ ...formData, courseSection: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+          placeholder="Enter section (e.g., 001)"
         />
       </div>
 
       <div>
-        <label htmlFor="courseQuarter" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="courseQuarter" className="text-sm font-medium text-mentat-gold">
           Quarter
                 </label>
                     <select
           id="courseQuarter"
           value={formData.courseQuarter}
           onChange={(e) => setFormData({ ...formData, courseQuarter: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
         >
           <option value="">Select Quarter</option>
                         <option value="Fall">Fall</option>
@@ -139,7 +142,7 @@ export default function CreateCourseClient({ onCourseCreated }: CreateCourseClie
       </div>
 
       <div>
-        <label htmlFor="courseYear" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="courseYear" className="text-sm font-medium text-mentat-gold">
           Year *
                 </label>
         <input
@@ -147,25 +150,26 @@ export default function CreateCourseClient({ onCourseCreated }: CreateCourseClie
           id="courseYear"
           value={formData.courseYear}
           onChange={(e) => setFormData({ ...formData, courseYear: parseInt(e.target.value) })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+          placeholder="Enter year"
           min="2020"
           max="2030"
           required
         />
       </div>
 
-      <div className="flex justify-end space-x-3 pt-4">
+      <div className="flex justify-end gap-3 pt-4">
         <button
           type="button"
-          onClick={() => onCourseCreated?.()}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          onClick={() => onCancel?.()}
+          className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
         >
           Cancel
         </button>
                 <button
                     type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="bg-crimson hover:bg-crimson-700 text-white font-bold py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
           {isSubmitting ? 'Creating...' : 'Create Course'}
                 </button>
