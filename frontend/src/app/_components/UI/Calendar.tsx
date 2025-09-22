@@ -150,11 +150,15 @@ export default function Calendar({
           border-color: rgba(255, 215, 0, 0.2) !important;
         }
         
-        /* Button styling */
+        /* Button styling - smaller buttons */
         .fc .fc-button {
           background-color: rgba(255, 215, 0, 0.1) !important;
           border-color: rgba(255, 215, 0, 0.2) !important;
           color: #ffd700 !important;
+          font-size: 0.75rem !important;
+          padding: 0.25rem 0.5rem !important;
+          height: auto !important;
+          min-height: 1.5rem !important;
         }
         
         .fc .fc-button:hover {
@@ -164,6 +168,25 @@ export default function Calendar({
         
         .fc .fc-button:focus {
           box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3) !important;
+        }
+        
+        /* Header toolbar - more compact */
+        .fc .fc-toolbar {
+          margin-bottom: 0.5rem !important;
+        }
+        
+        .fc .fc-toolbar-title {
+          font-size: 1.25rem !important;
+          font-weight: 600 !important;
+        }
+        
+        /* Button group spacing */
+        .fc .fc-button-group {
+          gap: 0.25rem !important;
+        }
+        
+        .fc .fc-button-group .fc-button {
+          margin: 0 !important;
         }
         
         /* Text colors */
@@ -298,6 +321,42 @@ export default function Calendar({
           height: 0.75em !important;
           min-height: 0.75em !important;
         }
+        
+        /* Hide all-day row completely */
+        .fc .fc-timegrid-allday {
+          display: none !important;
+        }
+        
+        .fc .fc-timegrid-allday-section {
+          display: none !important;
+        }
+        
+        /* Optimize time grid layout */
+        .fc .fc-timegrid-body {
+          margin-top: 0 !important;
+        }
+        
+        /* Reduce column header height */
+        .fc .fc-col-header-cell {
+          height: 2rem !important;
+          min-height: 2rem !important;
+        }
+        
+        .fc .fc-col-header-cell-cushion {
+          padding: 0.25rem 0.5rem !important;
+          font-size: 0.875rem !important;
+        }
+        
+        /* Optimize time axis width */
+        .fc .fc-timegrid-axis {
+          width: 50px !important;
+          min-width: 50px !important;
+        }
+        
+        .fc .fc-timegrid-slot-label {
+          font-size: 0.75rem !important;
+          padding: 0.125rem 0.25rem !important;
+        }
       `}</style>
       
       <FullCalendar
@@ -357,12 +416,19 @@ export default function Calendar({
           hour12: true
         }}
         
-        // Business hours (optional)
-        // businessHours={{
-        //   daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
-        //   startTime: '08:00',
-        //   endTime: '18:00',
-        // }}
+        // Disable all-day events and optimize layout
+        allDaySlot={false}
+        allDayMaintainDuration={false}
+        dayMaxEventRows={false}
+        
+        // Optimize event display
+        eventDisplay="block"
+        eventTimeFormat={{
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        }}
+        
       />
     </div>
   );

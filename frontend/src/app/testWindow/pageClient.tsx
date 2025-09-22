@@ -32,6 +32,8 @@ export default function TestWindowPage() {
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [testWindows, setTestWindows] = useState<any[]>([]);
+    const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
 
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -100,6 +102,117 @@ export default function TestWindowPage() {
     }, [session?.user?.id]);
 
     /**
+     * Fetch test windows for selected course
+     */
+    const fetchTestWindows = useCallback(async (courseId: number) => {
+        if (!courseId) return;
+        
+        try {
+            console.log('Fetching test windows for course:', courseId);
+            
+            const res = await apiHandler(
+                undefined,
+                'GET',
+                `api/test-window/course/${courseId}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+            
+            if (res?.error) {
+                console.error('Failed to fetch test windows:', res);
+                setTestWindows([]);
+                return;
+            }
+            
+            console.log('Test windows response:', res);
+            setTestWindows(Array.isArray(res) ? res : []);
+            
+        } catch (e) {
+            console.error('Error fetching test windows:', e);
+            setTestWindows([]);
+        }
+    }, [session?.user?.accessToken]);
+
+    /**
+     * Convert test windows to calendar events
+     */
+    const convertTestWindowsToEvents = useCallback((testWindows: any[]) => {
+        const events: any[] = [];
+        
+        testWindows.forEach((testWindow) => {
+            try {
+                // Parse weekdays pattern
+                const weekdays = JSON.parse(testWindow.weekdays || '{}');
+                const activeDays = Object.keys(weekdays).filter(day => weekdays[day]);
+                
+                if (activeDays.length === 0) {
+                    // No recurring pattern, create single event
+                    const startDateTime = `${testWindow.testWindowStartDate}T${testWindow.testStartTime}`;
+                    const endDateTime = `${testWindow.testWindowEndDate}T${testWindow.testEndTime}`;
+                    
+                    events.push({
+                        id: `test-window-${testWindow.testWindowId}`,
+                        title: testWindow.testWindowTitle,
+                        start: startDateTime,
+                        end: endDateTime,
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#1d4ed8',
+                        textColor: '#000000',
+                        extendedProps: {
+                            description: testWindow.description,
+                            courseId: testWindow.courseId,
+                            isActive: testWindow.isActive,
+                            type: 'test-window'
+                        }
+                    });
+                } else {
+                    // Create recurring events for each active day
+                    const startDate = new Date(testWindow.testWindowStartDate);
+                    const endDate = new Date(testWindow.testWindowEndDate);
+                    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                    
+                    // Generate events for each day in the range
+                    const currentDate = new Date(startDate);
+                    while (currentDate <= endDate) {
+                        const dayIndex = currentDate.getDay();
+                        const dayName = dayNames[dayIndex];
+                        
+                        if (weekdays[dayName]) {
+                            const dateStr = currentDate.toISOString().split('T')[0];
+                            const startDateTime = `${dateStr}T${testWindow.testStartTime}`;
+                            const endDateTime = `${dateStr}T${testWindow.testEndTime}`;
+                            
+                            events.push({
+                                id: `test-window-${testWindow.testWindowId}-${dateStr}`,
+                                title: testWindow.testWindowTitle,
+                                start: startDateTime,
+                                end: endDateTime,
+                                backgroundColor: '#3b82f6',
+                                borderColor: '#1d4ed8',
+                                textColor: '#000000',
+                                extendedProps: {
+                                    description: testWindow.description,
+                                    courseId: testWindow.courseId,
+                                    isActive: testWindow.isActive,
+                                    type: 'test-window',
+                                    originalId: testWindow.testWindowId
+                                }
+                            });
+                        }
+                        
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                }
+            } catch (e) {
+                console.error('Error processing test window:', testWindow, e);
+            }
+        });
+        
+        console.log('Converted test windows to events:', events);
+        return events;
+    }, []);
+
+    /**
      * Used to handle session hydration
      */
     useEffect(() => {
@@ -119,6 +232,26 @@ export default function TestWindowPage() {
             fetchInstructorCourses();
         }
     }, [sessionReady, fetchInstructorCourses]);
+
+    // Fetch test windows when course is selected
+    useEffect(() => {
+        if (selectedCourseId) {
+            fetchTestWindows(selectedCourseId);
+        } else {
+            setTestWindows([]);
+            setCalendarEvents([]);
+        }
+    }, [selectedCourseId, fetchTestWindows]);
+
+    // Convert test windows to calendar events when test windows change
+    useEffect(() => {
+        if (testWindows.length > 0) {
+            const events = convertTestWindowsToEvents(testWindows);
+            setCalendarEvents(events);
+        } else {
+            setCalendarEvents([]);
+        }
+    }, [testWindows, convertTestWindowsToEvents]);
 
 
     /**
@@ -171,12 +304,28 @@ export default function TestWindowPage() {
      */
     const handleEventClick = (info: any) => {
         console.log('Event clicked:', info.event);
-        toast.info(`Clicked on: ${info.event.title}`);
+        const event = info.event;
+        const props = event.extendedProps;
+        
+        if (props?.type === 'test-window') {
+            toast.info(`Test Window: ${event.title}\nDescription: ${props.description || 'No description'}\nActive: ${props.isActive ? 'Yes' : 'No'}`, {
+                autoClose: 5000,
+                style: {
+                    whiteSpace: 'pre-line'
+                }
+            });
+        } else {
+            toast.info(`Clicked on: ${event.title}`);
+        }
     };
 
     const handleTestWindowCreated = () => {
         setIsModalOpen(false);
         toast.success('Test window created successfully!');
+        // Refresh test windows for the selected course
+        if (selectedCourseId) {
+            fetchTestWindows(selectedCourseId);
+        }
     };
 
     // Get selected course name for display
@@ -201,8 +350,15 @@ export default function TestWindowPage() {
     return (
         <div className="h-full w-full flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-mentat-gold/20">
-                <h1 className="text-2xl font-bold text-mentat-gold">Test Window Management</h1>
+            <div className="flex items-center justify-between p-2 border-b border-mentat-gold/20">
+                <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-bold text-mentat-gold">Test Window Management</h1>
+                    {selectedCourseId && testWindows.length > 0 && (
+                        <span className="text-xs text-mentat-gold/70">
+                            {testWindows.length} test window{testWindows.length !== 1 ? 's' : ''} found
+                        </span>
+                    )}
+                </div>
                 
                 {/* Course Selection */}
                 <div className="flex items-center gap-3">
@@ -226,11 +382,12 @@ export default function TestWindowPage() {
             </div>
 
             {/* Calendar */}
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-2">
                 <Calendar
-                    events={[]}
+                    events={calendarEvents}
                     onDateClick={({ dateStr }) => setIsModalOpen(true)}
                     onEventCreate={handleEventCreate}
+                    onEventClick={handleEventClick}
                     initialView="timeGridWeek"
                     editable={true}
                     selectable={true}
