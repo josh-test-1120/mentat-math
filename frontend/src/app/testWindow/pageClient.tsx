@@ -147,14 +147,19 @@ export default function TestWindowPage() {
         const startDate = new Date(info.start);
         const endDate = new Date(info.end);
         
-        // Store the selected time range with selected course
-        setSelectedTimeData({
+        const timeData = {
             startDate: startDate.toISOString().slice(0, 10),
             endDate: endDate.toISOString().slice(0, 10),
             startTime: startDate.toTimeString().slice(0, 5),
             endTime: endDate.toTimeString().slice(0, 5),
             courseId: selectedCourseId
-        });
+        };
+        
+        console.log('Calendar drag detected:', info);
+        console.log('Processed time data:', timeData);
+        
+        // Store the selected time range with selected course
+        setSelectedTimeData(timeData);
         
         // Open the modal
         setIsModalOpen(true);
@@ -243,6 +248,11 @@ export default function TestWindowPage() {
                     courses={courses}
                     // Passes the selected course id to the CreateTestWindow component
                     selectedCourseId={selectedCourseId}
+                    // Passes the selected time data from calendar drag
+                    initialFormData={{
+                        ...selectedTimeData,
+                        courseId: selectedTimeData.courseId || undefined
+                    }}
                     // Passes function to handle test window creation
                     onTestWindowCreated={() => {
                         setIsModalOpen(false);

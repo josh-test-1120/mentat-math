@@ -90,22 +90,53 @@ export default function CreateTestWindowClient({
         isActive: initialFormData.isActive !== undefined ? initialFormData.isActive : true
     });
 
+    // Weekly pattern state
+    const [showWeeklyPattern, setShowWeeklyPattern] = useState(false);
+    const [weeklyPattern, setWeeklyPattern] = useState({
+        sunday: false,
+        monday: false,
+        tuesday: false,
+        wednesday: false,
+        thursday: false,
+        friday: false,
+        saturday: false
+    });
+
     // Update form data when initialFormData changes
     useEffect(() => {
-        if (initialFormData) {
+        if (initialFormData && Object.keys(initialFormData).length > 0) {
             setFormData(prev => ({
                 ...prev,
                 ...initialFormData,
                 courseId: selectedCourseId ? parseInt(selectedCourseId.toString(), 10) : (initialFormData.courseId || prev.courseId)
             }));
         }
-    }, [selectedCourseId]);
+    }, [selectedCourseId, initialFormData]);
 
-    // Debug courses array
+    // Clear invalid weekday selections when date range changes
+    useEffect(() => {
+        if (formData.startDate && formData.endDate) {
+            const availableWeekdays = getAvailableWeekdays();
+            setWeeklyPattern(prev => {
+                const updated = { ...prev };
+                // Clear selections for days not in the available range
+                Object.keys(updated).forEach(day => {
+                    if (!availableWeekdays.includes(day)) {
+                        updated[day as keyof typeof updated] = false;
+                    }
+                });
+                return updated;
+            });
+        }
+    }, [formData.startDate, formData.endDate]);
+
+    // Debug courses array and initial form data
     useEffect(() => {
         console.log('Courses loaded:', courses);
         console.log('Course IDs:', courses.map(c => ({ id: c.courseId, name: c.courseName, type: typeof c.courseId })));
-    }, [courses]);
+        console.log('Initial form data received:', initialFormData);
+        console.log('Current form data:', formData);
+    }, [courses, initialFormData, formData]);
 
     // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -158,6 +189,96 @@ export default function CreateTestWindowClient({
         });
     };
 
+    // Handle weekly pattern checkbox changes
+    const handleWeeklyPatternChange = (day: string) => {
+        setWeeklyPattern(prev => ({
+            ...prev,
+            [day]: !prev[day as keyof typeof prev]
+        }));
+    };
+
+    // Helper function to get available weekdays for the date range
+    const getAvailableWeekdays = () => {
+        if (!formData.startDate || !formData.endDate) {
+            return ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        }
+
+        // Parse dates in local timezone to avoid UTC conversion issues
+        const [startYear, startMonth, startDay] = formData.startDate.split('-').map(Number);
+        const [endYear, endMonth, endDay] = formData.endDate.split('-').map(Number);
+        
+        const startDate = new Date(startYear, startMonth - 1, startDay); // month is 0-indexed
+        const endDate = new Date(endYear, endMonth - 1, endDay);
+        
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const availableDays = new Set<string>();
+
+        // Add all days within the date range (inclusive of both start and end dates)
+        const currentDate = new Date(startDate);
+        const endDateCopy = new Date(endDate);
+        
+        console.log('Loop details:', {
+            startDate: startDate.toDateString(),
+            endDate: endDate.toDateString(),
+            startTime: startDate.getTime(),
+            endTime: endDate.getTime()
+        });
+        
+        // Loop through each day from start to end (inclusive)
+        while (currentDate <= endDate) {
+            const dayIndex = currentDate.getDay();
+            availableDays.add(dayNames[dayIndex]);
+            console.log('Adding day:', {
+                date: currentDate.toDateString(),
+                dayIndex,
+                dayName: dayNames[dayIndex],
+                isStartDate: currentDate.getTime() === startDate.getTime(),
+                isEndDate: currentDate.getTime() === endDate.getTime()
+            });
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        console.log('Date range analysis:', {
+            startDateString: formData.startDate,
+            endDateString: formData.endDate,
+            startDate: startDate,
+            endDate: endDate,
+            startDayOfWeek: dayNames[startDate.getDay()],
+            endDayOfWeek: dayNames[endDate.getDay()],
+            availableDays: Array.from(availableDays),
+            totalDays: availableDays.size
+        });
+
+        return Array.from(availableDays);
+    };
+
+    // Auto-select starting date's weekday when pattern is opened
+    const handleToggleWeeklyPattern = () => {
+        if (!showWeeklyPattern && formData.startDate) {
+            // Parse date in local timezone to avoid UTC conversion issues
+            const [year, month, day] = formData.startDate.split('-').map(Number);
+            // Create date in local timezone
+            const startDate = new Date(year, month - 1, day); // month is 0-indexed
+            // Day names
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            // Get day index
+            const dayIndex = startDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            // Get day name
+            const dayName = dayNames[dayIndex];
+            
+            console.log('Start date string:', formData.startDate);
+            console.log('Parsed date:', startDate);
+            console.log('Day index:', dayIndex);
+            console.log('Day name:', dayName);
+            console.log('Expected: Tuesday should be index 2');
+            
+            setWeeklyPattern(prev => ({
+                ...prev,
+                [dayName]: true
+            }));
+        }
+        setShowWeeklyPattern(!showWeeklyPattern);
+    };
 
     // Handle form submission with session authentication
     const handleSubmit = async (e: React.FormEvent) => {
@@ -184,6 +305,52 @@ export default function CreateTestWindowClient({
             toast.error('Please select a course');
             return;
         }
+
+        // Validate date range (using local timezone parsing)
+        const [startYear, startMonth, startDay] = formData.startDate.split('-').map(Number);
+        const [endYear, endMonth, endDay] = formData.endDate.split('-').map(Number);
+        const startDate = new Date(startYear, startMonth - 1, startDay);
+        const endDate = new Date(endYear, endMonth - 1, endDay);
+        
+        if (startDate > endDate) {
+            toast.error('End date must be after start date');
+            return;
+        }
+
+        // Validate time range
+        if (formData.startTime && formData.endTime) {
+            const startTime = new Date(`2000-01-01T${formData.startTime}`);
+            const endTime = new Date(`2000-01-01T${formData.endTime}`);
+            if (startTime >= endTime) {
+                toast.error('End time must be after start time');
+                return;
+            }
+        }
+
+        // Validate weekly pattern based on date range
+        const availableWeekdays = getAvailableWeekdays();
+        const selectedDays = Object.entries(weeklyPattern)
+            .filter(([day, selected]) => selected)
+            .map(([day]) => day);
+        
+        // Check if any selected days are not in the available range
+        const invalidDays = selectedDays.filter(day => !availableWeekdays.includes(day));
+        if (invalidDays.length > 0) {
+            toast.error(`Selected days (${invalidDays.join(', ')}) are not within the test window date range.`);
+            return;
+        }
+
+        // For single-day windows, only allow one day selection
+        const isSingleDay = formData.startDate === formData.endDate;
+        if (isSingleDay && selectedDays.length > 1) {
+            toast.error('Single-day test windows cannot repeat on multiple days. Please select only one day or extend the date range.');
+            return;
+        }
+
+        if (isSingleDay && selectedDays.length === 0) {
+            toast.error('Please select at least one day for the weekly pattern or extend the date range.');
+            return;
+        }
         
         try {
             const requestData = {
@@ -194,15 +361,7 @@ export default function CreateTestWindowClient({
                 endDate: formData.endDate,
                 startTime: formData.startTime,
                 endTime: formData.endTime,
-                weekdays: JSON.stringify({
-                    monday: false,
-                    tuesday: true,
-                    wednesday: false,
-                    thursday: true,
-                    friday: false,
-                    saturday: false,
-                    sunday: false
-                }),
+                weekdays: JSON.stringify(weeklyPattern),
                 exceptions: "{}",
                 isActive: formData.isActive
             };
@@ -384,6 +543,80 @@ export default function CreateTestWindowClient({
                         className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                     />
                 </div>
+            </div>
+
+            {/* Weekly Pattern Section */}
+            <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-mentat-gold">
+                        Weekly Pattern (Optional)
+                    </label>
+                    <button
+                        type="button"
+                        onClick={handleToggleWeeklyPattern}
+                        className="px-3 py-1.5 bg-mentat-gold/20 hover:bg-mentat-gold/30 text-mentat-gold border border-mentat-gold/40 rounded-md text-sm font-medium transition-colors"
+                    >
+                        {showWeeklyPattern ? 'Hide' : 'Repeat'}
+                    </button>
+                </div>
+
+                {showWeeklyPattern && (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-center gap-2 p-3 bg-white/5 border border-mentat-gold/20 rounded-md">
+                            {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map((day) => {
+                                const isSelected = weeklyPattern[day as keyof typeof weeklyPattern];
+                                const availableWeekdays = getAvailableWeekdays();
+                                const isAvailable = availableWeekdays.includes(day);
+                                const isSingleDay = formData.startDate === formData.endDate;
+                                const selectedDays = Object.values(weeklyPattern).filter(Boolean).length;
+                                const isDisabled = !isAvailable || (isSingleDay && selectedDays >= 1 && !isSelected);
+                                
+                                return (
+                                    <button
+                                        key={day}
+                                        type="button"
+                                        onClick={() => handleWeeklyPatternChange(day)}
+                                        disabled={isDisabled}
+                                        className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all duration-200 ${
+                                            isSelected
+                                                ? 'bg-mentat-gold text-mentat-black border-mentat-gold shadow-lg'
+                                                : isDisabled
+                                                ? 'bg-white/5 text-mentat-gold/30 border-mentat-gold/20 cursor-not-allowed'
+                                                : 'bg-white/5 text-mentat-gold border-mentat-gold/40 hover:border-mentat-gold/60 hover:bg-white/10'
+                                        }`}
+                                        title={!isAvailable ? `Not available in date range (${formData.startDate} to ${formData.endDate})` : ''}
+                                    >
+                                        {day.charAt(0).toUpperCase()}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        
+                        {/* Validation feedback */}
+                        {formData.startDate === formData.endDate && (
+                            <div className="text-xs text-mentat-gold/70 text-center">
+                                Single-day windows can only repeat on one day
+                            </div>
+                        )}
+                        
+                        {formData.startDate !== formData.endDate && (
+                            <div className="text-xs text-mentat-gold/70 text-center">
+                                Multi-day windows can repeat on multiple days within the date range
+                            </div>
+                        )}
+                        
+                        {/* Show available days info */}
+                        {formData.startDate && formData.endDate && (
+                            <div className="text-xs text-mentat-gold/60 text-center">
+                                Available days: {getAvailableWeekdays().map(day => day.charAt(0).toUpperCase()).join(', ')}
+                                <br />
+                                <span className="text-mentat-gold/40">
+                                    Range: {formData.startDate} to {formData.endDate}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Active Checkbox */}
