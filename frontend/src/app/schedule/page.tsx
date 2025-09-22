@@ -1,5 +1,6 @@
 import { getServerAuthSession } from "@/utils/auth";
-import SchedulesPage from "./pageClient";
+import SchedulesInstructor from "./pageInstructor";
+import SchedulesStudent from "./pageStudent";
 import { AuthProvider } from "@/components/authProvider"
 import {Session} from "next-auth";
 import InstructorCoursesClient from "@/app/instructorCourses/pageClient";
@@ -25,18 +26,29 @@ export default async function Schedule() {
     // Session variable
     const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
-    return (
 
+    // Conditional rendering
+    if (session.user.userType == "Instructor")
+        return (
+            <AuthProvider session={session}>
+                <section
+                    id={"schedulePageMain"}
+                    className=" flex font-bold bg-mentat-black text-mentat-gold"
+                >
+                    <SchedulesInstructor/>
+                </section>
+            </AuthProvider>
+        );
+    else
+        return (
         <AuthProvider session={session}>
             <section
                 id={"schedulePageMain"}
                 className=" flex font-bold bg-mentat-black text-mentat-gold"
             >
-                <SchedulesPage/>
-                {/* <InstructorCoursesClient/> */}
+                <SchedulesStudent/>
             </section>
         </AuthProvider>
-
     );
 
 }

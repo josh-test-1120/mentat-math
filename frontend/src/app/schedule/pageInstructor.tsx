@@ -6,6 +6,7 @@ import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/app/_components/UI/Modal";
 import Calendar from "../_components/UI/Calendar";
+import { Course } from "@/app/_components/types/exams";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -16,14 +17,19 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  */
 export default function Schedule() {
 
+    // Session information
+    const { data: session } = useSession()
     // State information
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [loading, setLoading] = useState(true);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         exam_course_id: 1,
         exam_name: "",
         exam_difficulty: "",
         is_published: "",
-        is_required: "",
+        is_required: ""
     });
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -32,9 +38,6 @@ export default function Schedule() {
         username: '',
         email: ''
     });
-
-    // Session information
-    const { data: session } = useSession()
 
     // Form Mapping
     const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
@@ -50,9 +53,65 @@ export default function Schedule() {
                 email: session?.user.email || ''
             }));
             setSessionReady(prev => prev || userSession.id !== "");
+
+            // Get the course data
+            getCourses();
         }
     }, [session]);
 
+
+  const getCourses  = async () => {
+        // Try wrapper to handle async exceptions
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/courses`,
+                `${BACKEND_API}`
+            );
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching courses:', res.error);
+                setCourses([]);
+            } else {
+                // Convert object to array
+                let coursesData = [];
+
+                // If res is an array, set coursesData to res
+                if (Array.isArray(res)) {
+                    coursesData = res;
+                // If res is an object, set coursesData to the values of the object
+                } else if (res && typeof res === 'object') {
+                    // Use Object.entries() to get key-value pairs, then map to values
+                    coursesData = Object.entries(res)
+                        .filter(([key, value]) => value !== undefined && value !== null)
+                        .map(([key, value]) => value);
+                // If res is not an array or object, set coursesData to an empty array
+                } else {
+                    coursesData = [];
+                }
+
+                console.log('Processed courses data before:', coursesData);
+
+                // Filter out invalid entries
+                coursesData = coursesData.filter(c => c && typeof c === 'object');
+
+                console.log('Processed courses data after:', coursesData);
+                // Set courses to coursesData
+                setCourses(coursesData);
+            }
+        } catch (e) {
+            // Error fetching courses
+            console.error('Error fetching courses:', e);
+            // Set courses to empty array
+            setCourses([]);
+        } finally {
+            // Set loading to false
+            setLoading(false);
+        }
+    }
 
     // Setting data by name, value, type, and checked value
     const data = (e: any) => {
@@ -138,21 +197,44 @@ export default function Schedule() {
                                 placeholder="Enter exam name"
                             />
                         </div>
+
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
                             <select
                                 id="exam_course_id"
                                 name="exam_course_id"
                                 value={exam_course_id}
-                                onChange={data}
+                                onChange={data} // or onChange={(e) => setExamCourseId(e.target.value)}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             >
-                                <option value="1">Mathematics</option>
-                                <option value="2">Physics</option>
-                                <option value="3">Chemistry</option>
+                                {/* Default option */}
+                                <option value="">Select a course</option>
+
+                                {/* Map over courses array to generate options */}
+                                {courses.map((course) => (
+                                    <option key={course.course_id} value={course.course_id}>
+                                        {course.course_name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
+
+                        {/*<div className="flex flex-col gap-2">*/}
+                        {/*    <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>*/}
+                        {/*    <select*/}
+                        {/*        id="exam_course_id"*/}
+                        {/*        name="exam_course_id"*/}
+                        {/*        value={exam_course_id}*/}
+                        {/*        onChange={data}*/}
+                        {/*        required={true}*/}
+                        {/*        className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"*/}
+                        {/*    >*/}
+                        {/*        <option value="1">Mathematics</option>*/}
+                        {/*        <option value="2">Physics</option>*/}
+                        {/*        <option value="3">Chemistry</option>*/}
+                        {/*    </select>*/}
+                        {/*</div>*/}
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
                             <select

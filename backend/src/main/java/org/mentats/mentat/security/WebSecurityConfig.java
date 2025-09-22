@@ -82,7 +82,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
     /**
      * Security Filter Chain configurations
      * This controls the access and authorization handling
-     * CORS and CSRF is also configured here
+     * CORS and CSRF are also configured here
      * @param http HttpSecurity
      * @return SecurityFilterChain
      * @throws Exception
@@ -97,7 +97,9 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                         "/course/*",
                         "/course/createCourse/**",
                         "/course/listCourses/**",
-                        "/course/joinCourse/**")
+                        "/course/joinCourse/**",
+                        "/api/exams/**",
+                        "/api/courses/**")
 
                 .permitAll()
                 .anyRequest().authenticated();

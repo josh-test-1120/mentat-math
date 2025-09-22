@@ -27,6 +27,18 @@ public class WebConfig implements WebMvcConfigurer {
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
+                // Mapping for exams
+                registry.addMapping("/api/exams/**")
+                        .allowedOriginPatterns("http://localhost:3000")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+                // Mapping for exams
+                registry.addMapping("/api/courses/*")
+                        .allowedOriginPatterns("http://localhost:3000")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
                 // Mapping for schedules
                 registry.addMapping("/api/schedules")
                         .allowedOriginPatterns("http://localhost:3000")
