@@ -34,9 +34,9 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+      {/* Backdrop with blur and opacity */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-all duration-300"
         onClick={onClose}
       />
       

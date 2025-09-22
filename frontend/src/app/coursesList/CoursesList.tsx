@@ -44,7 +44,8 @@ export default function CourseList() {
             null,
             "GET",
             `course/listCourses?id=${userSession.id}`,
-            `${process.env.NEXT_PUBLIC_BACKEND_API}`
+            `${process.env.NEXT_PUBLIC_BACKEND_API}`,
+            session?.user?.accessToken || undefined
             )
                 .then((data) => {
                     // Check if 'result' key exists and filter it out

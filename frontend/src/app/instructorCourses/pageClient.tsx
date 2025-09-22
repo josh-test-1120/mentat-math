@@ -38,7 +38,8 @@ export default function InstructorCoursesClient() {
                 undefined,
                 'GET',
                 `course/listCourses?id=${id}`,
-                `${BACKEND_API}`
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
             );
             
             if (res?.error) {

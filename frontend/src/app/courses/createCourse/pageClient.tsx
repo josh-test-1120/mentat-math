@@ -11,7 +11,7 @@ interface CreateCourseClientProps {
 
 export default function CreateCourseClient({ onCourseCreated }: CreateCourseClientProps) {
   const { data: session } = useSession();
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     courseName: '',
     courseSection: '',
     courseQuarter: '',
@@ -58,7 +58,8 @@ export default function CreateCourseClient({ onCourseCreated }: CreateCourseClie
             courseData,
             'POST',
             'course/createCourse',
-            `${BACKEND_API}`
+            `${BACKEND_API}`,
+            session?.user?.accessToken || undefined
         );
     if (res?.error) {
         console.error('Create failed:', res);

@@ -1,58 +1,77 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { DateSelectArg, EventClickArg, EventDropArg } from '@fullcalendar/core';
 
-interface CalendarProps {
-  events?: { title: string; start: string; end?: string; id?: string }[];
-  onDateClick?: (info: { dateStr: string }) => void;
-  onEventClick?: (info: any) => void;
-  onEventCreate?: (info: { start: string; end: string; allDay: boolean }) => void;
-  onEventUpdate?: (info: { id: string; start: string; end: string }) => void;
-  onEventDelete?: (info: { id: string }) => void;
-  editable?: boolean;
-  selectable?: boolean;
-  selectMirror?: boolean;
-  dayMaxEvents?: boolean | number;
-  weekends?: boolean;
-  initialView?: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay';
+interface TestWindowEvent {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  allDay?: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
+  extendedProps?: {
+    courseId?: number;
+    examId?: number;
+    description?: string;
+    maxAttempts?: number;
+    isActive?: boolean;
+  };
 }
 
-export default function Calendar({
+interface TestWindowCalendarProps {
+  events?: TestWindowEvent[];
+  onEventCreate?: (info: { start: string; end: string; allDay: boolean }) => void;
+  onEventClick?: (info: EventClickArg) => void;
+  onEventUpdate?: (info: { id: string; start: string; end: string }) => void;
+  onEventDelete?: (info: { id: string }) => void;
+  onDateClick?: (info: { dateStr: string }) => void;
+  editable?: boolean;
+  selectable?: boolean;
+  initialView?: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay';
+  height?: string | number;
+}
+
+export default function TestWindowCalendar({
   events = [],
-  onDateClick,
-  onEventClick,
   onEventCreate,
+  onEventClick,
   onEventUpdate,
   onEventDelete,
+  onDateClick,
   editable = true,
   selectable = true,
-  selectMirror = true,
-  dayMaxEvents = true,
-  weekends = true,
-  initialView = 'dayGridMonth',
-}: CalendarProps) {
+  initialView = 'timeGridWeek',
+  height = 'auto',
+}: TestWindowCalendarProps) {
   const calendarRef = useRef<FullCalendar>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Handle date selection (click and drag)
+  // Handle date selection (click and drag to create)
   const handleDateSelect = (selectInfo: DateSelectArg) => {
     if (onEventCreate) {
       const { start, end, allDay } = selectInfo;
       
-      // Convert to ISO strings for consistency
-      const startStr = start.toISOString();
-      const endStr = end.toISOString();
+      // Calculate duration
+      const duration = end.getTime() - start.getTime();
+      const minDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
       
-      onEventCreate({
-        start: startStr,
-        end: endStr,
-        allDay: allDay
-      });
+      // Only create if selection is at least 30 minutes
+      if (duration >= minDuration) {
+        onEventCreate({
+          start: start.toISOString(),
+          end: end.toISOString(),
+          allDay: allDay
+        });
+      } else {
+        // Show toast for minimum duration
+        console.warn('Minimum selection duration is 30 minutes');
+      }
     }
     
     // Clear the selection
@@ -93,15 +112,39 @@ export default function Calendar({
     }
   };
 
-  // Handle event delete (when event is dropped outside calendar)
+  // Handle event delete
   const handleEventRemove = (removeInfo: any) => {
     if (onEventDelete) {
       onEventDelete({ id: removeInfo.event.id });
     }
   };
 
+  // Handle date click
+  const handleDateClick = (info: any) => {
+    if (onDateClick) {
+      onDateClick({ dateStr: info.dateStr });
+    }
+  };
+
+  // Custom event rendering
+  const eventContent = (arg: any) => {
+    const { event } = arg;
+    const isActive = event.extendedProps?.isActive !== false;
+    
+    return (
+      <div className={`p-1 text-xs ${isActive ? 'text-white' : 'text-gray-400'}`}>
+        <div className="font-semibold truncate">{event.title}</div>
+        {event.extendedProps?.description && (
+          <div className="text-xs opacity-75 truncate">
+            {event.extendedProps.description}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="bg-mentat-black text-mentat-gold border border-mentat-gold/20 rounded-none p-4 h-full w-full">
+    <div className="bg-mentat-black text-mentat-gold border border-mentat-gold/20 rounded-xl p-4 h-[600px] w-full overflow-hidden">
       <style jsx global>{`
         /* Custom FullCalendar Styling */
         .fc {
@@ -150,15 +193,11 @@ export default function Calendar({
           border-color: rgba(255, 215, 0, 0.2) !important;
         }
         
-        /* Button styling - smaller buttons */
+        /* Button styling */
         .fc .fc-button {
           background-color: rgba(255, 215, 0, 0.1) !important;
           border-color: rgba(255, 215, 0, 0.2) !important;
           color: #ffd700 !important;
-          font-size: 0.75rem !important;
-          padding: 0.25rem 0.5rem !important;
-          height: auto !important;
-          min-height: 1.5rem !important;
         }
         
         .fc .fc-button:hover {
@@ -168,25 +207,6 @@ export default function Calendar({
         
         .fc .fc-button:focus {
           box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3) !important;
-        }
-        
-        /* Header toolbar - more compact */
-        .fc .fc-toolbar {
-          margin-bottom: 0.5rem !important;
-        }
-        
-        .fc .fc-toolbar-title {
-          font-size: 1.25rem !important;
-          font-weight: 600 !important;
-        }
-        
-        /* Button group spacing */
-        .fc .fc-button-group {
-          gap: 0.25rem !important;
-        }
-        
-        .fc .fc-button-group .fc-button {
-          margin: 0 !important;
         }
         
         /* Text colors */
@@ -240,7 +260,7 @@ export default function Calendar({
         
         /* Today styling */
         .fc .fc-day-today {
-          background-color: transparent !important;
+          background-color: rgba(255, 215, 0, 0.05) !important;
         }
         
         /* Event text */
@@ -256,20 +276,6 @@ export default function Calendar({
         /* Make all grid lines solid */
         .fc .fc-scrollgrid {
           border-style: solid !important;
-        }
-
-        /* Today: red text in header + day number */
-        .fc .fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion,
-        .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-          color: #ef4444 !important; /* Tailwind red-500 */
-        }
-
-        /* Today: red border (dayGrid cell + timeGrid column) */
-                /* Today: red border (dayGrid cell + timeGrid column) */
-        .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame,
-        .fc .fc-timegrid-col.fc-day-today {
-          box-shadow: inset 0 0 0 1px #ef4444 !important; /* thinner */
-          border-color: #ef4444 !important;
         }
         
         .fc .fc-scrollgrid-section > * {
@@ -321,44 +327,19 @@ export default function Calendar({
           height: 0.75em !important;
           min-height: 0.75em !important;
         }
-        
-        /* Hide all-day row completely */
-        .fc .fc-timegrid-allday {
-          display: none !important;
-        }
-        
-        .fc .fc-timegrid-allday-section {
-          display: none !important;
-        }
-        
-        /* Optimize time grid layout */
-        .fc .fc-timegrid-body {
-          margin-top: 0 !important;
-        }
-        
-        /* Reduce column header height */
-        .fc .fc-col-header-cell {
-          height: 2rem !important;
-          min-height: 2rem !important;
-        }
-        
-        .fc .fc-col-header-cell-cushion {
-          padding: 0.25rem 0.5rem !important;
-          font-size: 0.875rem !important;
-        }
-        
-        /* Optimize time axis width */
-        .fc .fc-timegrid-axis {
-          width: 50px !important;
-          min-width: 50px !important;
-        }
-        
-        .fc .fc-timegrid-slot-label {
-          font-size: 0.75rem !important;
-          padding: 0.125rem 0.25rem !important;
-        }
       `}</style>
       
+      {/* Instructions */}
+      <div className="mb-4 p-3 bg-mentat-gold/10 rounded-lg border border-mentat-gold/20">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-mentat-gold">💡</span>
+          <span>
+            <strong>Tip:</strong> Click and drag on the calendar to create test windows. 
+            Minimum duration is 30 minutes.
+          </span>
+        </div>
+      </div>
+
       <FullCalendar
         ref={calendarRef}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -373,7 +354,7 @@ export default function Calendar({
         
         // Interaction settings
         selectable={selectable}
-        selectMirror={selectMirror}
+        selectMirror={true}
         editable={editable}
         droppable={true}
         
@@ -383,25 +364,24 @@ export default function Calendar({
         eventDrop={handleEventDrop}
         eventResize={handleEventResize}
         eventRemove={handleEventRemove}
+        dateClick={handleDateClick}
         
         // Display settings
-        dayMaxEvents={dayMaxEvents}
-        weekends={weekends}
+        dayMaxEvents={3}
+        weekends={true}
         
         // Styling
         themeSystem="standard"
         
-        // Custom CSS classes
-        eventClassNames={(arg) => {
-          return ['cursor-pointer', 'hover:opacity-80'];
-        }}
+        // Custom event content
+        eventContent={eventContent}
         
         // Selection styling
         selectOverlap={false}
         selectConstraint={{
-          start: '00:00',
-          end: '24:00',
-          daysOfWeek: [0, 1, 2, 3, 4, 5, 6] // All days
+          start: '06:00',
+          end: '22:00',
+          daysOfWeek: [1, 2, 3, 4, 5, 6, 0] // All days
         }}
         
         // Time grid settings for 24-hour view
@@ -416,19 +396,60 @@ export default function Calendar({
           hour12: true
         }}
         
-        // Disable all-day events and optimize layout
-        allDaySlot={false}
-        allDayMaintainDuration={false}
-        dayMaxEventRows={false}
-        
-        // Optimize event display
-        eventDisplay="block"
-        eventTimeFormat={{
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
+        // Business hours
+        businessHours={{
+          daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
+          startTime: '08:00',
+          endTime: '18:00',
         }}
         
+        // Event styling
+        eventClassNames={(arg) => {
+          const isActive = arg.event.extendedProps?.isActive !== false;
+          return [
+            'cursor-pointer',
+            'hover:opacity-80',
+            'transition-opacity',
+            isActive ? 'opacity-100' : 'opacity-60'
+          ];
+        }}
+        
+        // Selection styling
+        selectLongPressDelay={100}
+        selectMinDistance={5}
+        
+        // Event overlap settings
+        eventOverlap={false}
+        eventConstraint={{
+          start: '06:00',
+          end: '22:00',
+          daysOfWeek: [1, 2, 3, 4, 5, 6, 0]
+        }}
+        
+        // Custom CSS
+        eventDisplay="block"
+        eventStartEditable={editable}
+        eventDurationEditable={editable}
+        eventResizableFromStart={false}
+        
+        // Timezone
+        timeZone="local"
+        
+        // Locale
+        locale="en"
+        
+        // Week numbers
+        weekNumbers={true}
+        weekNumberFormat={{ week: 'short' }}
+        
+        // Day cell content
+        dayCellContent={(arg) => {
+          return (
+            <div className="text-center">
+              <div className="font-semibold">{arg.dayNumberText}</div>
+            </div>
+          );
+        }}
       />
     </div>
   );

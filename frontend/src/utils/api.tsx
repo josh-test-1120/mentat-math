@@ -68,23 +68,46 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
 /**
  * API functions for general data calls to backend
  * @param inputs Objects
+ * @param method HTTP method
+ * @param uri API endpoint
+ * @param backendURL Backend base URL
+ * @param accessToken Optional JWT token for authentication
  */
-export async function apiHandler(inputs: any | undefined, method: string, uri: string, backendURL: string) {
+export async function apiHandler(inputs: any | undefined, method: string, uri: string, backendURL: string, accessToken?: string) {
     try {
       const url = backendURL ? `${backendURL}/${uri}` : uri;
+      
+      // Prepare headers
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      
+      // Add Authorization header if token is provided
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+      
+      console.log(`API Request: ${method} ${url}`);
+      console.log('Headers:', headers);
+      console.log('AccessToken provided:', accessToken);
+      console.log('Body:', inputs);
+      
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers,
         ...(method !== 'GET' ? { body: JSON.stringify(inputs ?? {}) } : {})
       });
   
+      console.log(`API Response: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
         const text = await response.text().catch(() => '');
+        console.error('API Error Response:', text);
         // Never return Error(); return a structured object
         return { error: true, status: response.status, message: text || `HTTP ${response.status}` };
       }
   
       const data = await response.json().catch(() => ({}));
+      console.log('API Success Response:', data);
+      
       // Normalize server-declared errors too
       if (data && data.error) {
         return { error: true, status: 200, message: data.message ?? 'Unknown error', data };
@@ -92,6 +115,7 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
   
       return data; // success
     } catch (e: any) {
+      console.error('API Network Error:', e);
       // Network/catch-all path: also return structured error
       return { error: true, status: 0, message: e?.message ?? 'Network error' };
     }

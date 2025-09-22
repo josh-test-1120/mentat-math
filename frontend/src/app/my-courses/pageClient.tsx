@@ -41,7 +41,8 @@ export default function MyCoursesPage() {
           undefined, // No body for GET request
           'GET',
           `course/enrollments?studentId=${id}`,
-          `${BACKEND_API}`
+          `${BACKEND_API}`,
+          session?.user?.accessToken || undefined
         );
         
         // Handle errors
