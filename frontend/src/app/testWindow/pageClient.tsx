@@ -139,69 +139,116 @@ export default function TestWindowPage() {
     const convertTestWindowsToEvents = useCallback((testWindows: any[]) => {
         const events: any[] = [];
         
-        testWindows.forEach((testWindow) => {
+        // Color palette for test windows (in order)
+        const colorPalette = [
+            { bg: '#3b82f6', border: '#1d4ed8', text: '#000000' }, // Blue
+            { bg: '#10b981', border: '#059669', text: '#000000' }, // Green
+            { bg: '#f97316', border: '#ea580c', text: '#000000' }, // Orange
+            { bg: '#ec4899', border: '#db2777', text: '#000000' }, // Pink
+            { bg: '#ffffff', border: '#d1d5db', text: '#000000' }, // White
+        ];
+        
+        testWindows.forEach((testWindow, index) => {
+            // Get color for this test window (cycle through palette)
+            const colorIndex = index % colorPalette.length;
+            const colors = colorPalette[colorIndex];
+            
+            console.log(`Test window ${index + 1}: "${testWindow.testWindowTitle}" assigned color ${colorIndex} (${colors.bg})`);
+            
             try {
                 // Parse weekdays pattern
                 const weekdays = JSON.parse(testWindow.weekdays || '{}');
                 const activeDays = Object.keys(weekdays).filter(day => weekdays[day]);
                 
+                console.log(`Weekdays object for "${testWindow.testWindowTitle}":`, weekdays);
+                console.log(`Active days:`, activeDays);
+                
                 if (activeDays.length === 0) {
                     // No recurring pattern, create single event
+                    console.log(`Processing single-day test window: "${testWindow.testWindowTitle}"`);
+                    console.log(`Date: ${testWindow.testWindowStartDate} to ${testWindow.testWindowEndDate}`);
+                    
                     const startDateTime = `${testWindow.testWindowStartDate}T${testWindow.testStartTime}`;
                     const endDateTime = `${testWindow.testWindowEndDate}T${testWindow.testEndTime}`;
+                    
+                    console.log(`  Creating single event: ${startDateTime} - ${endDateTime}`);
                     
                     events.push({
                         id: `test-window-${testWindow.testWindowId}`,
                         title: testWindow.testWindowTitle,
                         start: startDateTime,
                         end: endDateTime,
-                        backgroundColor: '#3b82f6',
-                        borderColor: '#1d4ed8',
-                        textColor: '#000000',
+                        backgroundColor: colors.bg,
+                        borderColor: colors.border,
+                        textColor: colors.text,
                         extendedProps: {
                             description: testWindow.description,
                             courseId: testWindow.courseId,
                             isActive: testWindow.isActive,
-                            type: 'test-window'
+                            type: 'test-window',
+                            colorIndex: colorIndex
                         }
                     });
                 } else {
                     // Create recurring events for each active day
-                    const startDate = new Date(testWindow.testWindowStartDate);
-                    const endDate = new Date(testWindow.testWindowEndDate);
+                    // Parse dates in local timezone to avoid UTC conversion issues
+                    const [startYear, startMonth, startDay] = testWindow.testWindowStartDate.split('-').map(Number);
+                    const [endYear, endMonth, endDay] = testWindow.testWindowEndDate.split('-').map(Number);
+                    
+                    const startDate = new Date(startYear, startMonth - 1, startDay); // month is 0-indexed
+                    const endDate = new Date(endYear, endMonth - 1, endDay);
                     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                    
+                    console.log(`Processing recurring test window: "${testWindow.testWindowTitle}"`);
+                    console.log(`Date range: ${testWindow.testWindowStartDate} to ${testWindow.testWindowEndDate}`);
+                    console.log(`Active days:`, activeDays);
+                    console.log(`Parsed start date:`, startDate.toDateString());
+                    console.log(`Parsed end date:`, endDate.toDateString());
                     
                     // Generate events for each day in the range
                     const currentDate = new Date(startDate);
+                    let eventCount = 0;
                     while (currentDate <= endDate) {
                         const dayIndex = currentDate.getDay();
                         const dayName = dayNames[dayIndex];
                         
+                        // Format date as YYYY-MM-DD in local timezone
+                        const year = currentDate.getFullYear();
+                        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(currentDate.getDate()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${day}`;
+                        
+                        console.log(`  Checking ${dayName} (${dateStr}): weekdays[${dayName}] = ${weekdays[dayName]}`);
+                        
                         if (weekdays[dayName]) {
-                            const dateStr = currentDate.toISOString().split('T')[0];
                             const startDateTime = `${dateStr}T${testWindow.testStartTime}`;
                             const endDateTime = `${dateStr}T${testWindow.testEndTime}`;
+                            
+                            eventCount++;
+                            console.log(`  Creating event ${eventCount} for ${dayName} (${dateStr}): ${startDateTime} - ${endDateTime}`);
                             
                             events.push({
                                 id: `test-window-${testWindow.testWindowId}-${dateStr}`,
                                 title: testWindow.testWindowTitle,
                                 start: startDateTime,
                                 end: endDateTime,
-                                backgroundColor: '#3b82f6',
-                                borderColor: '#1d4ed8',
-                                textColor: '#000000',
+                                backgroundColor: colors.bg,
+                                borderColor: colors.border,
+                                textColor: colors.text,
                                 extendedProps: {
                                     description: testWindow.description,
                                     courseId: testWindow.courseId,
                                     isActive: testWindow.isActive,
                                     type: 'test-window',
-                                    originalId: testWindow.testWindowId
+                                    originalId: testWindow.testWindowId,
+                                    colorIndex: colorIndex
                                 }
                             });
                         }
                         
                         currentDate.setDate(currentDate.getDate() + 1);
                     }
+                    console.log(`  Total events created for "${testWindow.testWindowTitle}": ${eventCount}`);
                 }
             } catch (e) {
                 console.error('Error processing test window:', testWindow, e);
@@ -209,6 +256,18 @@ export default function TestWindowPage() {
         });
         
         console.log('Converted test windows to events:', events);
+        console.log(`Total events created: ${events.length}`);
+        console.log('Events by test window:');
+        events.forEach((event, index) => {
+            console.log(`Event ${index + 1}:`, {
+                id: event.id,
+                title: event.title,
+                start: event.start,
+                end: event.end,
+                backgroundColor: event.backgroundColor,
+                originalId: event.extendedProps?.originalId || 'single-event'
+            });
+        });
         return events;
     }, []);
 
@@ -246,13 +305,29 @@ export default function TestWindowPage() {
     // Convert test windows to calendar events when test windows change
     useEffect(() => {
         if (testWindows.length > 0) {
+            console.log('Converting test windows to events. Test windows count:', testWindows.length);
             const events = convertTestWindowsToEvents(testWindows);
+            console.log('Setting calendar events:', events.length, 'events');
             setCalendarEvents(events);
         } else {
+            console.log('No test windows, clearing calendar events');
             setCalendarEvents([]);
         }
     }, [testWindows, convertTestWindowsToEvents]);
 
+    // Debug calendar events when they change
+    useEffect(() => {
+        console.log('Calendar events updated:', calendarEvents.length, 'events');
+        calendarEvents.forEach((event, index) => {
+            console.log(`Calendar event ${index + 1}:`, {
+                id: event.id,
+                title: event.title,
+                start: event.start,
+                end: event.end,
+                backgroundColor: event.backgroundColor
+            });
+        });
+    }, [calendarEvents]);
 
     /**
      * Handle course selection change
