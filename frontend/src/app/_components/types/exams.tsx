@@ -12,7 +12,7 @@ export interface Exam {
     score?: string;
 }
 
-export interface ExamProp {
+export interface ExamResult {
     exam_id: string;
     exam_name: string;
     exam_course_id: string;
@@ -26,6 +26,24 @@ export interface ExamProp {
     status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
     score?: string;
 }
+
+export interface ExamProp {
+    exam_id: number;
+    exam_name: string;
+    exam_state: number;
+    exam_course_id: string;
+    exam_difficulty: number;
+    exam_required: number;
+    exam_scheduled_date: string;
+    exam_version: number;
+    exam_taken_date: string;
+    course: string;
+    location: string;
+    status: 'active' | 'inactive';
+    score?: string;
+}
+
+
 
 export interface Course {
     course_id: string;

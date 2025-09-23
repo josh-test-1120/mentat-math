@@ -239,9 +239,9 @@ public class HomeAPIController {
                 if (rs.next()) {
                     exam.put("exam_course_name", rs.getString("course_name"));
                     exam.put("course_professor_id", rs.getString("course_professor_id"));
-                    exam.put("course_year", rs.getBoolean("course_year"));
-                    exam.put("course_quarter", rs.getBoolean("course_quarter"));
-                    exam.put("course_section", rs.getBoolean("course_section"));
+                    exam.put("course_year", rs.getInt("course_year"));
+                    exam.put("course_quarter", rs.getString("course_quarter"));
+                    exam.put("course_section", rs.getString("course_section"));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

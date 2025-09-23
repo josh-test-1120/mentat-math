@@ -7,8 +7,8 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { SessionProvider, useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
-import {Exam, ExamProp, Course} from "@/app/_components/types/exams";
-import {getExamCourse, getExamStatus, getExamPropStatus, getExamPropCourse} from "@/app/_components/student/ExamCard2";
+import { Exam, ExamProp, Course } from "@/app/_components/types/exams";
+import { getExamCourse, getExamStatus, getExamPropStatus, getExamPropCourse } from "@/app/_components/student/ExamCard2";
 
 
 // Status Badge Component
@@ -115,7 +115,7 @@ const ExamCardOld = ({ exam }: { exam: Exam }) => {
 };
 
 // Compact ExamCard Component
-const ExamCard = ({ exam }: { exam: ExamProp }) => {
+const ExamCardOld2 = ({ exam }: { exam: ExamProp }) => {
     // Get exam status
     exam.status = getExamPropStatus(exam);
 
@@ -188,6 +188,78 @@ const ExamCard = ({ exam }: { exam: ExamProp }) => {
     );
 };
 
+// Compact ExamCard Component
+const ExamCard = ({ exam }: { exam: ExamProp }) => {
+    // Get exam status
+    exam.status = getExamPropStatus(exam);
+
+    const getExamStatusColor = () => {
+        switch (exam.status) {
+            case 'active': return 'bg-blue-100 text-blue-800';
+            case 'inactive': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getExamStatusIcon = () => {
+        switch (exam.status) {
+            case 'active': return '✅';
+            case 'inactive': return '❌';
+            default: return '📝';
+        }
+    };
+
+    return (
+        <motion.div
+            className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col hover:shadow-md transition-shadow"
+            whileHover={{ y: -2 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+        >
+            <div className="flex justify-between items-start mb-2">
+                <h3 className="font-semibold text-gray-800 text-sm truncate">{exam.exam_name}</h3>
+                <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
+                    <span>{getExamStatusIcon()}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getExamStatusColor()}`}>
+                        {exam.status.charAt(0).toUpperCase() + exam.status.slice(1)}
+                    </span>
+                </span>
+            </div>
+
+            <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                  {exam.course}
+                </span>
+                <span className="text-xs text-gray-600">
+                  {exam.exam_difficulty} Difficulty Level
+                </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-gray-700">
+                  {exam.exam_required} Required
+                </span>
+
+                {/*{exam.status === 'active' && exam.score !== undefined ? (*/}
+                {/*    <div className="flex items-center gap-1">*/}
+                {/*        <span className="text-xs font-semibold text-gray-700">*/}
+                {/*          Score:*/}
+                {/*        </span>*/}
+                {/*        <span className={`text-xs font-bold ${exam.score == 'A' ? 'text-green-600' : exam.score == 'B' ? 'text-yellow-600' : 'text-red-600'}`}>*/}
+                {/*          {exam.score}*/}
+                {/*        </span>*/}
+                {/*    </div>*/}
+                {/*) : (*/}
+                {/*    <span className="text-xs font-medium text-gray-500">*/}
+                {/*        {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming' : 'Pending results'}*/}
+                {/*    </span>*/}
+                {/*)}*/}
+            </div>
+        </motion.div>
+    );
+};
+
 // Main Component
 const ExamDashboard = () => {
     const { data: session, status } = useSession();
@@ -205,14 +277,15 @@ const ExamDashboard = () => {
         let result = filter === 'all'
             ? exams
             : exams.filter(exam => exam.course === filter);
-
+        console.log('result of filter:', result);
+        console.log('length of exams:', exams.length);
         // Then filter by status
         if (filter !== 'all') {
             result = result.filter(exam => getExamPropCourse(exam) === filter);
         }
 
         return result;
-    }, [filter]);
+    }, [filter, exams]);
 
     // Fetch exams
     useEffect(() => {
@@ -263,6 +336,8 @@ const ExamDashboard = () => {
                     console.log('Processed exams data:', examsData);
                     // Set courses to coursesData
                     setExams(examsData);
+                    setFilter('all');
+                    console.log('Length of filter:', filteredExams.length);
                 }
             } catch (e) {
                 // Error fetching courses
@@ -277,26 +352,17 @@ const ExamDashboard = () => {
 
         // Fetch courses
         fetchExams();
-        setFilter('all');
     }, [status, session, BACKEND_API, refreshTrigger]);
 
     if (status !== 'authenticated') return <div className="p-6">Please sign in.</div>;
     if (loading) return <div className="p-6">Loading...</div>;
 
-
-    // const [exams, setExams] = useState<Exam[]>(mockExams);
-    // const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
-    //
-    // const filteredExams = exams.filter(exam =>
-    //     filter === 'all' ? true : exam.status === filter
-    // );
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="min-h-screen bg-gradient-to-br p-6">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Exam Details</h1>
-                    <p className="text-gray-600">Manage and view your created exams</p>
+                    <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
+                    <p>Manage and view your created exams</p>
                 </header>
 
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
@@ -324,7 +390,7 @@ const ExamDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         <AnimatePresence>
                             {filteredExams.map((exam) => (
                                 <ExamCard key={exam.exam_id} exam={exam} />
@@ -340,16 +406,16 @@ const ExamDashboard = () => {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm p-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Summary</h2>
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Exam Performance Summary</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                            <h3 className="text-lg font-medium text-blue-800 mb-2">Upcoming Exams</h3>
+                            <h3 className="text-lg font-medium text-blue-800 mb-2">Passed Exams</h3>
                             <p className="text-3xl font-bold text-blue-600">
                                 {exams.filter(e => e.status === 'upcoming').length}
                             </p>
                         </div>
                         <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                            <h3 className="text-lg font-medium text-green-800 mb-2">Completed Exams</h3>
+                            <h3 className="text-lg font-medium text-green-800 mb-2">Failed Exams</h3>
                             <p className="text-3xl font-bold text-green-600">
                                 {exams.filter(e => e.status === 'completed').length}
                             </p>

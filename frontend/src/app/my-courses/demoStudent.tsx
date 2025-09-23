@@ -144,7 +144,7 @@ export default function ExamsPage() {
     }, [status, session, BACKEND_API]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+        <div className="min-h-screen bg-gradient-to-br p-6">
             <div className="max-w-5xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -152,12 +152,12 @@ export default function ExamsPage() {
                     transition={{ duration: 0.6 }}
                     className="mb-8"
                 >
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Exam Schedule</h1>
-                    <p className="text-gray-600">Manage and view your exam information</p>
+                    <h1 className="text-3xl font-bold mb-2">Exam Schedule</h1>
+                    <p>Manage and view your exam information</p>
                 </motion.div>
 
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800">Your Exams</h2>
+                    <h2 className="text-xl font-semibold">Your Exams</h2>
                     <div className="flex gap-2">
                         <button
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
