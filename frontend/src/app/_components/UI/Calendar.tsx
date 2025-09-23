@@ -357,6 +357,31 @@ export default function Calendar({
           font-size: 0.75rem !important;
           padding: 0.125rem 0.25rem !important;
         }
+        
+        /* Custom event content styling */
+        .fc .fc-event .event-content {
+          padding: 2px 4px;
+          overflow: hidden;
+        }
+        
+        .fc .fc-event .event-title {
+          font-weight: bold !important;
+          color: black !important;
+          font-size: 13px !important;
+          line-height: 1.2 !important;
+          margin-bottom: 2px !important;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .fc .fc-event .event-time {
+          font-size: 11px !important;
+          line-height: 1.2 !important;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       `}</style>
       
       <FullCalendar
@@ -396,6 +421,40 @@ export default function Calendar({
           return ['cursor-pointer', 'hover:opacity-80'];
         }}
         
+        // Custom event content rendering
+        eventContent={(arg) => {
+          // Creating event content
+          const event = arg.event;
+          // Creating start and end time in a more readable format
+          // Hour: minute, 12-hour format
+          const startTime = event.start ? new Date(event.start).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          }) : '';
+          // Creating end time in a more readable format
+          const endTime = event.end ? new Date(event.end).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          }) : '';
+          
+          // Creating event content
+          return {
+            html: `
+              <div class="event-content">
+                <div class="event-title" style="font-weight: bold; color: black; font-size: 12px; line-height: 1.2; margin-bottom: 2px;">
+                  ${event.title}
+                </div>
+
+                <div class="event-time" style="font-size: 10px; line-height: 1.2;">
+                  ${startTime} - ${endTime}
+                </div>
+              </div>
+            `
+          };
+        }}
+        
         // Selection styling
         selectOverlap={false}
         selectConstraint={{
@@ -419,7 +478,8 @@ export default function Calendar({
         // Disable all-day events and optimize layout
         allDaySlot={false}
         allDayMaintainDuration={false}
-        dayMaxEventRows={false}
+        dayMaxEventRows={3}
+        moreLinkClick="popover"
         
         // Optimize event display
         eventDisplay="block"
@@ -427,6 +487,13 @@ export default function Calendar({
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
+        }}
+        
+        // Better handling of overlapping events
+        eventOverlap={true}
+        eventConstraint={{
+          start: '00:00',
+          end: '24:00'
         }}
         
       />
