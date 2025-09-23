@@ -391,7 +391,6 @@ export default function CreateTestWindowClient({
             }
             
             console.log('Test window created successfully:', response);
-            toast.success('Test window created successfully!');
             onTestWindowCreated();
             
         } catch (error) {
