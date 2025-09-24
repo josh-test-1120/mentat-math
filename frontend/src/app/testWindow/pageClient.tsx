@@ -105,10 +105,14 @@ export default function TestWindowPage() {
      * Fetch test windows for selected course
      */
     const fetchTestWindows = useCallback(async (courseId: number) => {
-        if (!courseId) return;
+        if (!courseId) {
+            console.log('No course ID provided, skipping fetch');
+            return;
+        }
         
         try {
             console.log('Fetching test windows for course:', courseId);
+            setLoading(true);
             
             const res = await apiHandler(
                 undefined,
@@ -121,15 +125,39 @@ export default function TestWindowPage() {
             if (res?.error) {
                 console.error('Failed to fetch test windows:', res);
                 setTestWindows([]);
+                setCalendarEvents([]);
                 return;
             }
             
             console.log('Test windows response:', res);
-            setTestWindows(Array.isArray(res) ? res : []);
+            console.log('Response type:', typeof res);
+            console.log('Is array:', Array.isArray(res));
+            
+            const testWindowsData = Array.isArray(res) ? res : [];
+            console.log('Processed test windows data:', testWindowsData);
+            console.log('Number of test windows:', testWindowsData.length);
+            
+            // Log each test window for debugging
+            testWindowsData.forEach((tw, index) => {
+                console.log(`Test window ${index + 1}:`, {
+                    id: tw.testWindowId,
+                    title: tw.testWindowTitle,
+                    startDate: tw.testWindowStartDate,
+                    endDate: tw.testWindowEndDate,
+                    startTime: tw.testStartTime,
+                    endTime: tw.testEndTime
+                });
+            });
+            
+            setTestWindows(testWindowsData);
+            console.log(`Set ${testWindowsData.length} test windows in state`);
             
         } catch (e) {
             console.error('Error fetching test windows:', e);
             setTestWindows([]);
+            setCalendarEvents([]);
+        } finally {
+            setLoading(false);
         }
     }, [session?.user?.accessToken]);
 
@@ -164,31 +192,10 @@ export default function TestWindowPage() {
                 console.log(`Active days:`, activeDays);
                 
                 if (activeDays.length === 0) {
-                    // No recurring pattern, create single event
-                    console.log(`Processing single-day test window: "${testWindow.testWindowTitle}"`);
+                    // No recurring pattern - skip this test window (don't show on calendar)
+                    console.log(`Skipping test window with no weekday pattern: "${testWindow.testWindowTitle}"`);
                     console.log(`Date: ${testWindow.testWindowStartDate} to ${testWindow.testWindowEndDate}`);
-                    
-                    const startDateTime = `${testWindow.testWindowStartDate}T${testWindow.testStartTime}`;
-                    const endDateTime = `${testWindow.testWindowEndDate}T${testWindow.testEndTime}`;
-                    
-                    console.log(`  Creating single event: ${startDateTime} - ${endDateTime}`);
-                    
-                    events.push({
-                        id: `test-window-${testWindow.testWindowId}`,
-                        title: testWindow.testWindowTitle,
-                        start: startDateTime,
-                        end: endDateTime,
-                        backgroundColor: colors.bg,
-                        borderColor: colors.border,
-                        textColor: colors.text,
-                        extendedProps: {
-                            description: testWindow.description,
-                            courseId: testWindow.courseId,
-                            isActive: testWindow.isActive,
-                            type: 'test-window',
-                            colorIndex: colorIndex
-                        }
-                    });
+                    console.log(`Reason: No active weekdays selected`);
                 } else {
                     // Create recurring events for each active day
                     // Parse dates in local timezone to avoid UTC conversion issues
@@ -355,9 +362,17 @@ export default function TestWindowPage() {
         const startDate = new Date(info.start);
         const endDate = new Date(info.end);
         
+        // Format dates in local timezone to avoid UTC conversion issues
+        const formatLocalDate = (date: Date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
         const timeData = {
-            startDate: startDate.toISOString().slice(0, 10),
-            endDate: endDate.toISOString().slice(0, 10),
+            startDate: formatLocalDate(startDate),
+            endDate: formatLocalDate(endDate),
             startTime: startDate.toTimeString().slice(0, 5),
             endTime: endDate.toTimeString().slice(0, 5),
             courseId: selectedCourseId
@@ -394,12 +409,25 @@ export default function TestWindowPage() {
         }
     };
 
-    const handleTestWindowCreated = () => {
+    const handleTestWindowCreated = async () => {
         setIsModalOpen(false);
         toast.success('Test window created successfully!');
+        
         // Refresh test windows for the selected course
         if (selectedCourseId) {
-            fetchTestWindows(selectedCourseId);
+            console.log('Refreshing test windows after creation for course:', selectedCourseId);
+            console.log('Current test windows before refresh:', testWindows.length);
+            
+            // Try immediate refresh first
+            await fetchTestWindows(selectedCourseId);
+            console.log('Immediate refresh completed');
+            
+            // Then try again after a delay to catch any backend processing delays
+            setTimeout(async () => {
+                console.log('Starting delayed refresh...');
+                await fetchTestWindows(selectedCourseId);
+                console.log('Delayed refresh completed');
+            }, 2000); // 2 second delay
         }
     };
 
@@ -459,12 +487,19 @@ export default function TestWindowPage() {
             {/* Calendar */}
             <div className="flex-1 p-2">
                 <Calendar
+                    // The key is used to force a re-render of the calendar when the selected course id changes
+                    key={`calendar-${selectedCourseId}-${calendarEvents.length}`}
                     events={calendarEvents}
                     onDateClick={({ dateStr }) => setIsModalOpen(true)}
+                    // Passes the function to handle event creation
                     onEventCreate={handleEventCreate}
+                    // Passes the function to handle event click
                     onEventClick={handleEventClick}
+                    // Passes the initial view of the calendar
                     initialView="timeGridWeek"
+                    // Passes the editable state of the calendar
                     editable={true}
+                    // Passes the selectable state of the calendar
                     selectable={true}
                 />
             </div>
@@ -486,10 +521,7 @@ export default function TestWindowPage() {
                         courseId: selectedTimeData.courseId || undefined
                     }}
                     // Passes function to handle test window creation
-                    onTestWindowCreated={() => {
-                        setIsModalOpen(false);
-                        toast.success('Test window created successfully!');
-                    }}
+                    onTestWindowCreated={handleTestWindowCreated}
                     // Passes function to handle cancel
                     onCancel={() => {
                         setIsModalOpen(false);
