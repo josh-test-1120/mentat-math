@@ -129,28 +129,34 @@ export default function TestWindowPage() {
                 return;
             }
             
-            console.log('Test windows response:', res);
-            console.log('Response type:', typeof res);
-            console.log('Is array:', Array.isArray(res));
-            
             const testWindowsData = Array.isArray(res) ? res : [];
-            console.log('Processed test windows data:', testWindowsData);
-            console.log('Number of test windows:', testWindowsData.length);
+            console.log(`Fetched ${testWindowsData.length} test windows`);
             
-            // Log each test window for debugging
-            testWindowsData.forEach((tw, index) => {
-                console.log(`Test window ${index + 1}:`, {
-                    id: tw.testWindowId,
-                    title: tw.testWindowTitle,
-                    startDate: tw.testWindowStartDate,
-                    endDate: tw.testWindowEndDate,
-                    startTime: tw.testStartTime,
-                    endTime: tw.testEndTime
+            // Only update state if data has actually changed
+            setTestWindows(prevTestWindows => {
+                if (prevTestWindows.length !== testWindowsData.length) {
+                    console.log('Test windows count changed, updating state');
+                    return testWindowsData;
+                }
+                
+                // Check if any test window data has changed
+                const hasChanges = testWindowsData.some((newTw, index) => {
+                    const oldTw = prevTestWindows[index];
+                    return !oldTw || 
+                           oldTw.testWindowId !== newTw.testWindowId ||
+                           oldTw.testWindowTitle !== newTw.testWindowTitle ||
+                           oldTw.testWindowStartDate !== newTw.testWindowStartDate ||
+                           oldTw.testWindowEndDate !== newTw.testWindowEndDate;
                 });
+                
+                if (hasChanges) {
+                    console.log('Test windows data changed, updating state');
+                    return testWindowsData;
+                }
+                
+                console.log('No changes detected, skipping state update');
+                return prevTestWindows;
             });
-            
-            setTestWindows(testWindowsData);
-            console.log(`Set ${testWindowsData.length} test windows in state`);
             
         } catch (e) {
             console.error('Error fetching test windows:', e);
@@ -315,25 +321,41 @@ export default function TestWindowPage() {
             console.log('Converting test windows to events. Test windows count:', testWindows.length);
             const events = convertTestWindowsToEvents(testWindows);
             console.log('Setting calendar events:', events.length, 'events');
-            setCalendarEvents(events);
+            
+            // Only update calendar events if they've actually changed
+            setCalendarEvents(prevEvents => {
+                if (prevEvents.length !== events.length) {
+                    console.log('Event count changed, updating calendar events');
+                    return events;
+                }
+                
+                // Check if any event has changed
+                const hasChanges = events.some((newEvent, index) => {
+                    const oldEvent = prevEvents[index];
+                    return !oldEvent || 
+                           oldEvent.id !== newEvent.id ||
+                           oldEvent.title !== newEvent.title ||
+                           oldEvent.start !== newEvent.start ||
+                           oldEvent.end !== newEvent.end;
+                });
+                
+                if (hasChanges) {
+                    console.log('Event data changed, updating calendar events');
+                    return events;
+                }
+                
+                console.log('No event changes detected, skipping calendar update');
+                return prevEvents;
+            });
         } else {
             console.log('No test windows, clearing calendar events');
             setCalendarEvents([]);
         }
     }, [testWindows, convertTestWindowsToEvents]);
 
-    // Debug calendar events when they change
+    // Debug calendar events when they change (reduced logging for performance)
     useEffect(() => {
         console.log('Calendar events updated:', calendarEvents.length, 'events');
-        calendarEvents.forEach((event, index) => {
-            console.log(`Calendar event ${index + 1}:`, {
-                id: event.id,
-                title: event.title,
-                start: event.start,
-                end: event.end,
-                backgroundColor: event.backgroundColor
-            });
-        });
     }, [calendarEvents]);
 
     /**
@@ -418,16 +440,12 @@ export default function TestWindowPage() {
             console.log('Refreshing test windows after creation for course:', selectedCourseId);
             console.log('Current test windows before refresh:', testWindows.length);
             
-            // Try immediate refresh first
-            await fetchTestWindows(selectedCourseId);
-            console.log('Immediate refresh completed');
-            
-            // Then try again after a delay to catch any backend processing delays
+            // Single refresh with a small delay to ensure backend processing
             setTimeout(async () => {
-                console.log('Starting delayed refresh...');
+                console.log('Starting refresh after test window creation...');
                 await fetchTestWindows(selectedCourseId);
-                console.log('Delayed refresh completed');
-            }, 2000); // 2 second delay
+                console.log('Refresh completed');
+            }, 500); // Reduced delay to 500ms
         }
     };
 
