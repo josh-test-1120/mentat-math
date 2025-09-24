@@ -340,19 +340,31 @@ export default function CreateTestWindowClient({
             return;
         }
 
-        // For single-day windows, only allow one day selection
+        // For single-day windows, only allow one day selection (if any days are selected)
         const isSingleDay = formData.startDate === formData.endDate;
         if (isSingleDay && selectedDays.length > 1) {
             toast.error('Single-day test windows cannot repeat on multiple days. Please select only one day or extend the date range.');
             return;
         }
 
-        if (isSingleDay && selectedDays.length === 0) {
-            toast.error('Please select at least one day for the weekly pattern or extend the date range.');
-            return;
-        }
+        // Weekly pattern is optional - no need to force selection
+        // Users can create test windows without setting a weekly pattern
         
         try {
+            // Auto-select start date weekday if no weekly pattern is set
+            let finalWeeklyPattern = weeklyPattern;
+            if (!showWeeklyPattern && formData.startDate) {
+                // Parse date in local timezone to avoid UTC conversion issues
+                const [year, month, day] = formData.startDate.split('-').map(Number);
+                const startDate = new Date(year, month - 1, day); // month is 0-indexed
+                const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                const dayIndex = startDate.getDay();
+                const dayName = dayNames[dayIndex];
+                
+                console.log('Auto-selecting start date weekday:', dayName);
+                finalWeeklyPattern = { ...weeklyPattern, [dayName]: true };
+            }
+            
             const requestData = {
                 windowName: formData.windowName,
                 description: formData.description,
@@ -361,7 +373,7 @@ export default function CreateTestWindowClient({
                 endDate: formData.endDate,
                 startTime: formData.startTime,
                 endTime: formData.endTime,
-                weekdays: JSON.stringify(weeklyPattern),
+                weekdays: JSON.stringify(finalWeeklyPattern),
                 exceptions: "{}",
                 isActive: formData.isActive
             };
@@ -547,15 +559,20 @@ export default function CreateTestWindowClient({
             {/* Weekly Pattern Section */}
             <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-mentat-gold">
-                        Weekly Pattern (Optional)
-                    </label>
+                    <div className="flex flex-col">
+                        <label className="text-sm font-medium text-mentat-gold">
+                            Weekly Pattern (Optional)
+                        </label>
+                        <span className="text-xs text-mentat-gold/60">
+                            Set up recurring days for multi-day test windows
+                        </span>
+                    </div>
                     <button
                         type="button"
                         onClick={handleToggleWeeklyPattern}
                         className="px-3 py-1.5 bg-mentat-gold/20 hover:bg-mentat-gold/30 text-mentat-gold border border-mentat-gold/40 rounded-md text-sm font-medium transition-colors"
                     >
-                        {showWeeklyPattern ? 'Hide' : 'Repeat'}
+                        {showWeeklyPattern ? 'Hide Pattern' : 'Set Pattern'}
                     </button>
                 </div>
 
@@ -594,13 +611,13 @@ export default function CreateTestWindowClient({
                         {/* Validation feedback */}
                         {formData.startDate === formData.endDate && (
                             <div className="text-xs text-mentat-gold/70 text-center">
-                                Single-day windows can only repeat on one day
+                                💡 Single-day windows can only repeat on one day (or leave empty for no repetition)
                             </div>
                         )}
                         
                         {formData.startDate !== formData.endDate && (
                             <div className="text-xs text-mentat-gold/70 text-center">
-                                Multi-day windows can repeat on multiple days within the date range
+                                💡 Multi-day windows can repeat on multiple days within the date range (or leave empty for no repetition)
                             </div>
                         )}
                         
@@ -614,6 +631,13 @@ export default function CreateTestWindowClient({
                                 </span>
                             </div>
                         )}
+                    </div>
+                )}
+                
+                {/* Show status when weekly pattern is not set */}
+                {!showWeeklyPattern && formData.startDate && formData.endDate && (
+                    <div className="text-xs text-mentat-gold/50 text-center bg-white/5 border border-mentat-gold/10 rounded-md p-2">
+                        ✅ No weekly pattern set - test window will run for the entire date range
                     </div>
                 )}
             </div>
