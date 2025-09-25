@@ -57,6 +57,45 @@ export default function TestWindowPage() {
 
     // Session information
     const { data: session, status } = useSession()
+    // Delete modal state
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteScope, setDeleteScope] = useState<'single' | 'following' | 'all'>('single');
+
+    const handleConfirmDelete = async () => {
+        if (!activeTestWindow) return;
+        try {
+            if (deleteScope === 'all') {
+                // Call backend to delete entire test window series
+                const res = await apiHandler(
+                    undefined,
+                    'DELETE',
+                    `api/test-window/${activeTestWindow.id}`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
+
+                if (res?.error) {
+                    toast.error(res.message || 'Failed to delete test window');
+                } else {
+                    // Optimistically remove from UI to avoid full rerender
+                    setCalendarEvents((prev) => prev.filter(e => e.extendedProps?.originalId !== activeTestWindow.id));
+                    setTestWindows((prev) => prev.filter(tw => tw.testWindowId !== activeTestWindow.id));
+                    // Show longer success toast and avoid interruption
+                    toast.success('Test window deleted', { autoClose: 5000 });
+                    // Silent background refresh to ensure consistency
+                    if (selectedCourseId) {
+                        fetchTestWindows(selectedCourseId, { silent: true });
+                    }
+                }
+            } else {
+                toast.info('Only "All events" is implemented right now.');
+            }
+        } catch (e) {
+            toast.error('Error deleting test window');
+        } finally {
+            setDeleteModalOpen(false);
+        }
+    };
 
 
     /**
@@ -116,7 +155,7 @@ export default function TestWindowPage() {
     /**
      * Fetch test windows for selected course
      */
-    const fetchTestWindows = useCallback(async (courseId: number) => {
+    const fetchTestWindows = useCallback(async (courseId: number, options?: { silent?: boolean }) => {
         if (!courseId) {
             console.log('No course ID provided, skipping fetch');
             return;
@@ -124,7 +163,10 @@ export default function TestWindowPage() {
         
         try {
             console.log('Fetching test windows for course:', courseId);
-            setLoading(true);
+            // If not silent, set loading to true
+            if (!options?.silent) {
+                setLoading(true);
+            }
             
             const res = await apiHandler(
                 undefined,
@@ -175,7 +217,10 @@ export default function TestWindowPage() {
             setTestWindows([]);
             setCalendarEvents([]);
         } finally {
-            setLoading(false);
+            // If not silent, set loading to false
+            if (!options?.silent) {
+                setLoading(false);
+            }
         }
     }, [session?.user?.accessToken]);
 
@@ -540,7 +585,8 @@ export default function TestWindowPage() {
 
     const handleDeleteTestWindow = () => {
         if (!activeTestWindow) return;
-        toast.warn(`Delete test window "${activeTestWindow.title}" (id: ${activeTestWindow.id}) - not implemented`);
+        // Open delete confirmation modal with scope options
+        setDeleteModalOpen(true);
         closePopover();
     };
 
@@ -667,6 +713,69 @@ export default function TestWindowPage() {
                         setIsModalOpen(false);
                     }}
                 />
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Delete test window"
+            >
+                <div className="space-y-4">
+                    <p className="text-sm text-mentat-gold/80">
+                        Choose what to delete. This action cannot be undone.
+                    </p>
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-md p-2">
+                            <input
+                                type="radio"
+                                name="delete-scope"
+                                value="single"
+                                checked={deleteScope === 'single'}
+                                onChange={() => setDeleteScope('single')}
+                                className="accent-red-500"
+                            />
+                            <span>This event</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-md p-2">
+                            <input
+                                type="radio"
+                                name="delete-scope"
+                                value="following"
+                                checked={deleteScope === 'following'}
+                                onChange={() => setDeleteScope('following')}
+                                className="accent-red-500"
+                            />
+                            <span>This and following events</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-md p-2">
+                            <input
+                                type="radio"
+                                name="delete-scope"
+                                value="all"
+                                checked={deleteScope === 'all'}
+                                onChange={() => setDeleteScope('all')}
+                                className="accent-red-500"
+                            />
+                            <span>All events</span>
+                        </label>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-mentat-gold/10">
+                        <button
+                            className="px-4 py-2 rounded-md text-sm hover:bg-white/5"
+                            onClick={() => setDeleteModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="px-4 py-2 rounded-md text-sm bg-red-600 hover:bg-red-500 text-white"
+                            onClick={handleConfirmDelete}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
             </Modal>
 
             {/* Test Window Context Popover */}
