@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
@@ -34,6 +34,17 @@ export default function TestWindowPage() {
     const [error, setError] = useState<string | null>(null);
     const [testWindows, setTestWindows] = useState<any[]>([]);
     const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+    const [calendarApi, setCalendarApi] = useState<any>(null);
+    const scrollPositionRef = useRef<number | null>(null);
+    const savedCalendarStateRef = useRef<{
+        date: Date | null;
+        view: string | null;
+        scrollTop: number | null;
+    }>({
+        date: null,
+        view: null,
+        scrollTop: null
+    });
 
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -347,11 +358,48 @@ export default function TestWindowPage() {
                 console.log('No event changes detected, skipping calendar update');
                 return prevEvents;
             });
+
+            // Restore saved calendar state after DOM updates
+            if (calendarApi && savedCalendarStateRef.current.date) {
+                const { date, view, scrollTop } = savedCalendarStateRef.current;
+                
+                console.log('Restoring saved calendar state:', {
+                    date: date?.toISOString(),
+                    view,
+                    scrollTop
+                });
+                
+                // Restore date view first
+                if (view) {
+                    calendarApi.changeView(view, date);
+                    console.log('Restored date view:', date?.toISOString(), view);
+                }
+                
+                // Restore scroll position with multiple attempts
+                if (scrollTop !== null) {
+                    const restoreScroll = () => {
+                        const newScroller = document.querySelector('.fc .fc-timegrid-body .fc-scroller') as HTMLElement | null;
+                        if (newScroller) {
+                            newScroller.scrollTop = scrollTop;
+                            console.log('Restored scroll position:', scrollTop);
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    // Multiple restoration attempts
+                    [50, 150, 300, 500, 1000].forEach(delay => {
+                        setTimeout(() => {
+                            restoreScroll();
+                        }, delay);
+                    });
+                }
+            }
         } else {
             console.log('No test windows, clearing calendar events');
             setCalendarEvents([]);
         }
-    }, [testWindows, convertTestWindowsToEvents]);
+    }, [testWindows, convertTestWindowsToEvents, calendarApi]);
 
     // Debug calendar events when they change (reduced logging for performance)
     useEffect(() => {
@@ -381,6 +429,26 @@ export default function TestWindowPage() {
      * @param info Calendar selection info
      */
     const handleEventCreate = (info: { start: string; end: string; allDay: boolean }) => {
+        // Save current calendar state before opening modal
+        if (calendarApi) {
+            const currentDate = calendarApi.getDate();
+            const currentView = calendarApi.view.type;
+            const scroller = document.querySelector('.fc .fc-timegrid-body .fc-scroller') as HTMLElement | null;
+            const currentScrollTop = scroller ? scroller.scrollTop : null;
+            
+            savedCalendarStateRef.current = {
+                date: currentDate,
+                view: currentView,
+                scrollTop: currentScrollTop
+            };
+            
+            console.log('Saved calendar state before modal open:', {
+                date: currentDate.toISOString(),
+                view: currentView,
+                scrollTop: currentScrollTop
+            });
+        }
+        
         const startDate = new Date(info.start);
         const endDate = new Date(info.end);
         
@@ -505,10 +573,29 @@ export default function TestWindowPage() {
             {/* Calendar */}
             <div className="flex-1 p-2">
                 <Calendar
-                    // The key is used to force a re-render of the calendar when the selected course id changes
-                    key={`calendar-${selectedCourseId}-${calendarEvents.length}`}
                     events={calendarEvents}
-                    onDateClick={({ dateStr }) => setIsModalOpen(true)}
+                    onDateClick={({ dateStr }) => {
+                        // Save calendar state before opening modal
+                        if (calendarApi) {
+                            const currentDate = calendarApi.getDate();
+                            const currentView = calendarApi.view.type;
+                            const scroller = document.querySelector('.fc .fc-timegrid-body .fc-scroller') as HTMLElement | null;
+                            const currentScrollTop = scroller ? scroller.scrollTop : null;
+                            
+                            savedCalendarStateRef.current = {
+                                date: currentDate,
+                                view: currentView,
+                                scrollTop: currentScrollTop
+                            };
+                            
+                            console.log('Saved calendar state before modal open (date click):', {
+                                date: currentDate.toISOString(),
+                                view: currentView,
+                                scrollTop: currentScrollTop
+                            });
+                        }
+                        setIsModalOpen(true);
+                    }}
                     // Passes the function to handle event creation
                     onEventCreate={handleEventCreate}
                     // Passes the function to handle event click
@@ -519,6 +606,8 @@ export default function TestWindowPage() {
                     editable={true}
                     // Passes the selectable state of the calendar
                     selectable={true}
+                    // Passes the calendar ready callback
+                    onCalendarReady={setCalendarApi}
                 />
             </div>
 

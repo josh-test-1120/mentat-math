@@ -20,6 +20,7 @@ interface CalendarProps {
   dayMaxEvents?: boolean | number;
   weekends?: boolean;
   initialView?: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay';
+  onCalendarReady?: (calendarApi: any) => void;
 }
 
 export default function Calendar({
@@ -35,9 +36,18 @@ export default function Calendar({
   dayMaxEvents = true,
   weekends = true,
   initialView = 'dayGridMonth',
+  onCalendarReady,
 }: CalendarProps) {
   const calendarRef = useRef<FullCalendar>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Expose calendar API when ready
+  React.useEffect(() => {
+    if (calendarRef.current && onCalendarReady) {
+      const calendarApi = calendarRef.current.getApi();
+      onCalendarReady(calendarApi);
+    }
+  }, [onCalendarReady]);
 
   // Handle date selection (click and drag)
   const handleDateSelect = (selectInfo: DateSelectArg) => {
@@ -475,6 +485,10 @@ export default function Calendar({
           hour12: true
         }}
         
+        // Disable auto-scroll behavior
+        scrollTime={null}
+        scrollTimeReset={false}
+        
         // Disable all-day events and optimize layout
         allDaySlot={false}
         allDayMaintainDuration={false}
@@ -494,6 +508,20 @@ export default function Calendar({
         eventConstraint={{
           start: '00:00',
           end: '24:00'
+        }}
+        
+        // Prevent auto-scroll on event changes
+        eventDidMount={(info) => {
+          // Prevent auto-scroll when events are mounted
+          const scroller = document.querySelector('.fc .fc-timegrid-body .fc-scroller') as HTMLElement | null;
+          if (scroller) {
+            // Store current scroll position
+            const currentScroll = scroller.scrollTop;
+            // Restore it after a brief delay
+            setTimeout(() => {
+              scroller.scrollTop = currentScroll;
+            }, 0);
+          }
         }}
         
       />
