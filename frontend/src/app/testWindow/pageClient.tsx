@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import Modal from "@/app/_components/UI/Modal";
+import Popover from "@/app/_components/UI/Popover";
 import Calendar from "../_components/UI/Calendar";
 import CreateTestWindow from "@/app/createTestWindow/pageClient";
 
@@ -488,12 +489,15 @@ export default function TestWindowPage() {
         const props = event.extendedProps;
         
         if (props?.type === 'test-window') {
-            toast.info(`Test Window: ${event.title}\nDescription: ${props.description || 'No description'}\nActive: ${props.isActive ? 'Yes' : 'No'}`, {
-                autoClose: 5000,
-                style: {
-                    whiteSpace: 'pre-line'
-                }
+            // Open context popover anchored to click
+            const x = info.jsEvent?.clientX || 0;
+            const y = info.jsEvent?.clientY || 0;
+            setPopoverAnchor({ x, y });
+            setActiveTestWindow({
+                id: props.originalId,
+                title: event.title
             });
+            setIsPopoverOpen(true);
         } else {
             toast.info(`Clicked on: ${event.title}`);
         }
@@ -515,6 +519,35 @@ export default function TestWindowPage() {
                 console.log('Refresh completed');
             }, 500); // Reduced delay to 500ms
         }
+    };
+
+    // Popover state and actions
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
+    const [activeTestWindow, setActiveTestWindow] = useState<{ id: number; title: string } | null>(null);
+
+    const closePopover = () => {
+        setIsPopoverOpen(false);
+        // Do not clear anchor immediately to allow close animation potential; safe to clear
+        setPopoverAnchor(null);
+    };
+
+    const handleModifySettings = () => {
+        if (!activeTestWindow) return;
+        toast.info(`Modify settings for "${activeTestWindow.title}" (id: ${activeTestWindow.id})`);
+        closePopover();
+    };
+
+    const handleDeleteTestWindow = () => {
+        if (!activeTestWindow) return;
+        toast.warn(`Delete test window "${activeTestWindow.title}" (id: ${activeTestWindow.id}) - not implemented`);
+        closePopover();
+    };
+
+    const handleControlAllowedTests = () => {
+        if (!activeTestWindow) return;
+        toast.info(`Control allowed tests for "${activeTestWindow.title}" (id: ${activeTestWindow.id})`);
+        closePopover();
     };
 
     // Get selected course name for display
@@ -635,6 +668,37 @@ export default function TestWindowPage() {
                     }}
                 />
             </Modal>
+
+            {/* Test Window Context Popover */}
+            <Popover
+                isOpen={isPopoverOpen}
+                anchor={popoverAnchor}
+                onClose={closePopover}
+            >
+                <div className="min-w-[220px] p-1">
+                    <div className="px-3 py-2 text-sm font-semibold text-mentat-gold/80 border-b border-mentat-gold/10">
+                        {activeTestWindow?.title || 'Test Window'}
+                    </div>
+                    <button
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-white/5"
+                        onClick={handleModifySettings}
+                    >
+                        Modify settings
+                    </button>
+                    <button
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-white/5"
+                        onClick={handleControlAllowedTests}
+                    >
+                        Control allowed tests
+                    </button>
+                    <button
+                        className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                        onClick={handleDeleteTestWindow}
+                    >
+                        Delete test window
+                    </button>
+                </div>
+            </Popover>
 
             {/* Toast Container */}
             <ToastContainer autoClose={3000} hideProgressBar />
