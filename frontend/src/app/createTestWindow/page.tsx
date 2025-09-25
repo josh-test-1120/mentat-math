@@ -44,7 +44,7 @@ export default async function CreateTestWindowPage() {
     return (
         <AuthProvider session={session}>
             <div className="h-full w-full flex flex-col bg-mentat-black text-mentat-gold">
-                <CreateTestWindowClient onTestWindowCreated={() => {}} />
+                <CreateTestWindowClient onTestWindowCreated={() => {}} onCancel={() => {}} />
             </div>
         </AuthProvider>
     );

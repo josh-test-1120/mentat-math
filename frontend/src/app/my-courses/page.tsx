@@ -3,6 +3,7 @@ import { getServerAuthSession } from "@/utils/auth";
 import MyCoursesClient from "./pageClient";
 import { AuthProvider } from "@/components/authProvider";
 import { Session } from "next-auth";
+import InstructorCoursesClient from "../instructorCourses/pageClient";
 
 const DEFAULT_SESSION: Session = {
     user: {
@@ -19,7 +20,8 @@ export default async function MyCoursesPage() {
 
     return (
         <AuthProvider session={session}>
-            <MyCoursesClient />
+            {/* <MyCoursesClient /> */}
+            <InstructorCoursesClient />
         </AuthProvider>
     );
 }
