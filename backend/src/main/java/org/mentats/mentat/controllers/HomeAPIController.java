@@ -24,7 +24,7 @@ import java.util.*;
 public class HomeAPIController {
     /**
      * Get the last exam ID from the database to increment
-     * @return integer of last exam id
+     * @return integer of last exam ID
      */
     @GetMapping("/lastExamID")
     public int findExam() {
@@ -160,7 +160,7 @@ public class HomeAPIController {
 
         // SQL query to select from the 'exam' table where the student ID is present
         String sql = "SELECT * \n" +
-                "FROM examresult \n" +
+                "FROM exam_result \n" +
                 "WHERE exam_student_id = ?;\n";
         //// list to store retrieved exam details
         List<Map<String, Object>> exams = new ArrayList<>();

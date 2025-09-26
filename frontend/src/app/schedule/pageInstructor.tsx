@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
-import {SessionProvider, useSession} from 'next-auth/react'
+import { SessionProvider, useSession } from 'next-auth/react'
 import Modal from "@/app/_components/UI/Modal";
 import Calendar from "../_components/UI/Calendar";
 import { Course } from "@/app/_components/types/exams";
 
-// Needed to get environment variable for Backend API
+// Needed to get the environment variable for the Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 /**
