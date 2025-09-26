@@ -14,6 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
      * Default bean for configuration
      * Separate URI calls are defined to avoid grouping auth calls
      * into this CORS space
+     *
      * @return void
      */
     @Bean
@@ -21,61 +22,19 @@ public class WebConfig implements WebMvcConfigurer {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                // Mapping for grades
-                registry.addMapping("/api/grades")
+                // Mapping for api calls
+                registry.addMapping("/api/**")
                         .allowedOriginPatterns("http://localhost:3000")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
-                // Mapping for schedules
-                registry.addMapping("/api/schedules")
+                // Mapping for legacy course URI
+                registry.addMapping("/course/**")
                         .allowedOriginPatterns("http://localhost:3000")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
-                // Mapping for first level /api/ calls
-                registry.addMapping("/api/*")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                // Mapping for createExam endpoint (redundant and testing needed)
-                registry.addMapping("/api/createExam")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                // Mapping for createExam endpoint (redundant and testing needed)
-                registry.addMapping("/course/createCourse")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/course/*")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/course/listCourses")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/course/joinCourses")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/api/test-window/**")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-                registry.addMapping("/api/test-window/create")
-                        .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
+                // Mapping for exams
             }
         };
     }
