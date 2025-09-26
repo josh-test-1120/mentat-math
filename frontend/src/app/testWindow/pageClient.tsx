@@ -87,8 +87,46 @@ export default function TestWindowPage() {
                         fetchTestWindows(selectedCourseId, { silent: true });
                     }
                 }
+            } else if (deleteScope === 'single') {
+                // Find the specific clicked event (nearest to last click position)
+                const targetEvent = calendarEvents.find(e => e.extendedProps?.originalId === activeTestWindow.id);
+                if (!targetEvent) {
+                    toast.error('Could not find the clicked event');
+                    return;
+                }
+
+                // Extract the specific date (YYYY-MM-DD) in LOCAL time (avoid UTC shifts)
+                const eventDateObj = new Date(targetEvent.start);
+                const eventYear = eventDateObj.getFullYear();
+                const eventMonth = String(eventDateObj.getMonth() + 1).padStart(2, '0');
+                const eventDay = String(eventDateObj.getDate()).padStart(2, '0');
+                const eventDateStr = `${eventYear}-${eventMonth}-${eventDay}`;
+
+                // Backend: add this date to exceptions array
+                const res = await apiHandler(
+                    { date: eventDateStr },
+                    'PATCH',
+                    `api/test-window/${activeTestWindow.id}/add-exception`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
+
+                if (res?.error) {
+                    toast.error(res.message || 'Failed to delete this event');
+                } else {
+                    // Optimistically remove only this date's occurrences for this window
+                    setCalendarEvents((prev) => prev.filter(e => 
+                        !(e.extendedProps?.originalId === activeTestWindow.id && e.start?.startsWith(eventDateStr))
+                    ));
+                    toast.success('Current day test window successfully deleted', { autoClose: 5000 });
+
+                    // Silent background refresh
+                    if (selectedCourseId) {
+                        fetchTestWindows(selectedCourseId, { silent: true });
+                    }
+                }
             } else {
-                toast.info('Only "All events" is implemented right now.');
+                toast.info('Only "All events" and "This event" are implemented right now.');
             }
         } catch (e) {
             toast.error('Error deleting test window');
@@ -247,8 +285,20 @@ export default function TestWindowPage() {
             console.log(`Test window ${index + 1}: "${testWindow.testWindowTitle}" assigned color ${colorIndex} (${colors.bg})`);
             
             try {
-                // Parse weekdays pattern
+                // Parse weekdays pattern and exceptions
                 const weekdays = JSON.parse(testWindow.weekdays || '{}');
+                let exceptions: string[] = [];
+                try {
+                    const raw = testWindow.exceptions;
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) {
+                            exceptions = parsed;
+                        }
+                    }
+                } catch (_) {
+                    // ignore malformed exceptions
+                }
                 const activeDays = Object.keys(weekdays).filter(day => weekdays[day]);
                 
                 console.log(`Weekdays object for "${testWindow.testWindowTitle}":`, weekdays);
@@ -290,7 +340,9 @@ export default function TestWindowPage() {
                         
                         console.log(`  Checking ${dayName} (${dateStr}): weekdays[${dayName}] = ${weekdays[dayName]}`);
                         
-                        if (weekdays[dayName]) {
+                        // Skip if date is in exceptions
+                        const isException = exceptions.includes(dateStr);
+                        if (weekdays[dayName] && !isException) {
                             const startDateTime = `${dateStr}T${testWindow.testStartTime}`;
                             const endDateTime = `${dateStr}T${testWindow.testEndTime}`;
                             

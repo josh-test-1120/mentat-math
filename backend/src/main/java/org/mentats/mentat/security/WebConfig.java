@@ -66,9 +66,10 @@ public class WebConfig implements WebMvcConfigurer {
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
+                // Mapping for test-window endpoints including patch
                 registry.addMapping("/api/test-window/**")
                         .allowedOriginPatterns("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(true);
                 registry.addMapping("/api/test-window/create")

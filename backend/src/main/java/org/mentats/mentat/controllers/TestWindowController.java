@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/test-window")
@@ -99,6 +100,41 @@ public class TestWindowController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error deleting test window: " + e.getMessage());
+        }
+    }
+    
+    @PutMapping("/{id}/disable-weekday")
+    public ResponseEntity<?> disableWeekday(@PathVariable Integer id, @RequestParam String weekday) {
+        try {
+            String result = testWindowService.disableWeekday(id, weekday);
+            if (result.equals("deleted")) {
+                return ResponseEntity.ok("Test window deleted (no active weekdays remaining)");
+            } else if (result.equals("updated")) {
+                return ResponseEntity.ok("Weekday disabled successfully");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error disabling weekday: " + e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/add-exception")
+    public ResponseEntity<?> addException(@PathVariable Integer id, @RequestBody Map<String, String> request) {
+        try {
+            String date = request.get("date");
+            if (date == null || date.isEmpty()) {
+                return ResponseEntity.badRequest().body("Date parameter is required");
+            }
+            
+            TestWindow updated = testWindowService.addExceptionDate(id, date);
+            if (updated != null) {
+                return ResponseEntity.ok(updated);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error adding exception date: " + e.getMessage());
         }
     }
 }
