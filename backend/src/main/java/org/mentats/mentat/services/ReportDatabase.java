@@ -63,19 +63,19 @@ public class ReportDatabase {
     public static final String exam_taken_date     = "exam_taken_date";
     public static final String exam_score          = "exam_score";
     public static final String exam_scheduled_date = "exam_scheduled_date";
-    public static final String exam_exam_id        = "Exam_exam_id";
-    public static final String table               = "ExamResult";
+    public static final String exam_exam_id        = "exam_id";
+    public static final String table               = "exam_result";
 
     /**
-     * This method selects everything from the database ExamResult table.
-     * @return String type values inside the ExamResult table in the database.
+     * This method selects everything from the database exam_result table.
+     * @return String type values inside the exam_result table in the database.
      */
     public static String print() {
         String printST = "";
 
         try {
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM ExamResult;"); //ADDED ";" BEWARE OF BUG
+            ResultSet rs = st.executeQuery("SELECT * FROM exam_result;"); //ADDED ";" BEWARE OF BUG
 
             //Printing ResultSet
             while (rs.next()) {
@@ -105,7 +105,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT exam_name, exam_version, exam_taken_date, exam_score "
-                    + "FROM ExamResult exr JOIN Exam ON Exam_exam_id = exam_id WHERE exam_student_id = " + SID);
+                    + "FROM exam_result exr JOIN exam ON exam_id = exam_id WHERE exam_student_id = " + SID);
 
             //Printing ResultSet
             while (rs.next()) {
@@ -135,7 +135,7 @@ public class ReportDatabase {
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery("SELECT student_first_name, student_last_name, exam_name, exam_version, "
-                    + "exam_taken_date, exam_score FROM ExamResult JOIN Exam ON Exam_exam_id = exam_id JOIN Student " +
+                    + "exam_taken_date, exam_score FROM exam_result JOIN exam ON exam_id = exam_id JOIN Student " +
                     "ON exam_student_id = student_id WHERE exam_course_id = " + corID);
 
             //Printing ResultSet
@@ -159,7 +159,7 @@ public class ReportDatabase {
     }
 
     /**
-     * A method that inserts values into the database table ExamResult.
+     * A method that inserts values into the database table exam_result.
      * @param eStuID     String exam student ID.
      * @param eReID      String exam result ID.
      * @param eVer       String exam version.
@@ -172,8 +172,8 @@ public class ReportDatabase {
                            String eScheDate, String eID) {
         try {
             Statement st = con.createStatement();
-            st.executeUpdate("INSERT INTO ExamResult(exam_student_id, exam_id, exam_version, exam_taken_date, " +
-                    "exam_score, exam_scheduled_date, Exam_exam_id) "
+            st.executeUpdate("INSERT INTO exam_result(exam_student_id, exam_id, exam_version, exam_taken_date, " +
+                    "exam_score, exam_scheduled_date, exam_id) "
                     + "VALUES (" + eStuID + ", " + eReID + ", " + eVer + ", '" + eTakenDate + "', '" + eScore + "', '"
                     + eScheDate + "', " + eID
                     + ");");
@@ -186,7 +186,7 @@ public class ReportDatabase {
     }
 
     /**
-     * A method that deletes a row in the ExamResult table.
+     * A method that deletes a row in the exam_result table.
      * @param eStuID     String exam student ID.
      * @param eReID      String exam result ID.
      * @param eVer       String exam version.
@@ -230,7 +230,7 @@ public class ReportDatabase {
     }
 
     /**
-     * A method that updates values inside the ExamResult table in the database.
+     * A method that updates values inside the exam_result table in the database.
      * @param eStuID     String exam student ID.
      * @param eReID      String exam result ID.
      * @param eVer       String exam version.

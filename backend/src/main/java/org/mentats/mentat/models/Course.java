@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Size;
  * @author Telmen Enkhtuvshin
  */
 @Entity
-@Table(name = "Course",
+@Table(name = "course",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "course_id"),
                 @UniqueConstraint(columnNames = {"course_section", "course_year", "course_quarter"})
@@ -25,33 +25,39 @@ public class Course {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "course_id")
     // Report.Report.Course ID for this course
-    private int course_ID;
+    private int courseId;
 
     // The course name
     @NotBlank
     @Size(max = 50)
     @JsonProperty("courseName") // Map JSON field to Java field
-    protected String course_name;
+    @Column(name = "course_name")
+    protected String courseName;
 
     //Report.Report.Course's instructor ID
     @JsonProperty("courseProfessorId") // Map JSON field to Java field
+    @Column(name = "course_professor_id")
     private String courseProfessorId;
 
     // Course section
     @Size (max = 20)
     @JsonProperty("courseSection") // Map JSON field to Java field
-    public String course_section;
+    @Column(name = "course_section")
+    public String courseSection;
 
     @Min(2000)
     @JsonProperty("courseYear") // Map JSON field to Java field
+    @Column(name = "course_year")
     private int courseYear;
 
     @NotBlank
     @Size(max = 20)
     @JsonProperty("courseQuarter") // Map JSON field to Java field
+    @Column(name = "course_quarter")
     //Report.Report.Course term (i.e. Winter 2024)
-    public String course_quarter;
+    public String courseQuarter;
 
 
 
@@ -66,10 +72,10 @@ public class Course {
     //Report.Report.Course object constructor
     public Course(String courseName, String courseProfessorId,
                   String courseQuarter, String courseSection, int courseYear){
-        this.course_name        = courseName;
+        this.courseName        = courseName;
         this.courseProfessorId = courseProfessorId;
-        this.course_quarter     = courseQuarter;
-        this.course_section    = courseSection;
+        this.courseQuarter     = courseQuarter;
+        this.courseSection    = courseSection;
         this.courseYear        = courseYear;
     }
 
@@ -84,8 +90,8 @@ public class Course {
      * A getter method that returns the course ID
      * @return String course ID
      */
-    public int getCourseID() {
-        return course_ID;
+    public int getCourseId() {
+        return courseId;
     }
 
     /**
@@ -101,7 +107,7 @@ public class Course {
      * @return String Course name
      */
     public String getCourseName() {
-        return course_name;
+        return courseName;
     }
 
     /**
@@ -109,7 +115,7 @@ public class Course {
      * @return String Course section
      */
     public String getCourseSection() {
-        return course_section;
+        return courseSection;
     }
 
     /**
@@ -125,7 +131,7 @@ public class Course {
      * @return String Course quarter
      */
     public String getCourseQuarter() {
-        return course_quarter;
+        return courseQuarter;
     }
 
     /**
@@ -156,19 +162,19 @@ public class Course {
     public void updateCourse(int courseID, String courseName, String courseProfessorId,
                              String courseTerm, String courseSection){
         if (!Objects.equals(courseID, "")) {
-            this.course_ID = courseID;
+            this.courseId = courseID;
         }
         if (!Objects.equals(courseName, "")) {
-            this.course_name = courseName;
+            this.courseName = courseName;
         }
         if (!Objects.equals(courseProfessorId, "")) {
             this.courseProfessorId = courseProfessorId;
         }
         if (!Objects.equals(courseTerm, "")) {
-            this.course_quarter = courseTerm;
+            this.courseQuarter = courseTerm;
         }
         if (!Objects.equals(courseSection, "")) {
-            this.course_section = courseSection;
+            this.courseSection = courseSection;
         }
 
         // TODO: 5/10/24 Continue updating the system and database ✅
@@ -178,11 +184,11 @@ public class Course {
      * A method that deleted the course object and connected information from the database as well as system.
      */
     public void deleteCourse(){
-        this.course_ID       = 0;
-        this.course_name     = null;
+        this.courseId       = 0;
+        this.courseName     = null;
         this.courseProfessorId   = null;
-        this.course_quarter  = null;
-        this.course_section  = null;
+        this.courseQuarter  = null;
+        this.courseSection  = null;
 
 
         // TODO: 5/10/24 Continue delete the course from the database and system. (Still needs careful logic.)
