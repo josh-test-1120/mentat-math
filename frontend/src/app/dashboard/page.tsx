@@ -16,13 +16,13 @@ export default async function Dashboard() {
     return (
         <AuthProvider session={session}>
             <div className="min-h-screen overflow-auto h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold">
-                <div>
-                    <h1 className="text-3xl font-bold">EZMath Dashboard</h1>
-                </div>
+                {/*<div>*/}
+                {/*    <h1 className="text-3xl font-bold">EZMath Dashboard</h1>*/}
+                {/*</div>*/}
 
-                <p className="mt-2 mb-6">
-                    Welcome to EZMath Quiz Scheduler!
-                </p>
+                {/*<p className="mt-2 mb-6">*/}
+                {/*    Welcome to EZMath Quiz Scheduler!*/}
+                {/*</p>*/}
                 <MyCoursesPage/>
             </div>
         </AuthProvider>

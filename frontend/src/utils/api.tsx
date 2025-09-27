@@ -95,7 +95,7 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
         headers,
         ...(method !== 'GET' ? { body: JSON.stringify(inputs ?? {}) } : {})
       });
-  
+
       console.log(`API Response: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
@@ -104,7 +104,7 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
         // Never return Error(); return a structured object
         return { error: true, status: response.status, message: text || `HTTP ${response.status}` };
       }
-  
+
       const data = await response.json().catch(() => ({}));
       console.log('API Success Response:', data);
       
@@ -113,7 +113,7 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
         return { error: true, status: 200, message: data.message ?? 'Unknown error', data };
       }
   
-      return data; // success
+      else return data; // success
     } catch (e: any) {
       console.error('API Network Error:', e);
       // Network/catch-all path: also return structured error

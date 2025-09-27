@@ -1,6 +1,6 @@
 // frontend/src/app/my-courses/page.tsx
 import { getServerAuthSession } from "@/utils/auth";
-import MyCoursesStudent from "./demoStudent";
+import MyCoursesStudent from "./pageStudent";
 import MyCoursesInstructor from "./pageInstructor";
 import { AuthProvider } from "@/components/authProvider";
 import { Session } from "next-auth";
