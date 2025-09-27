@@ -4,7 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { useRef } from 'react';
-import {SessionProvider, useSession} from 'next-auth/react'
+import { SessionProvider, useSession } from 'next-auth/react'
 
 import { apiHandler } from "@/utils/api";
 import { toast, ToastContainer } from "react-toastify";
@@ -21,6 +21,7 @@ export default function Grades() {
     // State information
     const [windowReady, setWindowReady] = useState(true);
     const [sessionReady, setSessionReady] = useState(false);
+    const [gradeTable, setGradeTable] = useState();
     const [userSession, setSession] = useState({
         id: '',
         username: '',
@@ -73,184 +74,225 @@ export default function Grades() {
         }
     }, [session]);
 
-    // Josh Test work for general API handler
-    // TDB in future iteration
-    // async function fetchExams() {
-    //     try {
-    //
-    //         try {
-    //             // const response = await apiHandler({},'GET',
-    //             //     'api/grades/',
-    //             //     `${BACKEND_API}`
-    //             // );
-    //             const response = await fetch('http://localhost:8080/api/grades'); //tries to send GET request to specified API endpoint
-    //             // console.log('api call done');
-    //             // console.log(response);
-    //             // if (!response.message.includes('success')) throw Error(response.message);
-    //             // const data = await response.message; //parse data as json and await response\
-    //             // console.log("This is the data");
-    //             // console.log(data);
-    //             const data = await response.json(); //parse data as json and await response
-    //
-    //             const tableBody = document.getElementById('testsTable').getElementsByTagName('tbody')[0];
-    //
-    //
-    //             //loops through each exam item
-    //             data.forEach(exam => {
-    //                 let row = tableBody.insertRow();
-    //
-    //                 let cellName = row.insertCell(0);
-    //                 cellName.textContent = exam.exam_name;
-    //
-    //                 let cellDifficulty = row.insertCell(1);
-    //                 cellDifficulty.textContent = exam.exam_difficulty;
-    //
-    //                 let cellRequired = row.insertCell(2);
-    //                 cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
-    //             });
-    //
-    //         } catch (error) {
-    //             console.error('Error fetching exams:', error.toString());
-    //         }
-    //
-    //     }
-    //     catch (error) {
-    //         toast.error("Failed to create exams");
-    //     }
-    //
-    //
-    // }
+    /**
+     * Fetch Exams
+     * Josh Test work for general API handler
+     * TDB in future iteration
+     */
+    async function fetchExams() {
+        console.log('Exam Fetch for student grades page');
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/grades/${session?.user?.id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+            console.log(res);
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching exams:', res.error);
+                setGradeTable(undefined);
+            } else {
+
+                const tableBody = document.getElementById('examsTable').getElementsByTagName('tbody')[0];
+                console.log('We are in the fetch exams update');
+                // Remove all child nodes (rows) from the tbody
+                while (tableBody.firstChild) {
+                    tableBody.removeChild(tableBody.firstChild);
+                }
+                //loops through each exam item
+                res.forEach(exam => {
+                    console.log(exam)
+                    let row = tableBody?.insertRow();
+                    if (row != undefined) row.classList.add("hover:bg-gray-500");
+
+                    let cellName = row?.insertCell(0);
+                    if (cellName != undefined) {
+                        cellName.textContent = exam.exam_name;
+                        cellName.classList.add("border");
+                        cellName.classList.add("border-white");
+                        cellName.classList.add("text-center");
+                    }
+
+                    let cellVersion = row?.insertCell(1);
+                    if (cellVersion != undefined) {
+                        cellVersion.textContent = exam.exam_version;
+                        cellVersion.classList.add("border");
+                        cellVersion.classList.add("border-white");
+                        cellVersion.classList.add("text-center");
+                    }
+
+                    let cellDate = row?.insertCell(2);
+                    if (cellDate != undefined) {
+                        cellDate.textContent = exam.exam_taken_date;
+                        cellDate.classList.add("border");
+                        cellDate.classList.add("border-white");
+                        cellDate.classList.add("text-center");
+                    }
+
+                    let cellScore = row?.insertCell(3);
+                    if (cellScore != undefined) {
+                        cellScore.textContent = exam.exam_score;
+                        cellScore.classList.add("border");
+                        cellScore.classList.add("border-white");
+                        cellScore.classList.add("text-center");
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching student exams:', error.toString());
+        }
+    }
 
     /**
      * Fetch Exams
      */
-    async function fetchExams() {
-        try {
-            const response = await fetch('http://localhost:8080/api/grades'); // Send GET request to the specified API endpoint
-            const data = await response.json(); // Parse data as JSON and await response
-
-            const tableBody = document?.getElementById('testsTable')?.getElementsByTagName('tbody')[0];
-            if (tableBody != undefined) tableBody.innerHTML = ''; // Clear existing rows in the table body
-
-            // Loop through each exam item
-            data.forEach((exam: any) => {
-                let row = tableBody?.insertRow();
-                if (row != undefined) row.classList.add("hover:bg-gray-500");
-
-                let cellName = row?.insertCell(0);
-                if (cellName != undefined) {
-                    cellName.textContent = exam.exam_name;
-                    cellName.classList.add("border");
-                    cellName.classList.add("border-white");
-                    cellName.classList.add("text-center");
-                }
-
-                let cellDifficulty = row?.insertCell(1);
-                if (cellDifficulty != undefined) {
-                    cellDifficulty.textContent = exam.exam_difficulty;
-                    cellDifficulty.classList.add("border");
-                    cellDifficulty.classList.add("border-white");
-                    cellDifficulty.classList.add("text-center");
-                }
-
-                let cellRequired = row?.insertCell(2);
-                if (cellRequired != undefined) {
-                    cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
-                    cellRequired.classList.add("border");
-                    cellRequired.classList.add("border-white");
-                    cellRequired.classList.add("text-center");
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching exams:', error);
-        }
-    }
+    // async function fetchExams() {
+    //     try {
+    //         const response = await fetch('http://localhost:8080/api/grades'); // Send GET request to the specified API endpoint
+    //         const data = await response.json(); // Parse data as JSON and await response
+    //
+    //         const tableBody = document?.getElementById('testsTable')?.getElementsByTagName('tbody')[0];
+    //         if (tableBody != undefined) tableBody.innerHTML = ''; // Clear existing rows in the table body
+    //
+    //         // Loop through each exam item
+    //         data.forEach((exam: any) => {
+    //             let row = tableBody?.insertRow();
+    //             if (row != undefined) row.classList.add("hover:bg-gray-500");
+    //
+    //             let cellName = row?.insertCell(0);
+    //             if (cellName != undefined) {
+    //                 cellName.textContent = exam.exam_name;
+    //                 cellName.classList.add("border");
+    //                 cellName.classList.add("border-white");
+    //                 cellName.classList.add("text-center");
+    //             }
+    //
+    //             let cellDifficulty = row?.insertCell(1);
+    //             if (cellDifficulty != undefined) {
+    //                 cellDifficulty.textContent = exam.exam_difficulty;
+    //                 cellDifficulty.classList.add("border");
+    //                 cellDifficulty.classList.add("border-white");
+    //                 cellDifficulty.classList.add("text-center");
+    //             }
+    //
+    //             let cellRequired = row?.insertCell(2);
+    //             if (cellRequired != undefined) {
+    //                 cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
+    //                 cellRequired.classList.add("border");
+    //                 cellRequired.classList.add("border-white");
+    //                 cellRequired.classList.add("text-center");
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error('Error fetching exams:', error);
+    //     }
+    // }
 
     /**
      * Fetch Reports
      * @param SID Student ID
      */
     async function fetchReport(SID:any) {
+        console.log("Student Grades Page");
+        console.log(userSession);
+        //const response = await fetch('http://localhost:8080/api/studentReportString1');
         try {
-            console.log("BACKUP!");
-            console.log(userSession);
-            //const response = await fetch('http://localhost:8080/api/studentReportString1');
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/studentReportString1?SID=${SID}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
 
-            const url = new URL('http://localhost:8080/api/studentReportString1');
-            url.searchParams.append('SID', SID);
-            const response = await fetch(url);
+            // const url = new URL('http://localhost:8080/api/studentReportString1');
+            // url.searchParams.append('SID', SID);
+            // const response = await fetch(url);
 
-            console.log(url.toString());
+            // console.log(url.toString());
             // const response = await apiHandler({'id':SID},'GET',
             //     url.toString(),
             //     ``
             // );
-            console.log("This is the response from exam student");
-            console.log(response);
-            // fetch plain text instead of JSON
-            // var words = Object.keys(response).map((key) => [key, response[key]]);
-            // console.log(words);
 
-            // fetch plain text instead of JSON
-            const text = await response.text();
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching reports:', res.error);
+                setGradeTable(undefined);
+            } else {
 
-            // split text into an array of words
-            const words = text.trim().split(/\s+/);
 
-            // slice each part of the text by 4 columns
-            const tuples = [];
-            for (let i = 0; i < words.length; i += 4) {
-                tuples.push(words.slice(i, i + 4));
+                console.log("This is the response from student grades report");
+                console.log(res);
+                // fetch plain text instead of JSON
+                // var words = Object.keys(response).map((key) => [key, response[key]]);
+                // console.log(words);
+
+                // // fetch plain text instead of JSON
+                // const text = await response.text();
+
+                // split text into an array of words
+                const words = res.trim().split(/\s+/);
+
+                // slice each part of the text by 4 columns
+                const tuples = [];
+                for (let i = 0; i < words.length; i += 4) {
+                    tuples.push(words.slice(i, i + 4));
+                }
+
+                //console.log(tableBody)
+                const tableBody =
+                    document?.getElementById('testTable')?.getElementsByTagName('tbody')[0];
+                console.log(tuples);
+
+                console.log(tableBody?.innerHTML);
+                // clears the table before adding new rows
+                if (tableBody != undefined) tableBody.innerText = '';
+
+                // Loop through each tuple and populate the table
+                tuples.forEach(tuple => {
+                    let row = tableBody?.insertRow();
+                    if (row != undefined) row.classList.add("hover:bg-gray-500");
+
+                    let cellDate = row?.insertCell(0);
+                    if (cellDate != undefined) {
+                        cellDate.textContent = tuple[0];
+                        cellDate.classList.add("border");
+                        cellDate.classList.add("border-white");
+                        cellDate.classList.add("text-center");
+                    }
+
+                    let cellName = row?.insertCell(1);
+                    if (cellName != undefined) {
+                        cellName.textContent = tuple[1];
+                        cellName.classList.add("border");
+                        cellName.classList.add("border-white");
+                        cellName.classList.add("text-center");
+                    }
+
+                    let cellVersion = row?.insertCell(2);
+                    if (cellVersion != undefined) {
+                        cellVersion.textContent = tuple[2];
+                        cellVersion.classList.add("border");
+                        cellVersion.classList.add("border-white");
+                        cellVersion.classList.add("text-center");
+                    }
+
+                    let cellScore = row?.insertCell(3);
+                    if (cellScore != undefined) {
+                        cellScore.textContent = tuple[3];
+                        cellScore.classList.add("border");
+                        cellScore.classList.add("border-white");
+                        cellScore.classList.add("text-center");
+                    }
+                });
             }
-
-            //console.log(tableBody)
-            const tableBody=
-                document?.getElementById('examResultsTable')?.
-                    getElementsByTagName('tbody')[0];
-            console.log(tuples);
-
-            console.log(tableBody?.innerHTML);
-            // clears the table before adding new rows
-            if (tableBody != undefined) tableBody.innerText = '';
-
-            // Loop through each tuple and populate the table
-            tuples.forEach(tuple => {
-                let row = tableBody?.insertRow();
-                if (row != undefined) row.classList.add("hover:bg-gray-500");
-
-                let cellDate = row?.insertCell(0);
-                if (cellDate != undefined) {
-                    cellDate.textContent = tuple[0];
-                    cellDate.classList.add("border");
-                    cellDate.classList.add("border-white");
-                    cellDate.classList.add("text-center");
-                }
-
-                let cellName = row?.insertCell(1);
-                if (cellName != undefined) {
-                    cellName.textContent = tuple[1];
-                    cellName.classList.add("border");
-                    cellName.classList.add("border-white");
-                    cellName.classList.add("text-center");
-                }
-
-                let cellVersion = row?.insertCell(2);
-                if (cellVersion != undefined) {
-                    cellVersion.textContent = tuple[2];
-                    cellVersion.classList.add("border");
-                    cellVersion.classList.add("border-white");
-                    cellVersion.classList.add("text-center");
-                }
-
-                let cellScore = row?.insertCell(3);
-                if (cellScore != undefined) {
-                    cellScore.textContent = tuple[3];
-                    cellScore.classList.add("border");
-                    cellScore.classList.add("border-white");
-                    cellScore.classList.add("text-center");
-                }
-            });
-
         } catch (error) {
             console.error('Error fetching exam results:', error);
         }
@@ -263,10 +305,10 @@ export default function Grades() {
         // Fetch the exams when the page loads
         fetchExams();
 
-        console.log("This is the session data:");
-        console.log(userSession);
-
-        fetchReport(Number.parseInt(userSession.id));
+        // console.log("This is the session data:");
+        // console.log(userSession);
+        //
+        // fetchReport(Number.parseInt(userSession.id));
         //fetchReport(Number.parseInt("1"));
     }
 
@@ -280,18 +322,18 @@ export default function Grades() {
             {null /*custom window onload*/}
             {null /*{userSession ? <span>Loading...</span>: }*/}
             {null /*custom session onload*/}
-            {void (sessionReady ? windowOnload() : <></>)}
+            {void (sessionReady ? windowOnload() : <span>Loading...</span>)}
 
             <div className="mx-auto px-4 h-dvh bg-mentat-black">
                 <h1 className="text-center text-2xl mb-3">See Grades</h1>
-                <table id="examResultsTable"
+                <table id="examsTable"
                        className="w-full mb-5 border border-white"
                 >
                     <thead>
                     <tr>
-                        <th className="border border-white">Exam Taken Date</th>
                         <th className="border border-white">Exam Name</th>
                         <th className="border border-white">Exam Version</th>
+                        <th className="border border-white">Exam Date</th>
                         <th className="border border-white">Exam Score</th>
                     </tr>
                     </thead>

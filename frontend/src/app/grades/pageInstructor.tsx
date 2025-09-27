@@ -8,7 +8,7 @@ import { apiHandler } from "@/utils/api";
 import { SessionProvider, useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Exam, ExamProp, Course } from "@/app/_components/types/exams";
-import { getExamCourse, getExamStatus, getExamPropStatus, getExamPropCourse } from "@/app/_components/student/ExamCard2";
+import { getExamCourse, getExamStatus, getExamPropStatus, getExamPropCourse } from "@/app/_components/student/ExamCards";
 
 
 // Status Badge Component
@@ -305,7 +305,8 @@ const ExamDashboard = () => {
                     undefined, // No body for GET request
                     'GET',
                     `api/exams/instructor/${id}`,
-                    `${BACKEND_API}`
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
                 );
 
                 // Handle errors

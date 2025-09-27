@@ -120,33 +120,70 @@ public class HomeAPIController {
      * where the exam state is 1 (published exams only)
      * @return List of Map objects that have {string, object} types
      */
-    @GetMapping("/grades")
-    public List<Map<String, Object>> getExams() {
+    @GetMapping("/grades/{studentID}")
+    public List<Map<String, Object>> getStudentGrades(@PathVariable("studentID") Long sid) {
 
         // SQL query to select from the 'exam' table where the exam state is 1
-        String sql = "SELECT exam_name, exam_difficulty, exam_required \n" +
-                "FROM exam \n" +
-                "WHERE exam_state = 1;\n";
-        //// list to store retrieved exam details
+        String sql = "SELECT * \n" +
+                "FROM exam_result \n" +
+                "WHERE exam_student_id = ?;\n";
+
+        // List to store retrieved exam details
         List<Map<String, Object>> exams = new ArrayList<>();
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Update the Query with the variables
+            stmt.setLong(1, sid);  // Set the exam ID
+
+            // Execute the query
+            ResultSet rs = stmt.executeQuery();
 
             //iterates through result set
             while (rs.next()) {
                 Map<String, Object> exam = new HashMap<>();
-                exam.put("exam_name", rs.getString("exam_name"));
-                exam.put("exam_difficulty", rs.getString("exam_difficulty"));
-                exam.put("is_required", rs.getBoolean("exam_required"));
+                exam.put("exam_version", rs.getInt("exam_version"));
+                exam.put("exam_taken_date", rs.getDate("exam_taken_date"));
+                exam.put("exam_score", rs.getString("exam_score"));
+                exam.put("exam_scheduled_date", rs.getDate("exam_scheduled_date"));
+                exam.put("exam_id", rs.getInt("exam_id"));
                 exams.add(exam);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // Get the exam information for each result
+        for (Map<String, Object> exam : exams) {
+            // Get the exam ID
+            Integer examID = Integer.parseInt(exam.get("exam_id").toString());
+            // SQL query to select from the 'exam' table where the student ID is present
+            String examsql = "SELECT * \n" +
+                    "FROM exam \n" +
+                    "WHERE exam_id = ?;\n";
+            // Get the exam details
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(examsql)) {
 
-        //returns list of exams
+                // Update the Query with the variables
+                stmt.setInt(1, examID);  // Set the exam ID
+
+                // Execute the query
+                ResultSet rs = stmt.executeQuery();
+
+                // Gets the record details if the exam exists
+                if (rs.next()) {
+                    exam.put("exam_state", rs.getInt("exam_state"));
+                    exam.put("exam_required", rs.getInt("exam_required"));
+                    exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
+                    exam.put("exam_name", rs.getString("exam_name"));
+                    exam.put("exam_course_id", rs.getInt("exam_course_id"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // Return list of exams
         return exams;
     }
 
@@ -181,7 +218,7 @@ public class HomeAPIController {
                 exam.put("exam_taken_date", rs.getDate("exam_taken_date"));
                 exam.put("exam_score", rs.getString("exam_score"));
                 exam.put("exam_scheduled_date", rs.getDate("exam_scheduled_date"));
-                exam.put("exam_exam_id", rs.getInt("Exam_exam_id"));
+                exam.put("exam_id", rs.getInt("exam_id"));
                 exams.add(exam);
             }
         } catch (Exception e) {
@@ -191,7 +228,7 @@ public class HomeAPIController {
         // Get the exam information for each result
         for (Map<String, Object> exam : exams) {
             // Get the exam ID
-            Integer examID = Integer.parseInt(exam.get("exam_exam_id").toString());
+            Integer examID = Integer.parseInt(exam.get("exam_id").toString());
             // SQL query to select from the 'exam' table where the student ID is present
             String examsql = "SELECT * \n" +
                     "FROM exam \n" +
@@ -247,7 +284,7 @@ public class HomeAPIController {
                 e.printStackTrace();
             }
         }
-
+        System.out.println(exams);
         // Return list of exams
         return exams;
     }
@@ -428,6 +465,7 @@ public class HomeAPIController {
     @GetMapping("/instructorReportString1")
     public String getInstructorReport1(@RequestParam int corID) { // TODO: 5/23/24 FIX MY INPUT ARGUMENT!✅
         ReportDatabase.connection();
+        System.out.println("This is the corID: " + corID);
         String result = ReportDatabase.printInstructorReport(corID);
         //ReportDatabase.printStudentReport(1)
         return result;

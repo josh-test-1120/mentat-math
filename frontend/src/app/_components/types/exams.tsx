@@ -37,10 +37,10 @@ export interface ExamProp {
     exam_scheduled_date: string;
     exam_version: number;
     exam_taken_date: string;
-    course: string;
+    exam_course_name: string;
     location: string;
     status: 'active' | 'inactive';
-    score?: string;
+    exam_score?: string;
 }
 
 
