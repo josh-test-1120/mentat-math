@@ -9,7 +9,7 @@ interface ExamCardProps {
     index: number;
 }
 
-export default function ExamCard({ exam, index }: ExamCardProps) {
+export default function ExamCardOld({ exam, index }: ExamCardProps) {
     const statusColors = {
         completed: 'border-green-200 bg-green-50',
         upcoming: 'border-blue-200 bg-blue-50',
