@@ -9,6 +9,9 @@ interface ExamCardProps {
     index: number;
 }
 
+/**
+ * Global Exam Card functions
+ */
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig = {
@@ -23,7 +26,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     return (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
           <span className="mr-1">{config.icon}</span>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+            {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
     );
 };
@@ -41,7 +44,7 @@ const ScoreDisplay = ({ score }: { score: string }) => {
             <span className="text-sm mr-1">Score:</span>
             <span className={`text-sm font-bold ${scoreColor}`}>
                 {score}
-              </span>
+            </span>
         </div>
     );
 };
@@ -106,9 +109,12 @@ export const getExamPropCourse = (exam: ExamProp): string => {
     return exam.exam_course_name;
 };
 
-// Compact ExamCard Component
+/**
+ * These are the card components
+ */
+// Extended ExamCard Component
 export function ExamCardExtended({ exam, index }: ExamCardProps) {
-// const ExamCard = ({ exam }: { exam: Exam }) => {
+    // Get the status of the exam
     const status = getExamStatus(exam);
 
     return (
@@ -149,6 +155,78 @@ export function ExamCardExtended({ exam, index }: ExamCardProps) {
                         </div>
                     )}
                 </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// Compact ExamCard Component
+export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
+    // Get exam status
+    exam.status = getExamPropStatus(exam);
+
+    const getExamStatusColor = () => {
+        switch (exam.status) {
+            case 'active': return 'bg-blue-100 text-blue-800';
+            case 'inactive': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getExamStatusIcon = () => {
+        switch (exam.status) {
+            case 'active': return '✅';
+            case 'inactive': return '❌';
+            default: return '📝';
+        }
+    };
+
+    return (
+        <motion.div
+            className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col hover:shadow-md transition-shadow"
+            whileHover={{ y: -2 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+        >
+            <div className="flex justify-between items-start mb-2">
+                <h3 className="font-semibold text-gray-800 text-sm truncate">{exam.exam_name}</h3>
+                <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
+                    <span>{getExamStatusIcon()}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getExamStatusColor()}`}>
+                        {exam.status.charAt(0).toUpperCase() + exam.status.slice(1)}
+                    </span>
+                </span>
+            </div>
+
+            <div className="flex justify-between items-center mb-2">
+                <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                  {exam.exam_course_name}
+                </span>
+                <span className="text-xs text-gray-600">
+                  {exam.exam_difficulty} Difficulty Level
+                </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-gray-700">
+                  {exam.exam_required === 1 ? 'Required' : 'Not Required'}
+                </span>
+
+                {/*{exam.status === 'active' && exam.score !== undefined ? (*/}
+                {/*    <div className="flex items-center gap-1">*/}
+                {/*        <span className="text-xs font-semibold text-gray-700">*/}
+                {/*          Score:*/}
+                {/*        </span>*/}
+                {/*        <span className={`text-xs font-bold ${exam.score == 'A' ? 'text-green-600' : exam.score == 'B' ? 'text-yellow-600' : 'text-red-600'}`}>*/}
+                {/*          {exam.score}*/}
+                {/*        </span>*/}
+                {/*    </div>*/}
+                {/*) : (*/}
+                {/*    <span className="text-xs font-medium text-gray-500">*/}
+                {/*        {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming' : 'Pending results'}*/}
+                {/*    </span>*/}
+                {/*)}*/}
             </div>
         </motion.div>
     );

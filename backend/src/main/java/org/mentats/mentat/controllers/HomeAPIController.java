@@ -318,7 +318,7 @@ public class HomeAPIController {
                 Map<String, Object> course = new HashMap<>();
 
                 course.put("course_id", rs.getInt("course_id"));
-                course.put("course_name", rs.getString("course_name"));
+                course.put("exam_course_name", rs.getString("course_name"));
                 course.put("course_professor_id", rs.getInt("course_professor_id"));
                 course.put("course_year", rs.getInt("course_year"));
                 course.put("course_quarter", rs.getString("course_quarter"));
@@ -360,7 +360,7 @@ public class HomeAPIController {
                     exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
                     exam.put("exam_name", rs.getString("exam_name"));
                     exam.put("exam_course_id", rs.getInt("exam_course_id"));
-                    exam.put("course", course.get("course_name"));
+                    exam.put("exam_course_name", course.get("exam_course_name"));
                     exams.add(exam);
                 }
             // Handle exception errors
