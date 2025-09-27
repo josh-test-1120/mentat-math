@@ -7,16 +7,6 @@ import { ExamProp, Class } from '@/app/_components/types/exams';
 import { ExamCardExtended, getExamStatus } from '@/app/_components/student/ExamCards';
 import { useSession } from "next-auth/react";
 
-// Mock data - replace with your actual data source
-const mockClasses: Class[] = [
-    { id: 'MATH260', name: 'MATH260', grade: 'Junior', teacher: 'Dr. Black' },
-    { id: 'MATH330', name: 'MATH330', grade: 'Junior', teacher: 'Dr. Black' },
-];
-
-const statusCategories: Class[] = [
-    'all\' | \'upcoming\' | \'completed\' | \'pending\'>(\'all'
-]
-
 export default function ExamsPage() {
     const { data: session, status } = useSession();
     const [exams, setExams] = useState<ExamProp[]>([]);
@@ -39,7 +29,7 @@ export default function ExamsPage() {
 
         // Then filter by status
         if (filter !== 'all') {
-            result = result.filter(exam => getExamStatus(exam) === filter);
+            result = result.filter(exam => ExamCardExtended.getExamStatus(exam) === filter);
         }
 
         return result;
@@ -64,7 +54,7 @@ export default function ExamsPage() {
         // If no student ID, return
         if (!id) return;
         // Fetch exams
-        const mockExamsReal = async () => {
+        const fetchExams = async () => {
             // Try wrapper to handle async exceptions
             try {
                 // API Handler
@@ -116,7 +106,7 @@ export default function ExamsPage() {
             }
         };
         console.log('This is the status:', status);
-        mockExamsReal();
+        fetchExams();
     }, [status, session, BACKEND_API]);
 
     return (
