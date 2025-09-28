@@ -7,6 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { getServerAuthSession } from "@/utils/auth";
 import { apiHandler } from "@/utils/api";
 import {useSession} from "next-auth/react";
+import {Exam} from "@/components/types/exams";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -20,6 +21,8 @@ export default function InstructorReport() {
     // State information
     const [windowReady, setWindowReady] = useState(true);
     const [testTable, setTestTable] = useState();
+    const [loading, setLoading] = useState(true);
+    const [reports, setReports] = useState<Report[]>([]);
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
@@ -93,10 +96,10 @@ export default function InstructorReport() {
                 console.error('Error fetching reports:', res.error);
                 setTestTable(undefined);
             } else {
-                console.log('Fetched data for instructor report.');
+                console.log('Fetched data for student report.');
                 console.log(res);
                 // fetch plain text instead of JSON
-                const text = await response.text();
+                const text = await res.text();
 
                 // split text into an array of words
                 const words = text.trim().split(/\s+/);
@@ -188,17 +191,17 @@ export default function InstructorReport() {
                 // Filter out invalid entries
                 examsData = examsData.filter(c => c && typeof c === 'object');
 
-                console.log('Processed exams data:', examsData);
+                console.log('Processed report data:', examsData);
                 // Set courses to coursesData
-                setExams(examsData);
-                setFilter('all');
-                console.log('Length of filter:', filteredExams.length);
+                setReports(examsData);
+                // setFilter('all');
+                // console.log('Length of filter:', filteredExams.length);
             }
         } catch (e) {
             // Error fetching courses
-            console.error('Error fetching exams:', e);
+            console.error('Error fetching reports:', e);
             // Set courses to empty array
-            setExams([]);
+            setReports([]);
         } finally {
             // Set loading to false
             setLoading(false);
