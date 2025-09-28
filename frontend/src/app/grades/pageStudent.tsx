@@ -1,7 +1,5 @@
 "use client";
-import type { Metadata } from "next";
-import Link from "next/link";
-import Script from "next/script";
+
 import { useState, useEffect } from "react";
 import { useRef } from 'react';
 import { SessionProvider, useSession } from 'next-auth/react'
@@ -76,8 +74,7 @@ export default function Grades() {
 
     /**
      * Fetch Exams
-     * Josh Test work for general API handler
-     * TDB in future iteration
+     * Implementation for general API handler
      */
     async function fetchExams() {
         console.log('Exam Fetch for student grades page');
@@ -147,51 +144,6 @@ export default function Grades() {
             console.error('Error fetching student exams:', error.toString());
         }
     }
-
-    /**
-     * Fetch Exams
-     */
-    // async function fetchExams() {
-    //     try {
-    //         const response = await fetch('http://localhost:8080/api/grades'); // Send GET request to the specified API endpoint
-    //         const data = await response.json(); // Parse data as JSON and await response
-    //
-    //         const tableBody = document?.getElementById('testsTable')?.getElementsByTagName('tbody')[0];
-    //         if (tableBody != undefined) tableBody.innerHTML = ''; // Clear existing rows in the table body
-    //
-    //         // Loop through each exam item
-    //         data.forEach((exam: any) => {
-    //             let row = tableBody?.insertRow();
-    //             if (row != undefined) row.classList.add("hover:bg-gray-500");
-    //
-    //             let cellName = row?.insertCell(0);
-    //             if (cellName != undefined) {
-    //                 cellName.textContent = exam.exam_name;
-    //                 cellName.classList.add("border");
-    //                 cellName.classList.add("border-white");
-    //                 cellName.classList.add("text-center");
-    //             }
-    //
-    //             let cellDifficulty = row?.insertCell(1);
-    //             if (cellDifficulty != undefined) {
-    //                 cellDifficulty.textContent = exam.exam_difficulty;
-    //                 cellDifficulty.classList.add("border");
-    //                 cellDifficulty.classList.add("border-white");
-    //                 cellDifficulty.classList.add("text-center");
-    //             }
-    //
-    //             let cellRequired = row?.insertCell(2);
-    //             if (cellRequired != undefined) {
-    //                 cellRequired.textContent = exam.is_required ? 'Yes' : 'No';
-    //                 cellRequired.classList.add("border");
-    //                 cellRequired.classList.add("border-white");
-    //                 cellRequired.classList.add("text-center");
-    //             }
-    //         });
-    //     } catch (error) {
-    //         console.error('Error fetching exams:', error);
-    //     }
-    // }
 
     /**
      * Fetch Reports
@@ -319,8 +271,6 @@ export default function Grades() {
             id={"gradeComponentPage"}
             className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
         >
-            {null /*custom window onload*/}
-            {null /*{userSession ? <span>Loading...</span>: }*/}
             {null /*custom session onload*/}
             {void (sessionReady ? windowOnload() : <span>Loading...</span>)}
 

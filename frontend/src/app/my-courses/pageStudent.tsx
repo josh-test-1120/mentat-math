@@ -29,7 +29,7 @@ export default function ExamsPage() {
 
         // Then filter by status
         if (filter !== 'all') {
-            result = result.filter(exam => ExamCardExtended.getExamStatus(exam) === filter);
+            result = result.filter(exam => getExamStatus(exam) === filter);
         }
 
         return result;
@@ -126,25 +126,25 @@ export default function ExamsPage() {
                     <h2 className="text-xl font-semibold">Your Exams</h2>
                     <div className="flex gap-2">
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('all')}
                         >
                             All Exams
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'upcoming' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'upcoming' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('upcoming')}
                         >
                             Upcoming
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'completed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('completed')}
                         >
                             Completed
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('pending')}
                         >
                             Pending
@@ -167,7 +167,7 @@ export default function ExamsPage() {
                         </span>
                     </div>
 
-                    <div className="overflow-y-auto max-h-[600px] pr-4">
+                    <div className="overflow-y-auto max-h-[600px] pr-4 pt-1">
                         <AnimatePresence mode="wait">
                             {filteredExams.length > 0 ? (
                                 <motion.div

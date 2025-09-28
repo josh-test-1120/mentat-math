@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Exam, ExamProp } from '@/app/_components/types/exams';
-import { Calendar, Clock, Award, AlertCircle } from 'lucide-react';
+import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 
 interface ExamCardProps {
     exam: ExamProp;
@@ -183,41 +183,54 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
 
     const getExamStatusIcon = () => {
         switch (exam.status) {
-            case 'active': return '✅';
-            case 'inactive': return '❌';
-            default: return '📝';
+            case 'active': return <LucideCircleCheck className="w-4 h-4" />;
+            case 'inactive': return <CircleX className="w-4 h-4" />;
+            default: return <CircleX className="w-4 h-4" />;
         }
+    };
+
+    const getStatusBadge = ({ status }: { status: string}) => {
+        const statusConfig = {
+            active: { color: 'bg-green-100 text-green-800', icon: <LucideCircleCheck className="w-4 h-4" /> },
+            inactive: { color: 'bg-red-100 text-red-800', icon: <CircleX className="w-4 h-4" /> }
+        };
+
+        const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
+        console.log(`This is the status: ${status}`);
+        return (
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
+                <span className="mr-1">{config.icon}</span>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+            </span>
+        );
     };
 
     return (
         <motion.div
-            className="bg-white rounded-lg border border-gray-200 p-3 flex flex-col hover:shadow-md transition-shadow"
+            className="rounded-lg border p-3 flex flex-col hover:shadow-md transition-shadow"
             whileHover={{ y: -2 }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
         >
             <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-gray-800 text-sm truncate">{exam.exam_name}</h3>
+                <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
                 <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                    <span>{getExamStatusIcon()}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${getExamStatusColor()}`}>
-                        {exam.status.charAt(0).toUpperCase() + exam.status.slice(1)}
-                    </span>
+                    <span>{getStatusBadge(exam)}</span>
                 </span>
             </div>
 
             <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                <span className="text-xs text-mentat-gold px-2 py-1 rounded">
                   {exam.exam_course_name}
                 </span>
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-mentat-gold px-2 py-1 rounded">
                   {exam.exam_difficulty} Difficulty Level
                 </span>
             </div>
 
             <div className="flex justify-between items-center">
-                <span className="text-xs font-medium text-gray-700">
+                <span className="text-xs font-medium text-mentat-gold">
                   {exam.exam_required === 1 ? 'Required' : 'Not Required'}
                 </span>
 

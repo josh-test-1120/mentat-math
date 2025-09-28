@@ -1,7 +1,7 @@
 // frontend/src/app/my-courses/page.tsx
 import { getServerAuthSession } from "@/utils/auth";
 import CreateCourse from "./pageClient";
-import { AuthProvider } from "@/components/authProvider";
+import { AuthProvider } from "@/components/services/authProvider";
 import { Session } from "next-auth";
 
 const DEFAULT_SESSION: Session = {

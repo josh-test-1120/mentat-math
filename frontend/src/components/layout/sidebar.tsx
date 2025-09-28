@@ -1,13 +1,6 @@
 'use client'
+
 import React, {useEffect, useState} from 'react';
-import { Session } from "next-auth";
-import logoPic from '../../public/logo-new.png';
-
-//import * as React from "react"
-import Image from "next/image";
-import {bool} from "prop-types";
-
-import Grades from "../../grades/page";
 import Link from "next/link";
 
 import {useSession} from "next-auth/react";
@@ -627,7 +620,7 @@ export default function Sidebar() {
                         </Link>
                     </li>
                     <li>
-                        <Link href="/testWindow"
+                        <Link href="/schedule"
                                 className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             <SalesSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
@@ -643,7 +636,7 @@ export default function Sidebar() {
                     {/*    </Link>*/}
                     {/*</li>*/}
                     <li>
-                        <Link href="/reports/instructor"
+                        <Link href="/reports"
                               className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             <AuthenticationSvgComponent
                                 className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
