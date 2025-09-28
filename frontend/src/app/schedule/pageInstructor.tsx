@@ -4,8 +4,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { SessionProvider, useSession } from 'next-auth/react'
-import Modal from "@/app/_components/UI/Modal";
-import Calendar from "../_components/UI/Calendar";
+import Modal from "@/components/UI/calendar/Modal";
+import Calendar from "@/components/UI/calendar/Calendar";
 import { Course } from "@/app/_components/types/exams";
 
 // Needed to get the environment variable for the Backend API

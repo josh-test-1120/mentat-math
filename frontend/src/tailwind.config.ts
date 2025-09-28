@@ -15,7 +15,10 @@ const config: Config = {
       },
       colors: {
         "mentat-black": "#171717",
-        "mentat-gold": "#dab05a",
+        "mentat-gold": {
+            DEFAULT: "#dab05a",
+            700: "#987b3e"
+        },
         crimson: {
           DEFAULT: "#A30F32",
           700: "#8e0d2b",

@@ -1,14 +1,13 @@
 'use client';
 
 import React, {useState, useEffect, useMemo} from "react";
-import { useRef } from 'react';
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
-import { SessionProvider, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exam, ExamProp, Course } from "@/app/_components/types/exams";
-import { getExamPropCourse, ExamCardSmall } from "@/app/_components/student/ExamCards";
+import { Exam, ExamProp, Course } from "@/components/types/exams";
+import { getExamPropCourse, ExamCardSmall } from "@/components/UI/cards/ExamCards";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -139,19 +138,19 @@ export default function ExamDashboard() {
                         <h2 className="text-xl font-semibold">Your Exams</h2>
                         <div className="flex gap-2">
                             <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                 onClick={() => setFilter('all')}
                             >
                                 All Exams
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'MATH260' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'MATH260' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                 onClick={() => setFilter('MATH260')}
                             >
                                 MATH260
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'MATH330' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'MATH330' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                 onClick={() => setFilter('MATH330')}
                             >
                                 MATH330

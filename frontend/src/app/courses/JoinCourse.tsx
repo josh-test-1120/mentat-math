@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import { Card, CardContent, Button } from "@/app/_components/UI/ui"
+import { Card, CardContent, Button } from "@/components/UI/calendar/ui"
 import {useSession} from "next-auth/react";
 import {apiHandler} from "@/utils/api";
 import {toast} from "react-toastify";

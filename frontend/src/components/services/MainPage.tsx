@@ -20,7 +20,7 @@ export default function MainPage() {
               <span className="sm:block"> Alpha Build. </span>
             </h1>
             <p className="mx-auto mt-4 max-w-xl sm:text-xl sm:leading-relaxed">
-              This is where we can put some interesting information.
+              This build focuses on student and instructor access to scheduling exams.
             </p>
           </div>
         </div>

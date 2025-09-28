@@ -1,10 +1,10 @@
 import { Inter } from "next/font/google";
-import MainPage from "@/components/MainPage";
+import MainPage from "@/components/services/MainPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "EZMath Application",
-  description: "A Math Application by the Mentat Team",
+  description: "A Math Exam Scheduler by the Mentat Team",
 };
 
 const inter = Inter({ subsets: ["latin"] });
