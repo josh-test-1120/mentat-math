@@ -76,17 +76,16 @@ public class AuthController {
     //public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     public ResponseEntity<JwtResponse> authenticateUser( @RequestBody LoginRequest loginRequest) {
         
-        System.out.println("Login request: " + loginRequest);
-        System.out.println("Login request username: " + loginRequest.getUsername());
-        System.out.println("Login request password: " + loginRequest.getPassword());
+//        System.out.println("Login request: " + loginRequest);
+//        System.out.println("Login request username: " + loginRequest.getUsername());
+//        System.out.println("Login request password: " + loginRequest.getPassword());
         // Generating jwt
         String jwt = authService.authenticate(loginRequest);
 
-        System.out.println("Hello I am being authenticated !!!!!!!!!!!!!!!!!!!!!!!!!!  " + jwt);
-        logger.error("What the shaboinsky?");
+//        System.out.println("Hello I am being authenticated !!!!!!!!!!!!!!!!!!!!!!!!!!  " + jwt);
         // User info
         UserDetailsImpl userDetails = (UserDetailsImpl) authService.getUserDetails(loginRequest.getUsername());
-        System.out.println("User details: " + userDetails);
+//        System.out.println("User details: " + userDetails);
         // List of roles
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
@@ -110,9 +109,9 @@ public class AuthController {
     //public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     public ResponseEntity<?> registerUser( @RequestBody SignupRequest signUpRequest) {
         authService.validateSignupRequest(signUpRequest);
-        System.out.println("This is the signup request");
-        System.out.println(signUpRequest.getUsername());
-        System.out.println(signUpRequest.getLastname());
+//        System.out.println("This is the signup request");
+//        System.out.println(signUpRequest.getUsername());
+//        System.out.println(signUpRequest.getLastname());
         User user = authService.createNewUser(signUpRequest);
         userRepository.save(user);
         // Clean way to wrap text into an Entity
