@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import Modal from "@/app/_components/UI/Modal";
+import Popover from "@/app/_components/UI/Popover";
 import Calendar from "../_components/UI/Calendar";
 import CreateTestWindow from "@/app/createTestWindow/pageClient";
 
@@ -56,6 +57,83 @@ export default function TestWindowPage() {
 
     // Session information
     const { data: session, status } = useSession()
+    // Delete modal state
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteScope, setDeleteScope] = useState<'single' | 'following' | 'all'>('single');
+
+    const handleConfirmDelete = async () => {
+        if (!activeTestWindow) return;
+        try {
+            if (deleteScope === 'all') {
+                // Call backend to delete entire test window series
+                const res = await apiHandler(
+                    undefined,
+                    'DELETE',
+                    `api/test-window/${activeTestWindow.id}`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
+
+                if (res?.error) {
+                    toast.error(res.message || 'Failed to delete test window');
+                } else {
+                    // Optimistically remove from UI to avoid full rerender
+                    setCalendarEvents((prev) => prev.filter(e => e.extendedProps?.originalId !== activeTestWindow.id));
+                    setTestWindows((prev) => prev.filter(tw => tw.testWindowId !== activeTestWindow.id));
+                    // Show longer success toast and avoid interruption
+                    toast.success('Test window deleted', { autoClose: 5000 });
+                    // Silent background refresh to ensure consistency
+                    if (selectedCourseId) {
+                        fetchTestWindows(selectedCourseId, { silent: true });
+                    }
+                }
+            } else if (deleteScope === 'single') {
+                // Find the specific clicked event (nearest to last click position)
+                const targetEvent = calendarEvents.find(e => e.extendedProps?.originalId === activeTestWindow.id);
+                if (!targetEvent) {
+                    toast.error('Could not find the clicked event');
+                    return;
+                }
+
+                // Extract the specific date (YYYY-MM-DD) in LOCAL time (avoid UTC shifts)
+                const eventDateObj = new Date(targetEvent.start);
+                const eventYear = eventDateObj.getFullYear();
+                const eventMonth = String(eventDateObj.getMonth() + 1).padStart(2, '0');
+                const eventDay = String(eventDateObj.getDate()).padStart(2, '0');
+                const eventDateStr = `${eventYear}-${eventMonth}-${eventDay}`;
+
+                // Backend: add this date to exceptions array
+                const res = await apiHandler(
+                    { date: eventDateStr },
+                    'PATCH',
+                    `api/test-window/${activeTestWindow.id}/add-exception`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
+
+                if (res?.error) {
+                    toast.error(res.message || 'Failed to delete this event');
+                } else {
+                    // Optimistically remove only this date's occurrences for this window
+                    setCalendarEvents((prev) => prev.filter(e => 
+                        !(e.extendedProps?.originalId === activeTestWindow.id && e.start?.startsWith(eventDateStr))
+                    ));
+                    toast.success('Current day test window successfully deleted', { autoClose: 5000 });
+
+                    // Silent background refresh
+                    if (selectedCourseId) {
+                        fetchTestWindows(selectedCourseId, { silent: true });
+                    }
+                }
+            } else {
+                toast.info('Only "All events" and "This event" are implemented right now.');
+            }
+        } catch (e) {
+            toast.error('Error deleting test window');
+        } finally {
+            setDeleteModalOpen(false);
+        }
+    };
 
 
     /**
@@ -115,7 +193,7 @@ export default function TestWindowPage() {
     /**
      * Fetch test windows for selected course
      */
-    const fetchTestWindows = useCallback(async (courseId: number) => {
+    const fetchTestWindows = useCallback(async (courseId: number, options?: { silent?: boolean }) => {
         if (!courseId) {
             console.log('No course ID provided, skipping fetch');
             return;
@@ -123,7 +201,10 @@ export default function TestWindowPage() {
         
         try {
             console.log('Fetching test windows for course:', courseId);
-            setLoading(true);
+            // If not silent, set loading to true
+            if (!options?.silent) {
+                setLoading(true);
+            }
             
             const res = await apiHandler(
                 undefined,
@@ -174,7 +255,10 @@ export default function TestWindowPage() {
             setTestWindows([]);
             setCalendarEvents([]);
         } finally {
-            setLoading(false);
+            // If not silent, set loading to false
+            if (!options?.silent) {
+                setLoading(false);
+            }
         }
     }, [session?.user?.accessToken]);
 
@@ -201,8 +285,20 @@ export default function TestWindowPage() {
             console.log(`Test window ${index + 1}: "${testWindow.testWindowTitle}" assigned color ${colorIndex} (${colors.bg})`);
             
             try {
-                // Parse weekdays pattern
+                // Parse weekdays pattern and exceptions
                 const weekdays = JSON.parse(testWindow.weekdays || '{}');
+                let exceptions: string[] = [];
+                try {
+                    const raw = testWindow.exceptions;
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) {
+                            exceptions = parsed;
+                        }
+                    }
+                } catch (_) {
+                    // ignore malformed exceptions
+                }
                 const activeDays = Object.keys(weekdays).filter(day => weekdays[day]);
                 
                 console.log(`Weekdays object for "${testWindow.testWindowTitle}":`, weekdays);
@@ -244,7 +340,9 @@ export default function TestWindowPage() {
                         
                         console.log(`  Checking ${dayName} (${dateStr}): weekdays[${dayName}] = ${weekdays[dayName]}`);
                         
-                        if (weekdays[dayName]) {
+                        // Skip if date is in exceptions
+                        const isException = exceptions.includes(dateStr);
+                        if (weekdays[dayName] && !isException) {
                             const startDateTime = `${dateStr}T${testWindow.testStartTime}`;
                             const endDateTime = `${dateStr}T${testWindow.testEndTime}`;
                             
@@ -488,12 +586,15 @@ export default function TestWindowPage() {
         const props = event.extendedProps;
         
         if (props?.type === 'test-window') {
-            toast.info(`Test Window: ${event.title}\nDescription: ${props.description || 'No description'}\nActive: ${props.isActive ? 'Yes' : 'No'}`, {
-                autoClose: 5000,
-                style: {
-                    whiteSpace: 'pre-line'
-                }
+            // Open context popover anchored to click
+            const x = info.jsEvent?.clientX || 0;
+            const y = info.jsEvent?.clientY || 0;
+            setPopoverAnchor({ x, y });
+            setActiveTestWindow({
+                id: props.originalId,
+                title: event.title
             });
+            setIsPopoverOpen(true);
         } else {
             toast.info(`Clicked on: ${event.title}`);
         }
@@ -515,6 +616,36 @@ export default function TestWindowPage() {
                 console.log('Refresh completed');
             }, 500); // Reduced delay to 500ms
         }
+    };
+
+    // Popover state and actions
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
+    const [activeTestWindow, setActiveTestWindow] = useState<{ id: number; title: string } | null>(null);
+
+    const closePopover = () => {
+        setIsPopoverOpen(false);
+        // Do not clear anchor immediately to allow close animation potential; safe to clear
+        setPopoverAnchor(null);
+    };
+
+    const handleModifySettings = () => {
+        if (!activeTestWindow) return;
+        toast.info(`Modify settings for "${activeTestWindow.title}" (id: ${activeTestWindow.id})`);
+        closePopover();
+    };
+
+    const handleDeleteTestWindow = () => {
+        if (!activeTestWindow) return;
+        // Open delete confirmation modal with scope options
+        setDeleteModalOpen(true);
+        closePopover();
+    };
+
+    const handleControlAllowedTests = () => {
+        if (!activeTestWindow) return;
+        toast.info(`Control allowed tests for "${activeTestWindow.title}" (id: ${activeTestWindow.id})`);
+        closePopover();
     };
 
     // Get selected course name for display
@@ -635,6 +766,100 @@ export default function TestWindowPage() {
                     }}
                 />
             </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Delete test window"
+            >
+                <div className="space-y-4">
+                    <p className="text-sm text-mentat-gold/80">
+                        Choose what to delete. This action cannot be undone.
+                    </p>
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-md p-2">
+                            <input
+                                type="radio"
+                                name="delete-scope"
+                                value="single"
+                                checked={deleteScope === 'single'}
+                                onChange={() => setDeleteScope('single')}
+                                className="accent-red-500"
+                            />
+                            <span>This event</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-md p-2">
+                            <input
+                                type="radio"
+                                name="delete-scope"
+                                value="following"
+                                checked={deleteScope === 'following'}
+                                onChange={() => setDeleteScope('following')}
+                                className="accent-red-500"
+                            />
+                            <span>This and following events</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer hover:bg-white/5 rounded-md p-2">
+                            <input
+                                type="radio"
+                                name="delete-scope"
+                                value="all"
+                                checked={deleteScope === 'all'}
+                                onChange={() => setDeleteScope('all')}
+                                className="accent-red-500"
+                            />
+                            <span>All events</span>
+                        </label>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-mentat-gold/10">
+                        <button
+                            className="px-4 py-2 rounded-md text-sm hover:bg-white/5"
+                            onClick={() => setDeleteModalOpen(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="px-4 py-2 rounded-md text-sm bg-red-600 hover:bg-red-500 text-white"
+                            onClick={handleConfirmDelete}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Test Window Context Popover */}
+            <Popover
+                isOpen={isPopoverOpen}
+                anchor={popoverAnchor}
+                onClose={closePopover}
+            >
+                <div className="min-w-[220px] p-1">
+                    <div className="px-3 py-2 text-sm font-semibold text-mentat-gold/80 border-b border-mentat-gold/10">
+                        {activeTestWindow?.title || 'Test Window'}
+                    </div>
+                    <button
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-white/5"
+                        onClick={handleModifySettings}
+                    >
+                        Modify settings
+                    </button>
+                    <button
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-white/5"
+                        onClick={handleControlAllowedTests}
+                    >
+                        Control allowed tests
+                    </button>
+                    <button
+                        className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                        onClick={handleDeleteTestWindow}
+                    >
+                        Delete test window
+                    </button>
+                </div>
+            </Popover>
 
             {/* Toast Container */}
             <ToastContainer autoClose={3000} hideProgressBar />
