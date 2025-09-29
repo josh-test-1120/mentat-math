@@ -27,6 +27,22 @@ export interface ExamResult {
     score?: string;
 }
 
+export interface ExamProper {
+    exam_id: number;
+    exam_name: string;
+    exam_state: number;
+    exam_course_id: string;
+    exam_difficulty: number;
+    exam_required: number;
+    exam_scheduled_date: string;
+    exam_version: number;
+    exam_taken_date: string;
+    exam_course_name: string;
+    location: string;
+    status: 'active' | 'inactive';
+    exam_score?: string;
+}
+
 export interface ExamProp {
     exam_id: number;
     exam_name: string;
@@ -38,6 +54,7 @@ export interface ExamProp {
     exam_version: number;
     exam_taken_date: string;
     exam_course_name: string;
+    exam_result_id: string;
     location: string;
     status: 'active' | 'inactive';
     exam_score?: string;

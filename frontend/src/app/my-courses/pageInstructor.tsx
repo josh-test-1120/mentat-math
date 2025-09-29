@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
-import Modal from '@/components/UI/calendar/Modal';
+import Modal from '@/components/services/Modal';
 import JoinCourseComponent from '@/app/courses/JoinCourse';
 
 type Course = {
