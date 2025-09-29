@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { SessionProvider, useSession } from 'next-auth/react'
-import Modal from "@/components/UI/calendar/Modal";
+import Modal from "@/components/services/Modal";
 import Calendar from "@/components/UI/calendar/Calendar";
 import { Course } from "@/app/_components/types/exams";
 

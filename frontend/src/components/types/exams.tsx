@@ -1,15 +1,14 @@
 export interface Exam {
-    id: string;
-    name: string;
-    course: string;
-    difficulty: number;
-    date: string;
-    version: number;
-    duration: string;
-    type: string;
-    location: string;
-    status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
-    score?: string;
+    exam_id: number;
+    exam_name: string;
+    exam_course_id: number;
+    exam_difficulty: number;
+    exam_required: number;
+    exam_version: number;
+    exam_duration: string;
+    exam_state: number;
+    exam_online: number;
+    status?: 'active' | 'inactive';
 }
 
 export interface ExamResult {
@@ -27,7 +26,7 @@ export interface ExamResult {
     score?: string;
 }
 
-export interface ExamProp {
+export interface ExamProper {
     exam_id: number;
     exam_name: string;
     exam_state: number;
@@ -43,7 +42,24 @@ export interface ExamProp {
     exam_score?: string;
 }
 
-
+export interface ExamProp {
+    exam_id: number;
+    exam_name: string;
+    exam_state: number;
+    exam_course_id: number;
+    exam_difficulty: number;
+    exam_required: number;
+    exam_scheduled_date: string;
+    exam_version: number;
+    exam_taken_date: string;
+    exam_course_name: string;
+    exam_result_id: string;
+    location: string;
+    status: 'active' | 'inactive';
+    exam_score?: string;
+    exam_duration: string;
+    exam_online: number;
+}
 
 export interface Course {
     course_id: string;

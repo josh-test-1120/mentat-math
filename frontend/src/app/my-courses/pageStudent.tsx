@@ -3,14 +3,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp, Class } from '@/app/_components/types/exams';
-import { ExamCardExtended, getExamStatus } from '@/app/_components/student/ExamCards';
+import { ExamProp, Class } from '@/components/types/exams';
+import { ExamCardExtended, getExamStatus } from '@/components/UI/cards/ExamCards';
 import { useSession } from "next-auth/react";
+import Modal from "@/components/services/Modal";
+import ExamActionsComponent from "@/components/UI/exams/ExamActions";
 
 export default function ExamsPage() {
     const { data: session, status } = useSession();
     const [exams, setExams] = useState<ExamProp[]>([]);
+    const [examResult, setExamResult] = useState<ExamProp>();
     const [loading, setLoading] = useState(true);
+    const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const [selectedClass, setSelectedClass] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed' | 'pending'>('all');
@@ -107,7 +112,15 @@ export default function ExamsPage() {
         };
         console.log('This is the status:', status);
         fetchExams();
-    }, [status, session, BACKEND_API]);
+    }, [status, session, refreshTrigger, BACKEND_API]);
+
+    // Load Exam Actions Modal
+    const loadExamResultDetails = async (exam: ExamProp, e : any) => {
+        e.preventDefault();
+        console.log('Exam event click:', e);
+        setExamResult(exam);
+        setIsExamModalOpen(true)
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br p-6">
@@ -167,7 +180,7 @@ export default function ExamsPage() {
                         </span>
                     </div>
 
-                    <div className="overflow-y-auto max-h-[600px] pr-4 pt-1">
+                    <div className="overflow-y-auto max-h-[600px] pt-1">
                         <AnimatePresence mode="wait">
                             {filteredExams.length > 0 ? (
                                 <motion.div
@@ -175,10 +188,15 @@ export default function ExamsPage() {
                                     variants={containerVariants}
                                     initial="hidden"
                                     animate="visible"
-                                    className="space-y-4"
+                                    className="space-y-4 mb-2"
                                 >
                                     {filteredExams.map((exam) => (
-                                        <ExamCardExtended key={exam.exam_id} exam={exam} index={0} />
+                                        <ExamCardExtended
+                                            key={exam.exam_id}
+                                            exam={exam}
+                                            index={0}
+                                            onclick={(e) => loadExamResultDetails(exam, e)}
+                                        />
                                     ))}
                                 </motion.div>
                             ) : loading === true ? (
@@ -202,6 +220,21 @@ export default function ExamsPage() {
                     </div>
                 </motion.div>
             </div>
+            {/* Exam Action Modal */}
+            <Modal
+                isOpen={isExamModalOpen}
+                onClose={() => setIsExamModalOpen(false)}
+                title="Alter Scheduled Exam"
+            >
+                <ExamActionsComponent
+                    examResult={examResult}
+                    cancelAction={() => {
+                        setIsExamModalOpen(false);
+                        // Trigger refresh when modal closes
+                        setRefreshTrigger(prev => prev + 1);
+                    }}
+                />
+            </Modal>
         </div>
     );
 }
