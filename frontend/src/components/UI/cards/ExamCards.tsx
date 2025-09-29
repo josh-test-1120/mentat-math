@@ -1,14 +1,28 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Exam, ExamProp } from '@/app/_components/types/exams';
+import { Exam, ExamProp, Course } from '@/components/types/exams';
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 
-interface ExamCardProps {
+interface ExamExtended extends Exam {
+    exam_course_name: string;
+    exam_duration: string;
+    exam_online: number;
+}
+
+interface ExamCardExtendedProps {
     exam: ExamProp;
     index: number;
     onclick?: (e: any) => void;
 }
+
+interface ExamCardCompactProps {
+    exam: ExamExtended;
+    index: number;
+    onclick?: (e: any) => void;
+}
+
+
 
 /**
  * Global Exam Card functions
@@ -72,7 +86,7 @@ const TotalScoreDisplay = ({ score, totalScore }: { score: number; totalScore: n
 };
 
 // Determine exam status based on date and grade
-export const getExamStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+export const getExamPropStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
     const examDate = new Date(exam.exam_scheduled_date);
     const today = new Date();
 
@@ -91,7 +105,7 @@ export const getExamStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missi
 };
 
 // Determine exam status based on date and grade
-export const getExamPropStatus = (exam: ExamProp): 'active' | 'inactive' => {
+export const getExamStatus = (exam: ExamExtended): 'active' | 'inactive' => {
     // Check for active states
     if (exam.exam_state == 1) return 'active';
     // Check for inactive states
@@ -102,7 +116,7 @@ export const getExamPropStatus = (exam: ExamProp): 'active' | 'inactive' => {
 
 // Determine course name for an exam
 export const getExamCourse = (exam: Exam): string => {
-    return exam.course;
+    return exam.exam_course_id.toString();
 };
 
 // Determine course name for an exam
@@ -114,9 +128,9 @@ export const getExamPropCourse = (exam: ExamProp): string => {
  * These are the card components
  */
 // Extended ExamCard Component
-export function ExamCardExtended({ exam, index, onclick }: ExamCardProps) {
+export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps) {
     // Get the status of the exam
-    const status = getExamStatus(exam);
+    const status = getExamPropStatus(exam);
     // Accent color for cards
     const accentColor = 'rgba(163, 15, 50, 1.0)';
     const accentStyle = {
@@ -183,9 +197,9 @@ export function ExamCardExtended({ exam, index, onclick }: ExamCardProps) {
 };
 
 // Compact ExamCard Component
-export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
+export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
     // Get exam status
-    exam.status = getExamPropStatus(exam);
+    exam.status = getExamStatus(exam);
 
     const getExamStatusColor = () => {
         switch (exam.status) {
@@ -210,7 +224,7 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
-        console.log(`This is the status: ${status}`);
+
         return (
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
                 <span className="mr-1">{config.icon}</span>
@@ -226,6 +240,7 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
+            onClick={onclick}
         >
             <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
@@ -236,7 +251,7 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
 
             <div className="flex justify-between items-center mb-2">
                 <span className="text-xs text-mentat-gold px-2 py-1 rounded">
-                  {exam.exam_course_name}
+                  {exam.course_name}
                 </span>
                 <span className="text-xs text-mentat-gold px-2 py-1 rounded">
                   {exam.exam_difficulty} Difficulty Level

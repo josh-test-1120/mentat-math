@@ -115,7 +115,7 @@ export default function ExamsPage() {
     }, [status, session, refreshTrigger, BACKEND_API]);
 
     // Load Exam Actions Modal
-    const loadExamDetails = async (exam: ExamProp, e : any) => {
+    const loadExamResultDetails = async (exam: ExamProp, e : any) => {
         e.preventDefault();
         console.log('Exam event click:', e);
         setExamResult(exam);
@@ -180,7 +180,7 @@ export default function ExamsPage() {
                         </span>
                     </div>
 
-                    <div className="overflow-y-auto max-h-[600px] pr-4 pt-1">
+                    <div className="overflow-y-auto max-h-[600px] pt-1">
                         <AnimatePresence mode="wait">
                             {filteredExams.length > 0 ? (
                                 <motion.div
@@ -188,14 +188,14 @@ export default function ExamsPage() {
                                     variants={containerVariants}
                                     initial="hidden"
                                     animate="visible"
-                                    className="space-y-4"
+                                    className="space-y-4 mb-2"
                                 >
                                     {filteredExams.map((exam) => (
                                         <ExamCardExtended
                                             key={exam.exam_id}
                                             exam={exam}
                                             index={0}
-                                            onclick={(e) => loadExamDetails(exam, e)}
+                                            onclick={(e) => loadExamResultDetails(exam, e)}
                                         />
                                     ))}
                                 </motion.div>

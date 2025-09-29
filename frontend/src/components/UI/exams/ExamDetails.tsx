@@ -6,19 +6,15 @@ import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
-import { ExamProp } from "@/components/types/exams";
+import { Exam } from "@/components/types/exams";
 import ErrorToast from "@/components/services/error";
 
-// interface JoinCourseComponentProps {
-//   onJoinSuccess?: () => void;
-// }
-
-interface ExamActionsComponentProps {
-    examResult: ExamProp | undefined
+interface ExamDetailsComponentProps {
+    exam: Exam | undefined
     cancelAction: () => void
 }
 
-export default function ExamActionsComponent({ examResult, cancelAction } : ExamActionsComponentProps) {
+export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetailsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
 
@@ -49,7 +45,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
             console.log("User session NAME: " + session.user.username);
             console.log("User session ID: " + newUserSession.id);
             console.log("This is the exam result:");
-            console.log(examResult);
+            console.log(exam);
         }
     }, [session, status]); // Added status to dependencies
 
@@ -70,7 +66,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
             const res = await apiHandler(
                 undefined,
                 "DELETE",
-                `api/exam/result/${examResult?.exam_result_id}`,
+                `api/exam/result/${exam?.exam_result_id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -102,7 +98,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             type="text"
                             id="exam_name"
                             name="exam_name"
-                            value={examResult?.exam_name}
+                            value={exam?.exam_name}
                             className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             readOnly={true}
                         />
@@ -114,7 +110,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             type="text"
                             id="exam_course_id"
                             name="exam_course_id"
-                            value={examResult?.exam_course_id}
+                            value={exam?.exam_course_id}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             readOnly={true}
                         >
@@ -127,7 +123,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             id="exam_difficulty"
                             type="text"
                             name="exam_difficulty"
-                            value={examResult?.exam_difficulty}
+                            value={exam?.exam_difficulty}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             readOnly={true}
                         >
@@ -140,24 +136,24 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             id="exam_version"
                             type="text"
                             name="exam_version"
-                            value={examResult?.exam_version}
+                            value={exam?.exam_version}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             readOnly={true}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_date_scheduled" className="text-sm">Exam Version</label>
-                        <input
-                            id="exam_date_scheduled"
-                            type="text"
-                            name="exam_date_scheduled"
-                            value={examResult?.exam_scheduled_date}
-                            // onChange={data}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            readOnly={true}
-                        />
-                    </div>
+                    {/*<div className="flex flex-col gap-2">*/}
+                    {/*    <label htmlFor="exam_date_scheduled" className="text-sm">Exam Version</label>*/}
+                    {/*    <input*/}
+                    {/*        id="exam_date_scheduled"*/}
+                    {/*        type="text"*/}
+                    {/*        name="exam_date_scheduled"*/}
+                    {/*        value={exam?.exam_scheduled_date}*/}
+                    {/*        // onChange={data}*/}
+                    {/*        className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"*/}
+                    {/*        readOnly={true}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
 
                     <div className="flex flex-col gap-2 justify-center">
                         <div className="flex items-center gap-3">
@@ -165,7 +161,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                                 id="is_required"
                                 type="checkbox"
                                 name="is_required"
-                                checked={Boolean(examResult?.exam_required)}
+                                checked={Boolean(exam?.exam_required)}
                                 // onChange={data}
                                 className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
                                 readOnly={true}
@@ -184,14 +180,14 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                         Cancel
                     </button>
                     <button
-                        className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-bold py-2 px-4 rounded-md"
+                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
                         type="submit"
                         onClick={handleDelete}
                     >
                         Delete Scheduled Exam
                     </button>
                     <button
-                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold py-2 px-4 rounded-md"
+                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
                         type="submit"
                         onClick={handleReschedule}
                     >
