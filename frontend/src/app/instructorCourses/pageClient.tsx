@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
-import Modal from '../_components/UI/Modal';
+import Modal from '@/components/UI/calendar/Modal';
 import CreateCourseClient from '../courses/createCourse/pageClient';
 import { toast } from 'react-toastify';
 

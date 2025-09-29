@@ -1,0 +1,314 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRef } from 'react';
+import { SessionProvider, useSession } from 'next-auth/react'
+
+import { apiHandler } from "@/utils/api";
+import { toast, ToastContainer } from "react-toastify";
+
+// Needed to get environment variable for Backend API
+const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+
+/**
+ * Default
+ * @constructor
+ */
+export default function Grades() {
+
+    // State information
+    const [windowReady, setWindowReady] = useState(true);
+    const [sessionReady, setSessionReady] = useState(false);
+    const [gradeTable, setGradeTable] = useState();
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: ''
+    });
+
+    // Session information
+    const { data: session } = useSession()
+
+    // Table Body React Reference
+    const tableBody = useRef(null);
+
+    /**
+     * Used to handle windows ready checks
+     * Pre-flight and loading effects
+     */
+    useEffect(() => {
+        if (document.readyState !== 'complete') {
+            const handler = () => {
+                console.log('load');
+                setWindowReady(false);
+            };
+            window.addEventListener('load', handler);
+            return () => {
+                window.removeEventListener('load', handler);
+            };
+        } else {
+            const timeout = window.setTimeout(() => {
+                console.log('timeout');
+                setWindowReady(false);
+            }, 0);
+
+            return () => window.clearTimeout(timeout);
+        }
+
+    }, []);
+
+    /**
+     * Used to handle session hydration
+     */
+    useEffect(() => {
+        if (session) {
+            setSession(() => ({
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || ''
+            }));
+            setSessionReady(prev => prev || userSession.id !== "");
+            //if (userSession.id != "") { setSessionReady(true); }
+        }
+    }, [session]);
+
+    /**
+     * Fetch Exams
+     * Implementation for general API handler
+     */
+    async function fetchExams() {
+        console.log('Exam Fetch for student grades page');
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/grades/${session?.user?.id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+            console.log(res);
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching exams:', res.error);
+                setGradeTable(undefined);
+            } else {
+
+                const tableBody = document.getElementById('examsTable').getElementsByTagName('tbody')[0];
+                console.log('We are in the fetch exams update');
+                // Remove all child nodes (rows) from the tbody
+                while (tableBody.firstChild) {
+                    tableBody.removeChild(tableBody.firstChild);
+                }
+                //loops through each exam item
+                res.forEach(exam => {
+                    console.log(exam)
+                    let row = tableBody?.insertRow();
+                    if (row != undefined) row.classList.add("hover:bg-gray-500");
+
+                    let cellName = row?.insertCell(0);
+                    if (cellName != undefined) {
+                        cellName.textContent = exam.exam_name;
+                        cellName.classList.add("border");
+                        cellName.classList.add("border-white");
+                        cellName.classList.add("text-center");
+                    }
+
+                    let cellVersion = row?.insertCell(1);
+                    if (cellVersion != undefined) {
+                        cellVersion.textContent = exam.exam_version;
+                        cellVersion.classList.add("border");
+                        cellVersion.classList.add("border-white");
+                        cellVersion.classList.add("text-center");
+                    }
+
+                    let cellDate = row?.insertCell(2);
+                    if (cellDate != undefined) {
+                        cellDate.textContent = exam.exam_taken_date;
+                        cellDate.classList.add("border");
+                        cellDate.classList.add("border-white");
+                        cellDate.classList.add("text-center");
+                    }
+
+                    let cellScore = row?.insertCell(3);
+                    if (cellScore != undefined) {
+                        cellScore.textContent = exam.exam_score;
+                        cellScore.classList.add("border");
+                        cellScore.classList.add("border-white");
+                        cellScore.classList.add("text-center");
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching student exams:', error.toString());
+        }
+    }
+
+    /**
+     * Fetch Reports
+     * @param SID Student ID
+     */
+    async function fetchReport(SID:any) {
+        console.log("Student Grades Page");
+        console.log(userSession);
+        //const response = await fetch('http://localhost:8080/api/studentReportString1');
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/studentReportString1?SID=${SID}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+
+            // const url = new URL('http://localhost:8080/api/studentReportString1');
+            // url.searchParams.append('SID', SID);
+            // const response = await fetch(url);
+
+            // console.log(url.toString());
+            // const response = await apiHandler({'id':SID},'GET',
+            //     url.toString(),
+            //     ``
+            // );
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching reports:', res.error);
+                setGradeTable(undefined);
+            } else {
+
+
+                console.log("This is the response from student grades report");
+                console.log(res);
+                // fetch plain text instead of JSON
+                // var words = Object.keys(response).map((key) => [key, response[key]]);
+                // console.log(words);
+
+                // // fetch plain text instead of JSON
+                // const text = await response.text();
+
+                // split text into an array of words
+                const words = res.trim().split(/\s+/);
+
+                // slice each part of the text by 4 columns
+                const tuples = [];
+                for (let i = 0; i < words.length; i += 4) {
+                    tuples.push(words.slice(i, i + 4));
+                }
+
+                //console.log(tableBody)
+                const tableBody =
+                    document?.getElementById('testTable')?.getElementsByTagName('tbody')[0];
+                console.log(tuples);
+
+                console.log(tableBody?.innerHTML);
+                // clears the table before adding new rows
+                if (tableBody != undefined) tableBody.innerText = '';
+
+                // Loop through each tuple and populate the table
+                tuples.forEach(tuple => {
+                    let row = tableBody?.insertRow();
+                    if (row != undefined) row.classList.add("hover:bg-gray-500");
+
+                    let cellDate = row?.insertCell(0);
+                    if (cellDate != undefined) {
+                        cellDate.textContent = tuple[0];
+                        cellDate.classList.add("border");
+                        cellDate.classList.add("border-white");
+                        cellDate.classList.add("text-center");
+                    }
+
+                    let cellName = row?.insertCell(1);
+                    if (cellName != undefined) {
+                        cellName.textContent = tuple[1];
+                        cellName.classList.add("border");
+                        cellName.classList.add("border-white");
+                        cellName.classList.add("text-center");
+                    }
+
+                    let cellVersion = row?.insertCell(2);
+                    if (cellVersion != undefined) {
+                        cellVersion.textContent = tuple[2];
+                        cellVersion.classList.add("border");
+                        cellVersion.classList.add("border-white");
+                        cellVersion.classList.add("text-center");
+                    }
+
+                    let cellScore = row?.insertCell(3);
+                    if (cellScore != undefined) {
+                        cellScore.textContent = tuple[3];
+                        cellScore.classList.add("border");
+                        cellScore.classList.add("border-white");
+                        cellScore.classList.add("text-center");
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching exam results:', error);
+        }
+    }
+
+    /**
+     * Windows on Load function for UseAffects handler
+     */
+    function windowOnload() {
+        // Fetch the exams when the page loads
+        fetchExams();
+
+        // console.log("This is the session data:");
+        // console.log(userSession);
+        //
+        // fetchReport(Number.parseInt(userSession.id));
+        //fetchReport(Number.parseInt("1"));
+    }
+
+    return (
+
+        <SessionProvider>
+        <section
+            id={"gradeComponentPage"}
+            className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
+        >
+            {null /*custom session onload*/}
+            {void (sessionReady ? windowOnload() : <span>Loading...</span>)}
+
+            <div className="mx-auto px-4 h-dvh bg-mentat-black">
+                <h1 className="text-center text-2xl mb-3">See Grades</h1>
+                <table id="examsTable"
+                       className="w-full mb-5 border border-white"
+                >
+                    <thead>
+                    <tr>
+                        <th className="border border-white">Exam Name</th>
+                        <th className="border border-white">Exam Version</th>
+                        <th className="border border-white">Exam Date</th>
+                        <th className="border border-white">Exam Score</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <h1 className="text-center text-2xl mb-3">See Tests</h1>
+                <table id="testsTable"
+                       className="w-full mb-5 border border-white"
+                >
+                    <thead>
+                    <tr>
+                        <th className="border border-white">Exam Name</th>
+                        <th className="border border-white">Exam Difficulty</th>
+                        <th className="border border-white">Required Y/N</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        </SessionProvider>
+    );
+}
+

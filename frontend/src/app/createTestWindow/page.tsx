@@ -1,5 +1,5 @@
 import { getServerAuthSession } from "@/utils/auth";
-import { AuthProvider } from "@/components/authProvider";
+import { AuthProvider } from "@/components/services/authProvider";
 import CreateTestWindowClient from "./pageClient";
 import { Session } from "next-auth";
 
