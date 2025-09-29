@@ -501,6 +501,47 @@ public class HomeAPIController {
     }
 
     /**
+     * Get the instructor exams from the database
+     * based on the instructor ID supplied in the URI
+     * @return Map object that have {string, object} types
+     */
+    @GetMapping("/course/{courseID}")
+    public Map<String, Object> getCourse(@PathVariable("courseID") Long id) {
+
+        // SQL query to select from the 'course' table where the course ID is present
+        String sql = "SELECT * \n" +
+                "FROM course \n" +
+                "WHERE course_id = ?;\n";
+        // list to store retrieved courses details
+        Map<String, Object> course = new HashMap<>();
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Update the Query with the variables
+            stmt.setLong(1, id);  // Set the exam ID
+
+            // Execute the query
+            ResultSet rs = stmt.executeQuery();
+
+            //iterates through result set
+            if (rs.next()) {
+                course.put("course_id", rs.getInt("course_id"));
+                course.put("exam_course_name", rs.getString("course_name"));
+                course.put("course_professor_id", rs.getInt("course_professor_id"));
+                course.put("course_year", rs.getInt("course_year"));
+                course.put("course_quarter", rs.getString("course_quarter"));
+                course.put("course_section", rs.getString("course_section"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Return course
+        return course;
+    }
+
+    /**
      * This method returns the ArrayList grades of the student's grades.
      *
      * @param report Report class type single student's report object.
