@@ -176,24 +176,24 @@ export default function ExamDashboard() {
                 <div className="rounded-xl shadow-sm p-6">
                     <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                            <h3 className="text-lg font-medium text-blue-800 mb-2">Passed Exams</h3>
-                            <p className="text-3xl font-bold text-blue-600">
+                        <div className="p-4 rounded-lg border border-blue-100">
+                            <h3 className="text-lg font-medium mb-2">Passed Student Exams</h3>
+                            <p className="text-3xl font-bold">
                                 {exams.filter(exam => exam.status === 'completed').length}
                             </p>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                            <h3 className="text-lg font-medium text-green-800 mb-2">Failed Exams</h3>
-                            <p className="text-3xl font-bold text-green-600">
+                        <div className="p-4 rounded-lg border">
+                            <h3 className="text-lg font-medium mb-2">Failed Student Exams</h3>
+                            <p className="text-3xl font-bold">
                                 {exams.filter(exam => exam.status === 'failed').length}
                             </p>
                         </div>
-                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                            <h3 className="text-lg font-medium text-purple-800 mb-2">Average Score</h3>
-                            <p className="text-3xl font-bold text-purple-600">
+                        <div className="p-4 rounded-lg border">
+                            <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
+                            <p className="text-3xl font-bold">
                                 {exams.filter(exam => exam.status === 'completed'
                                     && exam.exam_score !== undefined).length > 0
-                                    ? avgScore(exams) : 0}$
+                                    ? avgScore(exams) : 0}
 
                                 {/*{exams.filter(e => e.status === 'completed' && e.exam_score !== undefined).length > 0*/}
                                 {/*    ? Math.round(exams.filter(e => e.status === 'completed' && e.score !== undefined)*/}
