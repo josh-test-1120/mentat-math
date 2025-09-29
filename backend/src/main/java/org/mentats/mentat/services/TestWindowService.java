@@ -14,6 +14,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class TestWindowService {
@@ -91,5 +97,74 @@ public class TestWindowService {
             return true;
         }
         return false;
+    }
+    
+    public String disableWeekday(Integer id, String weekday) {
+        Optional<TestWindow> optionalWindow = testWindowRepository.findById(id);
+        if (!optionalWindow.isPresent()) {
+            return "not_found";
+        }
+        
+        TestWindow testWindow = optionalWindow.get();
+        ObjectMapper mapper = new ObjectMapper();
+        
+        try {
+            // Parse current weekdays JSON
+            Map<String, Boolean> weekdays = mapper.readValue(testWindow.getWeekdays(), new TypeReference<Map<String, Boolean>>() {});
+            
+            // Disable the specified weekday
+            weekdays.put(weekday, false);
+            
+            // Check if all weekdays are now false
+            boolean hasActiveWeekdays = weekdays.values().stream().anyMatch(Boolean::booleanValue);
+            
+            if (!hasActiveWeekdays) {
+                // Delete the test window if no weekdays are active
+                testWindowRepository.deleteById(id);
+                return "deleted";
+            } else {
+                // Update the test window with new weekdays
+                String updatedWeekdays = mapper.writeValueAsString(weekdays);
+                testWindow.setWeekdays(updatedWeekdays);
+                testWindowRepository.save(testWindow);
+                return "updated";
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error processing weekdays: " + e.getMessage());
+        }
+    }
+
+    public TestWindow addExceptionDate(Integer id, String date) {
+        Optional<TestWindow> optionalWindow = testWindowRepository.findById(id);
+        if (!optionalWindow.isPresent()) {
+            return null;
+        }
+        
+        TestWindow testWindow = optionalWindow.get();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            // Parse existing exceptions as JSON array of strings (dates in yyyy-MM-dd)
+            String exceptionsJson = testWindow.getExceptions();
+            ArrayList<String> exceptionsList = new ArrayList<>();
+            if (exceptionsJson != null && !exceptionsJson.isEmpty()) {
+                try {
+                    exceptionsList = mapper.readValue(exceptionsJson, new TypeReference<ArrayList<String>>() {});
+                } catch (Exception parseEx) {
+                    // If legacy format or invalid JSON, start fresh to avoid errors
+                    exceptionsList = new ArrayList<>();
+                }
+            }
+            
+            // Avoid duplicates
+            Set<String> unique = new HashSet<>(exceptionsList);
+            if (!unique.contains(date)) {
+                exceptionsList.add(date);
+            }
+            
+            testWindow.setExceptions(mapper.writeValueAsString(exceptionsList));
+            return testWindowRepository.save(testWindow);
+        } catch (Exception e) {
+            throw new RuntimeException("Error adding exception date: " + e.getMessage());
+        }
     }
 }
