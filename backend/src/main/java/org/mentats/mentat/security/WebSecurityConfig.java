@@ -103,7 +103,8 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
             // This was updated to ensure that /api/auth/** requires no authentication
             // But other URIs require authentication
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**, /error").permitAll()
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/error").permitAll() // Do not chain multiple URIs together
                     .anyRequest().authenticated()
             );
         // Inject the provider into the http handler
