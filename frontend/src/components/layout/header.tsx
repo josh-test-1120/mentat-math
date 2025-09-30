@@ -3,6 +3,7 @@ import { SignOutButton } from "./ClientLayout";
 import { getServerAuthSession } from "@/utils/auth";
 import Image from "next/image";
 import logoPic from "@/public/icon-logo.png";
+import {TypewriterText} from "@/components/UI/Animators";
 
 /**
  * Default Header used in default Layout
@@ -10,6 +11,7 @@ import logoPic from "@/public/icon-logo.png";
  */
 export default async function Header() {
     const session = await getServerAuthSession();
+    const animateTextDelay = 0.1;
 
     return (
         <header className="flex justify-between items-center bg-gradient-to-r from-crimson via-zinc-900 to-neutral-950 py-3 px-6 border-b-4 border-stone-400">
@@ -40,6 +42,10 @@ export default async function Header() {
             {/*        </div>*/}
             {/*    ) : null}*/}
             {/*</div>*/}
+
+            <div className="text-mentat-gold text-3xl italic">
+            <TypewriterText text="Math Scheduler Tool" delay={animateTextDelay}/>
+            </div>
                 
             <div className="flex items-center space-x-2">
                 {session ? (

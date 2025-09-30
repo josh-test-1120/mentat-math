@@ -24,6 +24,26 @@ const config: Config = {
           700: "#8e0d2b",
         },
       },
+      animation: {
+        'typewriter': 'typewriter 0.5s ease-in-out forwards',
+        'fade-up': 'fadeUp 0.5s ease-out forwards',
+      },
+      keyframes: {
+        typewriter: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeUp: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(20px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          },
+        },
+      },
     },
   },
   plugins: [
