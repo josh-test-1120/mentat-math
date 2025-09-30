@@ -30,16 +30,16 @@ export default async function Header() {
                 </div>
             </div>
 
-            {/* User Info & Actions */}
-            <div className="flex items-center space-x-4">
-                {session ? (
-                    <div className="text-mentat-gold text-sm">
-                        <p>Email: {session?.user?.email}</p>
-                        <p>Username: {session?.user?.username}</p>
-                        <p>User Type: {session?.user?.userType}</p>
-                    </div>
-                ) : null}
-            </div>
+            {/*/!* User Info & Actions *!/*/}
+            {/*<div className="flex items-center space-x-4">*/}
+            {/*    {session ? (*/}
+            {/*        <div className="text-mentat-gold text-sm">*/}
+            {/*            <p>Email: {session?.user?.email}</p>*/}
+            {/*            <p>Username: {session?.user?.username}</p>*/}
+            {/*            <p>User Type: {session?.user?.userType}</p>*/}
+            {/*        </div>*/}
+            {/*    ) : null}*/}
+            {/*</div>*/}
                 
             <div className="flex items-center space-x-2">
                 {session ? (
