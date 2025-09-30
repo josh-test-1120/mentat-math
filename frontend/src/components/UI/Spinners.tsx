@@ -1,0 +1,28 @@
+export const RingSpinner = () => (
+    <div className="flex justify-center items-center">
+        <div className="relative w-8 h-8">
+            <div className="absolute top-0 left-0 w-full h-full border-4 border-gray-200 rounded-full"></div>
+            <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+        </div>
+    </div>
+);
+
+export const Spinner = () => (
+    <div className="flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    </div>
+);
+
+export const PulseSpinner = () => (
+    <div className="flex justify-center items-center">
+        <div className="animate-pulse rounded-full h-8 w-8 bg-blue-500"></div>
+    </div>
+);
+
+export const DotsSpinner = () => (
+    <div className="flex justify-center items-center space-x-1">
+        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+    </div>
+);

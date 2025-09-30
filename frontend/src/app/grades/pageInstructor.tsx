@@ -10,6 +10,7 @@ import { Exam, ExamProp, Course } from "@/components/types/exams";
 import {getExamPropCourse, ExamCardSmall, getExamStatus} from "@/components/UI/cards/ExamCards";
 import Modal from "@/components/services/Modal";
 import ExamDetailsComponent from "@/components/UI/exams/ExamDetails";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -74,20 +75,20 @@ export default function ExamDashboard() {
         return result;
     }, [filter, exams]);
 
-    const RingSpinner = () => (
-        <div className="flex justify-center items-center">
-            <div className="relative w-8 h-8">
-                <div className="absolute top-0 left-0 w-full h-full border-4 border-gray-200 rounded-full"></div>
-                <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
-            </div>
-        </div>
-    );
-
-    const Spinner = () => (
-        <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-    );
+    // const RingSpinner = () => (
+    //     <div className="flex justify-center items-center">
+    //         <div className="relative w-8 h-8">
+    //             <div className="absolute top-0 left-0 w-full h-full border-4 border-gray-200 rounded-full"></div>
+    //             <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+    //         </div>
+    //     </div>
+    // );
+    //
+    // const Spinner = () => (
+    //     <div className="flex justify-center items-center">
+    //         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    //     </div>
+    // );
 
     // Fetch exams
     const fetchExams = async (id: string) => {
