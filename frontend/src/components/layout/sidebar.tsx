@@ -482,7 +482,7 @@ export default function Sidebar() {
                 parent.classList.remove("bg-gradient-to-r");
                 parent.classList.remove("from-crimson");
                 parent.classList.remove("via-zinc-900");
-                parent.classList.remove("to-neutral-950");
+                parent.classList.remove("to-mentat-black");
                 parent.classList.add("bg-mentat-black")
                 // hamburgerSliderBlock.classList.remove("bg-gradient-to-r");
                 // hamburgerSliderBlock.classList.remove("from-crimson");
@@ -518,12 +518,8 @@ export default function Sidebar() {
                 parent.classList.add("bg-gradient-to-br");
                 parent.classList.add("from-crimson");
                 parent.classList.add("via-zinc-900");
-                parent.classList.add("to-neutral-950");
+                parent.classList.add("to-mentat-black");
                 hamburgerSliderBlock.classList.remove("bg-mentat-black");
-                // hamburgerSliderBlock.classList.add("bg-gradient-to-r");
-                // hamburgerSliderBlock.classList.add("from-crimson");
-                // hamburgerSliderBlock.classList.add("via-zinc-900");
-                // hamburgerSliderBlock.classList.add("to-neutral-950");
 
                 // Normalize the hamburger
                 hamburgerSliderParent.classList.remove("absolute")
@@ -555,7 +551,7 @@ export default function Sidebar() {
             // className="h-full w-full flex flex-col transition-[width] ease-in-out delay-50 bg-crimson"
             className="h-full w-full flex flex-col transition-[width]
                     ease-in-out delay-50 bg-gradient-to-br
-                    from-crimson  via-zinc-900 to-neutral-950"
+                    from-crimson  via-zinc-900 to-mentat-black"
             aria-label="Sidenav"
         >
             {/* Put back the entire hgslider-block as this is REQUIRED for collapse animations*/}
