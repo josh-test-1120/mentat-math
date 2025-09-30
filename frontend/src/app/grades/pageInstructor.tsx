@@ -42,22 +42,12 @@ export default function ExamDashboard() {
     const [course, setCourse] = useState<Course>();
     const [loading, setLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+    const [isModalLoading, setIsModalLoading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const [selectedCourse, setSelectedCourse] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330'>('all');
-
-    const filteredExams = useMemo(() => {
-        // First filter by class
-        let result = filter === 'all'
-            ? exams
-            : exams.filter(exam => getExamPropCourse(exam) === filter);
-        console.log('result of filter:', result);
-        console.log('length of exams:', exams.length);
-
-        return result;
-    }, [filter, exams]);
 
     // Fetch exams
     useEffect(() => {
@@ -72,6 +62,32 @@ export default function ExamDashboard() {
         fetchExams(id);
 
     }, [status, session, BACKEND_API, refreshTrigger]);
+
+    const filteredExams = useMemo(() => {
+        // First filter by class
+        let result = filter === 'all'
+            ? exams
+            : exams.filter(exam => getExamPropCourse(exam) === filter);
+        console.log('result of filter:', result);
+        console.log('length of exams:', exams.length);
+
+        return result;
+    }, [filter, exams]);
+
+    const RingSpinner = () => (
+        <div className="flex justify-center items-center">
+            <div className="relative w-8 h-8">
+                <div className="absolute top-0 left-0 w-full h-full border-4 border-gray-200 rounded-full"></div>
+                <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+            </div>
+        </div>
+    );
+
+    const Spinner = () => (
+        <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+    );
 
     // Fetch exams
     const fetchExams = async (id: string) => {
@@ -128,67 +144,88 @@ export default function ExamDashboard() {
         }
     }
 
-    // Fetch exams
-    const fetchCourse = async (id: number) => {
-        // Try wrapper to handle async exceptions
+    // Fetch Course
+    const fetchCourse = async (courseId: number) => {
+        // API Handler call
         try {
+            console.log(`Fetching course details for course: ${courseId}...`);
             // API Handler
             const res = await apiHandler(
-                undefined, // No body for GET request
-                'GET',
-                `api/course/${id}`,
+                undefined,
+                "GET",
+                `api/course/${courseId}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
 
-            // Handle errors
+            // Handle errors properly
             if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching course:', res.error);
+                // toast.error(res?.message || "Failed to fetch the course");
+                console.error(res?.message || "Failed to fetch the course");
                 setCourse(undefined);
             } else {
-                // Convert object to array
-                let courseData = [];
+                // toast.success("Successfully fetched the course details!");
+                console.log("Successfully fetched the course details!");
+                // updateExam(undefined);
+                console.log("Course fetch succeeded");
+                console.log(res.toString());
 
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    courseData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    courseData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    courseData = [];
-                }
-
-                // Filter out invalid entries
-                courseData = courseData.filter(c => c && typeof c === 'object');
+                // Convert response to Exam interface object
+                const courseData: Course = {
+                    course_name: res.course_name,
+                    course_id: res.course_id,
+                    course_professor_id: res.course_professor_id,
+                    course_year: res.course_year,
+                    course_quarter: res.course_year,
+                    course_section: res.course_section
+                };
 
                 console.log('Processed course data:', courseData);
+                console.log(courseData);
                 // Set courses to coursesData
-                setFilter('all');
-                console.log('Length of filter:', filteredExams.length);
+                setCourse(courseData);
+                console.log('This is the course variable');
+                console.log(course);
+
             }
         } catch (e) {
-            // Error fetching courses
-            console.error('Error fetching course:', e);
-            // Set courses to empty array
-            setCourse(undefined);
+            console.error('Error fetching course data', e.toString());
+            // toast.error("Course fetch failed");
         } finally {
-
+            // Run the cancel/close callback
+            // cancelAction();
         }
     }
 
     // Load Exam Actions Modal
-    const loadExamDetails = async (exam: ExamProp, e : any) => {
+    const loadModalData = async (exam: ExamProp, e: any) => {
         e.preventDefault();
-        console.log('Exam event click:', e);
-        splitCourseExam(exam);
-        // setCourse(course);
-        // setExam(exam);
-        setIsExamModalOpen(true)
+
+        // Set basic data and open modal immediately
+        const examData = {
+            exam_id: exam.exam_id,
+            exam_name: exam.exam_name,
+            exam_course_id: exam.exam_course_id,
+            exam_difficulty: exam.exam_difficulty,
+            exam_required: exam.exam_required,
+            exam_version: exam.exam_version,
+            exam_duration: exam.exam_duration,
+            exam_state: exam.exam_state,
+            exam_online: exam.exam_online
+        }
+
+        setExam(examData);
+        setIsExamModalOpen(true); // Open modal immediately
+        setIsModalLoading(true); // Show spinner inside modal
+
+        try {
+            // Load course data while modal is open
+            await fetchCourse(exam.exam_course_id);
+        } catch (error) {
+            console.error('Failed to load course details:', error);
+        } finally {
+            setIsModalLoading(false); // Hide spinner when done
+        }
     }
 
     const splitCourseExam = async (examResult: ExamProp) => {
@@ -263,9 +300,11 @@ export default function ExamDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         <AnimatePresence>
                             {filteredExams.map((examInst) => (
-                                <ExamCardSmall key={examInst.exam_id}
-                                               exam={examInst}
-                                               onclick={(e) => loadExamDetails(examInst, e)}
+                                <ExamCardSmall
+                                    key={examInst.exam_id}
+                                    exam={examInst}
+                                    index={0}
+                                    onclick={(e) => loadModalData(examInst, e)}
                                 />
                             ))}
                         </AnimatePresence>
@@ -316,14 +355,21 @@ export default function ExamDashboard() {
                 onClose={() => setIsExamModalOpen(false)}
                 title="Modify Exam Details"
             >
+                {isModalLoading ? (
+                    <div className="flex flex-col items-center justify-center min-h-[200px]">
+                        <RingSpinner />
+                        <p className="mt-4 text-mentat-gold">Loading exam details...</p>
+                    </div>
+                ) : (
                 <ExamDetailsComponent
                     exam={exam}
+                    course={course}
                     cancelAction={() => {
                         setIsExamModalOpen(false);
                         // Trigger refresh when modal closes
                         setRefreshTrigger(prev => prev + 1);
                     }}
-                />
+                />)}
             </Modal>
         </div>
     );

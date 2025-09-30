@@ -250,11 +250,11 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
             </div>
 
             <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-mentat-gold px-2 py-1 rounded">
-                  {exam.course_name}
+                <span className="text-xs text-mentat-gold py-1 rounded">
+                  {exam.exam_course_name}
                 </span>
-                <span className="text-xs text-mentat-gold px-2 py-1 rounded">
-                  {exam.exam_difficulty} Difficulty Level
+                <span className="text-xs text-mentat-gold py-1 text-end rounded">
+                  Difficulty Level: {exam.exam_difficulty}
                 </span>
             </div>
 

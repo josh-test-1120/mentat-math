@@ -1,7 +1,6 @@
 package org.mentats.mentat.payload.request;
 
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 /**
@@ -13,19 +12,32 @@ import jakarta.validation.constraints.*;
 public class ExamRequest {
     @NotBlank
     @Size(min = 3, max = 20)
+    @JsonProperty("exam_name")
     private String exam_name;
 
     @NotBlank
-    private boolean is_published;
+    @JsonProperty("exam_state")
+    private int exam_state;
 
     @NotBlank
-    private boolean is_required;
+    @JsonProperty("exam_required")
+    private int exam_required;
 
     @NotBlank
+    @JsonProperty("exam_difficulty")
     private int exam_difficulty;
 
     @NotBlank
+    @JsonProperty("exam_course_id")
     private int exam_course_id;
+
+    @NotBlank
+    @JsonProperty("exam_duration")
+    private int exam_duration;
+
+    @NotBlank
+    @JsonProperty("exam_online")
+    private int exam_online;
 
     /**
      * Getter for Exam name
@@ -47,28 +59,28 @@ public class ExamRequest {
      * Getter for Is Published
      * @return boolean of is published
      */
-    public boolean getIs_published() { return is_published; }
+    public int getIs_published() { return exam_state; }
 
     /**
      * Setter for Is Published
-     * @param is_published boolean of is published
+     * @param exam_state boolean of is published
      */
-    public void setIs_published(boolean is_published) {
-        this.is_published = is_published;
+    public void setIs_published(int exam_state) {
+        this.exam_state = exam_state;
     }
 
     /**
      * Getter for Is Required
      * @return boolean of is required
      */
-    public boolean getIs_required() { return is_required; }
+    public int getIs_required() { return exam_required; }
 
     /**
      * Setter for Is Required
-     * @param is_required boolean of is required
+     * @param exam_required boolean of is required
      */
-    public void setIs_required(boolean is_required) {
-        this.is_required = is_required;
+    public void setIs_required(int exam_required) {
+        this.exam_required = exam_required;
     }
 
     /**
@@ -101,5 +113,37 @@ public class ExamRequest {
      */
     public void setExam_course_id(int exam_course_id) {
         this.exam_course_id = exam_course_id;
+    }
+
+    /**
+     * Getter for Exam Duration
+     * @return string of exam duration
+     */
+    public int getExam_online() {
+        return exam_online;
+    }
+
+    /**
+     * Setter for Exam Course ID
+     * @param exam_online int of exam course ID
+     */
+    public void setExam_online(int exam_online) {
+        this.exam_online = exam_online;
+    }
+
+    /**
+     * Getter for Exam Duration
+     * @return string of exam duration
+     */
+    public int getExam_duration() {
+        return exam_duration;
+    }
+
+    /**
+     * Setter for Exam Course ID
+     * @param exam_duration int of exam course ID
+     */
+    public void setExam_duration(int exam_duration) {
+        this.exam_duration = exam_duration;
     }
 }

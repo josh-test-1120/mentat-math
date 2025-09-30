@@ -6,21 +6,32 @@ import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
-import { Exam } from "@/components/types/exams";
+import { Exam, Course } from "@/components/types/exams";
 import ErrorToast from "@/components/services/error";
 
 interface ExamDetailsComponentProps {
-    exam: Exam | undefined
+    exam: Exam | undefined;
+    course: Course | undefined;
     cancelAction: () => void
 }
 
-export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetailsComponentProps) {
+export default function ExamDetailsComponent({ exam, course, cancelAction } : ExamDetailsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
 
     // Session Information
     const {data: session, status} = useSession();
+    const [examData, setExamData] = useState({
+        exam_name: exam?.exam_name || '',
+        exam_course_id: exam?.exam_course_id.toString() || '',
+        exam_difficulty: exam?.exam_difficulty.toString() || '',
+        exam_required: exam?.exam_required.toString() || '',
+        exam_duration: exam?.exam_duration.toString() || '',
+        exam_state: exam?.exam_state.toString() || '',
+        exam_online: exam?.exam_online.toString() || ''
+    });
 
+    const [isLoaded, setIsLoaded] = useState(false);
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
@@ -42,16 +53,45 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
 
-            console.log("User session NAME: " + session.user.username);
+            console.log("User session name: " + session.user.username);
             console.log("User session ID: " + newUserSession.id);
-            console.log("This is the exam result:");
+            console.log("This is the exam:");
             console.log(exam);
         }
-    }, [session, status]); // Added status to dependencies
+    }, [session, status, exam]);
 
-    const handleReschedule = async (event: React.FormEvent) => {
+    const handleUpdate = async (event: React.FormEvent) => {
+        // Prevent default events
         event.preventDefault();
-        console.log("Rescheduling Exam");
+        console.log("Modify Exam");
+        // API Handler call
+        try {
+            console.log("Updating Exam");
+            console.log(session);
+            // API Handler
+            const res = await apiHandler(
+                examData,
+                "PATCH",
+                `api/exam/${exam?.exam_id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+
+            // Handle errors properly
+            if (res instanceof Error || (res && res.error)) {
+                toast.error(res?.message || "Failed to update the exam");
+            } else {
+                toast.success("Successfully updated the exam!");
+                // updateExam(undefined);
+                console.log("Exam Update Succeeded.");
+                console.log(res.toString());
+            }
+        } catch (e) {
+            toast.error("Exam Update Failed");
+        } finally {
+            // Run the cancel/close callback
+            cancelAction();
+        }
     }
 
     // Handle Delete
@@ -60,28 +100,28 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
         event.preventDefault();
         // API Handler call
         try {
-            console.log("Deleting Scheduled Exam");
+            console.log("Deleting Exam");
             console.log(session);
             // API Handler
             const res = await apiHandler(
                 undefined,
                 "DELETE",
-                `api/exam/result/${exam?.exam_result_id}`,
+                `api/exam/${exam?.exam_id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
 
             // Handle errors properly
             if (res instanceof Error || (res && res.error)) {
-                toast.error(res?.message || "Failed to delete the scheduled exam");
+                toast.error(res?.message || "Failed to delete the exam version");
             } else {
-                toast.success("Successfully deleted the scheduled exam!");
+                toast.success("Successfully deleted the exam version!");
                 // updateExam(undefined);
-                console.log("Exam Result Succeeded.");
+                console.log("Exam Deletion Succeeded.");
                 console.log(res.toString());
             }
         } catch (e) {
-            toast.error("Exam Action Failed");
+            toast.error("Exam Deletion Failed");
         } finally {
             // Run the cancel/close callback
             cancelAction();
@@ -93,28 +133,28 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
             <form id="ExamActionForm" className="w-full space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
+                        <label htmlFor="exam_course_name" className="text-sm">Exam Course</label>
+                        <input
+                            type="text"
+                            id="exam_course_name"
+                            name="exam_course_name"
+                            value={course?.course_name}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            readOnly={true}
+                        >
+                        </input>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
                         <label htmlFor="exam_name" className="text-sm">Exam Name</label>
                         <input
                             type="text"
                             id="exam_name"
                             name="exam_name"
-                            value={exam?.exam_name}
+                            value={examData.exam_name}
+                            onChange={(e) => setExamData({ ...examData, exam_name: e.target.value })}
                             className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            readOnly={true}
                         />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
-                        <input
-                            type="text"
-                            id="exam_course_id"
-                            name="exam_course_id"
-                            value={exam?.exam_course_id}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            readOnly={true}
-                        >
-                        </input>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -123,50 +163,62 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
                             id="exam_difficulty"
                             type="text"
                             name="exam_difficulty"
-                            value={exam?.exam_difficulty}
+                            value={examData.exam_difficulty}
+                            onChange={(e) => setExamData({ ...examData, exam_difficulty: e.target.value })}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            readOnly={true}
                         >
                         </input>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_version" className="text-sm">Exam Version</label>
+                        <label htmlFor="exam_duration" className="text-sm">Exam Duration</label>
                         <input
-                            id="exam_version"
+                            id="exam_duration"
                             type="text"
-                            name="exam_version"
-                            value={exam?.exam_version}
+                            name="exam_duration"
+                            value={examData.exam_duration}
+                            onChange={(e) => setExamData({ ...examData, exam_duration: e.target.value })}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            readOnly={true}
                         />
                     </div>
 
-                    {/*<div className="flex flex-col gap-2">*/}
-                    {/*    <label htmlFor="exam_date_scheduled" className="text-sm">Exam Version</label>*/}
-                    {/*    <input*/}
-                    {/*        id="exam_date_scheduled"*/}
-                    {/*        type="text"*/}
-                    {/*        name="exam_date_scheduled"*/}
-                    {/*        value={exam?.exam_scheduled_date}*/}
-                    {/*        // onChange={data}*/}
-                    {/*        className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"*/}
-                    {/*        readOnly={true}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
+                    <div className="sm:col-span-2"> {/* Span the checkboxes across both columns */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    id="is_required"
+                                    type="checkbox"
+                                    name="is_required"
+                                    checked={Boolean(examData.exam_required)}
+                                    onChange={(e) => setExamData({ ...examData, exam_required: e.target.value })}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                />
+                                <label htmlFor="is_required" className="select-none">Is Exam Required</label>
+                            </div>
 
-                    <div className="flex flex-col gap-2 justify-center">
-                        <div className="flex items-center gap-3">
-                            <input
-                                id="is_required"
-                                type="checkbox"
-                                name="is_required"
-                                checked={Boolean(exam?.exam_required)}
-                                // onChange={data}
-                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                readOnly={true}
-                            />
-                            <label htmlFor="is_required" className="select-none">Is Exam Required</label>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    id="exam_state"
+                                    type="checkbox"
+                                    name="exam_state"
+                                    checked={Boolean(examData.exam_state)}
+                                    onChange={(e) => setExamData({ ...examData, exam_state: e.target.value })}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                />
+                                <label htmlFor="exam_state" className="select-none">Is Exam Active</label>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <input
+                                    id="is_online"
+                                    type="checkbox"
+                                    name="is_online"
+                                    checked={Boolean(examData.exam_online)}
+                                    onChange={(e) => setExamData({ ...examData, exam_online: e.target.value })}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                />
+                                <label htmlFor="is_online" className="select-none">Is Exam Online</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -184,14 +236,14 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
                         type="submit"
                         onClick={handleDelete}
                     >
-                        Delete Scheduled Exam
+                        Delete
                     </button>
                     <button
                         className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
                         type="submit"
-                        onClick={handleReschedule}
+                        onClick={handleUpdate}
                     >
-                        Reschedule Exam
+                        Update
                     </button>
                 </div>
             </form>
