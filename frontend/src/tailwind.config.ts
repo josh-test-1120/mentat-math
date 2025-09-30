@@ -24,6 +24,41 @@ const config: Config = {
           700: "#8e0d2b",
         },
       },
+      animation: {
+        'typewriter': 'typewriter 0.5s ease-in-out forwards',
+        'fade-up': 'fadeUp 0.5s ease-out forwards',
+        'artistic-reveal': 'artisticReveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
+      },
+      keyframes: {
+        typewriter: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeUp: {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(20px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          },
+        },
+        artisticReveal: {
+          '0%': {
+              opacity: '0',
+              transform: 'translateY(30px) rotate(10deg) scale(0.8)',
+          },
+          '50%': {
+              opacity: '0.7',
+              transform: 'translateY(-5px) rotate(-2deg) scale(1.1)',
+          },
+          '100%': {
+              opacity: '1',
+              transform: 'translateY(0) rotate(0deg) scale(1)',
+          },
+        },
+      },
     },
   },
   plugins: [
