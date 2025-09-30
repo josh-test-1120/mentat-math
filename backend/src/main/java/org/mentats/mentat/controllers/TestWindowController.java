@@ -10,8 +10,13 @@ import org.mentats.mentat.payload.request.TestWindowRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/test-window")
@@ -19,6 +24,7 @@ public class TestWindowController {
     
     @Autowired
     private TestWindowService testWindowService;
+    private static final Logger logger = LoggerFactory.getLogger(TestWindowController.class);
     
     @PostMapping("/create")
     public ResponseEntity<?> createTestWindow(@RequestBody TestWindowRequest request) {
@@ -135,6 +141,38 @@ public class TestWindowController {
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error adding exception date: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Update the end date of a test window
+     * It is used for deleting the test window from the input date till the end.
+     * 
+     * @param id the id of the test window
+     * @param request the request body
+     * @return the response entity
+     */
+    @PatchMapping("/{id}/update-end-date")
+    public ResponseEntity<?> updateEndDate(
+        @PathVariable Integer id,
+        @RequestBody Map<String, String> request
+    ) {
+        try {
+            // Get the end date from the request body
+            String endDate = request.get("endDate");
+            logger.info("Received endDate string: {}", endDate);
+
+            // Parse the date explicitly with ISO format to avoid timezone issues
+            LocalDate parsedDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            logger.info("Parsed date: {}", parsedDate);
+            
+            // Update the end date using the service method
+            testWindowService.updateTestWindowEndDate(id, parsedDate);
+            
+            return ResponseEntity.ok().body(Map.of("message", "End date updated successfully"));
+        } catch (Exception e) {
+            System.err.println("Error updating end date: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

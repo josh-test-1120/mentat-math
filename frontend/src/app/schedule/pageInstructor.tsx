@@ -125,6 +125,54 @@ export default function TestWindowPage() {
                         fetchTestWindows(selectedCourseId, { silent: true });
                     }
                 }
+            } else if (deleteScope === 'following') {
+                // Use the stored clicked date from the event click
+                if (!activeTestWindow?.clickedDate) {
+                    toast.error('Could not find the clicked event date');
+                    return;
+                }
+            
+                // Since endDate is inclusive, we need to set it to one day BEFORE the clicked date
+                // This way the clicked date and all following dates will be deleted
+                // Parse the date in local timezone to avoid UTC conversion issues
+                const [year, month, day] = activeTestWindow.clickedDate.split('-').map(Number);
+                const clickedDate = new Date(year, month - 1, day); // month is 0-indexed
+                clickedDate.setDate(clickedDate.getDate() - 1);
+                
+                // Format back to YYYY-MM-DD in local timezone
+                const eventYear = clickedDate.getFullYear();
+                const eventMonth = String(clickedDate.getMonth() + 1).padStart(2, '0');
+                const eventDay = String(clickedDate.getDate()).padStart(2, '0');
+                const eventDateStr = `${eventYear}-${eventMonth}-${eventDay}`;
+                
+                console.log('!!!!!!Clicked date:', activeTestWindow.clickedDate);
+                console.log('!!!!!!Setting endDate to (one day before):', eventDateStr);
+            
+                // For "This and following events", set endDate to the clicked event date
+                // This will keep all events before and including the clicked event
+                const res = await apiHandler(
+                    { endDate: eventDateStr },
+                    'PATCH',
+                    `api/test-window/${activeTestWindow.id}/update-end-date`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
+            
+                if (res?.error) {
+                    toast.error(res.message || 'Failed to delete future events');
+                } else {
+                    // Optimistically remove future events from UI
+                    setCalendarEvents((prev) => prev.filter(e =>
+                        !(e.extendedProps?.originalId === activeTestWindow.id && 
+                          e.start >= eventDateStr)
+                    ));
+                    toast.success('Future events deleted successfully');
+                    
+                    // Silent background refresh
+                    if (selectedCourseId) {
+                        fetchTestWindows(selectedCourseId, { silent: true });
+                    }
+                }
             } else {
                 toast.info('Only "All events" and "This event" are implemented right now.');
             }
@@ -590,9 +638,14 @@ export default function TestWindowPage() {
             const x = info.jsEvent?.clientX || 0;
             const y = info.jsEvent?.clientY || 0;
             setPopoverAnchor({ x, y });
+            
+            // Get the clicked event's date from startStr (FullCalendar provides this as a string)
+            const clickedDate = event.startStr.split('T')[0];
+            
             setActiveTestWindow({
                 id: props.originalId,
-                title: event.title
+                title: event.title,
+                clickedDate: clickedDate
             });
             setIsPopoverOpen(true);
         } else {
@@ -621,7 +674,7 @@ export default function TestWindowPage() {
     // Popover state and actions
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
-    const [activeTestWindow, setActiveTestWindow] = useState<{ id: number; title: string } | null>(null);
+    const [activeTestWindow, setActiveTestWindow] = useState<{ id: number; title: string; clickedDate?: string } | null>(null);
 
     const closePopover = () => {
         setIsPopoverOpen(false);
