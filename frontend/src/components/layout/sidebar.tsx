@@ -706,7 +706,7 @@ export default function Sidebar() {
                         <div className="text-mentat-gold text-sm">
                             <p>Email: {session?.user?.email}</p>
                             <p>Username: {session?.user?.username}</p>
-                            <p>User Type: {session?.user?.userType}</p>
+                            <p>Role: {userType}</p>
                         </div>
                     ) : null}
                 </div>
