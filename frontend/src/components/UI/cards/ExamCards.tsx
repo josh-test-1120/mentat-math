@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Exam, ExamProp } from '@/app/_components/types/exams';
+import { Exam, ExamProp } from '@/components/types/exams';
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 
 interface ExamCardProps {
@@ -113,6 +113,10 @@ export const getExamPropCourse = (exam: ExamProp): string => {
  * These are the card components
  */
 // Extended ExamCard Component
+export function ExamCard({ exam, index }: ExamCardProps) {
+    return <ExamCardExtended exam={exam} index={index} />;
+}
+
 export function ExamCardExtended({ exam, index }: ExamCardProps) {
     // Get the status of the exam
     const status = getExamStatus(exam);
@@ -153,7 +157,7 @@ export function ExamCardExtended({ exam, index }: ExamCardProps) {
                         <div className="flex-1 flex flex-col items-end">
                             <StatusBadge status={status}/>
                             <span className="text-sm">{exam.location}</span>
-                            {exam.status === 'completed' && exam.exam_score !== undefined ? (
+                            {status === 'completed' && exam.exam_score !== undefined ? (
                                 <ScoreDisplay score={exam.exam_score} />
                             ) : (
                                 <div className="mt-1 text-xs font-medium">

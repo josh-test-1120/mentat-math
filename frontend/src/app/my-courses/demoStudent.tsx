@@ -3,8 +3,8 @@
 import React, {useState, useMemo, useEffect} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exam, Class } from '@/app/_components/types/exams';
-import { ExamCard, getExamStatus } from '@/app/_components/student/ExamCard2';
+import { Exam, Class } from '@/components/types/exams';
+import { ExamCard, getExamStatus } from '@/components/UI/cards/ExamCards';
 import {useSession} from "next-auth/react";
 
 // Mock data - replace with your actual data source
