@@ -484,10 +484,10 @@ export default function Sidebar() {
                 parent.classList.remove("via-zinc-900");
                 parent.classList.remove("to-neutral-950");
                 parent.classList.add("bg-mentat-black")
-                hamburgerSliderBlock.classList.remove("bg-gradient-to-r");
-                hamburgerSliderBlock.classList.remove("from-crimson");
-                hamburgerSliderBlock.classList.remove("via-zinc-900");
-                hamburgerSliderBlock.classList.remove("to-neutral-950");
+                // hamburgerSliderBlock.classList.remove("bg-gradient-to-r");
+                // hamburgerSliderBlock.classList.remove("from-crimson");
+                // hamburgerSliderBlock.classList.remove("via-zinc-900");
+                // hamburgerSliderBlock.classList.remove("to-neutral-950");
                 hamburgerSliderBlock.classList.add("bg-mentat-black");
 
                 // Shift the hamburger into absolute position
@@ -515,15 +515,15 @@ export default function Sidebar() {
                 // Main sidebar uncollapse
                 // Adjust the sidebar colors
                 parent.classList.remove("bg-mentat-black")
-                parent.classList.add("bg-gradient-to-r");
+                parent.classList.add("bg-gradient-to-br");
                 parent.classList.add("from-crimson");
                 parent.classList.add("via-zinc-900");
                 parent.classList.add("to-neutral-950");
                 hamburgerSliderBlock.classList.remove("bg-mentat-black");
-                hamburgerSliderBlock.classList.add("bg-gradient-to-r");
-                hamburgerSliderBlock.classList.add("from-crimson");
-                hamburgerSliderBlock.classList.add("via-zinc-900");
-                hamburgerSliderBlock.classList.add("to-neutral-950");
+                // hamburgerSliderBlock.classList.add("bg-gradient-to-r");
+                // hamburgerSliderBlock.classList.add("from-crimson");
+                // hamburgerSliderBlock.classList.add("via-zinc-900");
+                // hamburgerSliderBlock.classList.add("to-neutral-950");
 
                 // Normalize the hamburger
                 hamburgerSliderParent.classList.remove("absolute")
@@ -554,8 +554,8 @@ export default function Sidebar() {
             id="sidebar" 
             // className="h-full w-full flex flex-col transition-[width] ease-in-out delay-50 bg-crimson"
             className="h-full w-full flex flex-col transition-[width]
-                    ease-in-out delay-50 bg-gradient-to-r
-                    from-crimson via-zinc-900 to-neutral-950"
+                    ease-in-out delay-50 bg-gradient-to-br
+                    from-crimson  via-zinc-900 to-neutral-950"
             aria-label="Sidenav"
         >
             {/* Put back the entire hgslider-block as this is REQUIRED for collapse animations*/}
@@ -564,15 +564,13 @@ export default function Sidebar() {
                 <div
                     id="hgslider-block"
                     className={`
-                      z-10 inline-block w-full bg-gradient-to-r
-                    from-crimson via-zinc-900 to-neutral-950 rounded-lg
+                      z-10 inline-block w-full rounded-lg
                       transition-all duration-300 ease-in-out`}
                 >
                     <div
                         id="hgSlider"
                         className={`
-                            h-8 inline-block bg-gradient-to-r
-                            from-crimson via-zinc-900 to-neutral-950 align-top 
+                            h-8 inline-block align-top 
                             transition-all duration-300 ease-in-out
                             ${isOpen ? 'w-[14rem] opacity-100' : 'translate-x-[-200px] opacity-0'}
                           `}
