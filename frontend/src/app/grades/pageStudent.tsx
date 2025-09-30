@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRef } from 'react';
 import { SessionProvider, useSession } from 'next-auth/react'
 
 import { apiHandler } from "@/utils/api";
 import { toast, ToastContainer } from "react-toastify";
+import { ExamProp } from "@/components/types/exams";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -19,58 +20,58 @@ export default function Grades() {
     // State information
     const [windowReady, setWindowReady] = useState(true);
     const [sessionReady, setSessionReady] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
     const [gradeTable, setGradeTable] = useState();
+    const [exams, setExams] = useState([]);
+    const [tests, setTests] = useState([]);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
         email: ''
     });
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
 
     // Session information
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
 
     // Table Body React Reference
     const tableBody = useRef(null);
 
     /**
-     * Used to handle windows ready checks
-     * Pre-flight and loading effects
-     */
-    useEffect(() => {
-        if (document.readyState !== 'complete') {
-            const handler = () => {
-                console.log('load');
-                setWindowReady(false);
-            };
-            window.addEventListener('load', handler);
-            return () => {
-                window.removeEventListener('load', handler);
-            };
-        } else {
-            const timeout = window.setTimeout(() => {
-                console.log('timeout');
-                setWindowReady(false);
-            }, 0);
-
-            return () => window.clearTimeout(timeout);
-        }
-
-    }, []);
-
-    /**
      * Used to handle session hydration
      */
     useEffect(() => {
+        console.log(`This is the session ready state: ${sessionReady}`)
+        // If not authenticated, return
+        if (status !== 'authenticated') return;
+
         if (session) {
             setSession(() => ({
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            setSessionReady(prev => prev || userSession.id !== "");
-            //if (userSession.id != "") { setSessionReady(true); }
+            // setSessionReady(prev => prev || userSession.id !== "");
+            if (userSession.id != "") { setSessionReady(true); }
         }
-    }, [session]);
+        // Wrapper for async function
+        const fetchData = async () => {
+            if (hasFetched.current) return;
+            hasFetched.current = true;
+
+            try {
+                await fetchExams();
+            } catch (error) {
+                console.error('Error fetching Exams:', error);
+            }
+            finally {
+                setRefreshTrigger(prev => prev + 1);
+            }
+        };
+        fetchData();
+    }, [session, status, hasFetched, refreshTrigger]);
 
     /**
      * Fetch Exams
@@ -78,10 +79,10 @@ export default function Grades() {
      */
     async function fetchExams() {
         console.log('Exam Fetch for student grades page');
+        setIsLoading(true);
         try {
-            // API Handler
             const res = await apiHandler(
-                undefined, // No body for GET request
+                undefined,
                 'GET',
                 `api/grades/${session?.user?.id}`,
                 `${BACKEND_API}`,
@@ -89,226 +90,124 @@ export default function Grades() {
             );
             console.log(res);
 
-            // Handle errors
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching exams:', res.error);
-                setGradeTable(undefined);
+                setExams([]);
+                setTests([]);
             } else {
-
-                const tableBody = document.getElementById('examsTable').getElementsByTagName('tbody')[0];
-                console.log('We are in the fetch exams update');
-                // Remove all child nodes (rows) from the tbody
-                while (tableBody.firstChild) {
-                    tableBody.removeChild(tableBody.firstChild);
-                }
-                //loops through each exam item
-                res.forEach(exam => {
-                    console.log(exam)
-                    let row = tableBody?.insertRow();
-                    if (row != undefined) row.classList.add("hover:bg-gray-500");
-
-                    let cellName = row?.insertCell(0);
-                    if (cellName != undefined) {
-                        cellName.textContent = exam.exam_name;
-                        cellName.classList.add("border");
-                        cellName.classList.add("border-white");
-                        cellName.classList.add("text-center");
-                    }
-
-                    let cellVersion = row?.insertCell(1);
-                    if (cellVersion != undefined) {
-                        cellVersion.textContent = exam.exam_version;
-                        cellVersion.classList.add("border");
-                        cellVersion.classList.add("border-white");
-                        cellVersion.classList.add("text-center");
-                    }
-
-                    let cellDate = row?.insertCell(2);
-                    if (cellDate != undefined) {
-                        cellDate.textContent = exam.exam_taken_date;
-                        cellDate.classList.add("border");
-                        cellDate.classList.add("border-white");
-                        cellDate.classList.add("text-center");
-                    }
-
-                    let cellScore = row?.insertCell(3);
-                    if (cellScore != undefined) {
-                        cellScore.textContent = exam.exam_score;
-                        cellScore.classList.add("border");
-                        cellScore.classList.add("border-white");
-                        cellScore.classList.add("text-center");
-                    }
-                });
+                // Assuming your API returns both exams and tests
+                // Adjust this based on your actual API response structure
+                setExams(res.exams || res); // Use res.exams if nested, or res directly
+                setTests(res.tests || []); // Add logic for tests if needed
             }
         } catch (error) {
             console.error('Error fetching student exams:', error.toString());
+            setExams([]);
+            setTests([]);
+        } finally {
+            setIsLoading(false);
         }
-    }
-
-    /**
-     * Fetch Reports
-     * @param SID Student ID
-     */
-    async function fetchReport(SID:any) {
-        console.log("Student Grades Page");
-        console.log(userSession);
-        //const response = await fetch('http://localhost:8080/api/studentReportString1');
-        try {
-            // API Handler
-            const res = await apiHandler(
-                undefined, // No body for GET request
-                'GET',
-                `api/studentReportString1?SID=${SID}`,
-                `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
-            );
-
-            // const url = new URL('http://localhost:8080/api/studentReportString1');
-            // url.searchParams.append('SID', SID);
-            // const response = await fetch(url);
-
-            // console.log(url.toString());
-            // const response = await apiHandler({'id':SID},'GET',
-            //     url.toString(),
-            //     ``
-            // );
-
-            // Handle errors
-            if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching reports:', res.error);
-                setGradeTable(undefined);
-            } else {
-
-
-                console.log("This is the response from student grades report");
-                console.log(res);
-                // fetch plain text instead of JSON
-                // var words = Object.keys(response).map((key) => [key, response[key]]);
-                // console.log(words);
-
-                // // fetch plain text instead of JSON
-                // const text = await response.text();
-
-                // split text into an array of words
-                const words = res.trim().split(/\s+/);
-
-                // slice each part of the text by 4 columns
-                const tuples = [];
-                for (let i = 0; i < words.length; i += 4) {
-                    tuples.push(words.slice(i, i + 4));
-                }
-
-                //console.log(tableBody)
-                const tableBody =
-                    document?.getElementById('testTable')?.getElementsByTagName('tbody')[0];
-                console.log(tuples);
-
-                console.log(tableBody?.innerHTML);
-                // clears the table before adding new rows
-                if (tableBody != undefined) tableBody.innerText = '';
-
-                // Loop through each tuple and populate the table
-                tuples.forEach(tuple => {
-                    let row = tableBody?.insertRow();
-                    if (row != undefined) row.classList.add("hover:bg-gray-500");
-
-                    let cellDate = row?.insertCell(0);
-                    if (cellDate != undefined) {
-                        cellDate.textContent = tuple[0];
-                        cellDate.classList.add("border");
-                        cellDate.classList.add("border-white");
-                        cellDate.classList.add("text-center");
-                    }
-
-                    let cellName = row?.insertCell(1);
-                    if (cellName != undefined) {
-                        cellName.textContent = tuple[1];
-                        cellName.classList.add("border");
-                        cellName.classList.add("border-white");
-                        cellName.classList.add("text-center");
-                    }
-
-                    let cellVersion = row?.insertCell(2);
-                    if (cellVersion != undefined) {
-                        cellVersion.textContent = tuple[2];
-                        cellVersion.classList.add("border");
-                        cellVersion.classList.add("border-white");
-                        cellVersion.classList.add("text-center");
-                    }
-
-                    let cellScore = row?.insertCell(3);
-                    if (cellScore != undefined) {
-                        cellScore.textContent = tuple[3];
-                        cellScore.classList.add("border");
-                        cellScore.classList.add("border-white");
-                        cellScore.classList.add("text-center");
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching exam results:', error);
-        }
-    }
-
-    /**
-     * Windows on Load function for UseAffects handler
-     */
-    function windowOnload() {
-        // Fetch the exams when the page loads
-        fetchExams();
-
-        // console.log("This is the session data:");
-        // console.log(userSession);
-        //
-        // fetchReport(Number.parseInt(userSession.id));
-        //fetchReport(Number.parseInt("1"));
     }
 
     return (
-
-        <SessionProvider>
         <section
             id={"gradeComponentPage"}
-            className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
+            className="font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
         >
-            {null /*custom session onload*/}
-            {void (sessionReady ? windowOnload() : <span>Loading...</span>)}
-
             <div className="mx-auto px-4 h-dvh bg-mentat-black">
+                {/* Exams Table */}
                 <h1 className="text-center text-2xl mb-3">See Grades</h1>
-                <table id="examsTable"
-                       className="w-full mb-5 border border-white"
-                >
+                <table className="w-full mb-5 border border-white">
                     <thead>
-                    <tr>
-                        <th className="border border-white">Exam Name</th>
-                        <th className="border border-white">Exam Version</th>
-                        <th className="border border-white">Exam Date</th>
-                        <th className="border border-white">Exam Score</th>
+                    <tr className="bg-gray-700">
+                        <th className="border border-white p-2">Exam Name</th>
+                        <th className="border border-white p-2">Exam Version</th>
+                        <th className="border border-white p-2">Exam Date</th>
+                        <th className="border border-white p-2">Exam Score</th>
                     </tr>
                     </thead>
                     <tbody>
-
+                    {isLoading ? (
+                        <tr>
+                            <td colSpan={4} className="text-center p-4">
+                                Loading exams...
+                            </td>
+                        </tr>
+                    ) : exams.length === 0 ? (
+                        <tr>
+                            <td colSpan={4} className="text-center p-4">
+                                No exams found
+                            </td>
+                        </tr>
+                    ) : (
+                        exams.map((exam : ExamProp) => (
+                            <tr
+                                key={`${exam.exam_id}-${exam.exam_version}`}
+                                className="hover:bg-gray-500"
+                            >
+                                <td className="border border-white text-center p-2">
+                                    {exam.exam_name}
+                                </td>
+                                <td className="border border-white text-center p-2">
+                                    {exam.exam_version}
+                                </td>
+                                <td className="border border-white text-center p-2">
+                                    {exam.exam_taken_date}
+                                </td>
+                                <td className="border border-white text-center p-2">
+                                    {exam.exam_score}
+                                </td>
+                            </tr>
+                        ))
+                    )}
                     </tbody>
                 </table>
-                <h1 className="text-center text-2xl mb-3">See Tests</h1>
-                <table id="testsTable"
-                       className="w-full mb-5 border border-white"
-                >
-                    <thead>
-                    <tr>
-                        <th className="border border-white">Exam Name</th>
-                        <th className="border border-white">Exam Difficulty</th>
-                        <th className="border border-white">Required Y/N</th>
-                    </tr>
-                    </thead>
-                    <tbody>
 
-                    </tbody>
-                </table>
+                {/*/!* Tests Table *!/*/}
+                {/*<h1 className="text-center text-2xl mb-3">See Tests</h1>*/}
+                {/*<table className="w-full mb-5 border border-white">*/}
+                {/*    <thead>*/}
+                {/*    <tr className="bg-gray-700">*/}
+                {/*        <th className="border border-white p-2">Exam Name</th>*/}
+                {/*        <th className="border border-white p-2">Exam Difficulty</th>*/}
+                {/*        <th className="border border-white p-2">Required Y/N</th>*/}
+                {/*    </tr>*/}
+                {/*    </thead>*/}
+                {/*    <tbody>*/}
+                {/*    {isLoading ? (*/}
+                {/*        <tr>*/}
+                {/*            <td colSpan={3} className="text-center p-4">*/}
+                {/*                Loading tests...*/}
+                {/*            </td>*/}
+                {/*        </tr>*/}
+                {/*    ) : tests.length === 0 ? (*/}
+                {/*        <tr>*/}
+                {/*            <td colSpan={3} className="text-center p-4">*/}
+                {/*                No tests found*/}
+                {/*            </td>*/}
+                {/*        </tr>*/}
+                {/*    ) : (*/}
+                {/*        tests.map((test) => (*/}
+                {/*            <tr*/}
+                {/*                key={`${test.exam_id}-${test.exam_difficulty}`}*/}
+                {/*                className="hover:bg-gray-500"*/}
+                {/*            >*/}
+                {/*                <td className="border border-white text-center p-2">*/}
+                {/*                    {test.exam_name}*/}
+                {/*                </td>*/}
+                {/*                <td className="border border-white text-center p-2">*/}
+                {/*                    {test.exam_difficulty}*/}
+                {/*                </td>*/}
+                {/*                <td className="border border-white text-center p-2">*/}
+                {/*                    {test.exam_required ? 'Yes' : 'No'}*/}
+                {/*                </td>*/}
+                {/*            </tr>*/}
+                {/*        ))*/}
+                {/*    )}*/}
+                {/*    </tbody>*/}
+                {/*</table>*/}
             </div>
         </section>
-        </SessionProvider>
     );
 }
 
