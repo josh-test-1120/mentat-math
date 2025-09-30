@@ -239,7 +239,7 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                         Delete
                     </button>
                     <button
-                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
+                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold py-2 px-4 rounded-md"
                         type="submit"
                         onClick={handleUpdate}
                     >
