@@ -4,7 +4,6 @@ export interface Exam {
     exam_course_id: number;
     exam_difficulty: number;
     exam_required: number;
-    exam_version: number;
     exam_duration: string;
     exam_state: number;
     exam_online: number;

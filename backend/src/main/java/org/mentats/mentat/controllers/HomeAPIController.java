@@ -68,8 +68,8 @@ public class HomeAPIController {
 
             statement.setInt(1, examID);  // Set to 0 if auto-incremented
             statement.setString(2, exam.getExam_name());
-            statement.setBoolean(3, exam.getIs_published());
-            statement.setBoolean(4, exam.getIs_required());
+            statement.setInt(3, exam.getIs_published());
+            statement.setInt(4, exam.getIs_required());
             statement.setInt(5, exam.getExam_difficulty());
             statement.setInt(6, exam.getExam_course_id());
 
@@ -236,6 +236,89 @@ public class HomeAPIController {
     }
 
     /**
+     * Patch the exam in the database
+     * based on the exam ID supplied in the URI
+     * @return JSON encoded ok
+     */
+    @PatchMapping("/exam/{examID}")
+    public void updateExam(@RequestBody ExamRequest exam, @PathVariable("examID") Long eid) {
+        String sql = "UPDATE exam \n" +
+                "SET exam_name=?, exam_state=?, exam_required=?, " +
+                "exam_difficulty=?, exam_duration=?, exam_online=? \n" +
+                "WHERE exam_id = ?;\n";
+
+        // Assuming exam_id is auto-incremented by the database
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            statement.setString(1, exam.getExam_name());
+            statement.setInt(2, exam.getIs_published());
+            statement.setInt(3, exam.getIs_required());
+            statement.setInt(4, exam.getExam_difficulty());
+            statement.setInt(5, exam.getExam_duration());
+            statement.setInt(6, exam.getExam_online());
+            statement.setLong(7, eid);
+
+            int affectedRows = statement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new ExamResultNotFoundException("Exam result not found with id: " + eid);
+            }
+
+//            if (rows > 0) { return "Exam updated successfully"; }
+//            else { return "Exam could not be updated"; }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+//            return "Database error: " + e.getMessage();
+            // Handle database errors
+            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
+                throw new ExamResultDeletionException(
+                        "Cannot delete exam result: It is referenced by other records"
+                );
+            } else {
+                throw new DataAccessException("Database error while deleting exam result: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Delete the exam from the database
+     * based on the exam ID supplied in the URI
+     * @return JSON encoded ok
+     */
+    @DeleteMapping("/exam/{examID}")
+    public void deleteExam(@PathVariable("examID") Long eid) {
+        // SQL query to delete from the 'exam' table where the exam ID is present
+        String sql = "DELETE FROM exam \n" +
+                "WHERE exam_id = ?;\n";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Update the Query with the variables
+            stmt.setLong(1, eid);  // Set the exam ID
+
+            // Update the database
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new ExamResultNotFoundException("Exam not found with id: " + eid);
+            }
+
+        } catch (SQLException e) {
+            // Handle database errors
+            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
+                throw new ExamResultDeletionException(
+                        "Cannot delete exam: It is referenced by other records"
+                );
+            } else {
+                throw new DataAccessException("Database error while deleting exam: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
      * Get the exam result from the database
      * based on the exam result ID supplied in the URI
      * @return Single object that have has the exam details
@@ -378,6 +461,8 @@ public class HomeAPIController {
                     exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
                     exam.put("exam_name", rs.getString("exam_name"));
                     exam.put("exam_course_id", rs.getInt("exam_course_id"));
+                    exam.put("exam_duration", rs.getString("exam_duration"));
+                    exam.put("exam_online", rs.getInt("exam_online"));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -488,6 +573,8 @@ public class HomeAPIController {
                     exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
                     exam.put("exam_name", rs.getString("exam_name"));
                     exam.put("exam_course_id", rs.getInt("exam_course_id"));
+                    exam.put("exam_duration", rs.getString("exam_duration"));
+                    exam.put("exam_online", rs.getInt("exam_online"));
                     exam.put("exam_course_name", course.get("exam_course_name"));
                     exams.add(exam);
                 }
@@ -527,7 +614,7 @@ public class HomeAPIController {
             //iterates through result set
             if (rs.next()) {
                 course.put("course_id", rs.getInt("course_id"));
-                course.put("exam_course_name", rs.getString("course_name"));
+                course.put("course_name", rs.getString("course_name"));
                 course.put("course_professor_id", rs.getInt("course_professor_id"));
                 course.put("course_year", rs.getInt("course_year"));
                 course.put("course_quarter", rs.getString("course_quarter"));
