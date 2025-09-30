@@ -3,8 +3,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp, Class } from '@/app/_components/types/exams';
-import { ExamCardExtended, getExamStatus } from '@/app/_components/student/ExamCards';
+import { ExamProp, Class } from '@/components/types/exams';
+import { ExamCardExtended, getExamStatus } from '@/components/UI/cards/ExamCards';
 import { useSession } from "next-auth/react";
 
 export default function ExamsPage() {
