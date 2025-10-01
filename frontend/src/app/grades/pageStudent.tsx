@@ -293,7 +293,7 @@ export default function GradesPage() {
                     </div>
                 </motion.div>
             </div>
-            <div className="rounded-xl shadow-sm pt-6">
+            <div className="max-w-5xl mx-auto rounded-xl shadow-sm pt-6">
                 <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
                 { loading ?
                     ( <div className="text-center">Calculating Grade Summary...</div> )
