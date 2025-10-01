@@ -14,15 +14,11 @@ export interface ExamResult {
     exam_id: string;
     exam_name: string;
     exam_course_id: string;
-    exam_difficulty: number;
     exam_required: number;
     exam_scheduled_date: string;
-    exam_version: number;
-    exam_taken_date: string;
-    course: string;
-    location: string;
-    status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
-    score?: string;
+    exam_taken_date?: string | undefined;
+    exam_score?: string | undefined;
+    status: 'passed' | 'failed' | 'pending' | undefined;
 }
 
 export interface ExamProper {

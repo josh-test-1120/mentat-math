@@ -693,13 +693,6 @@ export default function Sidebar() {
                 </ul>
                 {/* Line Divider */}
                 <hr className="border-white mt-5"></hr>
-                {/* Date/Time Section */}
-                <div className="text-mentat-gold px-4 mt-5">
-                    <div>Today's Date: <span id="date">{currDate}</span></div>
-                    <div>Current Time: <span id="time">{currTime}</span></div>
-                </div>
-                {/* Line Divider */}
-                <hr className="border-white mt-5"></hr>
                 {/* User Info & Actions */}
                 <div className="items-center px-4 mt-5 space-x-4">
                     {session ? (
@@ -709,6 +702,13 @@ export default function Sidebar() {
                             <p>Role: {userType}</p>
                         </div>
                     ) : null}
+                </div>
+                {/* Line Divider */}
+                <hr className="border-white mt-5"></hr>
+                {/* Date/Time Section */}
+                <div className="text-mentat-gold px-4 mt-5">
+                    <div>Today's Date: <span id="date">{currDate}</span></div>
+                    <div>Current Time: <span id="time">{currTime}</span></div>
                 </div>
             </div>
             <div id="sidebar-bottom"
