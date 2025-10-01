@@ -41,9 +41,9 @@ export default async function Header() {
             <div className="flex items-center space-x-2">
                 {session ? (
                     <>
-                        <Link href="/dashboard" className="text-mentat-gold bg-crimson hover:bg-crimson-700 py-2 px-4 rounded-xl">
-                            Dashboard
-                        </Link>
+                        {/*<Link href="/dashboard" className="text-mentat-gold bg-crimson hover:bg-crimson-700 py-2 px-4 rounded-xl">*/}
+                        {/*    Dashboard*/}
+                        {/*</Link>*/}
                         <SignOutButton/>
                     </>
                 ) : (
