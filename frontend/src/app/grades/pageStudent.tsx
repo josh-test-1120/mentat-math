@@ -1,43 +1,75 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRef } from 'react';
-import { SessionProvider, useSession } from 'next-auth/react'
+import React, {useState, useMemo, useEffect, useRef} from 'react';
+import { apiHandler } from '@/utils/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import {ExamProp, Class, ExamResult} from '@/components/types/exams';
+import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
+import { useSession } from "next-auth/react";
+import Modal from "@/components/services/Modal";
+import ExamActionsComponent from "@/components/UI/exams/ExamActions";
 
-import { apiHandler } from "@/utils/api";
-import { toast, ToastContainer } from "react-toastify";
-import { ExamProp } from "@/components/types/exams";
+export interface Grade extends ExamResult {
+    course_name: string;
+    exam_online?: number;
+}
 
-// Needed to get environment variable for Backend API
-const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
-/**
- * Default
- * @constructor
- */
-export default function Grades() {
-
-    // State information
-    const [windowReady, setWindowReady] = useState(true);
+export default function GradesPage() {
+    // Session states
     const [sessionReady, setSessionReady] = useState(false);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
-    const [gradeTable, setGradeTable] = useState();
-    const [exams, setExams] = useState([]);
-    const [tests, setTests] = useState([]);
+    const { data: session, status } = useSession();
     const [userSession, setSession] = useState({
         id: '',
         username: '',
         email: ''
     });
+
+    // View data states
+    const [grades, setGrades] = useState<Grade[]>([]);
+    const [tests, setTests] = useState([]);
+    const [examResult, setExamResult] = useState<Grade>();
+    // const [finalScore, setFinalScore] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
 
-    // Session information
-    const { data: session, status } = useSession()
+    const [selectedClass, setSelectedClass] = useState<string>('all');
+    const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
 
-    // Table Body React Reference
-    const tableBody = useRef(null);
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+
+    const validGrades = ['passed', 'failed'];
+
+    const filteredGrades = useMemo(() => {
+        // Wait until grades data is loaded and available
+        if (!grades || grades.length === 0) {
+            return [];
+        }
+        // First filter by class
+        let result = filter === 'all'
+            ? grades
+            : grades.filter(grade => grade.status === filter);
+
+        // Then filter by status
+        if (filter !== 'all') {
+            result = grades.filter(grade => getGradeStatus(grade) === filter);
+        }
+
+        return result;
+    }, [grades, filter]);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
 
     /**
      * Used to handle session hydration
@@ -63,6 +95,7 @@ export default function Grades() {
 
             try {
                 await fetchExams();
+                // avgScore(grades);
             } catch (error) {
                 console.error('Error fetching Exams:', error);
             }
@@ -74,12 +107,50 @@ export default function Grades() {
     }, [session, status, hasFetched, refreshTrigger]);
 
     /**
+     * Average Grade Determination
+     * Implementation for getting the average of the grades
+     */
+    const avgScore = (grades: Grade[]) => {
+        // Variables
+        let counter = 0;
+        let finalGrade;
+        // Process each element (async)
+        grades.forEach((grade: Grade) => {
+            if (grade.exam_score == 'A') counter += 5;
+            else if (grade.exam_score == 'B') counter += 4;
+            else if (grade.exam_score == 'C') counter += 3;
+            else if (grade.exam_score == 'D') counter += 2;
+            else if (grade.exam_score == 'F') counter += 1;
+        });
+
+        // Get the average of the scores
+        const avgGrade = Math.round(counter / grades.length);
+        switch (avgGrade) {
+            case 5:
+                finalGrade = 'A';
+                break;
+            case 4:
+                finalGrade = 'B'
+                break;
+            case 3:
+                finalGrade = 'C';
+                break;
+            case 2:
+                finalGrade = 'D';
+                break;
+            default:
+                finalGrade = 'F';
+        }
+        return finalGrade;
+    }
+
+    /**
      * Fetch Exams
      * Implementation for general API handler
      */
     async function fetchExams() {
-        console.log('Exam Fetch for student grades page');
-        setIsLoading(true);
+        console.log('Fetching data for student grades page');
+        setLoading(true);
         try {
             const res = await apiHandler(
                 undefined,
@@ -91,123 +162,188 @@ export default function Grades() {
             console.log(res);
 
             if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching exams:', res.error);
-                setExams([]);
+                console.error('Error fetching grades:', res.error);
+                setGrades([]);
                 setTests([]);
             } else {
                 // Assuming your API returns both exams and tests
                 // Adjust this based on your actual API response structure
-                setExams(res.exams || res); // Use res.exams if nested, or res directly
+                // Ensure all grades have a status
+                setGrades(res.grades || res); // Use res.grades if nested, or res directly
+                // Ensure each grade has a proper status
+                setGrades(prevGrades =>
+                    prevGrades.map(grade => ({
+                        ...grade,
+                        status: getGradeStatus(grade)
+                    }))
+                );
                 setTests(res.tests || []); // Add logic for tests if needed
             }
         } catch (error) {
-            console.error('Error fetching student exams:', error.toString());
-            setExams([]);
+            console.error('Error fetching student grades:', error.toString());
+            setGrades([]);
             setTests([]);
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     }
 
-    return (
-        <section
-            id={"gradeComponentPage"}
-            className="font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
-        >
-            <div className="mx-auto px-4 h-dvh bg-mentat-black">
-                {/* Exams Table */}
-                <h1 className="text-center text-2xl mb-3">See Grades</h1>
-                <table className="w-full mb-5 border border-white">
-                    <thead>
-                    <tr className="bg-gray-700">
-                        <th className="border border-white p-2">Exam Name</th>
-                        <th className="border border-white p-2">Exam Version</th>
-                        <th className="border border-white p-2">Exam Date</th>
-                        <th className="border border-white p-2">Exam Score</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {isLoading ? (
-                        <tr>
-                            <td colSpan={4} className="text-center p-4">
-                                Loading exams...
-                            </td>
-                        </tr>
-                    ) : exams.length === 0 ? (
-                        <tr>
-                            <td colSpan={4} className="text-center p-4">
-                                No exams found
-                            </td>
-                        </tr>
-                    ) : (
-                        exams.map((exam : ExamProp) => (
-                            <tr
-                                key={`${exam.exam_id}-${exam.exam_version}`}
-                                className="hover:bg-gray-500"
-                            >
-                                <td className="border border-white text-center p-2">
-                                    {exam.exam_name}
-                                </td>
-                                <td className="border border-white text-center p-2">
-                                    {exam.exam_version}
-                                </td>
-                                <td className="border border-white text-center p-2">
-                                    {exam.exam_taken_date}
-                                </td>
-                                <td className="border border-white text-center p-2">
-                                    {exam.exam_score}
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                    </tbody>
-                </table>
+    // Load Grade Details Modal
+    const loadGradeDetails = async (grade: Grade, e : any) => {
+        e.preventDefault();
+        console.log('Grade event click:', e);
+        // setExamResult(grade);
+        // setIsExamModalOpen(true)
+    }
 
-                {/*/!* Tests Table *!/*/}
-                {/*<h1 className="text-center text-2xl mb-3">See Tests</h1>*/}
-                {/*<table className="w-full mb-5 border border-white">*/}
-                {/*    <thead>*/}
-                {/*    <tr className="bg-gray-700">*/}
-                {/*        <th className="border border-white p-2">Exam Name</th>*/}
-                {/*        <th className="border border-white p-2">Exam Difficulty</th>*/}
-                {/*        <th className="border border-white p-2">Required Y/N</th>*/}
-                {/*    </tr>*/}
-                {/*    </thead>*/}
-                {/*    <tbody>*/}
-                {/*    {isLoading ? (*/}
-                {/*        <tr>*/}
-                {/*            <td colSpan={3} className="text-center p-4">*/}
-                {/*                Loading tests...*/}
-                {/*            </td>*/}
-                {/*        </tr>*/}
-                {/*    ) : tests.length === 0 ? (*/}
-                {/*        <tr>*/}
-                {/*            <td colSpan={3} className="text-center p-4">*/}
-                {/*                No tests found*/}
-                {/*            </td>*/}
-                {/*        </tr>*/}
-                {/*    ) : (*/}
-                {/*        tests.map((test) => (*/}
-                {/*            <tr*/}
-                {/*                key={`${test.exam_id}-${test.exam_difficulty}`}*/}
-                {/*                className="hover:bg-gray-500"*/}
-                {/*            >*/}
-                {/*                <td className="border border-white text-center p-2">*/}
-                {/*                    {test.exam_name}*/}
-                {/*                </td>*/}
-                {/*                <td className="border border-white text-center p-2">*/}
-                {/*                    {test.exam_difficulty}*/}
-                {/*                </td>*/}
-                {/*                <td className="border border-white text-center p-2">*/}
-                {/*                    {test.exam_required ? 'Yes' : 'No'}*/}
-                {/*                </td>*/}
-                {/*            </tr>*/}
-                {/*        ))*/}
-                {/*    )}*/}
-                {/*    </tbody>*/}
-                {/*</table>*/}
+    return (
+        <div className="min-h-screen bg-gradient-to-br p-6">
+            <div className="max-w-5xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-8"
+                >
+                    <h1 className="text-3xl font-bold mb-2">Grade Summary</h1>
+                </motion.div>
+
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold">Your Grades</h2>
+                    <div className="flex gap-2">
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('all')}
+                        >
+                            All Grades
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'passed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('passed')}
+                        >
+                            Passing
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'failed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('failed')}
+                        >
+                            Failed
+                        </button>
+                        {/*<button*/}
+                        {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
+                        {/*    onClick={() => setFilter('pending')}*/}
+                        {/*>*/}
+                        {/*    Pending*/}
+                        {/*</button>*/}
+                    </div>
+                </div>
+
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="rounded-xl shadow-sm border p-6"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-semibold">
+                            {filter.charAt(0).toUpperCase() + filter.slice(1)} Grades
+                        </h2>
+                        <span className="text-sm">
+                          {filteredGrades.length} grade(s) found
+                        </span>
+                    </div>
+
+                    <div className="overflow-y-auto max-h-[600px] pt-1">
+                        <AnimatePresence mode="wait">
+                            {filteredGrades.length > 0 ? (
+                                <motion.div
+                                    key={`${selectedClass}-${filter}`}
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="space-y-2 mb-2"
+                                >
+                                    {filteredGrades.map((grade) => (
+                                        <GradeCardExtended
+                                            key={grade.exam_id}
+                                            grade={grade}
+                                            index={0}
+                                            onclick={(e) => loadGradeDetails(grade, e)}
+                                        />
+                                    ))}
+                                </motion.div>
+                            ) : loading === true ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-12"
+                                >
+                                    Loading Grades...
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-12"
+                                >
+                                    No grades found for the selected filters
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </motion.div>
             </div>
-        </section>
+            <div className="rounded-xl shadow-sm pt-6">
+                <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
+                { loading ?
+                    ( <div className="text-center">Calculating Grade Summary...</div> )
+                    : grades.length === 0 ?
+                        <div className="text-center">No grades available</div> :
+                        ( <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="p-4 rounded-lg border border-blue-100">
+                                <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
+                                <p className="text-3xl font-bold">
+                                    {grades.filter(grade => grade.status === 'passed').length}
+                                </p>
+                            </div>
+                            <div className="p-4 rounded-lg border">
+                                <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
+                                <p className="text-3xl font-bold">
+                                    {grades.filter(grade => grade.status === 'failed').length}
+                                </p>
+                            </div>
+                            <div className="p-4 rounded-lg border">
+                                <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
+                                <p className="text-3xl font-bold">
+                                    {grades.filter(grade =>
+                                        validGrades.includes(grade?.status)).length > 0
+                                        ? avgScore(grades) : 0}
+
+                                    {/*{exams.filter(e => e.status === 'completed' && e.exam_score !== undefined).length > 0*/}
+                                    {/*    ? Math.round(exams.filter(e => e.status === 'completed' && e.score !== undefined)*/}
+                                    {/*            .reduce((acc, e) => acc + (e.score!/e.totalScore * 100), 0) /*/}
+                                    {/*        exams.filter(e => e.status === 'completed' && e.score !== undefined).length)*/}
+                                    {/*    : 0}%*/}
+                                </p>
+                            </div>
+                        </div>)}
+            </div>
+
+            {/*/!* Exam Action Modal *!/*/}
+            {/*<Modal*/}
+            {/*    isOpen={isExamModalOpen}*/}
+            {/*    onClose={() => setIsExamModalOpen(false)}*/}
+            {/*    title="Alter Scheduled Exam"*/}
+            {/*>*/}
+            {/*    <ExamActionsComponent*/}
+            {/*        examResult={examResult}*/}
+            {/*        cancelAction={() => {*/}
+            {/*            setIsExamModalOpen(false);*/}
+            {/*            // Trigger refresh when modal closes*/}
+            {/*            setRefreshTrigger(prev => prev + 1);*/}
+            {/*        }}*/}
+            {/*    />*/}
+            {/*</Modal>*/}
+        </div>
     );
 }
-

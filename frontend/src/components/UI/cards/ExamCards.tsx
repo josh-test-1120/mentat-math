@@ -22,8 +22,6 @@ interface ExamCardCompactProps {
     onclick?: (e: any) => void;
 }
 
-
-
 /**
  * Global Exam Card functions
  */
@@ -201,22 +199,7 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
     // Get exam status
     exam.status = getExamStatus(exam);
 
-    const getExamStatusColor = () => {
-        switch (exam.status) {
-            case 'active': return 'bg-blue-100 text-blue-800';
-            case 'inactive': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getExamStatusIcon = () => {
-        switch (exam.status) {
-            case 'active': return <LucideCircleCheck className="w-4 h-4" />;
-            case 'inactive': return <CircleX className="w-4 h-4" />;
-            default: return <CircleX className="w-4 h-4" />;
-        }
-    };
-
+    // Exam Status Badge details
     const getStatusBadge = ({ status }: { status: string}) => {
         const statusConfig = {
             active: { color: 'bg-green-100 text-green-800', icon: <LucideCircleCheck className="w-4 h-4" /> },

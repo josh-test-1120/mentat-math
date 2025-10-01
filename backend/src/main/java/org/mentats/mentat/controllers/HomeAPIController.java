@@ -128,13 +128,13 @@ public class HomeAPIController {
     @GetMapping("/grades/{studentID}")
     public List<Map<String, Object>> getStudentGrades(@PathVariable("studentID") Long sid) {
 
-        // SQL query to select from the 'exam' table where the exam state is 1
+        // SQL query to select from the 'exam_result' table records assigned to student
         String sql = "SELECT * \n" +
                 "FROM exam_result \n" +
                 "WHERE exam_student_id = ?;\n";
 
-        // List to store retrieved exam details
-        List<Map<String, Object>> exams = new ArrayList<>();
+        // List to store retrieved grade details
+        List<Map<String, Object>> grades = new ArrayList<>();
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -147,21 +147,22 @@ public class HomeAPIController {
 
             //iterates through result set
             while (rs.next()) {
-                Map<String, Object> exam = new HashMap<>();
-                exam.put("exam_version", rs.getInt("exam_version"));
-                exam.put("exam_taken_date", rs.getDate("exam_taken_date"));
-                exam.put("exam_score", rs.getString("exam_score"));
-                exam.put("exam_scheduled_date", rs.getDate("exam_scheduled_date"));
-                exam.put("exam_id", rs.getInt("exam_id"));
-                exams.add(exam);
+                Map<String, Object> grade = new HashMap<>();
+                grade.put("exam_result_id", rs.getInt("exam_result_id"));
+                grade.put("exam_version", rs.getInt("exam_version"));
+                grade.put("exam_taken_date", rs.getDate("exam_taken_date"));
+                grade.put("exam_score", rs.getString("exam_score"));
+                grade.put("exam_scheduled_date", rs.getDate("exam_scheduled_date"));
+                grade.put("exam_id", rs.getInt("exam_id"));
+                grades.add(grade);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         // Get the exam information for each result
-        for (Map<String, Object> exam : exams) {
+        for (Map<String, Object> grade : grades) {
             // Get the exam ID
-            Integer examID = Integer.parseInt(exam.get("exam_id").toString());
+            Integer examID = Integer.parseInt(grade.get("exam_id").toString());
             // SQL query to select from the 'exam' table where the student ID is present
             String examsql = "SELECT * \n" +
                     "FROM exam \n" +
@@ -178,18 +179,42 @@ public class HomeAPIController {
 
                 // Gets the record details if the exam exists
                 if (rs.next()) {
-                    exam.put("exam_state", rs.getInt("exam_state"));
-                    exam.put("exam_required", rs.getInt("exam_required"));
-                    exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
-                    exam.put("exam_name", rs.getString("exam_name"));
-                    exam.put("exam_course_id", rs.getInt("exam_course_id"));
+                    grade.put("exam_required", rs.getInt("exam_required"));
+                    grade.put("exam_name", rs.getString("exam_name"));
+                    grade.put("exam_course_id", rs.getInt("exam_course_id"));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        // Return list of exams
-        return exams;
+        // Get the course name for each exam
+        for (Map<String, Object> grade : grades) {
+            // Get the exam ID
+            Integer courseID = Integer.parseInt(grade.get("exam_course_id").toString());
+            // SQL query to select from the 'exam' table where the student ID is present
+            String examsql = "SELECT * \n" +
+                    "FROM course \n" +
+                    "WHERE course_id = ?;\n";
+            // Get the exam details
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(examsql)) {
+
+                // Update the Query with the variables
+                stmt.setInt(1, courseID);  // Set the exam ID
+
+                // Execute the query
+                ResultSet rs = stmt.executeQuery();
+
+                // Gets the record details if the exam exists
+                if (rs.next()) {
+                    grade.put("course_name", rs.getString("course_name"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // Return list of grades
+        return grades;
     }
 
     /**
