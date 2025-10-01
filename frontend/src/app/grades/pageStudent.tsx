@@ -253,7 +253,10 @@ export default function GradesPage() {
                         </span>
                     </div>
 
-                    <div className="overflow-y-auto max-h-[600px] pt-1">
+                    <div className="overflow-y-auto max-h-[600px] pt-1
+                        overflow-y-auto scrollbar-thin scrollbar-thumb-mentat-gold
+                        scrollbar-track-gray-100"
+                    >
                         <AnimatePresence mode="wait">
                             {filteredGrades.length > 0 ? (
                                 <motion.div
