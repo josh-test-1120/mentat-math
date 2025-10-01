@@ -27,7 +27,6 @@ export default function GradesPage() {
     // View data states
     const [grades, setGrades] = useState<Grade[]>([]);
     const [tests, setTests] = useState([]);
-    const [examResult, setExamResult] = useState<Grade>();
     // const [finalScore, setFinalScore] = useState('');
     const [loading, setLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
@@ -40,9 +39,6 @@ export default function GradesPage() {
     const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
-    const validGrades = ['passed', 'failed'];
-    var finalScore;
 
     const filteredGrades = useMemo(() => {
         // Wait until grades data is loaded and available
@@ -86,7 +82,6 @@ export default function GradesPage() {
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            // setSessionReady(prev => prev || userSession.id !== "");
             if (userSession.id != "") { setSessionReady(true); }
         }
         // Wrapper for async function
@@ -142,7 +137,7 @@ export default function GradesPage() {
             default:
                 finalGrade = 'F';
         }
-        finalScore = finalGrade;
+        // Return the average letter grade for all grades
         return finalGrade;
     }
 
