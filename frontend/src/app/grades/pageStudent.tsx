@@ -42,6 +42,7 @@ export default function GradesPage() {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const validGrades = ['passed', 'failed'];
+    var finalScore;
 
     const filteredGrades = useMemo(() => {
         // Wait until grades data is loaded and available
@@ -141,6 +142,7 @@ export default function GradesPage() {
             default:
                 finalGrade = 'F';
         }
+        finalScore = finalGrade;
         return finalGrade;
     }
 
@@ -302,34 +304,34 @@ export default function GradesPage() {
                     ( <div className="text-center">Calculating Grade Summary...</div> )
                     : grades.length === 0 ?
                         <div className="text-center">No grades available</div> :
-                        ( <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 rounded-lg border border-blue-100">
-                                <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
-                                <p className="text-3xl font-bold">
-                                    {grades.filter(grade => grade.status === 'passed').length}
-                                </p>
-                            </div>
-                            <div className="p-4 rounded-lg border">
-                                <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
-                                <p className="text-3xl font-bold">
-                                    {grades.filter(grade => grade.status === 'failed').length}
-                                </p>
-                            </div>
-                            <div className="p-4 rounded-lg border">
-                                <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
-                                <p className="text-3xl font-bold">
-                                    {grades.filter(grade =>
-                                        validGrades.includes(grade?.status)).length > 0
-                                        ? avgScore(grades) : 0}
+                        (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-lg border border-blue-100">
+                                    <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
+                                    <p className="text-3xl font-bold">
+                                        {grades.filter(grade => grade.status === 'passed').length}
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-lg border">
+                                    <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
+                                    <p className="text-3xl font-bold">
+                                        {grades.filter(grade => grade.status === 'failed').length}
+                                    </p>
+                                </div>
 
-                                    {/*{exams.filter(e => e.status === 'completed' && e.exam_score !== undefined).length > 0*/}
-                                    {/*    ? Math.round(exams.filter(e => e.status === 'completed' && e.score !== undefined)*/}
-                                    {/*            .reduce((acc, e) => acc + (e.score!/e.totalScore * 100), 0) /*/}
-                                    {/*        exams.filter(e => e.status === 'completed' && e.score !== undefined).length)*/}
-                                    {/*    : 0}%*/}
-                                </p>
+                                <div className="p-4 rounded-lg border">
+                                    <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
+                                    <p className={`text-3xl font-bold ${
+                                        avgScore(grades) === 'A' || avgScore(grades) === 'B' ? 'text-green-600' :
+                                            avgScore(grades) === 'C' ? 'text-yellow-600' :
+                                                'text-red-600'
+                                    }`}>
+                                        {avgScore(grades)}
+                                    </p>
+                                </div>
                             </div>
-                        </div>)}
+                        )
+                    }
             </div>
 
             {/*/!* Exam Action Modal *!/*/}
