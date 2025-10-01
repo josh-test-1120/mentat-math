@@ -68,8 +68,8 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
         );
     };
 
-    // Get the status of the exam
-    grade.status = getGradeStatus(grade);
+    // Get the status of the exam (already done in student page view)
+    // grade.status = getGradeStatus(grade);
     // View variables
     const darkCimson = '#61091e';
     const examTaken = (grade.exam_taken_date !== undefined && grade.exam_taken_date !== null);
