@@ -46,6 +46,12 @@ public class Exam {
     @Column(name = "exam_required")
     private Boolean required;
 
+    // The required state of the exam
+    @NotBlank
+    @JsonProperty("examDifficulty") // Map JSON field to Java field
+    @Column(name = "exam_difficulty")
+    private Integer difficulty;
+
     // The duration of the exam
     @NotBlank
     @JsonProperty("examDuration") // Map JSON field to Java field
@@ -65,16 +71,18 @@ public class Exam {
      * @param name
      * @param state
      * @param required
+     * @param difficulty
      * @param duration
      * @param online
      */
     public Exam(Integer Id, Integer courseId, String name, Boolean state,
-                Boolean required, Double duration, Boolean online) {
+                Boolean required, Integer difficulty, Double duration, Boolean online) {
         this.Id = Id;
         this.courseId = courseId;
         this.name = name;
         this.state = state;
         this.required = required;
+        this.difficulty = difficulty;
         this.duration = duration;
         this.online = online;
     }
@@ -141,5 +149,13 @@ public class Exam {
 
     public void setOnline(Boolean online) {
         this.online = online;
+    }
+
+    public Integer getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Integer difficulty) {
+        this.difficulty = difficulty;
     }
 }
