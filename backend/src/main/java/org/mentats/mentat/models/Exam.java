@@ -1,10 +1,8 @@
 package org.mentats.mentat.models;
 
-import java.sql.Date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -48,11 +46,13 @@ public class Exam {
     @Column(name = "exam_required")
     private Boolean required;
 
+    // The duration of the exam
     @NotBlank
     @JsonProperty("examDuration") // Map JSON field to Java field
     @Column(name = "exam_duration")
     private Double duration;
 
+    // Is the exam online or offline
     @NotBlank
     @JsonProperty("examOnline") // Map JSON field to Java field
     @Column(name = "exam_online")

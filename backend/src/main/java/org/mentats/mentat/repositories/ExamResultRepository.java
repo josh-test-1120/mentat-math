@@ -10,13 +10,16 @@ import java.util.List;
  * Exam Result Repository Interface that interacts with the Database through JPA.
  * @author Joshua Summers
  */
-
 @Repository
 public interface ExamResultRepository extends JpaRepository<ExamResult, Integer> {
-    // Interfaces for service repository
+    // Find ExamResults based on student Id
     List<ExamResult> findByStudentId(Integer studentId);
+    // Find ExamResults based on Exam Id
     List<ExamResult> findByExamId(Integer examId);
+    // Find the ExamResults based on Exam Id and Exam version
     List<ExamResult> findByExamIdAndExamVersion(Integer examId, Integer examVersion);
+    // Delete the ExamResults based on Student Id
     void deleteByStudentId(Integer studentId);
+    // Delete the ExamResults based on Exam Id
     void deleteByExamId(Integer examId); // Add this method
 }
