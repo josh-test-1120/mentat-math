@@ -48,6 +48,67 @@ export default function TestWindowPage() {
     });
 
 
+    // Helper to persist current calendar view and scroll position
+    const saveCalendarState = useCallback(() => {
+        if (!calendarApi) return;
+        const currentDate = calendarApi.getDate();
+        const currentView = calendarApi.view.type;
+        const scroller = document.querySelector('.fc .fc-timegrid-body .fc-scroller') as HTMLElement | null;
+        const currentScrollTop = scroller ? scroller.scrollTop : null;
+
+        savedCalendarStateRef.current = {
+            date: currentDate,
+            view: currentView,
+            scrollTop: currentScrollTop
+        };
+
+        console.log('Saved calendar state (helper):', {
+            date: currentDate.toISOString(),
+            view: currentView,
+            scrollTop: currentScrollTop
+        });
+    }, [calendarApi]);
+
+    // Helper to restore previously saved calendar view and scroll position
+    const restoreCalendarState = useCallback(() => {
+        if (!calendarApi) return;
+        const { date, view, scrollTop } = savedCalendarStateRef.current;
+        if (!date) return;
+
+        try {
+            if (view) {
+                calendarApi.changeView(view, date);
+                console.log('Restored calendar view:', view, date.toISOString());
+            } else {
+                calendarApi.gotoDate(date);
+                console.log('Restored calendar date:', date.toISOString());
+            }
+        } catch (e) {
+            console.warn('Failed to restore calendar view/date immediately, will retry scroll only.', e);
+        }
+
+        if (scrollTop !== null) {
+            const attemptRestoreScroll = () => {
+                const newScroller = document.querySelector('.fc .fc-timegrid-body .fc-scroller') as HTMLElement | null;
+                if (newScroller) {
+                    newScroller.scrollTop = scrollTop;
+                    return true;
+                }
+                return false;
+            };
+
+            // Try immediately and then with small delays to account for DOM updates
+            if (!attemptRestoreScroll()) {
+                [30, 80, 150, 300, 600].forEach((delay) => {
+                    setTimeout(() => {
+                        attemptRestoreScroll();
+                    }, delay);
+                });
+            }
+        }
+    }, [calendarApi]);
+
+
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
@@ -64,6 +125,8 @@ export default function TestWindowPage() {
     const handleConfirmDelete = async () => {
         if (!activeTestWindow) return;
         try {
+            // Persist current calendar position before any updates
+            saveCalendarState();
             if (deleteScope === 'all') {
                 // Call backend to delete entire test window series
                 const res = await apiHandler(
@@ -82,25 +145,23 @@ export default function TestWindowPage() {
                     setTestWindows((prev) => prev.filter(tw => tw.testWindowId !== activeTestWindow.id));
                     // Show longer success toast and avoid interruption
                     toast.success('Test window deleted', { autoClose: 5000 });
+                    // Restore the calendar state immediately after optimistic update
+                    restoreCalendarState();
                     // Silent background refresh to ensure consistency
                     if (selectedCourseId) {
-                        fetchTestWindows(selectedCourseId, { silent: true });
+                        fetchTestWindows(selectedCourseId, { silent: true }).then(() => {
+                            // Re-apply restoration after the background fetch updates events
+                            restoreCalendarState();
+                        });
                     }
                 }
             } else if (deleteScope === 'single') {
-                // Find the specific clicked event (nearest to last click position)
-                const targetEvent = calendarEvents.find(e => e.extendedProps?.originalId === activeTestWindow.id);
-                if (!targetEvent) {
-                    toast.error('Could not find the clicked event');
+                // Use the date from the clicked event stored earlier
+                if (!activeTestWindow?.clickedDate) {
+                    toast.error('Could not find the clicked event date');
                     return;
                 }
-
-                // Extract the specific date (YYYY-MM-DD) in LOCAL time (avoid UTC shifts)
-                const eventDateObj = new Date(targetEvent.start);
-                const eventYear = eventDateObj.getFullYear();
-                const eventMonth = String(eventDateObj.getMonth() + 1).padStart(2, '0');
-                const eventDay = String(eventDateObj.getDate()).padStart(2, '0');
-                const eventDateStr = `${eventYear}-${eventMonth}-${eventDay}`;
+                const eventDateStr = activeTestWindow.clickedDate;
 
                 // Backend: add this date to exceptions array
                 const res = await apiHandler(
@@ -116,13 +177,17 @@ export default function TestWindowPage() {
                 } else {
                     // Optimistically remove only this date's occurrences for this window
                     setCalendarEvents((prev) => prev.filter(e =>
-                        !(e.extendedProps?.originalId === activeTestWindow.id && e.start?.startsWith(eventDateStr))
+                        !(e.extendedProps?.originalId === activeTestWindow.id && typeof e.start === 'string' && e.start.startsWith(eventDateStr))
                     ));
                     toast.success('Current day test window successfully deleted', { autoClose: 5000 });
+                    // Restore calendar state post optimistic update
+                    restoreCalendarState();
 
                     // Silent background refresh
                     if (selectedCourseId) {
-                        fetchTestWindows(selectedCourseId, { silent: true });
+                        fetchTestWindows(selectedCourseId, { silent: true }).then(() => {
+                            restoreCalendarState();
+                        });
                     }
                 }
             } else if (deleteScope === 'following') {
@@ -167,10 +232,14 @@ export default function TestWindowPage() {
                           e.start >= eventDateStr)
                     ));
                     toast.success('Future events deleted successfully');
+                    // Restore calendar state post optimistic update
+                    restoreCalendarState();
                     
                     // Silent background refresh
                     if (selectedCourseId) {
-                        fetchTestWindows(selectedCourseId, { silent: true });
+                        fetchTestWindows(selectedCourseId, { silent: true }).then(() => {
+                            restoreCalendarState();
+                        });
                     }
                 }
             } else {
@@ -630,6 +699,8 @@ export default function TestWindowPage() {
      */
     const handleEventClick = (info: any) => {
         console.log('Event clicked:', info.event);
+        // Persist current calendar position on event click to allow restoration after updates
+        saveCalendarState();
         const event = info.event;
         const props = event.extendedProps;
 
@@ -690,6 +761,8 @@ export default function TestWindowPage() {
 
     const handleDeleteTestWindow = () => {
         if (!activeTestWindow) return;
+        // Persist calendar position before opening delete modal
+        saveCalendarState();
         // Open delete confirmation modal with scope options
         setDeleteModalOpen(true);
         closePopover();
@@ -704,14 +777,7 @@ export default function TestWindowPage() {
     // Get selected course name for display
     const selectedCourse = courses.find(course => course.courseId === selectedCourseId);
 
-    if (loading) {
-        return (
-            <div className="h-full w-full flex items-center justify-center">
-                <div className="text-mentat-gold">Loading page...</div>
-            </div>
-        );
-    }
-
+    // Error message page when page doesn't load as expected
     if (error) {
         return (
             <div className="h-full w-full flex items-center justify-center">
