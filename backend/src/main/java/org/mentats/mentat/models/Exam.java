@@ -1,134 +1,145 @@
 package org.mentats.mentat.models;
 
-import java.util.Date;
+import java.sql.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.stereotype.Repository;
 
-/** This class represents an Exam entity that students will be able to schedule
- * @author Phillip Ho
+/**
+ * This class represents the Exam entity that contains exam details
+ * @author Joshua Summers
  */
-public class Exam{
+@Entity
+@Repository
+public class Exam {
+    /**
+     * Exam model class fields.
+     */
+    // Primary Key
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("examId") // Map JSON field to Java field
+    @Column(name = "exam_id")
+    private Integer Id;
 
-    private int examID;
-    private String examName;
-    private boolean examStatus;
-    private boolean examRequired;
-    private int examDifficulty;
-    private int examCourseID;
+    // The course id assigned to exam
+    @NotBlank
+    @JsonProperty("courseId") // Map JSON field to Java field
+    @Column(name = "exam_course_id")
+    private Integer courseId;
 
+    // The name assigned to exam
+    @NotBlank
+    @JsonProperty("examName") // Map JSON field to Java field
+    @Column(name = "exam_name")
+    private String name;
+
+    // The status assigned to exam
+    @NotBlank
+    @JsonProperty("examState") // Map JSON field to Java field
+    @Column(name = "exam_state")
+    private Boolean state;
+
+    // The required state of the exam
+    @NotBlank
+    @JsonProperty("examRequired") // Map JSON field to Java field
+    @Column(name = "exam_required")
+    private Boolean required;
+
+    @NotBlank
+    @JsonProperty("examDuration") // Map JSON field to Java field
+    @Column(name = "exam_duration")
+    private Double duration;
+
+    @NotBlank
+    @JsonProperty("examOnline") // Map JSON field to Java field
+    @Column(name = "exam_online")
+    private Boolean online;
 
     /**
-     * Default constructor
-     * @param examID int of examID
-     * @param examName string of exam name
-     * @param examStatus boolean of exam status
-     * @param examRequired boolean of exam required
-     * @param examDifficulty int of exam difficulty
-     * @param examCourseID int of exam courseID
+     * This is the constructor for the Exam entity
+     * @param Id
+     * @param courseId
+     * @param name
+     * @param state
+     * @param required
+     * @param duration
+     * @param online
      */
-    public Exam(int examID, String examName,  boolean examStatus, boolean examRequired, int examDifficulty, int examCourseID){
-        this.examID = examID;
-        this.examName = examName;
-        this.examStatus = examStatus;
-        this.examRequired = false; //initial state of not required exams
-        this.examDifficulty = 0; //initial difficulty of 0 out of 5
-        this.examCourseID = examCourseID;
-    }
-
-    /**
-     * Getter for Exam name
-     * @return string of exam name
-     */
-    public String getExamName(){
-        return examName;
-    }
-
-    /**
-     * Getter for ExamID
-     * @return int of examID
-     */
-    public int getExamID(){
-        return examID;
-    }
-
-    /**
-     * Getter for Exam status
-     * @return boolean of exam status
-     */
-    public boolean getExamStatus(){
-        return examStatus;
-    }
-
-    /**
-     * Getter for Exam required
-     * @return boolean of exam required
-     */
-    public boolean getExamRequired(){
-        return examRequired;
-    }
-
-    /**
-     * Getter for Exam difficulty
-     * @return int of exam difficulty
-     */
-    public int getExamDifficulty(){
-        return examDifficulty;
-    }
-
-    /**
-     * Getter for Exam course ID
-     * @return int of exam courseID
-     */
-    public int getExamCourseID(){
-        return examCourseID;
+    public Exam(Integer Id, Integer courseId, String name, Boolean state,
+                Boolean required, Double duration, Boolean online) {
+        this.Id = Id;
+        this.courseId = courseId;
+        this.name = name;
+        this.state = state;
+        this.required = required;
+        this.duration = duration;
+        this.online = online;
     }
 
     /**
-     * Setter for Exam name
-     * @param examName string of exam name
+     * Default (empty) constructor for ExamResult entity
      */
-    public void setExamName(String examName){
-        this.examName = examName;
+    public Exam() {
+
     }
 
-    /**
-     * Setter for Exam ID
-     * @param examID int of exam ID
-     */
-    public void setExamID(int examID){
-        this.examID = examID;
+    // Getters and Setters for Entity
+    public Integer getId() {
+        return Id;
     }
 
-    /**
-     * Setter for Exam status
-     * @param examStatus boolean of exam status
-     */
-    public void setExamStatus(boolean examStatus){
-        this.examStatus = examStatus;
+    public void setId(Integer id) {
+        Id = id;
     }
 
-    /**
-     * Setter for Exam required
-     * @param examRequired boolean of exam required
-     */
-    public void setExamRequired(boolean examRequired){
-        this.examRequired = examRequired;
+    public Integer getCourseId() {
+        return courseId;
     }
 
-    /**
-     * Setter for Exam difficulty
-     * @param examDifficulty int of exam difficulty
-     */
-    public void setExamDifficulty(int examDifficulty){
-        this.examDifficulty = examDifficulty;
+    public void setCourseId(Integer courseId) {
+        this.courseId = courseId;
     }
 
-    //Exam methods
-    public void scheduleExam(){
-        //logic here
+    public String getName() {
+        return name;
     }
-    public void updateExam(){
-        //logic here
+
+    public void setName(String name) {
+        this.name = name;
     }
-    public void markComplete(){
-        //logic here
+
+    public Boolean getState() {
+        return state;
+    }
+
+    public void setState(Boolean state) {
+        this.state = state;
+    }
+
+    public Boolean getRequired() {
+        return required;
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
+    }
+
+    public Double getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Double duration) {
+        this.duration = duration;
+    }
+
+    public Boolean getOnline() {
+        return online;
+    }
+
+    public void setOnline(Boolean online) {
+        this.online = online;
     }
 }
