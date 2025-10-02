@@ -12,7 +12,6 @@ import java.util.List;
  */
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, Integer> {
-
     // Find exams by course ID
     List<Exam> findByCourseId(Integer courseId);
     // Find exams by state (active/inactive)

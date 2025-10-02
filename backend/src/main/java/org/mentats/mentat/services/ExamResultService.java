@@ -23,12 +23,22 @@ public class ExamResultService {
     @Autowired
     private ExamResultValidator validator;
 
+    /**
+     * Create new ExamResult object
+     * @param examResult
+     * @return ExamResult object
+     */
     // Create exam result
     public ExamResult createExamResult(ExamResult examResult) {
         validator.validateForCreation(examResult);
         return examResultRepository.save(examResult);
     }
 
+    /**
+     * Fetch the ExamResult object by Id
+     * @param id
+     * @return ExamResult object
+     */
     // Read exam result
     public ExamResult getExamResultById(Integer id) {
         validator.validateExamResultId(id);
@@ -36,23 +46,43 @@ public class ExamResultService {
                 .orElseThrow(() -> new ExamResultNotFoundException(id.toString()));
     }
 
+    /**
+     * Fetch all ExamResult objects from the database
+     * @return List of ExamResult objects
+     */
     // Read all exam results
     public List<ExamResult> getAllExamResults() {
         return examResultRepository.findAll();
     }
 
+    /**
+     * Fetch all ExamResult objects based on Student Id
+     * @param studentId
+     * @return List of ExamResult objects
+     */
     // Read multiple exam results by Student ID
     public List<ExamResult> getExamResultsByStudent(Integer studentId) {
         validator.validateStudentId(studentId);
         return examResultRepository.findByStudentId(studentId);
     }
 
+    /**
+     * Fetch all ExamResult objects based on Exam Id
+     * @param examId
+     * @return List of ExamResult objects
+     */
     // Read multiple exam results by Exam ID
     public List<ExamResult> getExamResultsByExamId(Integer examId) {
         validator.validateExamId(examId);
         return examResultRepository.findByExamId(examId);
     }
 
+    /**
+     * Fetch all ExamResult objects based on Exam Id and Exam Version
+     * @param examId
+     * @param examVersion
+     * @return List of ExamResult objects
+     */
     // Read multiple exam results by Exam ID and Version
     public List<ExamResult> getExamResultsByExamIdAndVersion(Integer examId, Integer examVersion) {
         validator.validateExamId(examId);
@@ -60,6 +90,12 @@ public class ExamResultService {
         return examResultRepository.findByExamIdAndExamVersion(examId, examVersion);
     }
 
+    /**
+     * Update ExamResult object in the database
+     * @param id
+     * @param examResultUpdates
+     * @return ExamResult object
+     */
     // Update exam result
     public ExamResult updateExamResult(Integer id, ExamResult examResultUpdates) {
         validator.validateExamResultId(id);
@@ -79,6 +115,10 @@ public class ExamResultService {
         return examResultRepository.save(existing);
     }
 
+    /**
+     * Delete the ExamResult from the database
+     * @param id
+     */
     // Delete exam result by id
     public void deleteExamResult(Integer id) {
         validator.validateExamResultId(id);
@@ -87,12 +127,20 @@ public class ExamResultService {
         examResultRepository.delete(existing);
     }
 
+    /**
+     * Delete the ExamResult objects based on the Student Id
+     * @param studentId
+     */
     // Delete exam results by student id
     public void deleteExamResultsByStudent(Integer studentId) {
         validator.validateStudentId(studentId);
         examResultRepository.deleteByStudentId(studentId);
     }
 
+    /**
+     * Delete the ExamResult objects based on the Exam Id
+     * @param examId
+     */
     // Delete exam results by exam id
     public void deleteExamResultsByExam(Integer examId) {
         validator.validateExamId(examId);
