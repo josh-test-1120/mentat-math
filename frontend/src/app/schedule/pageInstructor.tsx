@@ -1,309 +1,342 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
-import { apiHandler } from "@/utils/api";
-import { SessionProvider, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react';
 import Modal from "@/components/services/Modal";
 import Calendar from "@/components/UI/calendar/Calendar";
-import { Course } from "@/app/_components/types/exams";
+import CreateTestWindow from "@/app/createTestWindow/pageClient";
 
-// Needed to get the environment variable for the Backend API
+// Import our extracted hooks and components
+import { useCalendarState } from './hooks/useCalendarState';
+import { useInstructorCourses, useTestWindows } from './hooks/useTestWindowData';
+import { useDeleteActions } from './hooks/useDeleteActions';
+import { CourseSelector } from './components/CourseSelector';
+import { DeleteModal } from './components/DeleteModal';
+import { TestWindowPopover } from './components/TestWindowPopover';
+import { convertTestWindowsToEvents, processEventCreateData } from './utils/calendarHelpers';
+
+// Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 /**
- * Default Schedule Page
+ * Test Window Page with Course Selection
  * @constructor
  */
-export default function Schedule() {
-
+export default function TestWindowPage() {
     // Session information
-    const { data: session } = useSession()
+    const { data: session, status } = useSession();
+    
+    // Custom hooks
+    const { saveCalendarState, restoreCalendarState } = useCalendarState();
+    const { courses, loading: coursesLoading, error, fetchInstructorCourses } = useInstructorCourses(session, status, BACKEND_API || '');
+    const { testWindows, loading: testWindowsLoading, fetchTestWindows } = useTestWindows(session, BACKEND_API || '');
+    
     // State information
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({
-        exam_course_id: 1,
-        exam_name: "",
-        exam_difficulty: "",
-        is_published: "",
-        is_required: ""
+    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+    const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+    const [calendarApi, setCalendarApi] = useState<any>(null);
+    
+    // Delete actions hook
+    const {
+        deleteModalOpen,
+        setDeleteModalOpen,
+        deleteScope,
+        setDeleteScope,
+        activeTestWindow,
+        setActiveTestWindow,
+        handleConfirmDelete,
+        handleDeleteTestWindow
+    } = useDeleteActions(
+        session,
+        BACKEND_API || '',
+        selectedCourseId,
+        fetchTestWindows,
+        restoreCalendarState,
+        saveCalendarState,
+        setCalendarEvents
+    );
+
+    // State for calendar time selection
+    const [selectedTimeData, setSelectedTimeData] = useState({
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: '',
+        courseId: selectedCourseId
     });
 
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: ''
-    });
+    // Popover state
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
 
-    // Form Mapping
-    const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
-
-    /**
-     * Used to handle session hydration
-     */
+    // Fetch courses when session is authenticated
     useEffect(() => {
-        if (session) {
-            setSession(() => ({
-                id: session?.user.id?.toString() || '',
-                username: session?.user.username || '',
-                email: session?.user.email || ''
-            }));
-            setSessionReady(prev => prev || userSession.id !== "");
-
-            // Get the course data
-            getCourses();
+        if (status === 'authenticated' && session?.user?.id) {
+            console.log('Session authenticated, fetching courses...');
+            fetchInstructorCourses();
         }
-    }, [session]);
+    }, [status, session?.user?.id, fetchInstructorCourses]);
 
+    // Fetch test windows when course is selected
+    useEffect(() => {
+        if (selectedCourseId) {
+            fetchTestWindows(selectedCourseId);
+        } else {
+            setCalendarEvents([]);
+        }
+    }, [selectedCourseId, fetchTestWindows]);
 
-  const getCourses  = async () => {
-        // Try wrapper to handle async exceptions
-        try {
-            // API Handler
-            const res = await apiHandler(
-                undefined, // No body for GET request
-                'GET',
-                `api/courses`,
-                `${BACKEND_API}`
-            );
+    // Convert test windows to calendar events when test windows change
+    useEffect(() => {
+        if (testWindows.length > 0) {
+            console.log('Converting test windows to events. Test windows count:', testWindows.length);
+            const events = convertTestWindowsToEvents(testWindows);
+            console.log('Setting calendar events:', events.length, 'events');
 
-            // Handle errors
-            if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching courses:', res.error);
-                setCourses([]);
-            } else {
-                // Convert object to array
-                let coursesData = [];
-
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    coursesData = res;
-                // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    coursesData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    coursesData = [];
+            // Only update calendar events if they've actually changed
+            setCalendarEvents(prevEvents => {
+                if (prevEvents.length !== events.length) {
+                    console.log('Event count changed, updating calendar events');
+                    return events;
                 }
 
-                console.log('Processed courses data before:', coursesData);
+                // Check if any event has changed
+                const hasChanges = events.some((newEvent, index) => {
+                    const oldEvent = prevEvents[index];
+                    return !oldEvent ||
+                        oldEvent.id !== newEvent.id ||
+                        oldEvent.title !== newEvent.title ||
+                        oldEvent.start !== newEvent.start ||
+                        oldEvent.end !== newEvent.end;
+                });
 
-                // Filter out invalid entries
-                coursesData = coursesData.filter(c => c && typeof c === 'object');
+                if (hasChanges) {
+                    console.log('Event data changed, updating calendar events');
+                    return events;
+                }
 
-                console.log('Processed courses data after:', coursesData);
-                // Set courses to coursesData
-                setCourses(coursesData);
+                console.log('No event changes detected, skipping calendar update');
+                return prevEvents;
+            });
+
+            // Restore saved calendar state after DOM updates
+            if (calendarApi) {
+                // This will be handled by the calendar state restoration logic
             }
-        } catch (e) {
-            // Error fetching courses
-            console.error('Error fetching courses:', e);
-            // Set courses to empty array
-            setCourses([]);
-        } finally {
-            // Set loading to false
-            setLoading(false);
+        } else {
+            console.log('No test windows, clearing calendar events');
+            setCalendarEvents([]);
         }
-    }
+    }, [testWindows, calendarApi]);
 
-    // Setting data by name, value, type, and checked value
-    const data = (e: any) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            // Spread data
-            ...formData,
-            // Override field name's value by type checkbox for correctness
-            [name]: type === 'checkbox' ? checked : value,
-        });
+    /**
+     * Handle course selection change
+     */
+    const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const courseId = parseInt(e.target.value);
+        setSelectedCourseId(courseId);
     };
 
     /**
-     * Submit button for Form
-     * @param event Event from DOM
+     * Handle calendar event creation (drag and drop)
+     * @param info Calendar selection info
      */
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault(); // Prevent default events
+    const handleEventCreate = (info: { start: string; end: string; allDay: boolean }) => {
+        // Save current calendar state before opening modal
+        if (calendarApi) {
+            saveCalendarState(calendarApi);
+        }
 
-        // Try wrapper to handle async exceptions
-        try {
-            console.log(`This is the session info: ${userSession}`)
-            let index = 1;
-            console.log(`This is the exam course id: ${exam_course_id}`)
-            const response = await fetch("http://localhost:8080/api/createExam", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    exam_name,
-                    is_published: is_published ? 1 : 0,
-                    is_required: is_required ? 1 : 0,
-                    exam_difficulty,
-                    exam_course_id,
-                })
+        const timeData = processEventCreateData(info, selectedCourseId);
+
+        console.log('Calendar drag detected:', info);
+        console.log('Processed time data:', timeData);
+
+        // Store the selected time range with selected course
+        setSelectedTimeData(timeData);
+
+        // Open the modal
+        setIsModalOpen(true);
+    };
+
+    /**
+     * Handle calendar event click
+     * @param info Event click info
+     */
+    const handleEventClick = (info: any) => {
+        console.log('Event clicked:', info.event);
+        // Persist current calendar position on event click to allow restoration after updates
+        if (calendarApi) {
+            saveCalendarState(calendarApi);
+        }
+        
+        const event = info.event;
+        const props = event.extendedProps;
+
+        if (props?.type === 'test-window') {
+            // Open context popover anchored to click
+            const x = info.jsEvent?.clientX || 0;
+            const y = info.jsEvent?.clientY || 0;
+            setPopoverAnchor({ x, y });
+            
+            // Get the clicked event's date from startStr (FullCalendar provides this as a string)
+            const clickedDate = event.startStr.split('T')[0];
+            
+            setActiveTestWindow({
+                id: props.originalId,
+                title: event.title,
+                clickedDate: clickedDate
             });
-            console.log(`This is the response:`);
-            console.log(response);
-            // Response handler
-            if (response.ok) {
-                toast.success("Exam created successfully");
-                setIsModalOpen(false);
-                setFormData({
-                    exam_course_id: 1,
-                    exam_name: "",
-                    exam_difficulty: "",
-                    is_published: "",
-                    is_required: "",
-                });
-            } else {
-                toast.error("Failed to create exam");
-            }
-        } catch (error) {
-            toast.error("Failed to create exam");
+            setIsPopoverOpen(true);
+        } else {
+            toast.info(`Clicked on: ${event.title}`);
         }
     };
 
+    const handleTestWindowCreated = async () => {
+        setIsModalOpen(false);
+        toast.success('Test window created successfully!');
+
+        // Refresh test windows for the selected course
+        if (selectedCourseId) {
+            console.log('Refreshing test windows after creation for course:', selectedCourseId);
+            console.log('Current test windows before refresh:', testWindows.length);
+
+            // Single refresh with a small delay to ensure backend processing
+            setTimeout(async () => {
+                console.log('Starting refresh after test window creation...');
+                await fetchTestWindows(selectedCourseId);
+                console.log('Refresh completed');
+            }, 500); // Reduced delay to 500ms
+        }
+    };
+
+    const closePopover = () => {
+        setIsPopoverOpen(false);
+        setPopoverAnchor(null);
+    };
+
+    const handleModifySettings = () => {
+        closePopover();
+    };
+
+    const handleControlAllowedTests = () => {
+        closePopover();
+    };
+
+    const handleDeleteTestWindowClick = () => {
+        if (calendarApi) {
+            handleDeleteTestWindow(calendarApi);
+        }
+        closePopover();
+    };
+
+    const handleConfirmDeleteClick = () => {
+        if (calendarApi) {
+            handleConfirmDelete(calendarApi);
+        }
+    };
+
+    // Error message page when page doesn't load as expected
+    if (error) {
+        return (
+            <div className="h-full w-full flex items-center justify-center">
+                <div className="text-red-400">Error: {error}</div>
+            </div>
+        );
+    }
+
     return (
-        <div className="mx-auto max-w-screen-2xl h-screen bg-mentat-black text-mentat-gold">
-            <div className="p-6">
-                <button
-                    className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    Create Exam
-                </button>
+        <div className="h-full w-full flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-2 border-b border-mentat-gold/20">
+                <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-bold text-mentat-gold">Test Window Management</h1>
+                </div>
+
+                {/* Course Selection */}
+                <CourseSelector
+                    courses={courses}
+                    selectedCourseId={selectedCourseId}
+                    onCourseChange={handleCourseChange}
+                    testWindowsCount={testWindows.length}
+                />
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
-                <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
-                            <input
-                                type="text"
-                                id="exam_name"
-                                name="exam_name"
-                                value={exam_name}
-                                onChange={data}
-                                required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                                placeholder="Enter exam name"
-                            />
-                        </div>
+            {/* Calendar */}
+            <div className="flex-1 p-2 min-h-0">
+                <Calendar
+                    events={calendarEvents}
+                    onDateClick={({ dateStr }) => {
+                        // Save calendar state before opening modal
+                        if (calendarApi) {
+                            saveCalendarState(calendarApi);
+                        }
+                        setIsModalOpen(true);
+                    }}
+                    // Passes the function to handle event creation
+                    onEventCreate={handleEventCreate}
+                    // Passes the function to handle event click
+                    onEventClick={handleEventClick}
+                    // Passes the initial view of the calendar
+                    initialView="timeGridWeek"
+                    // Passes the editable state of the calendar
+                    editable={true}
+                    // Passes the selectable state of the calendar
+                    selectable={true}
+                    // Passes the calendar ready callback
+                    onCalendarReady={setCalendarApi}
+                />
+            </div>
 
-                        <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
-                            <select
-                                id="exam_course_id"
-                                name="exam_course_id"
-                                value={exam_course_id}
-                                onChange={data} // or onChange={(e) => setExamCourseId(e.target.value)}
-                                required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            >
-                                {/* Default option */}
-                                <option value="">Select a course</option>
-
-                                {/* Map over courses array to generate options */}
-                                {courses.map((course) => (
-                                    <option key={course.course_id} value={course.course_id}>
-                                        {course.course_name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/*<div className="flex flex-col gap-2">*/}
-                        {/*    <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>*/}
-                        {/*    <select*/}
-                        {/*        id="exam_course_id"*/}
-                        {/*        name="exam_course_id"*/}
-                        {/*        value={exam_course_id}*/}
-                        {/*        onChange={data}*/}
-                        {/*        required={true}*/}
-                        {/*        className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"*/}
-                        {/*    >*/}
-                        {/*        <option value="1">Mathematics</option>*/}
-                        {/*        <option value="2">Physics</option>*/}
-                        {/*        <option value="3">Chemistry</option>*/}
-                        {/*    </select>*/}
-                        {/*</div>*/}
-                        <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
-                            <select
-                                id="exam_difficulty"
-                                name="exam_difficulty"
-                                value={exam_difficulty}
-                                onChange={data}
-                                required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            >
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                            </select>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_required"
-                                    type="checkbox"
-                                    name="is_required"
-                                    checked={Boolean(is_required)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                />
-                                <label htmlFor="is_required" className="select-none">Make Exam Required</label>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_published"
-                                    type="checkbox"
-                                    name="is_published"
-                                    checked={Boolean(is_published)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                />
-                                <label htmlFor="is_published" className="select-none">Publish Exam</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setIsModalOpen(false)}
-                            className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
-                            type="submit"
-                        >
-                            Create Exam
-                        </button>
-                    </div>
-                </form>
+            {/* Create Test Window Modal */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Create Test Window"
+            >
+                <CreateTestWindow
+                    // Passes the courses to the CreateTestWindow component
+                    courses={courses}
+                    // Passes the selected course id to the CreateTestWindow component
+                    selectedCourseId={selectedCourseId}
+                    // Passes the selected time data from calendar drag
+                    initialFormData={{
+                        ...selectedTimeData,
+                        courseId: selectedTimeData.courseId || undefined
+                    }}
+                    // Passes function to handle test window creation
+                    onTestWindowCreated={handleTestWindowCreated}
+                    // Passes function to handle cancel
+                    onCancel={() => {
+                        setIsModalOpen(false);
+                    }}
+                />
             </Modal>
-            <Calendar
-                events={[
-                    { title: 'Exam 1', start: '2025-09-20' },
-                    { title: 'Exam 2', start: '2025-09-22T14:00:00' },
-                ]}
-                onDateClick={({ dateStr }) => setIsModalOpen(true)}
-                onEventClick={(info) => console.log(info.event)}
+
+            {/* Delete Confirmation Modal */}
+            <DeleteModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                deleteScope={deleteScope}
+                onDeleteScopeChange={setDeleteScope}
+                onConfirmDelete={handleConfirmDeleteClick}
             />
 
+            {/* Test Window Context Popover */}
+            <TestWindowPopover
+                isOpen={isPopoverOpen}
+                anchor={popoverAnchor}
+                onClose={closePopover}
+                activeTestWindow={activeTestWindow}
+                onModifySettings={handleModifySettings}
+                onControlAllowedTests={handleControlAllowedTests}
+                onDeleteTestWindow={handleDeleteTestWindowClick}
+            />
+
+            {/* Toast Container */}
             <ToastContainer autoClose={3000} hideProgressBar />
         </div>
     );

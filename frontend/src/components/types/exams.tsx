@@ -35,6 +35,8 @@ export interface ExamProper {
     location: string;
     status: 'active' | 'inactive';
     exam_score?: string;
+    duration?: number;
+    exam_length?: number;
 }
 
 export interface ExamProp {

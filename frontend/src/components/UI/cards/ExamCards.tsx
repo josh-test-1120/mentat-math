@@ -176,17 +176,18 @@ export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps
                         </span>
                     </div>
 
-                    {/* Right section: Location and score */}
-                    <div className="flex-1 flex flex-col items-end">
-                        <StatusBadge status={status}/>
-                        <span className="text-sm">{exam.location}</span>
-                        {exam.status === 'completed' && exam.exam_score !== undefined ? (
-                            <ScoreDisplay score={exam.exam_score} />
-                        ) : (
-                            <div className="mt-1 text-xs font-medium">
-                                {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming' : 'Pending grade'}
-                            </div>
-                        )}
+                        {/* Right section: Location and score */}
+                        <div className="flex-1 flex flex-col items-end">
+                            <StatusBadge status={status}/>
+                            <span className="text-sm">{exam.location}</span>
+                            {status === 'completed' && exam.exam_score !== undefined ? (
+                                <ScoreDisplay score={exam.exam_score} />
+                            ) : (
+                                <div className="mt-1 text-xs font-medium">
+                                    {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming' : 'Pending grade'}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

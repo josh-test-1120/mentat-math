@@ -52,5 +52,3 @@ export default function Popover({ isOpen, anchor, onClose, className, children }
     </div>
   );
 }
-
-
