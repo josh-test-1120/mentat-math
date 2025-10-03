@@ -71,7 +71,7 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by state
-    public List<Exam> getExamsByState(Boolean state) {
+    public List<Exam> getExamsByState(Integer state) {
         if (state == null) {
             throw new ValidationException("Exam state cannot be null");
         }
@@ -84,7 +84,7 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by required status
-    public List<Exam> getExamsByRequired(Boolean required) {
+    public List<Exam> getExamsByRequired(Integer required) {
         if (required == null) {
             throw new ValidationException("Required status cannot be null");
         }
@@ -97,7 +97,7 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by online status
-    public List<Exam> getExamsByOnline(Boolean online) {
+    public List<Exam> getExamsByOnline(Integer online) {
         if (online == null) {
             throw new ValidationException("Online status cannot be null");
         }
@@ -111,7 +111,7 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by course ID and state
-    public List<Exam> getExamsByCourseIdAndState(Integer courseId, Boolean state) {
+    public List<Exam> getExamsByCourseIdAndState(Integer courseId, Integer state) {
         validator.validateCourseId(courseId);
         if (state == null) {
             throw new ValidationException("Exam state cannot be null");

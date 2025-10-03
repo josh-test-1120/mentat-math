@@ -68,8 +68,8 @@ public class HomeAPIController {
 
             statement.setInt(1, examID);  // Set to 0 if auto-incremented
             statement.setString(2, exam.getExam_name());
-            statement.setInt(3, exam.getIs_published());
-            statement.setInt(4, exam.getIs_required());
+            statement.setBoolean(3, exam.getIs_published());
+            statement.setBoolean(4, exam.getIs_required());
             statement.setInt(5, exam.getExam_difficulty());
             statement.setInt(6, exam.getExam_course_id());
 
@@ -242,13 +242,13 @@ public class HomeAPIController {
 
             // Iterate through result set
             while (rs.next()) {
-                exam.put("exam_state", rs.getInt("exam_state"));
-                exam.put("exam_required", rs.getInt("exam_required"));
+                exam.put("exam_state", rs.getBoolean("exam_state"));
+                exam.put("exam_required", rs.getBoolean("exam_required"));
                 exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
                 exam.put("exam_course_id", rs.getInt("exam_course_id"));
                 exam.put("exam_name", rs.getString("exam_name"));
-                exam.put("exam_duration", rs.getBigDecimal("exam_duration"));
-                exam.put("exam_online", rs.getInt("exam_online"));
+                exam.put("exam_duration", rs.getDouble("exam_duration"));
+                exam.put("exam_online", rs.getBoolean("exam_online"));
                 exam.put("exam_id", rs.getInt("exam_id"));
             }
         } catch (Exception e) {
@@ -266,22 +266,23 @@ public class HomeAPIController {
      * @return JSON encoded ok
      */
     @PatchMapping("/exam/{examID}")
-    public void updateExam(@RequestBody ExamRequest exam, @PathVariable("examID") Long eid) {
+    public void updateExam(@RequestBody Exam exam, @PathVariable("examID") Long eid) {
         String sql = "UPDATE exam \n" +
                 "SET exam_name=?, exam_state=?, exam_required=?, " +
                 "exam_difficulty=?, exam_duration=?, exam_online=? \n" +
                 "WHERE exam_id = ?;\n";
 
+        System.out.println(exam.toString());
         // Assuming exam_id is auto-incremented by the database
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(1, exam.getExam_name());
-            statement.setInt(2, exam.getIs_published());
-            statement.setInt(3, exam.getIs_required());
-            statement.setInt(4, exam.getExam_difficulty());
-            statement.setInt(5, exam.getExam_duration());
-            statement.setInt(6, exam.getExam_online());
+            statement.setString(1, exam.getName());
+            statement.setInt(2, exam.getState());
+            statement.setInt(3, exam.getRequired());
+            statement.setInt(4, exam.getDifficulty());
+            statement.setDouble(5, exam.getDuration());
+            statement.setInt(6, exam.getOnline());
             statement.setLong(7, eid);
 
             int affectedRows = statement.executeUpdate();

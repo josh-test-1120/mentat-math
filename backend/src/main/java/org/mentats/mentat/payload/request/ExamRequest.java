@@ -17,27 +17,27 @@ public class ExamRequest {
 
     @NotBlank
     @JsonProperty("exam_state")
-    private int exam_state;
+    private Boolean exam_state;
 
     @NotBlank
     @JsonProperty("exam_required")
-    private int exam_required;
+    private Boolean exam_required;
 
     @NotBlank
     @JsonProperty("exam_difficulty")
-    private int exam_difficulty;
+    private Integer exam_difficulty;
 
     @NotBlank
     @JsonProperty("exam_course_id")
-    private int exam_course_id;
+    private Integer exam_course_id;
 
     @NotBlank
     @JsonProperty("exam_duration")
-    private int exam_duration;
+    private Double exam_duration;
 
     @NotBlank
     @JsonProperty("exam_online")
-    private int exam_online;
+    private Boolean exam_online;
 
     /**
      * Getter for Exam name
@@ -59,13 +59,13 @@ public class ExamRequest {
      * Getter for Is Published
      * @return boolean of is published
      */
-    public int getIs_published() { return exam_state; }
+    public Boolean getIs_published() { return exam_state; }
 
     /**
      * Setter for Is Published
      * @param exam_state boolean of is published
      */
-    public void setIs_published(int exam_state) {
+    public void setIs_published(Boolean exam_state) {
         this.exam_state = exam_state;
     }
 
@@ -73,13 +73,13 @@ public class ExamRequest {
      * Getter for Is Required
      * @return boolean of is required
      */
-    public int getIs_required() { return exam_required; }
+    public Boolean getIs_required() { return exam_required; }
 
     /**
      * Setter for Is Required
      * @param exam_required boolean of is required
      */
-    public void setIs_required(int exam_required) {
+    public void setIs_required(Boolean exam_required) {
         this.exam_required = exam_required;
     }
 
@@ -87,7 +87,7 @@ public class ExamRequest {
      * Getter for Exam difficulty
      * @return int of exam difficulty
      */
-    public int getExam_difficulty() {
+    public Integer getExam_difficulty() {
         return exam_difficulty;
     }
 
@@ -95,7 +95,7 @@ public class ExamRequest {
      * Setter for Exam difficulty
      * @param exam_difficulty int of exam difficulty
      */
-    public void setExam_difficulty(int exam_difficulty) {
+    public void setExam_difficulty(Integer exam_difficulty) {
         this.exam_difficulty = exam_difficulty;
     }
 
@@ -103,7 +103,7 @@ public class ExamRequest {
      * Getter for Exam Course ID
      * @return int of exam course ID
      */
-    public int getExam_course_id() {
+    public Integer getExam_course_id() {
         return exam_course_id;
     }
 
@@ -111,7 +111,7 @@ public class ExamRequest {
      * Setter for Exam Course ID
      * @param exam_course_id int of exam course ID
      */
-    public void setExam_course_id(int exam_course_id) {
+    public void setExam_course_id(Integer exam_course_id) {
         this.exam_course_id = exam_course_id;
     }
 
@@ -119,7 +119,7 @@ public class ExamRequest {
      * Getter for Exam Duration
      * @return string of exam duration
      */
-    public int getExam_online() {
+    public Boolean getExam_online() {
         return exam_online;
     }
 
@@ -127,7 +127,7 @@ public class ExamRequest {
      * Setter for Exam Course ID
      * @param exam_online int of exam course ID
      */
-    public void setExam_online(int exam_online) {
+    public void setExam_online(Boolean exam_online) {
         this.exam_online = exam_online;
     }
 
@@ -135,7 +135,7 @@ public class ExamRequest {
      * Getter for Exam Duration
      * @return string of exam duration
      */
-    public int getExam_duration() {
+    public Double getExam_duration() {
         return exam_duration;
     }
 
@@ -143,7 +143,7 @@ public class ExamRequest {
      * Setter for Exam Course ID
      * @param exam_duration int of exam course ID
      */
-    public void setExam_duration(int exam_duration) {
+    public void setExam_duration(Double exam_duration) {
         this.exam_duration = exam_duration;
     }
 }
