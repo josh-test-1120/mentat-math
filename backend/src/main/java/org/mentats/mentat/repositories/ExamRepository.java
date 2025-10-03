@@ -11,9 +11,9 @@ import java.util.List;
  * @author Joshua Summers
  */
 @Repository
-public interface ExamRepository extends JpaRepository<Exam, Integer> {
+public interface ExamRepository extends JpaRepository<Exam, Long> {
     // Find exams by course ID
-    List<Exam> findByCourseId(Integer courseId);
+    List<Exam> findByCourseId(Long courseId);
     // Find exams by state (active/inactive)
     List<Exam> findByState(Integer state);
     // Find exams by required status
@@ -21,7 +21,7 @@ public interface ExamRepository extends JpaRepository<Exam, Integer> {
     // Find exams by online status
     List<Exam> findByOnline(Integer online);
     // Find exams by course ID and state
-    List<Exam> findByCourseIdAndState(Integer courseId, Integer state);
+    List<Exam> findByCourseIdAndState(Long courseId, Integer state);
     // Delete exams by course ID
-    void deleteByCourseId(Integer courseId);
+    void deleteByCourseId(Long courseId);
 }

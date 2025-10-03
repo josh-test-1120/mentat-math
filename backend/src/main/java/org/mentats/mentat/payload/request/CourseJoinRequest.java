@@ -3,13 +3,12 @@ package org.mentats.mentat.payload.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 /**
  * Course Request class to convert frontend data info into a Course object,
  * and it into the Database.
  */
-public class CourseRequest {
+public class CourseJoinRequest {
 
     /**
      * CourseRequest Field values.
@@ -19,7 +18,7 @@ public class CourseRequest {
     private String courseName;
 
     @JsonProperty("courseYear")
-   @Min(2000)
+    @Min(2000)
     private int courseYear;
 
     @NotBlank

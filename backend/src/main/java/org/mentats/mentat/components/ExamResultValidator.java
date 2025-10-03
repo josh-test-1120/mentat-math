@@ -12,8 +12,7 @@ import java.util.Date;
  */
 @Component
 public class ExamResultValidator {
-
-    // Existing methods...
+    // Exam Result Validator functions
     public void validateForCreation(ExamResult examResult) {
         validateNotNull(examResult, "Exam result");
         validateRequiredFields(examResult);
@@ -22,19 +21,19 @@ public class ExamResultValidator {
     }
 
     // NEW METHOD: Validate exam result ID
-    public void validateExamResultId(Integer id) {
+    public void validateExamResultId(Long id) {
         if (id == null || id <= 0) {
             throw new ValidationException("Exam result ID must be a positive number");
         }
     }
 
-    public void validateExamId(Integer examId) {
+    public void validateExamId(Long examId) {
         if (examId == null || examId <= 0) {
             throw new ValidationException("Exam ID must be a positive number");
         }
     }
 
-    public void validateStudentId(Integer studentId) {
+    public void validateStudentId(Long studentId) {
         if (studentId == null || studentId <= 0) {
             throw new ValidationException("Student ID must be a positive number");
         }

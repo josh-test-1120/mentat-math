@@ -39,7 +39,7 @@ public class ExamService {
      * @return Exam object
      */
     // Read exam by ID
-    public Exam getExamById(Integer id) {
+    public Exam getExamById(Long id) {
         validator.validateExamId(id);
         return examRepository.findById(id)
                 .orElseThrow(() -> new ExamNotFoundException(id.toString()));
@@ -60,7 +60,7 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by course ID
-    public List<Exam> getExamsByCourseId(Integer courseId) {
+    public List<Exam> getExamsByCourseId(Long courseId) {
         validator.validateCourseId(courseId);
         return examRepository.findByCourseId(courseId);
     }
@@ -111,7 +111,7 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by course ID and state
-    public List<Exam> getExamsByCourseIdAndState(Integer courseId, Integer state) {
+    public List<Exam> getExamsByCourseIdAndState(Long courseId, Integer state) {
         validator.validateCourseId(courseId);
         if (state == null) {
             throw new ValidationException("Exam state cannot be null");
@@ -126,7 +126,7 @@ public class ExamService {
      * @return Exam object
      */
     // Update exam
-    public Exam updateExam(Integer id, Exam examUpdates) {
+    public Exam updateExam(Long id, Exam examUpdates) {
         validator.validateExamId(id);
         Exam existing = getExamById(id);
 
@@ -160,7 +160,7 @@ public class ExamService {
      * @param id
      */
     // Delete exam by ID
-    public void deleteExam(Integer id) {
+    public void deleteExam(Long id) {
         validator.validateExamId(id);
         Exam existing = getExamById(id);
         validator.validateDeleteOperation(existing);
@@ -172,7 +172,7 @@ public class ExamService {
      * @param courseId
      */
     // Delete exams by course ID
-    public void deleteExamsByCourseId(Integer courseId) {
+    public void deleteExamsByCourseId(Long courseId) {
         validator.validateCourseId(courseId);
         examRepository.deleteByCourseId(courseId);
     }

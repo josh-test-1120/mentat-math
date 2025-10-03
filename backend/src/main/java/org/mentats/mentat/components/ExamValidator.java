@@ -18,13 +18,13 @@ public class ExamValidator {
         validateBusinessRules(exam);
     }
 
-    public void validateExamId(Integer examId) {
+    public void validateExamId(Long examId) {
         if (examId == null || examId <= 0) {
             throw new ValidationException("Exam ID must be a positive number");
         }
     }
 
-    public void validateCourseId(Integer courseId) {
+    public void validateCourseId(Long courseId) {
         if (courseId == null || courseId <= 0) {
             throw new ValidationException("Course ID must be a positive number");
         }

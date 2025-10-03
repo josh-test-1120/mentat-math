@@ -20,13 +20,13 @@ public class Exam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("examId") // Map JSON field to Java field
     @Column(name = "exam_id")
-    private Integer Id;
+    private Long Id;
 
     // The course id assigned to exam
     @NotBlank
     @JsonProperty("courseId") // Map JSON field to Java field
     @Column(name = "exam_course_id")
-    private Integer courseId;
+    private Long courseId;
 
     // The name assigned to exam
     @NotBlank
@@ -75,7 +75,7 @@ public class Exam {
      * @param duration
      * @param online
      */
-    public Exam(Integer Id, Integer courseId, String name, Integer state,
+    public Exam(Long Id, Long courseId, String name, Integer state,
                 Integer required, Integer difficulty, Double duration, Integer online) {
         this.Id = Id;
         this.courseId = courseId;
@@ -95,19 +95,19 @@ public class Exam {
     }
 
     // Getters and Setters for Entity
-    public Integer getId() {
+    public Long getId() {
         return Id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         Id = id;
     }
 
-    public Integer getCourseId() {
+    public Long getCourseId() {
         return courseId;
     }
 
-    public void setCourseId(Integer courseId) {
+    public void setCourseId(Long courseId) {
         this.courseId = courseId;
     }
 

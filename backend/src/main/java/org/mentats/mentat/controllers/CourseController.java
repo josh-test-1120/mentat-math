@@ -1,11 +1,12 @@
 package org.mentats.mentat.controllers;
 
 import org.mentats.mentat.models.Course;
+import org.mentats.mentat.models.CourseJoin;
 import org.mentats.mentat.models.StudentCourse;
-import org.mentats.mentat.payload.request.CourseRequest;
+import org.mentats.mentat.payload.request.CourseJoinRequest;
 import org.mentats.mentat.payload.request.JoinCourseRequest;
 import org.mentats.mentat.payload.response.MessageResponse;
-import org.mentats.mentat.services.CourseService;
+import org.mentats.mentat.services.CourseJoinService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,26 +22,26 @@ public class CourseController {
      * CourseController Fields
      */
     @Autowired
-    private CourseService courseService;
+    private CourseJoinService courseJoinService;
     
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
 
     /**
      * A method to creates a course and writes into the database.
-     * @param courseRequest CourseRequest type object that masks request info
+     * @param courseJoinRequest CourseRequest type object that masks request info
      * @return Returns message response.
      */
     @PostMapping("/createCourse")
-    public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseJoinRequest courseJoinRequest) {
         try {
-            System.out.println("Creating course: " + courseRequest.getCourseName());
-            System.out.println("Course section: " + courseRequest.getCourseSection());
-            System.out.println("Course quarter: " + courseRequest.getCourseQuarter());
-            System.out.println("Course year: " + courseRequest.getCourseYear());
-            System.out.println("User ID: " + courseRequest.getUserId());
+            System.out.println("Creating course: " + courseJoinRequest.getCourseName());
+            System.out.println("Course section: " + courseJoinRequest.getCourseSection());
+            System.out.println("Course quarter: " + courseJoinRequest.getCourseQuarter());
+            System.out.println("Course year: " + courseJoinRequest.getCourseYear());
+            System.out.println("User ID: " + courseJoinRequest.getUserId());
             
-            Course course = courseService.createCourse(courseRequest);
-            System.out.println("Course successfully created: " + course.getCourseName());
+            CourseJoin courseJoin = courseJoinService.createCourse(courseJoinRequest);
+            System.out.println("Course successfully created: " + courseJoin.getCourseName());
             return ResponseEntity.ok(new MessageResponse("Course created successfully"));
         } catch (Exception e) {
             logger.error("Error creating course: " + e.getMessage(), e);
@@ -58,7 +59,7 @@ public class CourseController {
     public ResponseEntity<?> listCourses(@RequestParam String id) {
         try {
             // Get courses by their creator Professor ID
-            List<Course> courses = courseService.getCoursesByProfessorId(id);
+            List<CourseJoin> courses = courseJoinService.getCoursesByProfessorId(id);
 
             // Empty check
             if (courses.isEmpty()) {
@@ -82,7 +83,7 @@ public class CourseController {
     @PostMapping("/joinCourse")
     public ResponseEntity<?> joinCourse(@RequestBody JoinCourseRequest req) {
         try {
-            courseService.joinCourse(req);
+            courseJoinService.joinCourse(req);
             return ResponseEntity.ok(new MessageResponse("Course joined successfully!"));
             
         } catch (NumberFormatException e) {
@@ -105,7 +106,7 @@ public class CourseController {
     @GetMapping("/debug/enrollments")
     public ResponseEntity<?> getAllEnrollments() {
         try {
-            List<StudentCourse> enrollments = courseService.getAllEnrollments();
+            List<StudentCourse> enrollments = courseJoinService.getAllEnrollments();
             return ResponseEntity.ok(enrollments);
         } catch (Exception e) {
             logger.error("Error retrieving enrollments: " + e.getMessage(), e);
@@ -123,7 +124,7 @@ public class CourseController {
     public ResponseEntity<?> getEnrolledCourses(@RequestParam String studentId) {
         try {
             // Get all courses a student is enrolled in
-            List<Course> courses = courseService.getEnrolledCourses(studentId);
+            List<CourseJoin> courses = courseJoinService.getEnrolledCourses(studentId);
             return ResponseEntity.ok(courses);
         } catch (Exception e) {
             // Error fetching enrolled courses
