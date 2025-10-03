@@ -691,18 +691,20 @@ export default function Sidebar() {
                         </a>
                     </li>
                 </ul>
-                {/* Line Divider */}
-                <hr className="border-white mt-5"></hr>
-                {/* User Info & Actions */}
-                <div className="items-center px-4 mt-5 space-x-4">
-                    {session ? (
-                        <div className="text-mentat-gold text-sm">
-                            <p>Email: {session?.user?.email}</p>
-                            <p>Username: {session?.user?.username}</p>
-                            <p>Role: {userType}</p>
-                        </div>
-                    ) : null}
+                { session ? (
+                <div>
+                    {/* Line Divider */}
+                    <hr className="border-white mt-5"></hr>
+                    {/* User Info & Actions */}
+                    <div className="items-center px-4 mt-5 space-x-4">
+                            <div className="text-mentat-gold text-sm">
+                                <p>Email: {session?.user?.email}</p>
+                                <p>Username: {session?.user?.username}</p>
+                                <p>Role: {userType}</p>
+                            </div>
+                    </div>
                 </div>
+                    ) : null}
                 {/* Line Divider */}
                 <hr className="border-white mt-5"></hr>
                 {/* Date/Time Section */}

@@ -251,7 +251,7 @@ export default function GradesPage() {
                     </div>
 
                     <div className="overflow-y-auto max-h-[600px] pt-1
-                        overflow-y-auto scrollbar-thin scrollbar-thumb-mentat-gold
+                        scrollbar-thin scrollbar-thumb-mentat-gold
                         scrollbar-track-gray-100"
                     >
                         <AnimatePresence mode="wait">
