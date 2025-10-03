@@ -121,10 +121,20 @@ export function ExamCard({ exam, index }: ExamCardProps) {
 
 export function ExamCardExtended({ exam, index }: ExamCardProps) {
     // Get the status of the exam
-    const status = getExamStatus(exam);
-    const clipPathStyle = {
-        clipPath: 'polygon(0% 0%, 100% 0%, 100% 90%, 20% 100%, 0% 100%)',
-        backgroundColor: '#171717',
+    const status = getExamPropStatus(exam);
+
+    // Accent color for cards
+    const accentColor = 'rgba(163, 15, 50, 1.0)';
+    const accentStyle = {
+        content: '',
+        position: 'absolute' as const,
+        bottom: 0,
+        right: 0,
+        width: '80px',
+        height: '80px',
+        background: `radial-gradient(circle at bottom right, ${accentColor} 0%, transparent 50%)`,
+        pointerEvents: 'none' as const,
+        zIndex: 0,
     };
 
     return (
