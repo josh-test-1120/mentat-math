@@ -20,9 +20,13 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class TestWindowService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(TestWindowService.class);
     
     @Autowired
     private TestWindowRepository testWindowRepository;
@@ -68,6 +72,20 @@ public class TestWindowService {
     
     public Optional<TestWindow> getTestWindowById(Integer id) {
         return testWindowRepository.findById(id);
+    }
+    
+    public TestWindow updateTestWindowEndDate(Integer id, LocalDate endDate) {
+        Optional<TestWindow> existingWindow = testWindowRepository.findById(id);
+        if (existingWindow.isPresent()) {
+            TestWindow testWindow = existingWindow.get();
+            logger.info("Before update - TestWindow end date: {}", testWindow.getTestWindowEndDate());
+            logger.info("Setting new end date to: {}", endDate);
+            testWindow.setTestWindowEndDate(endDate);
+            TestWindow saved = testWindowRepository.save(testWindow);
+            logger.info("After save - TestWindow end date: {}", saved.getTestWindowEndDate());
+            return saved;
+        }
+        throw new RuntimeException("Test window not found with id: " + id);
     }
     
     public TestWindow updateTestWindow(Integer id, TestWindowRequest request) {

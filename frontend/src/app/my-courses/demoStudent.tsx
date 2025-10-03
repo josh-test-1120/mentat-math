@@ -3,8 +3,8 @@
 import React, {useState, useMemo, useEffect} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exam, Class } from '@/app/_components/types/exams';
-import { ExamCard, getExamStatus } from '@/app/_components/student/ExamCard2';
+import { Exam, Class, ExamProp } from '@/components/types/exams';
+import { ExamCard, getExamStatus } from '@/components/UI/cards/ExamCards';
 import {useSession} from "next-auth/react";
 
 // Mock data - replace with your actual data source
@@ -22,7 +22,10 @@ const mockExams: Exam[] = [
         duration: '2 hours',
         status: 'completed',
         score: 'A',
-        class: 'class-1'
+        difficulty: 3,
+        version: 1,
+        type: 'Final',
+        location: 'Room 101'
     },
     {
         id: '2',
@@ -32,7 +35,10 @@ const mockExams: Exam[] = [
         duration: '3 hours',
         status: 'upcoming',
         score: '',
-        class: 'class-1'
+        difficulty: 4,
+        version: 1,
+        type: 'Midterm',
+        location: 'Room 102'
     },
     {
         id: '3',
@@ -40,9 +46,12 @@ const mockExams: Exam[] = [
         course: 'MATH330',
         date: '2025-06-10',
         duration: '1 hour',
-        status: 'missed',
+        status: 'missing',
         score: '',
-        class: 'class-2'
+        difficulty: 2,
+        version: 1,
+        type: 'Quiz',
+        location: 'Room 103'
     },
 ];
 
@@ -64,7 +73,24 @@ export default function ExamsPage() {
 
         // Then filter by status
         if (filter !== 'all') {
-            result = result.filter(exam => getExamStatus(exam) === filter);
+            result = result.filter(exam => {
+                const examProp: ExamProp = {
+                    exam_id: parseInt(exam.id),
+                    exam_name: exam.name,
+                    exam_state: 1,
+                    exam_course_id: exam.course,
+                    exam_difficulty: exam.difficulty,
+                    exam_required: 1,
+                    exam_scheduled_date: exam.date,
+                    exam_version: exam.version,
+                    exam_taken_date: exam.date,
+                    exam_course_name: exam.course,
+                    location: exam.location,
+                    status: 'active',
+                    exam_score: exam.score || undefined
+                };
+                return getExamStatus(examProp) === filter;
+            });
         }
 
         return result;
@@ -212,9 +238,24 @@ export default function ExamsPage() {
                                     animate="visible"
                                     className="space-y-4"
                                 >
-                                    {filteredExams.map((exam) => (
-                                        <ExamCard key={exam.id} exam={exam} />
-                                    ))}
+                                    {filteredExams.map((exam) => {
+                                        const examProp: ExamProp = {
+                                            exam_id: parseInt(exam.id),
+                                            exam_name: exam.name,
+                                            exam_state: 1,
+                                            exam_course_id: exam.course,
+                                            exam_difficulty: exam.difficulty,
+                                            exam_required: 1,
+                                            exam_scheduled_date: exam.date,
+                                            exam_version: exam.version,
+                                            exam_taken_date: exam.date,
+                                            exam_course_name: exam.course,
+                                            location: exam.location,
+                                            status: 'active',
+                                            exam_score: exam.score || undefined
+                                        };
+                                        return <ExamCard key={exam.id} exam={examProp} index={0} />;
+                                    })}
                                 </motion.div>
                             ) : (
                                 <motion.div

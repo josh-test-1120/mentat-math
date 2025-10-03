@@ -24,25 +24,32 @@ export default async function Schedule() {
     // Session variable
     const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
+    // Debug logging
+    console.log("Schedule page - Session data:", session);
+    console.log("Schedule page - User type:", session?.user?.userType);
+    console.log("Schedule page - User ID:", session?.user?.id);
 
     // Conditional rendering
-    if (session?.user?.userType == "Instructor")
+    if (session?.user?.userType == "Instructor") {
+        console.log("Schedule page - Rendering Instructor component");
         return (
             <section
                 id={"schedulePageMain"}
-                className=" flex font-bold bg-mentat-black text-mentat-gold"
+                className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
             >
                 <SchedulesInstructor/>
             </section>
         );
-    else
+    } else {
+        console.log("Schedule page - Rendering Student component");
         return (
             <section
                 id={"schedulePageMain"}
-                className=" flex font-bold bg-mentat-black text-mentat-gold"
+                className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
             >
                 <SchedulesStudent/>
             </section>
         );
+    }
 }
 
