@@ -131,6 +131,7 @@ export const getExamPropCourse = (exam: ExamProp): string => {
 export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps) {
     // Get the status of the exam
     const status = getExamPropStatus(exam);
+
     // Accent color for cards
     const accentColor = 'rgba(163, 15, 50, 1.0)';
     const accentStyle = {
