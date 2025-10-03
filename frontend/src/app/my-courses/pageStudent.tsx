@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExamProp, Class } from '@/components/types/exams';
-import { ExamCardExtended, getExamStatus } from '@/components/UI/cards/ExamCards';
+import { ExamCardExtended, getExamPropStatus } from '@/components/UI/cards/ExamCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/components/UI/exams/ExamActions";
@@ -34,7 +34,7 @@ export default function ExamsPage() {
 
         // Then filter by status
         if (filter !== 'all') {
-            result = result.filter(exam => getExamStatus(exam) === filter);
+            result = result.filter(exam => getExamPropStatus(exam) === filter);
         }
 
         return result;

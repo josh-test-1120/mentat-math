@@ -119,8 +119,10 @@ export default function GradesPage() {
             else if (grade.exam_score == 'F') counter += 1;
         });
 
-        // Get the average of the scores
-        const avgGrade = Math.round(counter / grades.length);
+        // Get the average of the scores (filter out null scores)
+        let scoredGrades = grades.filter((grade: Grade) =>
+            {return grade.exam_score !== null});
+        const avgGrade = Math.round(counter / scoredGrades.length);
         switch (avgGrade) {
             case 5:
                 finalGrade = 'A';
@@ -226,12 +228,12 @@ export default function GradesPage() {
                         >
                             Failed
                         </button>
-                        {/*<button*/}
-                        {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
-                        {/*    onClick={() => setFilter('pending')}*/}
-                        {/*>*/}
-                        {/*    Pending*/}
-                        {/*</button>*/}
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('pending')}
+                        >
+                            Pending
+                        </button>
                     </div>
                 </div>
 
