@@ -35,6 +35,8 @@ export interface ExamProper {
     location: string;
     status: 'active' | 'inactive';
     exam_score?: string;
+    exam_hour?: number;
+    exam_minutes?: number;
 }
 
 export interface ExamProp {
@@ -52,8 +54,9 @@ export interface ExamProp {
     location: string;
     status: 'active' | 'inactive';
     exam_score?: string;
-    exam_duration: number;
+    exam_hour: number;
     exam_online: number;
+    exam_minutes?: number;
 }
 
 export interface Course {
