@@ -71,7 +71,7 @@ const TotalScoreDisplay = ({ score, totalScore }: { score: number; totalScore: n
 };
 
 // Determine exam status based on date and grade
-export const getExamPropStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+export const getExamStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
     // Get the proper exam scheduled date, with timezone
     const examDate = new Date(exam.exam_scheduled_date);
     const examPstDate = new Date(examDate.toLocaleString('en-US',
@@ -91,7 +91,7 @@ export const getExamPropStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'm
     else return 'pending';
 };
 
-// Determine exam status based on date and grade
+// Determine exam state (active/inactive)
 export const getExamPropStatus = (exam: ExamProp): 'active' | 'inactive' => {
     // Check for active states
     if (exam.exam_state == 1) return 'active';
@@ -155,25 +155,26 @@ export function ExamCardExtended({ exam, index }: ExamCardProps) {
                             </span>
                         </div>
 
-                    {/* Right section: Location and score */}
-                    <div className="flex-1 flex flex-col items-end">
-                        <StatusBadge status={status}/>
-                        <span className="text-sm">{exam.location}</span>
-                        {status === 'completed' && exam.exam_score !== undefined
-                            && exam.exam_score !== null ? (
-                            <ScoreDisplay score={exam.exam_score} />
-                        ) : (
-                            <div className="mt-1 text-xs font-medium">
-                                {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming'
-                                    : 'Pending grade'}
-                            </div>
-                        )}
+                        {/* Right section: Location and score */}
+                        <div className="flex-1 flex flex-col items-end">
+                            <StatusBadge status={status}/>
+                            <span className="text-sm">{exam.location}</span>
+                            {status === 'completed' && exam.exam_score !== undefined
+                                && exam.exam_score !== null ? (
+                                <ScoreDisplay score={exam.exam_score} />
+                            ) : (
+                                <div className="mt-1 text-xs font-medium">
+                                    {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming'
+                                        : 'Pending grade'}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
         </motion.div>
     );
-};
+}
 
 // Compact ExamCard Component
 export function ExamCardSmall({ exam }:{ exam: ExamProp }) {

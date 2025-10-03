@@ -23,11 +23,20 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
      * Fetch instructor courses
      */
     const fetchInstructorCourses = useCallback(async () => {
-        if (status !== 'authenticated') return;
-        if (session?.user?.id) {
+        if (status !== 'authenticated') {
+            console.log('Not authenticated, status:', status);
+            return;
+        }
+        if (session?.user?.id && session?.user?.accessToken) {
             try {
                 setLoading(true);
                 setError(null);
+
+                console.log('Session data:', {
+                    userId: session.user.id,
+                    accessToken: session.user.accessToken ? 'Present' : 'Missing',
+                    tokenLength: session.user.accessToken?.length || 0
+                });
 
                 const res = await apiHandler(
                     undefined,
@@ -68,8 +77,15 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
             } finally {
                 setLoading(false);
             }
+        } else {
+            console.log('Missing required session data:', {
+                userId: session?.user?.id ? 'Present' : 'Missing',
+                accessToken: session?.user?.accessToken ? 'Present' : 'Missing'
+            });
+            setError('Missing authentication token');
+            setLoading(false);
         }
-    }, [session?.user?.id, status, backendApi]);
+    }, [session?.user?.id, session?.user?.accessToken, status, backendApi]);
 
     return {
         courses,
@@ -92,6 +108,11 @@ export const useTestWindows = (session: any, backendApi: string) => {
     const fetchTestWindows = useCallback(async (courseId: number, options?: { silent?: boolean }) => {
         if (!courseId) {
             console.log('No course ID provided, skipping fetch');
+            return;
+        }
+
+        if (!session?.user?.accessToken) {
+            console.log('No access token available, skipping fetch');
             return;
         }
 

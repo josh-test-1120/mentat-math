@@ -73,11 +73,23 @@ export default function TestWindowPage() {
 
     // Fetch courses when session is authenticated
     useEffect(() => {
-        if (status === 'authenticated' && session?.user?.id) {
-            console.log('Session authenticated, fetching courses...');
+        console.log('=== SESSION DEBUG ===');
+        console.log('Session status:', status);
+        console.log('Full session object:', JSON.stringify(session, null, 2));
+        console.log('User ID:', session?.user?.id);
+        console.log('User type:', session?.user?.userType);
+        console.log('Access Token:', session?.user?.accessToken ? 'Present' : 'Missing');
+        console.log('Access Token length:', session?.user?.accessToken?.length || 0);
+        console.log('Access Token preview:', session?.user?.accessToken?.substring(0, 20) + '...');
+        console.log('===================');
+        
+        if (status === 'authenticated' && session?.user?.id && session?.user?.accessToken) {
+            console.log('Session authenticated with accessToken, fetching courses...');
             fetchInstructorCourses();
+        } else {
+            console.log('Not fetching courses. Status:', status, 'User ID:', session?.user?.id, 'Access Token:', session?.user?.accessToken ? 'Present' : 'Missing');
         }
-    }, [status, session?.user?.id, fetchInstructorCourses]);
+    }, [status, session?.user?.id, session?.user?.accessToken, fetchInstructorCourses]);
 
     // Fetch test windows when course is selected
     useEffect(() => {

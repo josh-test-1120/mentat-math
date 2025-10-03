@@ -1,6 +1,7 @@
 import { getServerAuthSession } from "@/utils/auth";
 import SchedulesInstructor from "./pageInstructor";
 import SchedulesStudent from "./pageStudent";
+import { AuthProvider } from "@/components/services/authProvider";
 import {Session} from "next-auth";
 
 /**
@@ -25,30 +26,36 @@ export default async function Schedule() {
     const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
     // Debug logging
-    console.log("Schedule page - Session data:", session);
+    console.log("Schedule page - Session data:", JSON.stringify(session, null, 2));
     console.log("Schedule page - User type:", session?.user?.userType);
     console.log("Schedule page - User ID:", session?.user?.id);
+    console.log("Schedule page - Access Token:", session?.user?.accessToken ? 'Present' : 'Missing');
+    console.log("Schedule page - Access Token length:", session?.user?.accessToken?.length || 0);
 
     // Conditional rendering
     if (session?.user?.userType == "Instructor") {
         console.log("Schedule page - Rendering Instructor component");
         return (
-            <section
-                id={"schedulePageMain"}
-                className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
-            >
-                <SchedulesInstructor/>
-            </section>
+            <AuthProvider session={session}>
+                <section
+                    id={"schedulePageMain"}
+                    className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
+                >
+                    <SchedulesInstructor/>
+                </section>
+            </AuthProvider>
         );
     } else {
         console.log("Schedule page - Rendering Student component");
         return (
-            <section
-                id={"schedulePageMain"}
-                className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
-            >
-                <SchedulesStudent/>
-            </section>
+            <AuthProvider session={session}>
+                <section
+                    id={"schedulePageMain"}
+                    className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
+                >
+                    <SchedulesStudent/>
+                </section>
+            </AuthProvider>
         );
     }
 }
