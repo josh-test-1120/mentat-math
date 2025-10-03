@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { useSession } from 'next-auth/react';
-import Modal from "@/components/UI/calendar/Modal";
+import Modal from "@/components/services/Modal";
 import Calendar from "@/components/UI/calendar/Calendar";
 import CreateTestWindow from "@/app/createTestWindow/pageClient";
 

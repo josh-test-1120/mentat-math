@@ -1,87 +1,156 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRef } from 'react';
-import { SessionProvider, useSession } from 'next-auth/react'
+import React, {useState, useMemo, useEffect, useRef} from 'react';
+import { apiHandler } from '@/utils/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import {ExamProp, Class, ExamResult} from '@/components/types/exams';
+import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
+import { useSession } from "next-auth/react";
+import Modal from "@/components/services/Modal";
+import ExamActionsComponent from "@/components/UI/exams/ExamActions";
 
-import { apiHandler } from "@/utils/api";
-import { toast, ToastContainer } from "react-toastify";
+export interface Grade extends ExamResult {
+    course_name: string;
+    exam_online?: number;
+}
 
-// Needed to get environment variable for Backend API
-const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
-/**
- * Default
- * @constructor
- */
-export default function Grades() {
-
-    // State information
-    const [windowReady, setWindowReady] = useState(true);
+export default function GradesPage() {
+    // Session states
     const [sessionReady, setSessionReady] = useState(false);
-    const [gradeTable, setGradeTable] = useState();
+    const { data: session, status } = useSession();
     const [userSession, setSession] = useState({
         id: '',
         username: '',
         email: ''
     });
 
-    // Session information
-    const { data: session } = useSession()
+    // View data states
+    const [grades, setGrades] = useState<Grade[]>([]);
+    const [tests, setTests] = useState([]);
+    // const [finalScore, setFinalScore] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [isExamModalOpen, setIsExamModalOpen] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-    // Table Body React Reference
-    const tableBody = useRef(null);
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
 
-    /**
-     * Used to handle windows ready checks
-     * Pre-flight and loading effects
-     */
-    useEffect(() => {
-        if (document.readyState !== 'complete') {
-            const handler = () => {
-                console.log('load');
-                setWindowReady(false);
-            };
-            window.addEventListener('load', handler);
-            return () => {
-                window.removeEventListener('load', handler);
-            };
-        } else {
-            const timeout = window.setTimeout(() => {
-                console.log('timeout');
-                setWindowReady(false);
-            }, 0);
+    const [selectedClass, setSelectedClass] = useState<string>('all');
+    const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
 
-            return () => window.clearTimeout(timeout);
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+
+    const filteredGrades = useMemo(() => {
+        // Wait until grades data is loaded and available
+        if (!grades || grades.length === 0) {
+            return [];
+        }
+        // First filter by class
+        let result = filter === 'all'
+            ? grades
+            : grades.filter(grade => grade.status === filter);
+
+        // Then filter by status
+        if (filter !== 'all') {
+            result = grades.filter(grade => getGradeStatus(grade) === filter);
         }
 
-    }, []);
+        return result;
+    }, [grades, filter]);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
 
     /**
      * Used to handle session hydration
      */
     useEffect(() => {
+        console.log(`This is the session ready state: ${sessionReady}`)
+        // If not authenticated, return
+        if (status !== 'authenticated') return;
+
         if (session) {
             setSession(() => ({
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
                 email: session?.user.email || ''
             }));
-            setSessionReady(prev => prev || userSession.id !== "");
-            //if (userSession.id != "") { setSessionReady(true); }
+            if (userSession.id != "") { setSessionReady(true); }
         }
-    }, [session]);
+        // Wrapper for async function
+        const fetchData = async () => {
+            if (hasFetched.current) return;
+            hasFetched.current = true;
+
+            try {
+                await fetchExams();
+                // avgScore(grades);
+            } catch (error) {
+                console.error('Error fetching Exams:', error);
+            }
+            finally {
+                setRefreshTrigger(prev => prev + 1);
+            }
+        };
+        fetchData();
+    }, [session, status, hasFetched, refreshTrigger]);
+
+    /**
+     * Average Grade Determination
+     * Implementation for getting the average of the grades
+     */
+    const avgScore = (grades: Grade[]) => {
+        // Variables
+        let counter = 0;
+        let finalGrade;
+        // Process each element (async)
+        grades.forEach((grade: Grade) => {
+            if (grade.exam_score == 'A') counter += 5;
+            else if (grade.exam_score == 'B') counter += 4;
+            else if (grade.exam_score == 'C') counter += 3;
+            else if (grade.exam_score == 'D') counter += 2;
+            else if (grade.exam_score == 'F') counter += 1;
+        });
+
+        // Get the average of the scores
+        const avgGrade = Math.round(counter / grades.length);
+        switch (avgGrade) {
+            case 5:
+                finalGrade = 'A';
+                break;
+            case 4:
+                finalGrade = 'B'
+                break;
+            case 3:
+                finalGrade = 'C';
+                break;
+            case 2:
+                finalGrade = 'D';
+                break;
+            default:
+                finalGrade = 'F';
+        }
+        // Return the average letter grade for all grades
+        return finalGrade;
+    }
 
     /**
      * Fetch Exams
      * Implementation for general API handler
      */
     async function fetchExams() {
-        console.log('Exam Fetch for student grades page');
+        console.log('Fetching data for student grades page');
+        setLoading(true);
         try {
-            // API Handler
             const res = await apiHandler(
-                undefined, // No body for GET request
+                undefined,
                 'GET',
                 `api/grades/${session?.user?.id}`,
                 `${BACKEND_API}`,
@@ -89,226 +158,192 @@ export default function Grades() {
             );
             console.log(res);
 
-            // Handle errors
             if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching exams:', res.error);
-                setGradeTable(undefined);
+                console.error('Error fetching grades:', res.error);
+                setGrades([]);
+                setTests([]);
             } else {
-
-                const tableBody = document.getElementById('examsTable').getElementsByTagName('tbody')[0];
-                console.log('We are in the fetch exams update');
-                // Remove all child nodes (rows) from the tbody
-                while (tableBody.firstChild) {
-                    tableBody.removeChild(tableBody.firstChild);
-                }
-                //loops through each exam item
-                res.forEach(exam => {
-                    console.log(exam)
-                    let row = tableBody?.insertRow();
-                    if (row != undefined) row.classList.add("hover:bg-gray-500");
-
-                    let cellName = row?.insertCell(0);
-                    if (cellName != undefined) {
-                        cellName.textContent = exam.exam_name;
-                        cellName.classList.add("border");
-                        cellName.classList.add("border-white");
-                        cellName.classList.add("text-center");
-                    }
-
-                    let cellVersion = row?.insertCell(1);
-                    if (cellVersion != undefined) {
-                        cellVersion.textContent = exam.exam_version;
-                        cellVersion.classList.add("border");
-                        cellVersion.classList.add("border-white");
-                        cellVersion.classList.add("text-center");
-                    }
-
-                    let cellDate = row?.insertCell(2);
-                    if (cellDate != undefined) {
-                        cellDate.textContent = exam.exam_taken_date;
-                        cellDate.classList.add("border");
-                        cellDate.classList.add("border-white");
-                        cellDate.classList.add("text-center");
-                    }
-
-                    let cellScore = row?.insertCell(3);
-                    if (cellScore != undefined) {
-                        cellScore.textContent = exam.exam_score;
-                        cellScore.classList.add("border");
-                        cellScore.classList.add("border-white");
-                        cellScore.classList.add("text-center");
-                    }
-                });
+                // Assuming your API returns both exams and tests
+                // Adjust this based on your actual API response structure
+                // Ensure all grades have a status
+                setGrades(res.grades || res); // Use res.grades if nested, or res directly
+                // Ensure each grade has a proper status
+                setGrades(prevGrades =>
+                    prevGrades.map(grade => ({
+                        ...grade,
+                        status: getGradeStatus(grade)
+                    }))
+                );
+                setTests(res.tests || []); // Add logic for tests if needed
             }
         } catch (error) {
-            console.error('Error fetching student exams:', error.toString());
+            console.error('Error fetching student grades:', error.toString());
+            setGrades([]);
+            setTests([]);
+        } finally {
+            setLoading(false);
         }
     }
 
-    /**
-     * Fetch Reports
-     * @param SID Student ID
-     */
-    async function fetchReport(SID:any) {
-        console.log("Student Grades Page");
-        console.log(userSession);
-        //const response = await fetch('http://localhost:8080/api/studentReportString1');
-        try {
-            // API Handler
-            const res = await apiHandler(
-                undefined, // No body for GET request
-                'GET',
-                `api/studentReportString1?SID=${SID}`,
-                `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
-            );
-
-            // const url = new URL('http://localhost:8080/api/studentReportString1');
-            // url.searchParams.append('SID', SID);
-            // const response = await fetch(url);
-
-            // console.log(url.toString());
-            // const response = await apiHandler({'id':SID},'GET',
-            //     url.toString(),
-            //     ``
-            // );
-
-            // Handle errors
-            if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching reports:', res.error);
-                setGradeTable(undefined);
-            } else {
-
-
-                console.log("This is the response from student grades report");
-                console.log(res);
-                // fetch plain text instead of JSON
-                // var words = Object.keys(response).map((key) => [key, response[key]]);
-                // console.log(words);
-
-                // // fetch plain text instead of JSON
-                // const text = await response.text();
-
-                // split text into an array of words
-                const words = res.trim().split(/\s+/);
-
-                // slice each part of the text by 4 columns
-                const tuples = [];
-                for (let i = 0; i < words.length; i += 4) {
-                    tuples.push(words.slice(i, i + 4));
-                }
-
-                //console.log(tableBody)
-                const tableBody =
-                    document?.getElementById('testTable')?.getElementsByTagName('tbody')[0];
-                console.log(tuples);
-
-                console.log(tableBody?.innerHTML);
-                // clears the table before adding new rows
-                if (tableBody != undefined) tableBody.innerText = '';
-
-                // Loop through each tuple and populate the table
-                tuples.forEach(tuple => {
-                    let row = tableBody?.insertRow();
-                    if (row != undefined) row.classList.add("hover:bg-gray-500");
-
-                    let cellDate = row?.insertCell(0);
-                    if (cellDate != undefined) {
-                        cellDate.textContent = tuple[0];
-                        cellDate.classList.add("border");
-                        cellDate.classList.add("border-white");
-                        cellDate.classList.add("text-center");
-                    }
-
-                    let cellName = row?.insertCell(1);
-                    if (cellName != undefined) {
-                        cellName.textContent = tuple[1];
-                        cellName.classList.add("border");
-                        cellName.classList.add("border-white");
-                        cellName.classList.add("text-center");
-                    }
-
-                    let cellVersion = row?.insertCell(2);
-                    if (cellVersion != undefined) {
-                        cellVersion.textContent = tuple[2];
-                        cellVersion.classList.add("border");
-                        cellVersion.classList.add("border-white");
-                        cellVersion.classList.add("text-center");
-                    }
-
-                    let cellScore = row?.insertCell(3);
-                    if (cellScore != undefined) {
-                        cellScore.textContent = tuple[3];
-                        cellScore.classList.add("border");
-                        cellScore.classList.add("border-white");
-                        cellScore.classList.add("text-center");
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching exam results:', error);
-        }
-    }
-
-    /**
-     * Windows on Load function for UseAffects handler
-     */
-    function windowOnload() {
-        // Fetch the exams when the page loads
-        fetchExams();
-
-        // console.log("This is the session data:");
-        // console.log(userSession);
-        //
-        // fetchReport(Number.parseInt(userSession.id));
-        //fetchReport(Number.parseInt("1"));
+    // Load Grade Details Modal
+    const loadGradeDetails = async (grade: Grade, e : any) => {
+        e.preventDefault();
+        console.log('Grade event click:', e);
+        // setExamResult(grade);
+        // setIsExamModalOpen(true)
     }
 
     return (
-
-        <SessionProvider>
-        <section
-            id={"gradeComponentPage"}
-            className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold "
-        >
-            {null /*custom session onload*/}
-            {void (sessionReady ? windowOnload() : <span>Loading...</span>)}
-
-            <div className="mx-auto px-4 h-dvh bg-mentat-black">
-                <h1 className="text-center text-2xl mb-3">See Grades</h1>
-                <table id="examsTable"
-                       className="w-full mb-5 border border-white"
+        <div className="min-h-screen bg-gradient-to-br p-6">
+            <div className="max-w-5xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-8"
                 >
-                    <thead>
-                    <tr>
-                        <th className="border border-white">Exam Name</th>
-                        <th className="border border-white">Exam Version</th>
-                        <th className="border border-white">Exam Date</th>
-                        <th className="border border-white">Exam Score</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                    <h1 className="text-3xl font-bold mb-2">Grade Summary</h1>
+                </motion.div>
 
-                    </tbody>
-                </table>
-                <h1 className="text-center text-2xl mb-3">See Tests</h1>
-                <table id="testsTable"
-                       className="w-full mb-5 border border-white"
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold">Your Grades</h2>
+                    <div className="flex gap-2">
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('all')}
+                        >
+                            All Grades
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'passed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('passed')}
+                        >
+                            Passed
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'failed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('failed')}
+                        >
+                            Failed
+                        </button>
+                        {/*<button*/}
+                        {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
+                        {/*    onClick={() => setFilter('pending')}*/}
+                        {/*>*/}
+                        {/*    Pending*/}
+                        {/*</button>*/}
+                    </div>
+                </div>
+
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="rounded-xl shadow-sm border p-6"
                 >
-                    <thead>
-                    <tr>
-                        <th className="border border-white">Exam Name</th>
-                        <th className="border border-white">Exam Difficulty</th>
-                        <th className="border border-white">Required Y/N</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-semibold">
+                            {filter.charAt(0).toUpperCase() + filter.slice(1)} Grades
+                        </h2>
+                        <span className="text-sm">
+                          {filteredGrades.length} grade(s) found
+                        </span>
+                    </div>
 
-                    </tbody>
-                </table>
+                    <div className="overflow-y-auto max-h-[600px] pt-1
+                        scrollbar-thin scrollbar-thumb-mentat-gold
+                        scrollbar-track-gray-100"
+                    >
+                        <AnimatePresence mode="wait">
+                            {filteredGrades.length > 0 ? (
+                                <motion.div
+                                    key={`${selectedClass}-${filter}`}
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="space-y-2 mb-2"
+                                >
+                                    {filteredGrades.map((grade) => (
+                                        <GradeCardExtended
+                                            key={grade.exam_id}
+                                            grade={grade}
+                                            index={0}
+                                            onclick={(e) => loadGradeDetails(grade, e)}
+                                        />
+                                    ))}
+                                </motion.div>
+                            ) : loading === true ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-12"
+                                >
+                                    Loading Grades...
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-12"
+                                >
+                                    No grades found for the selected filters
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </motion.div>
             </div>
-        </section>
-        </SessionProvider>
+            <div className="max-w-5xl mx-auto rounded-xl shadow-sm pt-6">
+                <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
+                { loading ?
+                    ( <div className="text-center">Calculating Grade Summary...</div> )
+                    : grades.length === 0 ?
+                        <div className="text-center">No grades available</div> :
+                        (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-lg border border-blue-100">
+                                    <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
+                                    <p className="text-3xl font-bold">
+                                        {grades.filter(grade => grade.status === 'passed').length}
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-lg border">
+                                    <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
+                                    <p className="text-3xl font-bold">
+                                        {grades.filter(grade => grade.status === 'failed').length}
+                                    </p>
+                                </div>
+
+                                <div className="p-4 rounded-lg border">
+                                    <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
+                                    <p className={`text-3xl font-bold ${
+                                        avgScore(grades) === 'A' || avgScore(grades) === 'B' ? 'text-green-600' :
+                                            avgScore(grades) === 'C' ? 'text-yellow-600' :
+                                                'text-red-600'
+                                    }`}>
+                                        {avgScore(grades)}
+                                    </p>
+                                </div>
+                            </div>
+                        )
+                    }
+            </div>
+
+            {/*/!* Exam Action Modal *!/*/}
+            {/*<Modal*/}
+            {/*    isOpen={isExamModalOpen}*/}
+            {/*    onClose={() => setIsExamModalOpen(false)}*/}
+            {/*    title="Alter Scheduled Exam"*/}
+            {/*>*/}
+            {/*    <ExamActionsComponent*/}
+            {/*        examResult={examResult}*/}
+            {/*        cancelAction={() => {*/}
+            {/*            setIsExamModalOpen(false);*/}
+            {/*            // Trigger refresh when modal closes*/}
+            {/*            setRefreshTrigger(prev => prev + 1);*/}
+            {/*        }}*/}
+            {/*    />*/}
+            {/*</Modal>*/}
+        </div>
     );
 }
-

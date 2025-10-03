@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -104,8 +103,9 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
             // This was updated to ensure that /api/auth/** requires no authentication
             // But other URIs require authentication
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**", "/course/**", "/error").permitAll()
-                .anyRequest().authenticated()
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/error").permitAll() // Do not chain multiple URIs together
+                    .anyRequest().authenticated()
             );
         // Inject the provider into the http handler
         http.authenticationProvider(authenticationProvider());
@@ -114,6 +114,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
 
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

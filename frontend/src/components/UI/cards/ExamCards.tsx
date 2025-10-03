@@ -1,12 +1,25 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Exam, ExamProp } from '@/components/types/exams';
+import { Exam, ExamProp, Course } from '@/components/types/exams';
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 
-interface ExamCardProps {
+interface ExamExtended extends Exam {
+    exam_course_name: string;
+    exam_duration: string;
+    exam_online: number;
+}
+
+interface ExamCardExtendedProps {
     exam: ExamProp;
     index: number;
+    onclick?: (e: any) => void;
+}
+
+interface ExamCardCompactProps {
+    exam: ExamExtended;
+    index: number;
+    onclick?: (e: any) => void;
 }
 
 /**
@@ -71,7 +84,7 @@ const TotalScoreDisplay = ({ score, totalScore }: { score: number; totalScore: n
 };
 
 // Determine exam status based on date and grade
-export const getExamStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+export const getExamPropStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
     const examDate = new Date(exam.exam_scheduled_date);
     const today = new Date();
 
@@ -90,7 +103,7 @@ export const getExamStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missi
 };
 
 // Determine exam status based on date and grade
-export const getExamPropStatus = (exam: ExamProp): 'active' | 'inactive' => {
+export const getExamStatus = (exam: ExamExtended): 'active' | 'inactive' => {
     // Check for active states
     if (exam.exam_state == 1) return 'active';
     // Check for inactive states
@@ -101,7 +114,7 @@ export const getExamPropStatus = (exam: ExamProp): 'active' | 'inactive' => {
 
 // Determine course name for an exam
 export const getExamCourse = (exam: Exam): string => {
-    return exam.course;
+    return exam.exam_course_id.toString();
 };
 
 // Determine course name for an exam
@@ -113,45 +126,55 @@ export const getExamPropCourse = (exam: ExamProp): string => {
  * These are the card components
  */
 // Extended ExamCard Component
-export function ExamCard({ exam, index }: ExamCardProps) {
-    return <ExamCardExtended exam={exam} index={index} />;
-}
-
-export function ExamCardExtended({ exam, index }: ExamCardProps) {
+export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps) {
     // Get the status of the exam
-    const status = getExamStatus(exam);
-    const clipPathStyle = {
-        clipPath: 'polygon(0% 0%, 100% 0%, 100% 90%, 20% 100%, 0% 100%)',
-        backgroundColor: '#171717',
+    const status = getExamPropStatus(exam);
+    // Accent color for cards
+    const accentColor = 'rgba(163, 15, 50, 1.0)';
+    const accentStyle = {
+        content: '',
+        position: 'absolute' as const,
+        bottom: 0,
+        right: 0,
+        width: '80px',
+        height: '80px',
+        background: `radial-gradient(circle at bottom right, ${accentColor} 0%, transparent 50%)`,
+        pointerEvents: 'none' as const,
+        zIndex: 0,
     };
 
     return (
         <motion.div
             className="rounded-lg border border-gray-200 p-2 hover:shadow-md transition-shadow"
+            style={{ position: 'relative', overflow: 'hidden',
+                boxShadow: `1px 1px 6px 1px ${accentColor}` }}
             whileHover={{ y: -2 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={onclick}
         >
-            <div style={{backgroundColor: '#A30F32', position: 'relative'}}>
-                <div style={clipPathStyle}>
-                    <div className="flex items-center justify-between">
-                        {/* Left section: Title and subject */}
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-3">
-                                <h3 className="text-lg font-semibold truncate">{exam.exam_name}</h3>
-                            </div>
-                            <p className="text-sm mt-1">{exam.exam_course_name}</p>
+            {/* Add card accent coloring */}
+            <div style={accentStyle}/>
+            {/* Draw the cards */}
+            <div style={{ position: 'relative', zIndex: 1 }}>
+                <div className="flex items-center justify-between">
+                    {/* Left section: Title and subject */}
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-3">
+                            <h3 className="text-lg font-semibold truncate">{exam.exam_name}</h3>
                         </div>
+                        <p className="text-sm mt-1">{exam.exam_course_name}</p>
+                    </div>
 
-                        {/* Middle section: Date and time */}
-                        <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
-                            <span className="text-sm font-medium">
-                                {new Date(exam.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
-                                <span className="text-xs mt-1"> {exam.exam_length ?? 1} hours</span>
-                                <span className="text-xs"> {exam.duration ?? 0} mins</span>
-                            </span>
-                        </div>
+                    {/* Middle section: Date and time */}
+                    <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
+                        <span className="text-sm font-medium">
+                            {new Date(exam.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
+                            <span className="text-xs mt-1"> {exam.exam_length ?? 1} hours</span>
+                            <span className="text-xs"> {exam.duration ?? 0} mins</span>
+                        </span>
+                    </div>
 
                         {/* Right section: Location and score */}
                         <div className="flex-1 flex flex-col items-end">
@@ -173,26 +196,11 @@ export function ExamCardExtended({ exam, index }: ExamCardProps) {
 };
 
 // Compact ExamCard Component
-export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
+export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
     // Get exam status
-    exam.status = getExamPropStatus(exam);
+    exam.status = getExamStatus(exam);
 
-    const getExamStatusColor = () => {
-        switch (exam.status) {
-            case 'active': return 'bg-blue-100 text-blue-800';
-            case 'inactive': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getExamStatusIcon = () => {
-        switch (exam.status) {
-            case 'active': return <LucideCircleCheck className="w-4 h-4" />;
-            case 'inactive': return <CircleX className="w-4 h-4" />;
-            default: return <CircleX className="w-4 h-4" />;
-        }
-    };
-
+    // Exam Status Badge details
     const getStatusBadge = ({ status }: { status: string}) => {
         const statusConfig = {
             active: { color: 'bg-green-100 text-green-800', icon: <LucideCircleCheck className="w-4 h-4" /> },
@@ -200,7 +208,7 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
-        console.log(`This is the status: ${status}`);
+
         return (
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
                 <span className="mr-1">{config.icon}</span>
@@ -216,6 +224,7 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
+            onClick={onclick}
         >
             <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
@@ -225,11 +234,11 @@ export function ExamCardSmall({ exam }:{ exam: ExamProp }) {
             </div>
 
             <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-mentat-gold px-2 py-1 rounded">
+                <span className="text-xs text-mentat-gold py-1 rounded">
                   {exam.exam_course_name}
                 </span>
-                <span className="text-xs text-mentat-gold px-2 py-1 rounded">
-                  {exam.exam_difficulty} Difficulty Level
+                <span className="text-xs text-mentat-gold py-1 text-end rounded">
+                  Difficulty Level: {exam.exam_difficulty}
                 </span>
             </div>
 
