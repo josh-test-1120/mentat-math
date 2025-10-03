@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from '@/components/UI/calendar/Modal';
+import Modal from '@/components/services/Modal';
 import { DeleteScope } from '../hooks/useDeleteActions';
 
 interface DeleteModalProps {
