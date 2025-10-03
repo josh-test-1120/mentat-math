@@ -38,13 +38,13 @@ public class Exam {
     @NotBlank
     @JsonProperty("examState") // Map JSON field to Java field
     @Column(name = "exam_state")
-    private Boolean state;
+    private Integer state;
 
     // The required state of the exam
     @NotBlank
     @JsonProperty("examRequired") // Map JSON field to Java field
     @Column(name = "exam_required")
-    private Boolean required;
+    private Integer required;
 
     // The required state of the exam
     @NotBlank
@@ -62,7 +62,7 @@ public class Exam {
     @NotBlank
     @JsonProperty("examOnline") // Map JSON field to Java field
     @Column(name = "exam_online")
-    private Boolean online;
+    private Integer online;
 
     /**
      * This is the constructor for the Exam entity
@@ -75,8 +75,8 @@ public class Exam {
      * @param duration
      * @param online
      */
-    public Exam(Integer Id, Integer courseId, String name, Boolean state,
-                Boolean required, Integer difficulty, Double duration, Boolean online) {
+    public Exam(Integer Id, Integer courseId, String name, Integer state,
+                Integer required, Integer difficulty, Double duration, Integer online) {
         this.Id = Id;
         this.courseId = courseId;
         this.name = name;
@@ -119,19 +119,19 @@ public class Exam {
         this.name = name;
     }
 
-    public Boolean getState() {
+    public Integer getState() {
         return state;
     }
 
-    public void setState(Boolean state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 
-    public Boolean getRequired() {
+    public Integer getRequired() {
         return required;
     }
 
-    public void setRequired(Boolean required) {
+    public void setRequired(Integer required) {
         this.required = required;
     }
 
@@ -143,11 +143,11 @@ public class Exam {
         this.duration = duration;
     }
 
-    public Boolean getOnline() {
+    public Integer getOnline() {
         return online;
     }
 
-    public void setOnline(Boolean online) {
+    public void setOnline(Integer online) {
         this.online = online;
     }
 
@@ -157,5 +157,23 @@ public class Exam {
 
     public void setDifficulty(Integer difficulty) {
         this.difficulty = difficulty;
+    }
+
+    /**
+     * This is the toString override for String result responses
+     * @return String output of keys and values
+     */
+    @Override
+    public String toString() {
+        return "Exam{" +
+                "Id=" + Id +
+                ", courseId=" + courseId +
+                ", name='" + name + '\'' +
+                ", state=" + state +
+                ", required=" + required +
+                ", difficulty=" + difficulty +
+                ", duration=" + duration +
+                ", online=" + online +
+                '}';
     }
 }

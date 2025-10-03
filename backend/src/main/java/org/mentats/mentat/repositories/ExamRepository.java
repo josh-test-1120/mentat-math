@@ -15,13 +15,13 @@ public interface ExamRepository extends JpaRepository<Exam, Integer> {
     // Find exams by course ID
     List<Exam> findByCourseId(Integer courseId);
     // Find exams by state (active/inactive)
-    List<Exam> findByState(Boolean state);
+    List<Exam> findByState(Integer state);
     // Find exams by required status
-    List<Exam> findByRequired(Boolean required);
+    List<Exam> findByRequired(Integer required);
     // Find exams by online status
-    List<Exam> findByOnline(Boolean online);
+    List<Exam> findByOnline(Integer online);
     // Find exams by course ID and state
-    List<Exam> findByCourseIdAndState(Integer courseId, Boolean state);
+    List<Exam> findByCourseIdAndState(Integer courseId, Integer state);
     // Delete exams by course ID
     void deleteByCourseId(Integer courseId);
 }

@@ -48,11 +48,11 @@ export interface ExamProp {
     exam_version: number;
     exam_taken_date: string;
     exam_course_name: string;
-    exam_result_id: string;
+    exam_result_id: number;
     location: string;
     status: 'active' | 'inactive';
     exam_score?: string;
-    exam_duration: string;
+    exam_duration: number;
     exam_online: number;
 }
 

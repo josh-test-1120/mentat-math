@@ -22,13 +22,14 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
     // Session Information
     const {data: session, status} = useSession();
     const [examData, setExamData] = useState({
-        exam_name: exam?.exam_name || '',
-        exam_course_id: exam?.exam_course_id.toString() || '',
-        exam_difficulty: exam?.exam_difficulty.toString() || '',
-        exam_required: exam?.exam_required.toString() || '',
-        exam_duration: exam?.exam_duration.toString() || '',
-        exam_state: exam?.exam_state.toString() || '',
-        exam_online: exam?.exam_online.toString() || ''
+        examId: exam?.exam_id,
+        examName: exam?.exam_name || '',
+        courseId: exam?.exam_course_id.toString() || '',
+        examDifficulty: exam?.exam_difficulty.toString() || '',
+        examRequired: exam?.exam_required.toString() || '',
+        examDuration: exam?.exam_duration.toString() || '',
+        examState: exam?.exam_state.toString() || '',
+        examOnline: exam?.exam_online.toString() || ''
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
@@ -64,6 +65,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
         // Prevent default events
         event.preventDefault();
         console.log("Modify Exam");
+        console.log(exam);
+        console.log(examData);
         // API Handler call
         try {
             console.log("Updating Exam");
@@ -151,8 +154,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                             type="text"
                             id="exam_name"
                             name="exam_name"
-                            value={examData.exam_name}
-                            onChange={(e) => setExamData({ ...examData, exam_name: e.target.value })}
+                            value={examData.examName}
+                            onChange={(e) => setExamData({ ...examData, examName: e.target.value })}
                             className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         />
                     </div>
@@ -163,8 +166,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                             id="exam_difficulty"
                             type="text"
                             name="exam_difficulty"
-                            value={examData.exam_difficulty}
-                            onChange={(e) => setExamData({ ...examData, exam_difficulty: e.target.value })}
+                            value={examData.examDifficulty}
+                            onChange={(e) => setExamData({ ...examData, examDifficulty: e.target.value })}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         >
                         </input>
@@ -176,8 +179,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                             id="exam_duration"
                             type="text"
                             name="exam_duration"
-                            value={examData.exam_duration}
-                            onChange={(e) => setExamData({ ...examData, exam_duration: e.target.value })}
+                            value={examData.examDuration}
+                            onChange={(e) => setExamData({ ...examData, examDuration: e.target.value })}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         />
                     </div>
@@ -189,8 +192,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                                     id="is_required"
                                     type="checkbox"
                                     name="is_required"
-                                    checked={Boolean(examData.exam_required)}
-                                    onChange={(e) => setExamData({ ...examData, exam_required: e.target.value })}
+                                    checked={Boolean(examData.examRequired)}
+                                    onChange={(e) => setExamData({ ...examData, examRequired: e.target.value })}
                                     className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
                                 />
                                 <label htmlFor="is_required" className="select-none">Is Exam Required</label>
@@ -201,8 +204,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                                     id="exam_state"
                                     type="checkbox"
                                     name="exam_state"
-                                    checked={Boolean(examData.exam_state)}
-                                    onChange={(e) => setExamData({ ...examData, exam_state: e.target.value })}
+                                    checked={Boolean(examData.examState)}
+                                    onChange={(e) => setExamData({ ...examData, examState: e.target.value })}
                                     className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
                                 />
                                 <label htmlFor="exam_state" className="select-none">Is Exam Active</label>
@@ -213,8 +216,8 @@ export default function ExamDetailsComponent({ exam, course, cancelAction } : Ex
                                     id="is_online"
                                     type="checkbox"
                                     name="is_online"
-                                    checked={Boolean(examData.exam_online)}
-                                    onChange={(e) => setExamData({ ...examData, exam_online: e.target.value })}
+                                    checked={Boolean(examData.examOnline)}
+                                    onChange={(e) => setExamData({ ...examData, examOnline: e.target.value })}
                                     className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
                                 />
                                 <label htmlFor="is_online" className="select-none">Is Exam Online</label>
