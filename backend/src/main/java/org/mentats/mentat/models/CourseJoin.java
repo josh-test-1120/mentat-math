@@ -1,25 +1,25 @@
 package org.mentats.mentat.models;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.stereotype.Repository;
 
-/**
- * This class represents the Course entity that contains course details
- * @author Joshua Summers
+/** This class stores data of any course an instructor wants to add i.e. Professor Black adds MATH260; should try to
+ * have logic that shows all students registered for the class (may have to extend another class not build yet; TBD)
+ * @author Telmen Enkhtuvshin
  */
 @Entity
-@Repository
 @Table(name = "course",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "course_id"),
                 @UniqueConstraint(columnNames = {"course_section", "course_year", "course_quarter"})
         })
-public class Course {
+public class CourseJoin {
     /**
      * Report.Report.Course class fields.
      */
@@ -27,7 +27,7 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
     // Report.Report.Course ID for this course
-    private Long courseId;
+    private int courseId;
 
     // The course name
     @NotBlank
@@ -39,7 +39,7 @@ public class Course {
     //Report.Report.Course's instructor ID
     @JsonProperty("courseProfessorId") // Map JSON field to Java field
     @Column(name = "course_professor_id")
-    private Long courseProfessorId;
+    private String courseProfessorId;
 
     // Course section
     @Size (max = 20)
@@ -59,39 +59,27 @@ public class Course {
     //Report.Report.Course term (i.e. Winter 2024)
     public String courseQuarter;
 
-    @NotBlank
-    @Size(max = 255)
-    @JsonProperty("gradeStrategy") // Map JSON field to Java field
-    @Column(name = "course_grade_strategy", columnDefinition = "JSON")
-    //Report.Report.Course term (i.e. Winter 2024)
-    public String gradeStrategy;
-
     /**
-     * This is the constructor for the course Entity
-     * @param courseId
+     * This is the constructor for the courseJoin Entity
      * @param courseName
      * @param courseProfessorId
      * @param courseQuarter
      * @param courseSection
      * @param courseYear
-     * @param gradeStrategy
      */
-    public Course(Long courseId, String courseName, Long courseProfessorId,
-                  String courseQuarter, String courseSection, int courseYear,
-                  String gradeStrategy) {
-        this.courseId          = courseId;
+    public CourseJoin(String courseName, String courseProfessorId,
+                  String courseQuarter, String courseSection, int courseYear){
         this.courseName        = courseName;
         this.courseProfessorId = courseProfessorId;
         this.courseQuarter     = courseQuarter;
-        this.courseSection     = courseSection;
+        this.courseSection    = courseSection;
         this.courseYear        = courseYear;
-        this.gradeStrategy     = gradeStrategy;
     }
 
     /**
      * Default constructor for Course
      */
-    public Course() {
+    public CourseJoin() {
 
     }
 
@@ -99,7 +87,7 @@ public class Course {
      * A getter method that returns the course ID
      * @return String course ID
      */
-    public Long getCourseId() {
+    public int getCourseId() {
         return courseId;
     }
 
@@ -107,7 +95,7 @@ public class Course {
      * A getter method that returns the instructor ID
      * @return String instructor ID
      */
-    public Long getCourseProfessorId() {
+    public String getCourseProfessorId() {
         return courseProfessorId;
     }
 
@@ -131,7 +119,7 @@ public class Course {
      * A getter method that returns the Course year
      * @return String Course year
      */
-    public Integer getCourseYear() {
+    public int getCourseYear() {
         return courseYear;
     }
 
@@ -143,39 +131,7 @@ public class Course {
         return courseQuarter;
     }
 
-    public String getGradeStrategy() {
-        return gradeStrategy;
-    }
-
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-    public void setCourseProfessorId(Long courseProfessorId) {
-        this.courseProfessorId = courseProfessorId;
-    }
-
-    public void setCourseSection(String courseSection) {
-        this.courseSection = courseSection;
-    }
-
-    public void setCourseYear(int courseYear) {
-        this.courseYear = courseYear;
-    }
-
-    public void setCourseQuarter(String courseQuarter) {
-        this.courseQuarter = courseQuarter;
-    }
-
-    public void setGradeStrategy(String gradeStrategy) {
-        this.gradeStrategy = gradeStrategy;
-    }
-
-    //    /**
+//    /**
 //     * A method that adds a course to the system which creates.
 //     * @param courseName String course name
 //     * @param courseInstructorID String instructor ID
@@ -234,5 +190,4 @@ public class Course {
 //
 //        // TODO: 5/10/24 Continue delete the course from the database and system. (Still needs careful logic.)
 //    }
-
 }

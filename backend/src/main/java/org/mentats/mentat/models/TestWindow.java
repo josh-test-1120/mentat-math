@@ -17,7 +17,7 @@ public class TestWindow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "test_window_id")
-    private Integer testWindowId;
+    private Long testWindowId;
     
     @Column(name = "test_start_time", nullable = false)
     private LocalTime testStartTime;
@@ -35,7 +35,7 @@ public class TestWindow {
     private LocalDate testWindowEndDate;
     
     @Column(name = "course_id", nullable = false)
-    private Integer courseId;
+    private Long courseId;
     
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -57,7 +57,7 @@ public class TestWindow {
     
     public TestWindow(String testWindowTitle, LocalTime testStartTime, LocalTime testEndTime, 
                      LocalDate testWindowStartDate, LocalDate testWindowEndDate, 
-                     Integer courseId, String description, String weekdays, 
+                     Long courseId, String description, String weekdays,
                      String exceptions, Boolean isActive, LocalDateTime testWindowCreatedDatetime) {
         this.testWindowTitle = testWindowTitle;
         this.testStartTime = testStartTime;
@@ -73,8 +73,8 @@ public class TestWindow {
     }
     
     // Getters and Setters
-    public Integer getTestWindowId() { return testWindowId; }
-    public void setTestWindowId(Integer testWindowId) { this.testWindowId = testWindowId; }
+    public Long getTestWindowId() { return testWindowId; }
+    public void setTestWindowId(Long testWindowId) { this.testWindowId = testWindowId; }
     
     public LocalTime getTestStartTime() { return testStartTime; }
     public void setTestStartTime(LocalTime testStartTime) { this.testStartTime = testStartTime; }
@@ -91,8 +91,8 @@ public class TestWindow {
     public LocalDate getTestWindowEndDate() { return testWindowEndDate; }
     public void setTestWindowEndDate(LocalDate testWindowEndDate) { this.testWindowEndDate = testWindowEndDate; }
     
-    public Integer getCourseId() { return courseId; }
-    public void setCourseId(Integer courseId) { this.courseId = courseId; }
+    public Long getCourseId() { return courseId; }
+    public void setCourseId(Long courseId) { this.courseId = courseId; }
     
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

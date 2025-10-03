@@ -11,15 +11,15 @@ import java.util.List;
  * @author Joshua Summers
  */
 @Repository
-public interface ExamResultRepository extends JpaRepository<ExamResult, Integer> {
+public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
     // Find ExamResults based on student Id
-    List<ExamResult> findByStudentId(Integer studentId);
+    List<ExamResult> findByStudentId(Long studentId);
     // Find ExamResults based on Exam Id
-    List<ExamResult> findByExamId(Integer examId);
+    List<ExamResult> findByExamId(Long examId);
     // Find the ExamResults based on Exam Id and Exam version
-    List<ExamResult> findByExamIdAndExamVersion(Integer examId, Integer examVersion);
+    List<ExamResult> findByExamIdAndExamVersion(Long examId, Integer examVersion);
     // Delete the ExamResults based on Student Id
-    void deleteByStudentId(Integer studentId);
+    void deleteByStudentId(Long studentId);
     // Delete the ExamResults based on Exam Id
-    void deleteByExamId(Integer examId); // Add this method
+    void deleteByExamId(Long examId); // Add this method
 }

@@ -15,7 +15,7 @@ public class TestWindowRequest {
     private String description;
     
     @JsonProperty("courseId")
-    private Integer courseId;
+    private Long courseId;
     
     @JsonProperty("startDate")
     private String startDate;
@@ -48,8 +48,8 @@ public class TestWindowRequest {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     
-    public Integer getCourseId() { return courseId; }
-    public void setCourseId(Integer courseId) { this.courseId = courseId; }
+    public Long getCourseId() { return courseId; }
+    public void setCourseId(Long courseId) { this.courseId = courseId; }
     
     public String getStartDate() { return startDate; }
     public void setStartDate(String startDate) { this.startDate = startDate; }

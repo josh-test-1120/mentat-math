@@ -1,5 +1,6 @@
 package org.mentats.mentat.models;
 
+import java.math.BigInteger;
 import java.sql.Date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -22,20 +23,20 @@ public class ExamResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("examResultId") // Map JSON field to Java field
-    @Column(name = "exam_result_id")
-    private Integer Id;
+    @Column(name = "exam_result_id", updatable = false, nullable = false)
+    private Long Id;
 
     // The student assigned to exam result
     @NotBlank
     @JsonProperty("examStudentId") // Map JSON field to Java field
-    @Column(name = "student_id")
-    protected Integer studentId;
+    @Column(name = "exam_student_id")
+    protected Long studentId;
 
     // The exam assigned to the result
     @JsonProperty("examId") // Map JSON field to Java field
     @NotBlank
     @Column(name = "exam_id")
-    private Integer examId;
+    private Long examId;
 
     // The version of the exam assigned
     @Size(max = 20)
@@ -73,7 +74,7 @@ public class ExamResult {
      * @param examScheduledDate this is the exam scheduled date
      * @param examTakenDate     this is the exam taken date
      */
-    public ExamResult(Integer Id, Integer studentId, Integer examId,
+    public ExamResult(Long Id, Long studentId, Long examId,
                       Integer examVersion, String examScore,
                       Date examScheduledDate, Date examTakenDate) {
         this.Id = Id;
@@ -93,15 +94,15 @@ public class ExamResult {
     }
 
     // Getters for the entity
-    public Integer getId() {
+    public Long getId() {
         return Id;
     }
 
-    public Integer getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public Integer getExamId() {
+    public Long getExamId() {
         return examId;
     }
 
@@ -122,15 +123,15 @@ public class ExamResult {
     }
 
     // Setters for the entity
-    public void setId(Integer Id) {
+    public void setId(Long Id) {
         this.Id = Id;
     }
 
-    public void setStudentId(Integer studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 
-    public void setExamId(Integer examId) {
+    public void setExamId(Long examId) {
         this.examId = examId;
     }
 

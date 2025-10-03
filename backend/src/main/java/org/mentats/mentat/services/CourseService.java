@@ -1,21 +1,17 @@
 package org.mentats.mentat.services;
 
 import org.mentats.mentat.models.Course;
-import org.mentats.mentat.models.StudentCourse;
-import org.mentats.mentat.payload.request.CourseRequest;
-import org.mentats.mentat.payload.request.JoinCourseRequest;
-import org.mentats.mentat.repositories.CourseEnrollmentRepository;
 import org.mentats.mentat.repositories.CourseRepository;
+import org.mentats.mentat.components.CourseValidator;
+import org.mentats.mentat.exceptions.CourseNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Service class for handling course-related business logic
- * All database operations are properly managed with @Transactional
+ * Service class for handling course repository logic
+ * @author Joshua Summers
  */
 @Service
 public class CourseService {
@@ -24,174 +20,177 @@ public class CourseService {
     private CourseRepository courseRepository;
 
     @Autowired
-    private CourseEnrollmentRepository enrollmentRepository;
+    private CourseValidator validator;
 
     /**
-     * Creates a new course with transaction management
-     * @param courseRequest Course creation request
-     * @return Created course
+     * Create new Course object
+     * @param course
+     * @return Course object
      */
-    @Transactional
-    public Course createCourse(CourseRequest courseRequest) {
-        System.out.println("CourseName in createCourse: " + courseRequest.getCourseName());
-        System.out.println("Quarter in createCourse: " + courseRequest.getCourseQuarter());
-        System.out.println("SectionNumber in createCourse: " + courseRequest.getCourseSection());
-        System.out.println("Year in createCourse: " + courseRequest.getCourseYear());
-        System.out.println("UserID in createCourse: " + courseRequest.getUserId());
-        
-        Course course = new Course(
-                courseRequest.getCourseName(),
-                courseRequest.getUserId(),
-                courseRequest.getCourseQuarter(),
-                courseRequest.getCourseSection(),
-                courseRequest.getCourseYear()
-        );
-        
-        System.out.println("Creating course: " + course.getCourseName());
+    // Create course
+    public Course createCourse(Course course) {
+        validator.validateForCreation(course);
         return courseRepository.save(course);
     }
 
     /**
-     * Retrieves courses by professor ID
-     * @param professorId Professor's user ID
-     * @return List of courses
+     * Fetch Course object by Id from database
+     * @param id
+     * @return Course object
      */
-    @Transactional(readOnly = true)
-    public List<Course> getCoursesByProfessorId(String professorId) {
+    // Read course by ID
+    public Course getCourseById(Long id) {
+        validator.validateCourseId(id);
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException(id.toString()));
+    }
+
+    /**
+     * Fetch all Course objects from the database
+     * @return List of Course objects
+     */
+    // Read all courses
+    public List<Course> getAllCourses() {
+        return courseRepository.findAll();
+    }
+
+    /**
+     * Fetch all Course objects by Professor Id from the database
+     * @param professorId
+     * @return List of Course objects
+     */
+    // Read courses by professor ID
+    public List<Course> getCoursesByProfessorId(Long professorId) {
+        validator.validateProfessorId(professorId);
         return courseRepository.findByCourseProfessorId(professorId);
     }
 
     /**
-     * Enrolls a student in a course with proper transaction management
-     * @param req Join course request
-     * @throws IllegalArgumentException if course doesn't exist or student already enrolled
+     * Fetch all Course objects by year and quarter
+     * @param year
+     * @param quarter
+     * @return List of Course objects
      */
-    @Transactional
-    public void joinCourse(JoinCourseRequest req) {
-        System.out.println("=== TRANSACTION STARTED ===");
-        
-        // Validate request data
-        if (req.getCourseId() == null || req.getCourseId().trim().isEmpty()) {
-            throw new IllegalArgumentException("Course ID cannot be null or empty");
-        }
-        if (req.getStudentId() == null || req.getStudentId().trim().isEmpty()) {
-            throw new IllegalArgumentException("User ID cannot be null or empty");
-        }
-        
-        System.out.println("Raw Course ID: '" + req.getCourseId() + "'");
-        System.out.println("Raw User ID: '" + req.getStudentId() + "'");
-        
-        // Parse IDs
-        int courseId = Integer.parseInt(req.getCourseId());
-        int studentId = Integer.parseInt(req.getStudentId());
-        
-        System.out.println("Processing course join - Course ID: " + courseId + ", Student ID: " + studentId);
-
-        // Check if course exists
-        if (!courseRepository.existsById(courseId)) {
-            System.out.println("ERROR: Course not found with ID: " + courseId);
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
-        }
-        
-        // Check if student already joined course
-        if (enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId)) {
-            System.out.println("Student already joined course");
-            throw new IllegalArgumentException("Student already enrolled in this course");
-        }
-        
-        // Create and save student course enrollment
-        LocalDate now = LocalDate.now();
-        StudentCourse studentCourse = new StudentCourse(courseId, studentId, now);
-        
-        System.out.println("Saving StudentCourse: " + studentCourse);
-        System.out.println("Before save - Course ID: " + studentCourse.getCourseId());
-        System.out.println("Before save - Student ID: " + studentCourse.getStudentId());
-        System.out.println("Before save - Date: " + studentCourse.getStudentDateRegistered());
-        
-        StudentCourse saved = enrollmentRepository.save(studentCourse);
-        
-        System.out.println("After save - Course ID: " + saved.getCourseId());
-        System.out.println("After save - Student ID: " + saved.getStudentId());
-        System.out.println("After save - Date: " + saved.getStudentDateRegistered());
-        System.out.println("After save - Grade: " + saved.getStudentCourseGrade());
-        
-        // Force flush to ensure data is written to database
-        enrollmentRepository.flush();
-        System.out.println("Data flushed to database");
-        
-        // Verify enrollment was successful
-        boolean exists = enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId);
-        System.out.println("Verification query result: " + exists);
-        
-        if (!exists) {
-            System.out.println("ERROR: Failed to verify course enrollment after save");
-            throw new RuntimeException("Failed to verify course enrollment after save");
-        }
-        
-        System.out.println("=== TRANSACTION COMPLETED SUCCESSFULLY ===");
+    // Read courses by year and quarter
+    public List<Course> getCoursesByYearAndQuarter(Integer year, String quarter) {
+        validator.validateYear(year);
+        validator.validateQuarter(quarter);
+        return courseRepository.findByCourseYearAndCourseQuarter(year, quarter);
     }
 
     /**
-     * Checks if a student is enrolled in a course
-     * @param courseId Course ID
-     * @param studentId Student ID
-     * @return true if enrolled, false otherwise
+     * Fetch all Course objects by course name
+     * @param courseName
+     * @return List of Course objects
      */
-    @Transactional(readOnly = true)
-    public boolean isStudentEnrolled(int courseId, int studentId) {
-        return enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId);
+    // Read courses by name
+    public List<Course> getCoursesByName(String courseName) {
+        validator.validateCourseName(courseName);
+        return courseRepository.findByCourseNameContainingIgnoreCase(courseName);
     }
 
     /**
-     * Gets all enrollments for a specific course
-     * @param courseId Course ID
-     * @return List of student enrollments
+     * Fetch Course object by section, year, and quarter
+     * @param section
+     * @param year
+     * @param quarter
+     * @return Course object
      */
-    @Transactional(readOnly = true)
-    public List<StudentCourse> getCourseEnrollments(int courseId) {
-        return enrollmentRepository.findByCourseId(courseId);
+    // Read course by section, year, and quarter
+    public Course getCourseBySectionYearQuarter(String section, Integer year, String quarter) {
+        validator.validateSection(section);
+        validator.validateYear(year);
+        validator.validateQuarter(quarter);
+        return courseRepository.findByCourseSectionAndCourseYearAndCourseQuarter(section, year, quarter)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found with section: " + section +
+                        ", year: " + year + ", quarter: " + quarter));
     }
 
     /**
-     * Debug method to check all enrollments in database
-     * @return List of all student enrollments
+     * Update the Course object
+     * @param id
+     * @param courseUpdates
+     * @return Course object
      */
-    @Transactional(readOnly = true)
-    public List<StudentCourse> getAllEnrollments() {
-        System.out.println("=== CHECKING ALL ENROLLMENTS IN DATABASE ===");
-        List<StudentCourse> allEnrollments = enrollmentRepository.findAll();
-        System.out.println("Total enrollments found: " + allEnrollments.size());
-        for (StudentCourse enrollment : allEnrollments) {
-            System.out.println("Enrollment: Course ID=" + enrollment.getCourseId() + 
-                             ", Student ID=" + enrollment.getStudentId() + 
-                             ", Date=" + enrollment.getStudentDateRegistered());
+    // Update course
+    public Course updateCourse(Long id, Course courseUpdates) {
+        validator.validateCourseId(id);
+        Course existing = getCourseById(id);
+
+        validator.validateForUpdate(existing, courseUpdates);
+
+        // Update only provided fields (partial update)
+        if (courseUpdates.getCourseName() != null) {
+            existing.setCourseName(courseUpdates.getCourseName());
         }
-        return allEnrollments;
+        if (courseUpdates.getCourseProfessorId() != null) {
+            existing.setCourseProfessorId(courseUpdates.getCourseProfessorId());
+        }
+        if (courseUpdates.getCourseSection() != null) {
+            existing.setCourseSection(courseUpdates.getCourseSection());
+        }
+        if (courseUpdates.getCourseYear() != null) {
+            existing.setCourseYear(courseUpdates.getCourseYear());
+        }
+        if (courseUpdates.getCourseQuarter() != null) {
+            existing.setCourseQuarter(courseUpdates.getCourseQuarter());
+        }
+        if (courseUpdates.getGradeStrategy() != null) {
+            existing.setGradeStrategy(courseUpdates.getGradeStrategy());
+        }
+
+        return courseRepository.save(existing);
     }
 
     /**
-     * Gets all courses a student is enrolled in
-     * @param studentIdStr Student ID
-     * @return List of courses
+     * Update only the grade strategy of a course
+     * @param id
+     * @param gradeStrategy
+     * @return Course object
      */
-    @Transactional(readOnly = true)
-    public List<Course> getEnrolledCourses(String studentIdStr) {
-        // Parse student ID
-        int studentId = Integer.parseInt(studentIdStr);
+    // Update course grade strategy
+    public Course updateCourseGradeStrategy(Long id, String gradeStrategy) {
+        validator.validateCourseId(id);
+        validator.validateGradeStrategy(gradeStrategy);
 
-        // Get all enrollments for the student
-        List<StudentCourse> enrollments = enrollmentRepository.findByStudentId(studentId);
+        Course existing = getCourseById(id);
+        existing.setGradeStrategy(gradeStrategy);
 
-        // If no enrollments, return empty list
-        if (enrollments.isEmpty()) return List.of();
+        return courseRepository.save(existing);
+    }
 
-        // Get all course IDs for the student
-        List<Integer> courseIds = enrollments.stream()
-                .map(StudentCourse::getCourseId)
-                .distinct()
-                .toList();
+    /**
+     * Delete the Course object by Id
+     * @param id
+     */
+    // Delete course by ID
+    public void deleteCourse(Long id) {
+        validator.validateCourseId(id);
+        Course existing = getCourseById(id);
+        validator.validateDeleteOperation(existing);
+        courseRepository.delete(existing);
+    }
 
-        // Get all courses for the student
-        return courseRepository.findAllById(courseIds);
+    /**
+     * Check if course exists by ID
+     * @param id
+     * @return boolean
+     */
+    // Check if course exists
+    public boolean courseExists(Long id) {
+        return courseRepository.existsById(id);
+    }
+
+    /**
+     * Check if course with same section, year, and quarter already exists
+     * @param section
+     * @param year
+     * @param quarter
+     * @param excludeId
+     * @return boolean
+     */
+    // Check uniqueness
+    public boolean isCourseUnique(String section, Integer year, String quarter, Long excludeId) {
+        return validator.isCourseUnique(section, year, quarter, excludeId);
     }
 }

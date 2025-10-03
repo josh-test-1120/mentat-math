@@ -40,7 +40,7 @@ public class ExamResultService {
      * @return ExamResult object
      */
     // Read exam result
-    public ExamResult getExamResultById(Integer id) {
+    public ExamResult getExamResultById(Long id) {
         validator.validateExamResultId(id);
         return examResultRepository.findById(id)
                 .orElseThrow(() -> new ExamResultNotFoundException(id.toString()));
@@ -61,7 +61,7 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Student ID
-    public List<ExamResult> getExamResultsByStudent(Integer studentId) {
+    public List<ExamResult> getExamResultsByStudent(Long studentId) {
         validator.validateStudentId(studentId);
         return examResultRepository.findByStudentId(studentId);
     }
@@ -72,7 +72,7 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Exam ID
-    public List<ExamResult> getExamResultsByExamId(Integer examId) {
+    public List<ExamResult> getExamResultsByExamId(Long examId) {
         validator.validateExamId(examId);
         return examResultRepository.findByExamId(examId);
     }
@@ -84,7 +84,7 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Exam ID and Version
-    public List<ExamResult> getExamResultsByExamIdAndVersion(Integer examId, Integer examVersion) {
+    public List<ExamResult> getExamResultsByExamIdAndVersion(Long examId, Integer examVersion) {
         validator.validateExamId(examId);
         validator.validateExamVersion(examVersion);
         return examResultRepository.findByExamIdAndExamVersion(examId, examVersion);
@@ -97,7 +97,7 @@ public class ExamResultService {
      * @return ExamResult object
      */
     // Update exam result
-    public ExamResult updateExamResult(Integer id, ExamResult examResultUpdates) {
+    public ExamResult updateExamResult(Long id, ExamResult examResultUpdates) {
         validator.validateExamResultId(id);
         ExamResult existing = getExamResultById(id); // Reuse your read method
 
@@ -120,7 +120,7 @@ public class ExamResultService {
      * @param id
      */
     // Delete exam result by id
-    public void deleteExamResult(Integer id) {
+    public void deleteExamResult(Long id) {
         validator.validateExamResultId(id);
         ExamResult existing = getExamResultById(id); // Validate existence
         validator.validateDeleteOperation(existing);
@@ -132,7 +132,7 @@ public class ExamResultService {
      * @param studentId
      */
     // Delete exam results by student id
-    public void deleteExamResultsByStudent(Integer studentId) {
+    public void deleteExamResultsByStudent(Long studentId) {
         validator.validateStudentId(studentId);
         examResultRepository.deleteByStudentId(studentId);
     }
@@ -142,7 +142,7 @@ public class ExamResultService {
      * @param examId
      */
     // Delete exam results by exam id
-    public void deleteExamResultsByExam(Integer examId) {
+    public void deleteExamResultsByExam(Long examId) {
         validator.validateExamId(examId);
         examResultRepository.deleteByExamId(examId);
     }
