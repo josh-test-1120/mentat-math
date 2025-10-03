@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Exam, ExamProp, ExamResult } from '@/components/types/exams';
-import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
+import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
 import { Grade } from '@/app/grades/pageStudentNew';
 
 interface GradeCardExtendedProps {
@@ -24,7 +24,7 @@ export const getGradeStatus = (grade: Grade): 'passed' | 'failed' | 'pending' | 
         // Check for inactive states
         else if (failingGrade.includes(grade?.exam_score)) return 'failed';
     }
-    // Default state is inactive
+    // Default state is pending
     else return 'pending';
 };
 
@@ -55,7 +55,8 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
     const StatusBadge = ({ status }: { status: string}) => {
         const statusConfig = {
             passed: { color: 'bg-green-100 text-green-800', icon: <LucideCircleCheck className="w-4 h-4" /> },
-            failed: { color: 'bg-red-100 text-red-800', icon: <CircleX className="w-4 h-4" /> }
+            failed: { color: 'bg-red-100 text-red-800', icon: <CircleX className="w-4 h-4" /> },
+            pending: { color: 'bg-blue-100 text-blue-800', icon: <Hourglass className="w-4 h-4" /> }
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
@@ -68,8 +69,6 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
         );
     };
 
-    // Get the status of the exam (already done in student page view)
-    // grade.status = getGradeStatus(grade);
     // View variables
     const darkCimson = '#61091e';
     const examTaken = (grade.exam_taken_date !== undefined && grade.exam_taken_date !== null);

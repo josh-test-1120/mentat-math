@@ -17,8 +17,8 @@ const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig = {
         upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-4 h-4" /> },
         completed: { color: 'bg-green-100 text-green-800', icon: <Award className="w-4 h-4" /> },
-        cancelled: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4" /> },
-        missed: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4" /> }
+        canceled: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4" /> },
+        missing: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4" /> }
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
@@ -71,20 +71,22 @@ const TotalScoreDisplay = ({ score, totalScore }: { score: number; totalScore: n
 };
 
 // Determine exam status based on date and grade
-export const getExamStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+export const getExamPropStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+    // Get the proper exam scheduled date, with timezone
     const examDate = new Date(exam.exam_scheduled_date);
+    const examPstDate = new Date(examDate.toLocaleString('en-US',
+        { timeZone: 'America/Los_Angeles' }));
+    // Get the today's date, with timezone
     const today = new Date();
-
+    const todayPstDate = new Date(today.toLocaleString('en-US',
+        { timeZone: 'America/Los_Angeles' }));
     // If exam date is in the future, it's upcoming
-    if (examDate > today) return 'upcoming';
-
+    if (examPstDate > todayPstDate) return 'upcoming';
     // If exam date is in the past and has a score, it's completed
     else if ((exam.exam_score !== undefined) && (exam.exam_score !== '')) return 'completed';
-
     // If no exam date and no score
     else if (((exam.exam_scheduled_date == undefined) || (exam.exam_scheduled_date == ''))
         && (exam.exam_score == undefined)|| (exam.exam_score == '')) return 'missing';
-
     // If the exam date is in the past but no score, it's pending
     else return 'pending';
 };
@@ -153,18 +155,19 @@ export function ExamCardExtended({ exam, index }: ExamCardProps) {
                             </span>
                         </div>
 
-                        {/* Right section: Location and score */}
-                        <div className="flex-1 flex flex-col items-end">
-                            <StatusBadge status={status}/>
-                            <span className="text-sm">{exam.location}</span>
-                            {status === 'completed' && exam.exam_score !== undefined ? (
-                                <ScoreDisplay score={exam.exam_score} />
-                            ) : (
-                                <div className="mt-1 text-xs font-medium">
-                                    {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming' : 'Pending grade'}
-                                </div>
-                            )}
-                        </div>
+                    {/* Right section: Location and score */}
+                    <div className="flex-1 flex flex-col items-end">
+                        <StatusBadge status={status}/>
+                        <span className="text-sm">{exam.location}</span>
+                        {status === 'completed' && exam.exam_score !== undefined
+                            && exam.exam_score !== null ? (
+                            <ScoreDisplay score={exam.exam_score} />
+                        ) : (
+                            <div className="mt-1 text-xs font-medium">
+                                {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming'
+                                    : 'Pending grade'}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
