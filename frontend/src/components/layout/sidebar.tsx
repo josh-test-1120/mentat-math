@@ -470,10 +470,14 @@ export default function Sidebar() {
         var sidebarBox = document.getElementById('sidebar-box');
         var mainBox = document.getElementById('mainbar-box');
 
+        // // Only handle if elements exists
+        // if (parent != null && middle != null && bottom != null && hamburgerSlider != null
+        //         && hamburgerSliderBlock != null && hamburgerSliderParent != null
+        //         && sidebarBox != null && mainBox != null) {
         // Only handle if elements exists
-        if (parent != null && middle != null && bottom != null && hamburgerSlider != null
-                && hamburgerSliderBlock != null && hamburgerSliderParent != null
-                && sidebarBox != null && mainBox != null) {
+        if (parent != null && middle != null && hamburgerSlider != null
+            && hamburgerSliderBlock != null && hamburgerSliderParent != null
+            && sidebarBox != null && mainBox != null) {
             // Determine current sidebar status
             if (isOpen) {
                 setIsOpen(false);
@@ -494,8 +498,8 @@ export default function Sidebar() {
                 hamburgerSliderParent.classList.add("absolute")
                 hamburgerSliderParent.classList.add("bg-mentat-black");
 
-                // Bottom element visibility
-                bottom.classList.add("invisible")
+                // // Bottom element visibility
+                // bottom.classList.add("invisible")
 
                 // Middle element visibility
                 middle.classList.add("invisible");
@@ -525,8 +529,8 @@ export default function Sidebar() {
                 hamburgerSliderParent.classList.remove("absolute")
                 hamburgerSliderParent.classList.remove("bg-mentat-black");
 
-                // Bottom element visibility
-                bottom.classList.remove("invisible")
+                // // Bottom element visibility
+                // bottom.classList.remove("invisible")
 
                 // Middle element visibility
                 middle.classList.remove("invisible");
