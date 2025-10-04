@@ -54,7 +54,8 @@ export default async function apiAuthSignIn(credentials: Record<"firstname" | "l
             email: data.email,
             accessToken: data.accessToken, // Backend uses 'accessToken'
             roles: data.roles,
-            userType: data.userType
+            userType: data.userType,
+            name: data.firstName,
         };
 
         console.log("✅ Mapped user data for NextAuth:", userData);
