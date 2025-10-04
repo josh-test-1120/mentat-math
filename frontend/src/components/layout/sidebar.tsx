@@ -470,14 +470,10 @@ export default function Sidebar() {
         var sidebarBox = document.getElementById('sidebar-box');
         var mainBox = document.getElementById('mainbar-box');
 
-        // // Only handle if elements exists
-        // if (parent != null && middle != null && bottom != null && hamburgerSlider != null
-        //         && hamburgerSliderBlock != null && hamburgerSliderParent != null
-        //         && sidebarBox != null && mainBox != null) {
         // Only handle if elements exists
-        if (parent != null && middle != null && hamburgerSlider != null
-            && hamburgerSliderBlock != null && hamburgerSliderParent != null
-            && sidebarBox != null && mainBox != null) {
+        if (parent != null && middle != null && bottom != null && hamburgerSlider != null
+                && hamburgerSliderBlock != null && hamburgerSliderParent != null
+                && sidebarBox != null && mainBox != null) {
             // Determine current sidebar status
             if (isOpen) {
                 setIsOpen(false);
@@ -498,8 +494,8 @@ export default function Sidebar() {
                 hamburgerSliderParent.classList.add("absolute")
                 hamburgerSliderParent.classList.add("bg-mentat-black");
 
-                // // Bottom element visibility
-                // bottom.classList.add("invisible")
+                // Bottom element visibility
+                bottom.classList.add("invisible")
 
                 // Middle element visibility
                 middle.classList.add("invisible");
@@ -529,8 +525,8 @@ export default function Sidebar() {
                 hamburgerSliderParent.classList.remove("absolute")
                 hamburgerSliderParent.classList.remove("bg-mentat-black");
 
-                // // Bottom element visibility
-                // bottom.classList.remove("invisible")
+                // Bottom element visibility
+                bottom.classList.remove("invisible")
 
                 // Middle element visibility
                 middle.classList.remove("invisible");
@@ -717,6 +713,12 @@ export default function Sidebar() {
                     <div>Current Time: <span id="time">{currTime}</span></div>
                 </div>
             </div>
+            {/*Footer Bar*/}
+            <div id="sidebar-bottom"
+                 className="hidden bottom-0 left-0 justify-center p-1 rounded-md space-x-4 w-full lg:flex bg-mentat-gold dark:bg-mentat-gold-700 z-20">
+                <p className="text-xs text-center">Copyright @2025</p>
+            </div>
+
             {/*<div id="sidebar-bottom"*/}
             {/*    className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">*/}
             {/*    <a href="#"*/}
