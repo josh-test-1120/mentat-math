@@ -713,75 +713,75 @@ export default function Sidebar() {
                     <div>Current Time: <span id="time">{currTime}</span></div>
                 </div>
             </div>
-            <div id="sidebar-bottom"
-                className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">
-                <a href="#"
-                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400
-                        hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 disabled">
-                   <SliderSvgComponent className="w-6 h-6"/>
-                </a>
-                <a href="#" data-tooltip-target="tooltip-settings"
-                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400
-                        dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600 disabled">
-                    <SettingsSvgComponent className="w-6 h-6"/>
-                </a>
-                <div id="tooltip-settings" role="tooltip"
-                     className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900
-                        rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip disabled">
-                    Settings page
-                    <div className="tooltip-arrow" data-popper-arrow></div>
-                </div>
-                <button type="button" data-dropdown-toggle="language-dropdown"
-                        className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:hover:text-white dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
-                <DropDownSvgComponent className={"h-5 w-5 rounded-full mt-0.5"}/>
-                </button>
-                <div
-                    className="hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700"
-                    id="language-dropdown">
-                    <ul className="py-1" role="none">
-                        <li>
-                            <a href="#"
-                               className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"
-                               role="menuitem">
-                                <div className="inline-flex items-center">
-                                    <EnglishSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>
-                                    English (US)
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
-                               role="menuitem">
-                                <div className="inline-flex items-center">
-                                    <GermanSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>
-                                    Deutsch
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"
-                               role="menuitem">
-                                <div className="inline-flex items-center">
-                                    <ItalianSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>
-                                    Italiano
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                               className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"
-                               role="menuitem">
-                                <div className="inline-flex items-center">
-                                <MenuSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>
-                                    Test
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            {/*<div id="sidebar-bottom"*/}
+            {/*    className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">*/}
+            {/*    <a href="#"*/}
+            {/*       className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400*/}
+            {/*            hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 disabled">*/}
+            {/*       <SliderSvgComponent className="w-6 h-6"/>*/}
+            {/*    </a>*/}
+            {/*    <a href="#" data-tooltip-target="tooltip-settings"*/}
+            {/*       className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400*/}
+            {/*            dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600 disabled">*/}
+            {/*        <SettingsSvgComponent className="w-6 h-6"/>*/}
+            {/*    </a>*/}
+            {/*    <div id="tooltip-settings" role="tooltip"*/}
+            {/*         className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900*/}
+            {/*            rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip disabled">*/}
+            {/*        Settings page*/}
+            {/*        <div className="tooltip-arrow" data-popper-arrow></div>*/}
+            {/*    </div>*/}
+            {/*    <button type="button" data-dropdown-toggle="language-dropdown"*/}
+            {/*            className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:hover:text-white dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">*/}
+            {/*    <DropDownSvgComponent className={"h-5 w-5 rounded-full mt-0.5"}/>*/}
+            {/*    </button>*/}
+            {/*    <div*/}
+            {/*        className="hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700"*/}
+            {/*        id="language-dropdown">*/}
+            {/*        <ul className="py-1" role="none">*/}
+            {/*            <li>*/}
+            {/*                <a href="#"*/}
+            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"*/}
+            {/*                   role="menuitem">*/}
+            {/*                    <div className="inline-flex items-center">*/}
+            {/*                        <EnglishSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>*/}
+            {/*                        English (US)*/}
+            {/*                    </div>*/}
+            {/*                </a>*/}
+            {/*            </li>*/}
+            {/*            <li>*/}
+            {/*                <a href="#"*/}
+            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"*/}
+            {/*                   role="menuitem">*/}
+            {/*                    <div className="inline-flex items-center">*/}
+            {/*                        <GermanSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>*/}
+            {/*                        Deutsch*/}
+            {/*                    </div>*/}
+            {/*                </a>*/}
+            {/*            </li>*/}
+            {/*            <li>*/}
+            {/*                <a href="#"*/}
+            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"*/}
+            {/*                   role="menuitem">*/}
+            {/*                    <div className="inline-flex items-center">*/}
+            {/*                        <ItalianSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>*/}
+            {/*                        Italiano*/}
+            {/*                    </div>*/}
+            {/*                </a>*/}
+            {/*            </li>*/}
+            {/*            <li>*/}
+            {/*                <a href="#"*/}
+            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"*/}
+            {/*                   role="menuitem">*/}
+            {/*                    <div className="inline-flex items-center">*/}
+            {/*                    <MenuSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>*/}
+            {/*                        Test*/}
+            {/*                    </div>*/}
+            {/*                </a>*/}
+            {/*            </li>*/}
+            {/*        </ul>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
         </aside>
     );
 };
