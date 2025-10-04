@@ -103,6 +103,7 @@ export const getExamPropStatus = (exam: ExamProp): 'active' | 'inactive' => {
 
 // Determine course name for an exam
 export const getExamCourse = (exam: Exam): string => {
+    // TODO: Fix this exam type safety, this is technical debt
     return (exam as any).course;
 };
 
@@ -150,6 +151,7 @@ export function ExamCardExtended({ exam, index }: ExamCardProps) {
                         <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
                             <span className="text-sm font-medium">
                                 {new Date(exam.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
+                                {/*TODO: Fix this exam type safety*/}
                                 <span className="text-xs mt-1"> {(exam as any).exam.hour ?? 1} hours</span>
                                 <span className="text-xs"> {(exam as any).exam_minutes ?? 0} mins</span>
                             </span>
