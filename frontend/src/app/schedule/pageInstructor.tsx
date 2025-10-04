@@ -11,9 +11,9 @@ import CreateTestWindow from "@/app/createTestWindow/pageClient";
 import { useCalendarState } from './hooks/useCalendarState';
 import { useInstructorCourses, useTestWindows } from './hooks/useTestWindowData';
 import { useDeleteActions } from './hooks/useDeleteActions';
-import { CourseSelector } from './components/CourseSelector';
-import { DeleteModal } from './components/DeleteModal';
-import { TestWindowPopover } from './components/TestWindowPopover';
+import { CourseSelector } from '@/app/schedule/localComponents/CourseSelector';
+import { DeleteModal } from '@/app/schedule/localComponents/DeleteModal';
+import { TestWindowPopover } from '@/app/schedule/localComponents/TestWindowPopover';
 import { convertTestWindowsToEvents, processEventCreateData } from './utils/calendarHelpers';
 
 // Needed to get environment variable for Backend API
