@@ -15,6 +15,7 @@ public class JwtResponse {
     private String email;
     private List<String> roles;
     private String userType;
+    private String firstName;
 
     /**
      * Default constructor
@@ -24,14 +25,15 @@ public class JwtResponse {
      * @param email string of the user email
      * @param roles List of String's representing the user Roles
      */
-    public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles,
-                       String userType) {
+    public JwtResponse(String accessToken, Long id, String username, String email,
+                       List<String> roles, String userType, String firstName) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
         this.email = email;
         this.roles = roles;
         this.userType =userType;
+        this.firstName = firstName;
     }
 
     /**
@@ -133,5 +135,18 @@ public class JwtResponse {
      * @param userType String type userType
      */
     public void setUserType(String userType) { this.userType = userType;}
+
+    /**
+     * Getter for First Name
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
+     * Setter for First Name
+     * @param firstName String type firstName
+     */
+    public void setFirstName(String firstName) { this.firstName = firstName;}
 
 }
