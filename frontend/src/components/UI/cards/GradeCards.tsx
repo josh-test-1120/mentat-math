@@ -89,7 +89,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
 
     return (
         <motion.div
-            className="rounded-md border border-gray-200 px-2 py-1 hover:shadow-md transition-shadow"
+            className="rounded-md border border-gray-200 bg-card-color px-2 py-1 hover:shadow-md transition-shadow"
             style={{ position: 'relative', overflow: 'hidden',
                 boxShadow: `1px 1px 1px 1px ${accentColor}` }}
             whileHover={{ y: -1, backgroundColor: darkCimson, opacity: 1 }}

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Exam, ExamProp, Course } from '@/components/types/exams';
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
+import {useState} from "react";
 
 interface ExamExtended extends Exam {
     exam_course_name: string;
@@ -148,7 +149,7 @@ export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps
 
     return (
         <motion.div
-            className="rounded-lg border border-gray-200 p-2 hover:shadow-md transition-shadow"
+            className="rounded-lg border border-gray-200 bg-card-color p-2 hover:shadow-md transition-shadow"
             style={{ position: 'relative', overflow: 'hidden',
                 boxShadow: `1px 1px 6px 1px ${accentColor}` }}
             whileHover={{ y: -2 }}
@@ -203,6 +204,21 @@ export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps
 export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
     // Get exam status
     exam.status = getExamStatus(exam);
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Accent color for cards
+    const accentColor = 'rgba(163, 15, 50, 1.0)';
+    const accentStyle = {
+        content: '',
+        position: 'absolute' as const,
+        bottom: 0,
+        right: 0,
+        width: '80px',
+        height: '80px',
+        background: `radial-gradient(circle at bottom right, ${accentColor} 0%, transparent 55%)`,
+        pointerEvents: 'none' as const,
+        zIndex: 0,
+    };
 
     // Exam Status Badge details
     const getStatusBadge = ({ status }: { status: string}) => {
@@ -223,13 +239,17 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
 
     return (
         <motion.div
-            className="rounded-lg border p-3 flex flex-col hover:shadow-md transition-shadow"
+            className="rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md transition-shadow"
             whileHover={{ y: -2 }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             onClick={onclick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
+            {/*<div style={accentStyle}/>*/}
+            {isHovered && <div style={accentStyle} />}
             <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
                 <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
