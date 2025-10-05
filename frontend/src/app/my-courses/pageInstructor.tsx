@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import Modal from '@/components/services/Modal';
 import CreateCourseClient from '../courses/createCourse/pageClient';
 import { toast } from 'react-toastify';
+import {Plus} from "lucide-react";
 
 type Course = {
     courseId: number;
@@ -138,12 +139,13 @@ export default function InstructorCoursesClient() {
                     <div className="mt-4 mb-6 text-center items-center">
                         <button
                             onClick={handleCreateCourse}
-                            className="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            className="inline-flex items-center px-4 py-2 bg-crimson
+                                text-mentat-gold rounded-lg hover:bg-crimson-700 transition-colors"
                         >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Create New Course
+                            <span className="inline-flex items-center mr-1">
+                                <Plus className="w-5 h-5" />
+                            </span>
+                            <span>Create New Course</span>
                         </button>
                     </div>
                 </div>
