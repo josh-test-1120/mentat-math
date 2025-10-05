@@ -187,9 +187,9 @@ export default function ExamsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-6">
+        <div className="min-h-screen bg-gradient-to-br">
             {/*Course Listing Layout */}
-            <div className="max-w-5xl mx-auto mb-12">
+            <div className="max-w-5xl mx-auto mb-4">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-semibold">My Enrolled Courses</h1>
                     <button
@@ -238,28 +238,29 @@ export default function ExamsPage() {
                     </div>
                 )}
 
-                {/* Join Course Modal */}
-                <Modal
-                    isOpen={isJoinModalOpen}
-                    onClose={() => setIsJoinModalOpen(false)}
-                    title="Join New Course"
-                >
-                    <JoinCourseComponent
-                        onJoinSuccess={() => {
-                            setIsJoinModalOpen(false);
-                            setRefreshTrigger(prev => prev + 1);
-                        }}
-                    />
-                </Modal>
+                {/*/!* Join Course Modal *!/*/}
+                {/*<Modal*/}
+                {/*    isOpen={isJoinModalOpen}*/}
+                {/*    onClose={() => setIsJoinModalOpen(false)}*/}
+                {/*    title="Join New Course"*/}
+                {/*>*/}
+                {/*    <JoinCourseComponent*/}
+                {/*        onJoinSuccess={() => {*/}
+                {/*            setIsJoinModalOpen(false);*/}
+                {/*            setRefreshTrigger(prev => prev + 1);*/}
+                {/*        }}*/}
+                {/*    />*/}
+                {/*</Modal>*/}
             </div>
-
-
-            <div className="max-w-5xl mx-auto mb-8">
+            {/*Exam Listing Layout*/}
+            <div className="max-w-5xl mx-auto">
+                {/* Line Divider */}
+                <hr className="border-crimson border-2 mb-2"></hr>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="mb-8"
+                    // className="mb-8"
                 >
                     <h1 className="text-3xl font-bold mb-2">Exam Schedule</h1>
                     <p>Manage and view your exam information</p>
@@ -327,7 +328,7 @@ export default function ExamsPage() {
                         </span>
                     </div>
 
-                    <div className="overflow-y-auto max-h-[600px] pt-1">
+                    <div className="overflow-y-auto max-h-[250px] scrollbar-hide pt-1">
                         <AnimatePresence mode="wait">
                             {!examsLoading && filteredExams.length > 0 ? (
                                 <motion.div
@@ -378,6 +379,19 @@ export default function ExamsPage() {
                     cancelAction={() => {
                         setIsExamModalOpen(false);
                         // Trigger refresh when modal closes
+                        setRefreshTrigger(prev => prev + 1);
+                    }}
+                />
+            </Modal>
+            {/* Join Course Modal */}
+            <Modal
+                isOpen={isJoinModalOpen}
+                onClose={() => setIsJoinModalOpen(false)}
+                title="Join New Course"
+            >
+                <JoinCourseComponent
+                    onJoinSuccess={() => {
+                        setIsJoinModalOpen(false);
                         setRefreshTrigger(prev => prev + 1);
                     }}
                 />

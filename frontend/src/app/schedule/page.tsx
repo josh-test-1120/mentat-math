@@ -1,7 +1,7 @@
 import { getServerAuthSession } from "@/utils/auth";
-import SchedulesInstructor from "./pageInstructor";
-import SchedulesStudent from "./pageStudent";
-import {Session} from "next-auth";
+import InstructorsPage from "./pageInstructor";
+import StudentsPage from "./pageStudent";
+import { Session } from "next-auth";
 
 /**
  * Default session for users no logged in
@@ -29,27 +29,15 @@ export default async function Schedule() {
     console.log("Schedule page - User type:", session?.user?.userType);
     console.log("Schedule page - User ID:", session?.user?.id);
 
-    // Conditional rendering
-    if (session?.user?.userType == "Instructor") {
-        console.log("Schedule page - Rendering Instructor component");
-        return (
-            <section
-                id={"schedulePageMain"}
-                className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
-            >
-                <SchedulesInstructor/>
-            </section>
-        );
-    } else {
-        console.log("Schedule page - Rendering Student component");
-        return (
-            <section
-                id={"schedulePageMain"}
-                className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
-            >
-                <SchedulesStudent/>
-            </section>
-        );
-    }
+    return (
+        <section
+            id={"schedulePageMain"}
+            className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
+        >
+            {/*Conditional Rendering*/}
+            {session?.user?.userType == "Instructor" ?
+                (<InstructorsPage />) : (<StudentsPage />)}
+        </section>
+    );
 }
 
