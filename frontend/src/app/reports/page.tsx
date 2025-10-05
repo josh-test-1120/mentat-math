@@ -1,7 +1,7 @@
 import { getServerAuthSession } from "@/utils/auth";
-import InstructorPage from "./pageInstructor";
-import StudentPage from "./pageStudent";
-import {Session} from "next-auth";
+import { Session } from "next-auth";
+import InstructorsPage from "./pageInstructor";
+import StudentsPage from "./pageStudent";
 
 /**
  * Default session for users no logged in
@@ -24,23 +24,15 @@ export default async function Schedule() {
     // Session variable
     const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
-    if (session?.user?.userType == "Instructor")
-        return (
-            <section
-                id={"schedulePageMain"}
-                className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
-            >
-                <InstructorPage/>
-            </section>
-        );
-    else
-        return (
-            <section
-                id={"schedulePageMain"}
-                className=" font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
-            >
-                <StudentPage/>
-            </section>
-        );
+    return (
+        <section
+            id={"reportsPageMain"}
+            className="font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
+        >
+            {/*Conditional Rendering*/}
+            {session?.user?.userType == "Instructor" ?
+                (<InstructorsPage />) : (<StudentsPage />)}
+        </section>
+    );
 }
 

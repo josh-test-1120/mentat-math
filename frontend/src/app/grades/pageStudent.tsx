@@ -196,7 +196,7 @@ export default function GradesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-6">
+        <div className="min-h-screen bg-gradient-to-br">
             <div className="max-w-5xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

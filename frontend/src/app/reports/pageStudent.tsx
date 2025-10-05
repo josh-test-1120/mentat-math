@@ -4,7 +4,7 @@ import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExamProp, Class, ExamResult } from '@/components/types/exams';
-import Course  from '@/components/types/course';
+import Course from '@/components/types/course';
 import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
@@ -279,9 +279,9 @@ export default function StudentReport() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-6">
+        <div className="min-h-screen bg-gradient-to-br">
             {/*This is the Course Selection button*/}
-            <div className="flex justify-between items-center mb-6">
+            <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
                 { session ?
                     (
                         <React.Fragment>
@@ -318,12 +318,11 @@ export default function StudentReport() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    // className="mb-8"
                 >
                     <h1 className="text-3xl font-bold text-center mb-1">Student Performance Report</h1>
 
                     {/* Line Divider */}
-                    <hr className="border-crimson mb-2"></hr>
+                    <hr className="border-crimson border-2 mb-2"></hr>
 
                     <div className="overflow-y-auto max-h-[550px] pt-1
                             scrollbar-hide"

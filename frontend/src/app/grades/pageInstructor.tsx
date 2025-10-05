@@ -245,7 +245,7 @@ export default function ExamDashboard() {
     if (loading) return <div className="p-6">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-6">
+        <div className="min-h-screen bg-gradient-to-br">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
@@ -292,11 +292,10 @@ export default function ExamDashboard() {
                     </div>
                 </div>
                 {/* Line Divider */}
-                <hr className="border-crimson mb-2"></hr>
+                <hr className="border-crimson border-2 mb-2"></hr>
                 {/* Card Layout */}
                 <div className="shadow-sm p-4 pt-2 max-h-[60vh] min-h-[200px]
-                    overflow-y-auto scrollbar-thin scrollbar-thumb-mentat-gold
-                    scrollbar-track-gray-100"
+                    overflow-y-auto scrollbar-hide"
                 >
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         <AnimatePresence>
