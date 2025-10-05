@@ -3,8 +3,10 @@ import org.mentats.mentat.models.*;
 
 
 import org.mentats.mentat.payload.request.ExamRequest;
+import org.mentats.mentat.repositories.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,14 @@ import java.util.*;
 @RestController
 @RequestMapping("/api")
 public class HomeAPIController {
+    // Repository services
+    private final CourseRepository courseRepository;
+
+    // Constructor for DI (Dependency Injection)
+    public HomeAPIController(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
+    }
+
     /**
      * Get the last exam ID from the database to increment
      * @return integer of last exam ID
@@ -619,39 +629,23 @@ public class HomeAPIController {
      * @return Map object that have {string, object} types
      */
     @GetMapping("/course/{courseID}")
-    public Map<String, Object> getCourse(@PathVariable("courseID") Long id) {
-
-        // SQL query to select from the 'course' table where the course ID is present
-        String sql = "SELECT * \n" +
-                "FROM course \n" +
-                "WHERE course_id = ?;\n";
-        // list to store retrieved courses details
-        Map<String, Object> course = new HashMap<>();
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            // Update the Query with the variables
-            stmt.setLong(1, id);  // Set the exam ID
-
-            // Execute the query
-            ResultSet rs = stmt.executeQuery();
-
-            //iterates through result set
-            if (rs.next()) {
-                course.put("course_id", rs.getInt("course_id"));
-                course.put("course_name", rs.getString("course_name"));
-                course.put("course_professor_id", rs.getInt("course_professor_id"));
-                course.put("course_year", rs.getInt("course_year"));
-                course.put("course_quarter", rs.getString("course_quarter"));
-                course.put("course_section", rs.getString("course_section"));
+    public ResponseEntity<Course> getCourse(@PathVariable("courseID") Long id) {
+        try {
+            // Use the repository to find the course by ID
+            Optional<Course> courseOptional = courseRepository.findById(id);
+            // Check to make sure record exists
+            if (courseOptional.isPresent()) {
+                Course course = courseOptional.get();
+                return ResponseEntity.ok(course);
+            } else {
+                // Return 404 if course not found
+                return ResponseEntity.notFound().build();
             }
+        // Exception Handler
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        // Return course
-        return course;
     }
 
     /**

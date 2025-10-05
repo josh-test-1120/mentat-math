@@ -282,29 +282,35 @@ export default function StudentReport() {
         <div className="min-h-screen bg-gradient-to-br p-6">
             {/*This is the Course Selection button*/}
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
-                <div className="flex gap-2">
-                    <button
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${courseFilter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                        onClick={() => setCourseFilter('all')}
-                    >
-                        All Courses
-                    </button>
-                    { loading ? ( <React.Fragment /> ) :
-                        (
-                            <React.Fragment>
-                            {filteredCourses.map((course) => (
+                { session ?
+                    (
+                        <React.Fragment>
+                            <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
+                            <div className="flex gap-2">
                                 <button
-                                    key={course.courseId}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${courseFilter === course.course_name ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                    onClick={() => setCourseFilter(course.courseName)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${courseFilter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setCourseFilter('all')}
                                 >
-                                    {course.courseName}
+                                    All Courses
                                 </button>
-                            ))}
-                            </React.Fragment>
-                        )}
-                </div>
+                                { loading ? ( <React.Fragment /> ) :
+                                    (
+                                        <React.Fragment>
+                                            {filteredCourses.map((course) => (
+                                                <button
+                                                    key={course.courseId}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${courseFilter === course.course_name ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                                    onClick={() => setCourseFilter(course.courseName)}
+                                                >
+                                                    {course.courseName}
+                                                </button>
+                                            ))}
+                                        </React.Fragment>
+                                    )}
+                            </div>
+                        </React.Fragment>
+                    ) : ( <React.Fragment /> )
+                }
             </div>
             {/*Main Area for details of page*/}
             <div className="max-w-5xl mx-auto">
@@ -312,15 +318,15 @@ export default function StudentReport() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="mb-8"
+                    // className="mb-8"
                 >
                     <h1 className="text-3xl font-bold text-center mb-1">Student Performance Report</h1>
 
                     {/* Line Divider */}
                     <hr className="border-crimson mb-2"></hr>
 
-                    <div className="overflow-y-auto max-h-[500px] pt-1
-                            scrollbar-hide mb-12"
+                    <div className="overflow-y-auto max-h-[550px] pt-1
+                            scrollbar-hide"
                     >
                         <div className="justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold text-center">Grade Overview</h2>
