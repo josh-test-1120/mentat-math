@@ -1,168 +1,223 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import Modal from '@/components/services/Modal';
-import JoinCourseComponent from '@/app/courses/JoinCourse';
+import CreateCourseClient from '../courses/createCourse/pageClient';
+import { toast } from 'react-toastify';
 
 type Course = {
-  courseID: number;         // matches `getCourseID()` JSON field
-  courseName: string;       // `course_name` -> @JsonProperty("courseName")
-  courseSection: string;
-  courseYear: number;
-  courseQuarter: string;
+    courseId: number;
+    courseName: string;
+    courseSection: string;
+    courseYear: number;
+    courseQuarter: string;
+    courseProfessorId: string;
 };
 
-export default function MyCoursesPage() {
-    // Session information
-  const { data: session, status } = useSession();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+export default function InstructorCoursesClient() {
+    const { data: session, status } = useSession();
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-  // Fetch courses
-  useEffect(() => {
-    // If not authenticated, return
-    if (status !== 'authenticated') return;
-    // Get student ID
-    const id = session?.user?.id?.toString();
-    // If no student ID, return
-    if (!id) return;
+    // Move fetchInstructorCourses outside useEffect
+    const fetchInstructorCourses = useCallback(async () => {
+        if (status !== 'authenticated') return;
+        const id = session?.user?.id?.toString();
+        if (!id) return;
 
-    // Fetch courses
-    const fetchCourses = async () => {
-      // Try wrapper to handle async exceptions
-      try {
-        // API Handler
-        const res = await apiHandler(
-          undefined, // No body for GET request
-          'GET',
-          `course/enrollments?studentId=${id}`,
-          `${BACKEND_API}`,
-          session?.user?.accessToken || undefined
-        );
-        
-        // Handle errors
-        if (res instanceof Error || (res && res.error)) {
-          console.error('Error fetching courses:', res.error);
-          setCourses([]);
-        } else {
-            // Convert object to array
-            let coursesData = [];
-            
-            // If res is an array, set coursesData to res
-            if (Array.isArray(res)) {
-              coursesData = res;
-            // If res is an object, set coursesData to the values of the object
-            } else if (res && typeof res === 'object') {
-                // Use Object.entries() to get key-value pairs, then map to values
-                coursesData = Object.entries(res)
-                  .filter(([key, value]) => value !== undefined && value !== null)
-                  .map(([key, value]) => value);
-            // If res is not an array or object, set coursesData to an empty array
-            } else {
-              coursesData = [];
+        try {
+            setLoading(true);
+            setError(null);
+
+            const res = await apiHandler(
+                undefined,
+                'GET',
+                `course/listCourses?id=${id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+
+            if (res?.error) {
+                console.error('List Instructor Courses failed:', res);
+                toast.error(res.message || 'List Instructor Courses failed');
+                return;
             }
-            
-            // Filter out invalid entries
-            coursesData = coursesData.filter(c => c && typeof c === 'object');
-            
-            console.log('Processed courses data:', coursesData);
-            // Set courses to coursesData
-            setCourses(coursesData);
-          }
-      } catch (e) {
-        // Error fetching courses
-        console.error('Error fetching courses:', e);
-        // Set courses to empty array
-        setCourses([]);
-      } finally {
-        // Set loading to false
-        setLoading(false);
-      }
+
+            console.log('Instructor courses response:', res);
+
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching instructor courses:', res.error);
+                setError(res.error || 'Failed to fetch courses');
+                setCourses([]);
+            } else {
+                // Handle different response formats
+                let coursesData = [];
+
+                if (Array.isArray(res)) {
+                    coursesData = res;
+                } else if (res && Array.isArray(res.data)) {
+                    coursesData = res.data;
+                } else if (res && Array.isArray(res.result)) {
+                    coursesData = res.result;
+                } else if (res && typeof res === 'object') {
+                    coursesData = Object.values(res).filter(c => c && typeof c === 'object');
+                }
+
+                console.log('Processed instructor courses:', coursesData);
+                setCourses(coursesData);
+            }
+        } catch (e) {
+            console.error('Error fetching instructor courses:', e);
+            setError('Failed to fetch courses');
+            setCourses([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [status, session, BACKEND_API]);
+
+    // Use useEffect to call fetchInstructorCourses on mount
+    useEffect(() => {
+        fetchInstructorCourses();
+    }, [fetchInstructorCourses]);
+
+    if (status !== 'authenticated') {
+        return (
+            <div className="p-6 text-center">
+                <div className="text-gray-600">Please sign in to view your courses.</div>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="p-6 text-center">
+                <div className="text-gray-600">Loading your courses...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-6 text-center">
+                <div className="text-red-600">Error: {error}</div>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
+    const handleCreateCourse = () => {
+        setIsCreateModalOpen(true);
     };
 
-    // Fetch courses
-    fetchCourses();
-  }, [status, session, BACKEND_API, refreshTrigger]);
+    const handleCloseModal = () => {
+        setIsCreateModalOpen(false);
+    };
 
-  if (status !== 'authenticated') return <div className="p-6">Please sign in.</div>;
-  if (loading) return <div className="p-6">Loading...</div>;
+    const handleCourseCreated = () => {
+        // Refresh the courses list when a new course is created
+        // Now this will work because fetchInstructorCourses is accessible
+        fetchInstructorCourses();
+        setIsCreateModalOpen(false);
+    };
 
+    return (
+        <div className="min-h-screen overflow-auto p-6 max-w-6xl mx-auto pb-12">
+            <div className="mb-6">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>
+                    <div className="mt-4 mb-6 text-center items-center">
+                        <button
+                            onClick={handleCreateCourse}
+                            className="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Create New Course
+                        </button>
+                    </div>
+                </div>
+                {/*<h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>*/}
+                <p className="mt-2">
+                    Manage and view all courses you have created as an instructor.
+                </p>
+            </div>
 
+            {courses.length === 0 ? (
+                <div className="text-center py-12">
+                    <div className="text-gray-500 text-lg mb-4">No courses found</div>
+                    <p className="text-gray-400">
+                        You haven't created any courses yet.
+                        <a href="/courses/create" className="text-yellow-300 bg-red-700 hover:underline ml-1">
+                            Create your first course
+                        </a>
+                    </p>
+                </div>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+                    {courses.map((course, index) => (
+                        <div key={`${course?.courseId ?? 'no-id'}-${index}`} className="bg-white/5 border border-mentat-gold/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex justify-between items-start mb-4">
+                                <h3 className="text-xl font-semibold text-mentat-gold line-clamp-2">
+                                    {course.courseName || 'Untitled Course'}
+                                </h3>
+                                <span className="bg-mentat-gold/20 text-mentat-gold text-xs px-2 py-1 rounded-full border border-mentat-gold/30">
+                                    ID: {course.courseId}
+                                </span>
+                            </div>
 
-  return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">My Enrolled Courses</h1>
-        <button
-          onClick={() => setIsJoinModalOpen(true)}
-          className="text-white font-bold py-2 px-4 rounded-md transition-all duration-200 hover:brightness-110 flex items-center gap-2"
-          style={{ backgroundColor: '#A30F32' }}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Join New Course
-        </button>
-      </div>
-      
-      {courses.length === 0 ? (
-        <div className="text-zinc-200 text-center py-8">
-          <p className="mb-4">You are not enrolled in any courses yet.</p>
-          <button
-            onClick={() => setIsJoinModalOpen(true)}
-            className="text-white font-bold py-2 px-4 rounded-md transition-all duration-200 hover:brightness-110 flex items-center gap-2 mx-auto"
-            style={{ backgroundColor: '#A30F32' }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Join Your First Course
-          </button>
+                            <div className="space-y-2 text-sm text-mentat-gold/80">
+                                <div className="flex items-center">
+                                    <span className="font-medium w-20">Section:</span>
+                                    <span>{course.courseSection || 'Not specified'}</span>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <span className="font-medium w-20">Quarter:</span>
+                                    <span>{course.courseQuarter || 'Not specified'}</span>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <span className="font-medium w-20">Year:</span>
+                                    <span>{course.courseYear || 'Not specified'}</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t border-gray-100">
+                                <div className="flex space-x-2">
+                                    <button className="flex-1 px-3 py-2 bg-[#A30F32] text-sm rounded-lg
+                                        hover:bg-crimson-700 transition-colors">
+                                        View Details
+                                    </button>
+                                    <button className="flex-1 px-3 py-2 bg-mentat-gold text-crimson
+                                        text-sm rounded-lg hover:bg-mentat-gold-700 transition-colors">
+                                        Edit Course
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Create Course Modal */}
+            <Modal
+                isOpen={isCreateModalOpen}
+                onClose={handleCloseModal}
+                title="Create New Course"
+            >
+                <CreateCourseClient onCourseCreated={handleCourseCreated} onCancel={handleCloseModal} />
+            </Modal>
         </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {courses.map((c, index) => {
-            // Skip if course is undefined/null
-            if (!c || typeof c !== 'object') {
-              console.warn(`Skipping invalid course at index ${index}:`, c);
-              return null;
-            }
-            
-            return (
-              <div key={c.courseID || index} className="border rounded-xl p-4 shadow-sm">
-                <div className="text-lg font-bold">
-                  {c.courseName || 'Unknown Course'}
-                </div>
-                <div className="text-sm text-white mt-1">
-                  Section: {c.courseSection || 'Not specified'}
-                </div>
-                <div className="text-sm text-white">
-                Quarter: {c.courseQuarter || 'Not specified'} {c.courseYear || ''}
-                </div>
-              </div>
-            );
-          }).filter(Boolean)} {/* Remove null entries */}
-        </div>
-      )}
-
-      {/* Join Course Modal */}
-      <Modal 
-        isOpen={isJoinModalOpen} 
-        onClose={() => setIsJoinModalOpen(false)} 
-        title="Join New Course"
-      >
-        <JoinCourseComponent 
-          onJoinSuccess={() => {
-            setIsJoinModalOpen(false);
-            setRefreshTrigger(prev => prev + 1);
-          }}
-        />
-      </Modal>
-    </div>
-  );
+    );
 }

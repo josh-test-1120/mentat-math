@@ -23,6 +23,8 @@ const config: Config = {
           DEFAULT: "#A30F32",
           700: "#8e0d2b",
         },
+        "card-color": "rgb(255 255 255 / 0.05)",
+        "button-hover": "#d1d5db"
       },
       animation: {
         'typewriter': 'typewriter 0.5s ease-in-out forwards',
@@ -64,7 +66,14 @@ const config: Config = {
   plugins: [
       require("flowbite/plugin"),
       require('tailwind-scrollbar'),
-      require('tailwind-scrollbar-hide')
+      require('tailwind-scrollbar-hide'),
+      function({ addComponents }) {
+          addComponents({
+              '.focus-mentat': {
+                  '@apply ring-2 outline-none ring-mentat-gold-700 ring-opacity-75': {},
+              },
+          })
+      },
   ],
 };
 export default config;

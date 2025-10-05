@@ -11,6 +11,7 @@ import {getExamPropCourse, ExamCardSmall, getExamStatus} from "@/components/UI/c
 import Modal from "@/components/services/Modal";
 import ExamDetailsComponent from "@/components/UI/exams/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
+import {className} from "postcss-selector-parser";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -256,19 +257,29 @@ export default function ExamDashboard() {
                         <h2 className="text-xl font-semibold">Your Exams</h2>
                         <div className="flex gap-2">
                             <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    filter === 'all'
+                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
+                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'
+                                }`}
                                 onClick={() => setFilter('all')}
                             >
                                 All Exams
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'MATH260' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    filter === 'MATH260'
+                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
+                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                 onClick={() => setFilter('MATH260')}
                             >
                                 MATH260
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'MATH330' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    filter === 'MATH330'
+                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
+                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                 onClick={() => setFilter('MATH330')}
                             >
                                 MATH330
@@ -279,7 +290,7 @@ export default function ExamDashboard() {
                 {/* Line Divider */}
                 <hr className="border-crimson mb-2"></hr>
                 {/* Card Layout */}
-                <div className="rounded-xl shadow-sm p-6 pt-2 max-h-[60vh] min-h-[200px]
+                <div className="shadow-sm p-4 pt-2 max-h-[60vh] min-h-[200px]
                     overflow-y-auto scrollbar-thin scrollbar-thumb-mentat-gold
                     scrollbar-track-gray-100"
                 >
@@ -305,19 +316,19 @@ export default function ExamDashboard() {
                     <div className="rounded-xl shadow-sm pt-6">
                         <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 rounded-lg border border-blue-100">
+                            <div className="p-4 rounded-lg border bg-card-color">
                                 <h3 className="text-lg font-medium mb-2">Passed Student Exams</h3>
                                 <p className="text-3xl font-bold">
                                     {exams.filter(exam => exam.status === 'completed').length}
                                 </p>
                             </div>
-                            <div className="p-4 rounded-lg border">
+                            <div className="p-4 rounded-lg border bg-card-color">
                                 <h3 className="text-lg font-medium mb-2">Failed Student Exams</h3>
                                 <p className="text-3xl font-bold">
                                     {exams.filter(exam => exam.status === 'failed').length}
                                 </p>
                             </div>
-                            <div className="p-4 rounded-lg border">
+                            <div className="p-4 rounded-lg border bg-card-color">
                                 <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
                                 <p className="text-3xl font-bold">
                                     {exams.filter(exam => exam.status === 'completed'
