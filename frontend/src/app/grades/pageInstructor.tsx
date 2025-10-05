@@ -7,11 +7,11 @@ import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Exam, ExamProp, Course } from "@/components/types/exams";
-import {getExamPropCourse, ExamCardSmall, getExamStatus} from "@/components/UI/cards/ExamCards";
+import { getExamPropCourse, ExamCardSmall, getExamStatus  } from "@/components/UI/cards/ExamCards";
+import CreateExam from "./localComponents/CreateExam";
 import Modal from "@/components/services/Modal";
 import ExamDetailsComponent from "@/components/UI/exams/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
-import {className} from "postcss-selector-parser";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -248,7 +248,11 @@ export default function ExamDashboard() {
         <div className="min-h-screen bg-gradient-to-br p-6">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
+                        < CreateExam />
+                    </div>
+                    {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
                     <p>Manage and view your created exams</p>
                 </header>
 
