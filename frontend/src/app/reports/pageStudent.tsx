@@ -8,9 +8,8 @@ import Course from '@/components/types/course';
 import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
-import ExamActionsComponent from "@/components/UI/exams/ExamActions";
-import { GradeChart } from "@/components/UI/reports/StatusChart";
-import ExamProgressChart from "@/components/UI/reports/ExamProgressChart";
+import { GradeChart } from "./localComponents/StatusChart";
+import ProgressChart, { ExamAttempt } from "./localComponents/ProgressChart";
 
 export interface Report extends ExamResult {
     course_name: string;
@@ -30,6 +29,7 @@ export default function StudentReport() {
 
     // View data states
     const [grades, setGrades] = useState<Report[]>([]);
+    const [courseGrades, setCourseGrades] = useState<Report[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
     const [tests, setTests] = useState([]);
     // const [finalScore, setFinalScore] = useState('');
@@ -40,46 +40,55 @@ export default function StudentReport() {
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
 
+    // Filter states
     const [selectedClass, setSelectedClass] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
-    const [courseFilter, setCourseFilter] = useState<'all' | string>('all');
+    const [courseFilter, setCourseFilter] = useState<string>('');
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const filteredGrades = useMemo(() => {
         // Wait until grades data is loaded and available
-        if (!grades || grades.length === 0) {
+        if (!courseGrades || courseGrades.length === 0) {
             return [];
         }
+
         // First filter by class
         let result = filter === 'all'
-            ? grades
-            : grades.filter(grade => grade.status === filter);
+            ? courseGrades
+            : courseGrades.filter(grade => grade.status === filter);
 
         // Then filter by status
         if (filter !== 'all') {
-            result = grades.filter(grade => getGradeStatus(grade) === filter);
+            result = courseGrades.filter(grade => getGradeStatus(grade) === filter);
         }
 
         return result;
-    }, [grades, filter]);
+    }, [courseGrades, filter]);
 
     const filteredCourses = useMemo(() => {
         // Wait until grades data is loaded and available
         if (!courses || courses.length === 0) {
             return [];
         }
+
+        // Update the exams only assigned to this course
+        let reducedGrades: Report[];
+        // Reset the exams on course change
+        if (grades.length !== courseGrades.length) {
+            setCourseGrades(grades);
+        }
+        // Now reduce the exams by the new course
+        reducedGrades = grades.filter(grade => grade.course_name === courseFilter);
+        console.log('Updating the Course filter');
+        console.log(reducedGrades);
+        // Update the course grades
+        setCourseGrades(reducedGrades);
+
+        console.log(courses.filter(course => course.courseName === courseFilter)[0]);
+
         // First filter by course
-        let result = courseFilter === 'all'
-            ? courses
-            : courses.filter(course => course.courseName === courseFilter);
-
-        // // Then filter by status
-        // if (courseFilter !== 'all') {
-        //     result = grades.filter(grade => getGradeStatus(grade) === filter);
-        // }
-
-        return result;
+        return courses.filter(course => course.courseName === courseFilter);
     }, [courses, courseFilter]);
 
     const containerVariants = {
@@ -189,7 +198,8 @@ export default function StudentReport() {
 
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching grades:', res.error);
-                setGrades([]);
+                // setGrades([]);
+                // setCourseGrades([]);
             } else {
                 // Assuming your API returns both exams and tests
                 // Adjust this based on your actual API response structure
@@ -200,13 +210,18 @@ export default function StudentReport() {
                     ...grade,
                     status: getGradeStatus(grade)
                 }));
-                setGrades(examsRaw); // now we can store in useState and not lose it
+                // setGrades(examsRaw);
+                // setCourseGrades(examsRaw);
             }
         } catch (error) {
-            console.error('Error fetching student grades:', error.toString());
-            setGrades([]);
+            console.error('Error fetching student grades:', error as string);
         } finally {
-            // setLoading(false);
+            if (examsRaw.length === 0) {
+                setGrades([]);
+            }
+            else {
+                setGrades(examsRaw);
+            }
             return examsRaw;
         }
     }
@@ -252,20 +267,24 @@ export default function StudentReport() {
                     coursesData.push(res.course || res);
                 }
             }
-            // Then transform the array for status
-            coursesData = coursesData.map(grade => ({
-                ...grade,
-                status: getGradeStatus(grade)
-            }));
 
             console.log('This is the courses data:');
             console.log(coursesData);
 
         } catch (error) {
-            console.error('Error fetching student courses:', error.toString());
-            setCourses([]);
+            console.error('Error fetching student courses:', error as string);
+            // setCourses([]);
         } finally {
-            setCourses(coursesData);
+            if (coursesData.length !== 0) {
+                // Time to update states
+                // First course retried as default
+                setCourseFilter(coursesData[0].courseName);
+                setCourses(coursesData);
+            }
+            else {
+                setCourses([]);
+            }
+            // Now we are done loading data
             setLoading(false);
         }
     }
@@ -287,26 +306,31 @@ export default function StudentReport() {
                         <React.Fragment>
                             <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
                             <div className="flex gap-2">
-                                <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${courseFilter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                    onClick={() => setCourseFilter('all')}
-                                >
-                                    All Courses
-                                </button>
-                                { loading ? ( <React.Fragment /> ) :
-                                    (
+                                { loading ? ( <React.Fragment /> ) : filteredCourses.length === 0
+                                    ? (
+                                        <div>
+                                            <p>Student has no courses</p>
+                                        </div>
+                                    )
+                                    : (
                                         <React.Fragment>
-                                            {filteredCourses.map((course) => (
+                                            {courses.map((course) => (
                                                 <button
                                                     key={course.courseId}
-                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${courseFilter === course.course_name ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                                     shadow-sm shadow-mentat-gold-700 ${
+                                                        courseFilter === course.courseName 
+                                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat' 
+                                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
+                                                        `}
                                                     onClick={() => setCourseFilter(course.courseName)}
                                                 >
                                                     {course.courseName}
                                                 </button>
                                             ))}
                                         </React.Fragment>
-                                    )}
+                                    )
+                                }
                             </div>
                         </React.Fragment>
                     ) : ( <React.Fragment /> )
@@ -330,7 +354,7 @@ export default function StudentReport() {
                         <div className="justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold text-center">Grade Overview</h2>
                             <div className="flex gap-2">
-                                <div className="w-1/2">
+                                <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
                                     { loading ? (
                                         <motion.div
                                             initial={{ opacity: 0 }}
@@ -349,12 +373,12 @@ export default function StudentReport() {
                                             className="space-y-2 mb-2"
                                         >
                                             <GradeChart
-                                                data={grades}
+                                                data={filteredGrades}
                                             />
                                         </motion.div>
                                     )}
                                 </div>
-                                <div className="w-1/2">
+                                <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
                                     { loading ? (
                                             <motion.div
                                                 initial={{ opacity: 0 }}
@@ -372,14 +396,13 @@ export default function StudentReport() {
                                                 animate="visible"
                                                 className="space-y-2 mb-2"
                                             >
-                                                <ExamProgressChart
-                                                    exams={grades}
-                                                    courses={courses}
+                                                <ProgressChart
+                                                    exams={filteredGrades as ExamAttempt[]}
+                                                    course={filteredCourses[0]}
                                                 />
                                             </motion.div>
                                         )}
                                 </div>
-                                {/*<div className="border border-white size-1/2">Test</div>*/}
                             </div>
                         </div>
 
@@ -387,19 +410,31 @@ export default function StudentReport() {
                             <h2 className="text-xl font-semibold">Your Grades</h2>
                             <div className="flex gap-2">
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'all'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                     onClick={() => setFilter('all')}
                                 >
                                     All Grades
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'passed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'passed'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                     onClick={() => setFilter('passed')}
                                 >
                                     Passed
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'failed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'failed'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                                     onClick={() => setFilter('failed')}
                                 >
                                     Failed
@@ -449,6 +484,7 @@ export default function StudentReport() {
                                         </motion.div>
                                     ) : loading === true ? (
                                         <motion.div
+                                            variants={containerVariants}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             className="text-center py-12"
@@ -457,6 +493,7 @@ export default function StudentReport() {
                                         </motion.div>
                                     ) : (
                                         <motion.div
+                                            variants={containerVariants}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             className="text-center py-12"
@@ -467,35 +504,38 @@ export default function StudentReport() {
                                 </AnimatePresence>
                             </div>
                         </motion.div>
-                        <div className="max-w-5xl mx-auto rounded-xl shadow-sm pt-6">
+                        <div className="max-w-5xl mx-auto rounded-xl pt-6 mb-1">
                             <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
                             { loading ?
                                 ( <div className="text-center">Calculating Grade Summary...</div> )
-                                : grades.length === 0 ?
+                                : courseGrades.length === 0 ?
                                     <div className="text-center">No grades available</div> :
                                     (
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div className="p-4 rounded-lg border border-blue-100">
+                                            <div className="bg-card-color p-4 rounded-lg border border-blue-100
+                                                shadow-md shadow-crimson-700">
                                                 <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
                                                 <p className="text-3xl font-bold">
-                                                    {grades.filter(grade => grade.status === 'passed').length}
+                                                    {courseGrades.filter(grade => grade.status === 'passed').length}
                                                 </p>
                                             </div>
-                                            <div className="p-4 rounded-lg border">
+                                            <div className="bg-card-color p-4 rounded-lg border border-blue-100
+                                                shadow-md shadow-crimson-700">
                                                 <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
                                                 <p className="text-3xl font-bold">
-                                                    {grades.filter(grade => grade.status === 'failed').length}
+                                                    {courseGrades.filter(grade => grade.status === 'failed').length}
                                                 </p>
                                             </div>
 
-                                            <div className="p-4 rounded-lg border">
+                                            <div className="bg-card-color p-4 rounded-lg border border-blue-100
+                                                shadow-md shadow-crimson-700">
                                                 <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
                                                 <p className={`text-3xl font-bold ${
-                                                    avgScore(grades) === 'A' || avgScore(grades) === 'B' ? 'text-green-600' :
-                                                        avgScore(grades) === 'C' ? 'text-yellow-600' :
+                                                    avgScore(courseGrades) === 'A' || avgScore(courseGrades) === 'B' ? 'text-green-600' :
+                                                        avgScore(courseGrades) === 'C' ? 'text-yellow-600' :
                                                             'text-red-600'
                                                 }`}>
-                                                    {avgScore(grades)}
+                                                    {avgScore(courseGrades)}
                                                 </p>
                                             </div>
                                         </div>

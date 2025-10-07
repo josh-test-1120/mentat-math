@@ -10,6 +10,11 @@ interface GradeChartProps {
     data: Grade[];
 }
 
+interface GradeStatus {
+    name: string;
+    value: number;
+}
+
 export const GradeChart = ({ data } : GradeChartProps) => {
     // Chart Variables
     const svgRef = useRef<HTMLDivElement>(null);
@@ -46,22 +51,23 @@ export const GradeChart = ({ data } : GradeChartProps) => {
         return counter;
     }
 
-    const calculateStatus = (data: Grade[]) : Object[] => {
-        // New graph Map
-        // const statusMap = new Object();
-        let statusMap = [];
+    const calculateStatus = (data: Grade[]) : GradeStatus[] => {
+        // New status map
+        let statusMap: GradeStatus[] = [];
 
         for (const grade of data) {
             if (grade.status !== undefined) {
-                if (statusMap.some(dict => grade.status === dict.name)) {
-                    // Get the index and update the counter value
-                    let index = statusMap.indexOf(grade.status);
-                    statusMap.find(dict => ++dict.value)
+                const existingGrade = statusMap.find(dict =>
+                    grade.status === dict.name);
+                if (existingGrade) {
+                    // Increment the existing grade's value
+                    existingGrade.value++;
+                } else {
+                    statusMap.push({
+                        name: grade.status,
+                        value: 1,
+                    });
                 }
-                else statusMap.push({
-                    name: grade.status,
-                    value: 1,
-                });
             }
         }
         // Return the graph data object
@@ -114,20 +120,20 @@ export const GradeChart = ({ data } : GradeChartProps) => {
         console.log(`Chart dimensions: ${chartWidth}x${chartHeight}, radius: ${radius}`);
 
         // Use it directly
-        const color = d3.scaleOrdinal()
+        const color = d3.scaleOrdinal<string>()
             .domain(Object.keys(statusColorMap))
             .range(Object.values(statusColorMap));
 
-        const pie = d3.pie()
+        const pie = d3.pie<GradeStatus>()
             .sort(null)
             .value(d => d.value);
 
-        const arc = d3.arc()
+        const arc = d3.arc<d3.PieArcDatum<GradeStatus>>()
             .innerRadius(0)
             .outerRadius(radius);
 
         const labelRadius = radius * 0.6; // Adjust for better label placement
-        const arcLabel = d3.arc()
+        const arcLabel = d3.arc<d3.PieArcDatum<GradeStatus>>()
             .innerRadius(labelRadius)
             .outerRadius(labelRadius);
 
@@ -224,14 +230,27 @@ export const GradeChart = ({ data } : GradeChartProps) => {
         // Generate the chart
         const svg = chart();
         // Append the created SVG to the DOM
-        svgRef.current.appendChild(svg);
+        if (svgRef.current && svg) {
+            svgRef.current.appendChild(svg);
+        }
     }, [data, dimensions]); // Re-run effect if data or dimensions change
 
     return (
-        <div
-            ref={svgRef}
-            className="w-full h-full min-h-[300px] flex items-center justify-center rounded-lg border"
-            style={{ width: '100%', height: '100%' }}
-        />
+        <div className="rounded-lg border w-full h-full min-h-[300px] bg-card-color shadow-md shadow-crimson-700 relative">
+            {data.length === 0 ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    No grades assigned for course
+                </div>
+            ) : (
+                <div
+                    ref={svgRef}
+                    className="w-full h-full"
+                    style={{
+                        display: 'block',
+                        position: 'absolute',
+                    }}
+                />
+            )}
+        </div>
     );
 };
