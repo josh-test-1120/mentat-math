@@ -37,17 +37,20 @@ export default function SignInForm() {
 
     return (
         <div className="container mx-auto max-w-md">
-            <h1 className="text-3xl font-bold text-mentat-gold">Sign In</h1>
+            <h1 className="text-3xl text-mentat-gold">Sign In</h1>
             <form className="mt-4" onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label
-                        className="block text-amber-600 text-sm font-bold mb-2"
+                        className="block text-mentat-gold text-sm mb-2"
                         htmlFor="username"
                     >
                         Username
                     </label>
                     <input
-                        className="border border-gray-400 rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
+                        className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
+                            text-crimson-700 placeholder-crimson-700
+                            [&:-webkit-autofill]:!bg-crimson-700 leading-tight focus:outline-none
+                             focus:shadow-outline w-full"
                         type="text"
                         name="username"
                         placeholder="Username"
@@ -56,13 +59,15 @@ export default function SignInForm() {
                         onChange={(e) => setUsername(e.target.value)}
                     />
                     <label
-                        className="block text-amber-600 text-sm font-bold mb-2"
+                        className="block text-mentat-gold text-sm mb-2"
                         htmlFor="email"
                     >
                         Email
                     </label>
                     <input
-                        className="border border-gray-400 rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
+                        className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
+                            text-crimson-700 placeholder-crimson-700 leading-tight focus:outline-none
+                             focus:shadow-outline w-full"
                         type="email"
                         name="email"
                         id="email"
@@ -72,13 +77,15 @@ export default function SignInForm() {
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <label
-                        className="block text-amber-600 text-sm font-bold mb-2"
+                        className="block text-mentat-gold text-sm mb-2"
                         htmlFor="password"
                     >
                         Password
                     </label>
                     <input
-                        className="border border-gray-400 rounded-lg py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full"
+                        className="border border-mentat-gold-700 rounded-lg py-2 px-3
+                            text-crimson-700 placeholder-crimson-700 leading-tight focus:outline-none
+                             focus:shadow-outline w-full"
                         type="password"
                         name="password"
                         id="password"
@@ -88,7 +95,8 @@ export default function SignInForm() {
                     />
                 </div>
                 <button
-                    className="bg-gradient-to-r from-red-700 to-red-800 border border-gray-300 text-amber-400 font-bold hover:bg-fuchsia-600 py-2 px-4 rounded"
+                    className="bg-crimson text-mentat-gold font-bold hover:bg-crimson-700
+                        py-2 px-4 rounded-2xl shadow-sm shadow-mentat-gold-700"
                     type="submit"
                 >
                     Sign In
