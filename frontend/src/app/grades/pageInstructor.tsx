@@ -7,7 +7,7 @@ import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Exam, ExamProp, Course } from "@/components/types/exams";
-import { getExamPropCourse, ExamCardSmall, getExamStatus  } from "@/components/UI/cards/ExamCards";
+import { getExamPropCourse, ExamCardSmall, getExamStatus, ExamExtended } from "@/components/UI/cards/ExamCards";
 import CreateExam from "./localComponents/CreateExam";
 import Modal from "@/components/services/Modal";
 import ExamDetailsComponent from "@/components/UI/exams/ExamDetails";
@@ -175,8 +175,8 @@ export default function ExamDashboard() {
                 console.log(course);
 
             }
-        } catch (e) {
-            console.error('Error fetching course data', e.toString());
+        } catch (error) {
+            console.error('Error fetching course data', error as string);
             // toast.error("Course fetch failed");
         } finally {
             // Run the cancel/close callback
@@ -185,18 +185,17 @@ export default function ExamDashboard() {
     }
 
     // Load Exam Actions Modal
-    const loadModalData = async (exam: ExamProp, e: any) => {
+    const loadModalData = async (exam: ExamExtended, e: any) => {
         e.preventDefault();
 
         // Set basic data and open modal immediately
-        const examData = {
+        const examData: Exam = {
             exam_id: exam.exam_id,
             exam_name: exam.exam_name,
             exam_course_id: exam.exam_course_id,
             exam_difficulty: exam.exam_difficulty,
             exam_required: exam.exam_required,
-            exam_version: exam.exam_version,
-            exam_duration: exam.exam_duration,
+            exam_duration: exam.exam_duration  || "1",
             exam_state: exam.exam_state,
             exam_online: exam.exam_online
         }
@@ -215,7 +214,7 @@ export default function ExamDashboard() {
         }
     }
 
-    const splitCourseExam = async (examResult: ExamProp) => {
+    const splitCourseExam = async (examResult: ExamExtended) => {
         // Split the data into an exam only detail
         const exam: Exam = {
             exam_id: examResult.exam_id,
@@ -223,12 +222,11 @@ export default function ExamDashboard() {
             exam_required: examResult.exam_required,
             exam_difficulty: examResult.exam_difficulty,
             exam_name: examResult.exam_name,
-            exam_version: examResult.exam_version,
             exam_course_id: examResult.exam_course_id,
             exam_duration: examResult.exam_duration || "1",
             exam_online: examResult.exam_online || 0
         };
-        exam.status = getExamStatus(exam)
+        exam.status = getExamStatus(exam as ExamExtended);
         setExam(exam);
         // Get and set the course
         await fetchCourse(exam.exam_course_id)
@@ -302,7 +300,7 @@ export default function ExamDashboard() {
                             {filteredExams.map((examInst) => (
                                 <ExamCardSmall
                                     key={examInst.exam_id}
-                                    exam={examInst}
+                                    exam={examInst as ExamExtended}
                                     index={0}
                                     onclick={(e) => loadModalData(examInst, e)}
                                 />
@@ -316,25 +314,28 @@ export default function ExamDashboard() {
                         </div>
                     )}
 
-                    <div className="rounded-xl shadow-sm pt-6">
+                    <div className="rounded-xl shadow-sm pt-6 mb-1">
                         <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 rounded-lg border bg-card-color">
+                            <div className="p-4 rounded-lg border bg-card-color
+                                shadow-md shadow-crimson-700">
                                 <h3 className="text-lg font-medium mb-2">Passed Student Exams</h3>
                                 <p className="text-3xl font-bold">
-                                    {exams.filter(exam => exam.status === 'completed').length}
+                                    {exams.filter(exam => exam.status === 'active').length}
                                 </p>
                             </div>
-                            <div className="p-4 rounded-lg border bg-card-color">
+                            <div className="p-4 rounded-lg border bg-card-color
+                                shadow-md shadow-crimson-700">
                                 <h3 className="text-lg font-medium mb-2">Failed Student Exams</h3>
                                 <p className="text-3xl font-bold">
-                                    {exams.filter(exam => exam.status === 'failed').length}
+                                    {exams.filter(exam => exam.status === 'inactive').length}
                                 </p>
                             </div>
-                            <div className="p-4 rounded-lg border bg-card-color">
+                            <div className="p-4 rounded-lg border bg-card-color
+                                shadow-md shadow-crimson-700">
                                 <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
                                 <p className="text-3xl font-bold">
-                                    {exams.filter(exam => exam.status === 'completed'
+                                    {exams.filter(exam => exam.status === 'active'
                                         && exam.exam_score !== undefined).length > 0
                                         ? avgScore(exams) : 0}
 

@@ -3,9 +3,9 @@
 import { motion } from 'framer-motion';
 import { Exam, ExamProp, Course } from '@/components/types/exams';
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
-import {useState} from "react";
+import { useState } from "react";
 
-interface ExamExtended extends Exam {
+export interface ExamExtended extends Exam {
     exam_course_name: string;
     exam_duration: string;
     exam_online: number;
@@ -177,7 +177,7 @@ export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps
                             <span className="text-sm font-medium">
                                 {new Date(exam.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
                                 {/*TODO: Fix this exam type safety*/}
-                                <span className="text-xs mt-1"> {(exam as any).exam.hour ?? 1} hours</span>
+                                <span className="text-xs mt-1"> {(exam as any).exam_hour ?? 1} hours</span>
                                 <span className="text-xs"> {(exam as any).exam_minutes ?? 0} mins</span>
                             </span>
                         </div>
@@ -241,7 +241,8 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
 
     return (
         <motion.div
-            className="rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md transition-shadow"
+            className="rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md
+                hover:shadow-crimson-700 transition-shadow"
             whileHover={{ y: -2 }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

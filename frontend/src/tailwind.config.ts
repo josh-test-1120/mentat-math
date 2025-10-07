@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { PluginAPI } from "tailwindcss/types/config";
 
 const config: Config = {
   content: [
@@ -65,9 +66,10 @@ const config: Config = {
   },
   plugins: [
       require("flowbite/plugin"),
+      require('@tailwindcss/forms'),
       require('tailwind-scrollbar'),
       require('tailwind-scrollbar-hide'),
-      function({ addComponents }) {
+      function({ addComponents }: PluginAPI) {
           addComponents({
               '.focus-mentat': {
                   '@apply ring-2 outline-none ring-mentat-gold-700 ring-opacity-75': {},

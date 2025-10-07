@@ -317,7 +317,8 @@ export default function StudentReport() {
                                             {courses.map((course) => (
                                                 <button
                                                     key={course.courseId}
-                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                                     shadow-sm shadow-mentat-gold-700 ${
                                                         courseFilter === course.courseName 
                                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat' 
                                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
@@ -409,7 +410,8 @@ export default function StudentReport() {
                             <h2 className="text-xl font-semibold">Your Grades</h2>
                             <div className="flex gap-2">
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
                                         filter === 'all'
                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -418,7 +420,8 @@ export default function StudentReport() {
                                     All Grades
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
                                         filter === 'passed'
                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -427,7 +430,8 @@ export default function StudentReport() {
                                     Passed
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
                                         filter === 'failed'
                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}

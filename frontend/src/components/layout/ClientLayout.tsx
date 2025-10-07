@@ -16,7 +16,8 @@ const callSignOut = async () => {
  */
 export function SignOutButton(){
   return(
-    <button onClick={callSignOut} className="bg-crimson hover:bg-crimson-700 text-mentat-gold py-2 px-4 rounded-xl">
+    <button onClick={callSignOut} className="bg-crimson hover:bg-crimson-700
+        text-mentat-gold py-2 px-4 rounded-xl shadow-sm shadow-mentat-gold-700">
     Sign out
   </button>
   )

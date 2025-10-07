@@ -194,7 +194,8 @@ export default function ExamsPage() {
                     <h1 className="text-3xl font-semibold">My Enrolled Courses</h1>
                     <button
                         onClick={() => setIsJoinModalOpen(true)}
-                        className="font-bold py-2 px-4 rounded-md transition-all duration-200 hover:brightness-110 flex items-center gap-2"
+                        className="font-bold py-2 px-4 rounded-md transition-all duration-200
+                            hover:brightness-110 flex items-center gap-2 shadow-sm shadow-mentat-gold-700"
                         style={{ backgroundColor: '#A30F32' }}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +223,7 @@ export default function ExamsPage() {
                             }
 
                             return (
-                                <div key={c.courseId || index} className="border rounded-xl p-4 shadow-sm bg-card-color">
+                                <div key={c.courseId || index} className="border rounded-xl p-4 shadow-md shadow-crimson-700 bg-card-color">
                                     <div className="text-lg font-bold">
                                         {c.courseName || 'Unknown Course'}
                                     </div>
@@ -263,14 +264,15 @@ export default function ExamsPage() {
                     // className="mb-8"
                 >
                     <h1 className="text-3xl font-bold mb-2">Exam Schedule</h1>
-                    <p>Manage and view your exam information</p>
+                    {/*<p>Manage and view your exam information</p>*/}
                 </motion.div>
 
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">Your Exams</h2>
+                    <h2 className="text-xl font-semibold"></h2>
                     <div className="flex gap-2">
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'all'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -284,7 +286,8 @@ export default function ExamsPage() {
                             All Exams
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'upcoming'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -293,7 +296,8 @@ export default function ExamsPage() {
                             Upcoming
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'completed'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -302,7 +306,8 @@ export default function ExamsPage() {
                             Completed
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'pending'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}

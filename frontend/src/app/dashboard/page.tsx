@@ -1,30 +1,28 @@
-import { getServerAuthSession } from "@/utils/auth";
-import MyCoursesStudent from "./pageStudent";
-import MyCoursesInstructor from "./pageInstructor";
-import { Session } from "next-auth";
+'use client';
 
-const DEFAULT_SESSION: Session = {
-    user: {
-        id: '',
-        username: 'Guest',
-        email: '',
-    },
-    expires: ''
-};
+import { useSession } from "next-auth/react";
+import InstructorsPage from "./pageInstructor";
+import StudentsPage from "./pageStudent";
 
-export default async function MyCoursesPage() {
-    // Get session server-side
-    const session: Session = await getServerAuthSession() ?? DEFAULT_SESSION;
+/**
+ * Client Side Page that uses the AuthProvider session from RootLayout
+ * @constructor
+ */
+export default function Dashboard() {
+    const { data: session, status } = useSession();
 
     return (
         <section
             id={"dashboardPageMain"}
             className="font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
         >
-            {/*Conditional Rendering*/}
-            {session?.user?.userType == "Instructor" ?
-                (<MyCoursesInstructor />) : (<MyCoursesStudent />)}
+            {status === "loading" ? (
+                <div>Loading...</div>
+            ) : !session ? (
+                <div>Please log in to access this page</div>
+            ) : session?.user?.userType === "Instructor" ?
+                (<InstructorsPage />) : (<StudentsPage />)
+            }
         </section>
-
-        );
+    );
 }
