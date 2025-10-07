@@ -346,6 +346,7 @@ export default function TestWindowPage() {
                 onModifySettings={handleModifySettings}
                 onControlAllowedTests={handleControlAllowedTests}
                 onDeleteTestWindow={handleDeleteTestWindowClick}
+                courseId={selectedCourseId || undefined}
             />
 
             {/* Toast Container */}
