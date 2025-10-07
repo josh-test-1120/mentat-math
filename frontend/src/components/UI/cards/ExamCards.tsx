@@ -117,7 +117,8 @@ export const getExamStatus = (exam: ExamExtended): 'active' | 'inactive' => {
 
 // Determine course name for an exam
 export const getExamCourse = (exam: Exam): string => {
-    return exam.exam_course_id.toString();
+    // TODO: Fix this exam type safety, this is technical debt
+    return (exam as any).course;
 };
 
 // Determine course name for an exam
@@ -160,45 +161,46 @@ export function ExamCardExtended({ exam, index, onclick }: ExamCardExtendedProps
         >
             {/* Add card accent coloring */}
             <div style={accentStyle}/>
-            {/* Draw the cards */}
-            <div style={{ position: 'relative', zIndex: 1 }}>
-                <div className="flex items-center justify-between">
-                    {/* Left section: Title and subject */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-3">
-                            <h3 className="text-lg font-semibold truncate">{exam.exam_name}</h3>
-                        </div>
-                        <p className="text-sm mt-1">{exam.exam_course_name}</p>
-                    </div>
-
-                    {/* Middle section: Date and time */}
-                    <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
-                        <span className="text-sm font-medium">
-                            {new Date(exam.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
-                            <span className="text-xs mt-1"> {exam.exam_length ?? 1} hours</span>
-                            <span className="text-xs"> {exam.duration ?? 0} mins</span>
-                        </span>
-                    </div>
-
-                    {/* Right section: Location and score */}
-                    <div className="flex-1 flex flex-col items-end">
-                        <StatusBadge status={status}/>
-                        <span className="text-sm">{exam.location}</span>
-                        {status === 'completed' && exam.exam_score !== undefined
-                            && exam.exam_score !== null ? (
-                            <ScoreDisplay score={exam.exam_score} />
-                        ) : (
-                            <div className="mt-1 text-xs font-medium">
-                                {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming'
-                                    : 'Pending grade'}
+                {/* Draw the cards */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div className="flex items-center justify-between">
+                        {/* Left section: Title and subject */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-3">
+                                <h3 className="text-lg font-semibold truncate">{exam.exam_name}</h3>
                             </div>
-                        )}
+                            <p className="text-sm mt-1">{exam.exam_course_name}</p>
+                        </div>
+
+                        {/* Middle section: Date and time */}
+                        <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
+                            <span className="text-sm font-medium">
+                                {new Date(exam.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
+                                {/*TODO: Fix this exam type safety*/}
+                                <span className="text-xs mt-1"> {(exam as any).exam.hour ?? 1} hours</span>
+                                <span className="text-xs"> {(exam as any).exam_minutes ?? 0} mins</span>
+                            </span>
+                        </div>
+
+                        {/* Right section: Location and score */}
+                        <div className="flex-1 flex flex-col items-end">
+                            <StatusBadge status={status}/>
+                            <span className="text-sm">{exam.location}</span>
+                            {status === 'completed' && exam.exam_score !== undefined
+                                && exam.exam_score !== null ? (
+                                <ScoreDisplay score={exam.exam_score} />
+                            ) : (
+                                <div className="mt-1 text-xs font-medium">
+                                    {new Date(exam.exam_scheduled_date) > new Date() ? 'Upcoming'
+                                        : 'Pending grade'}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
         </motion.div>
     );
-};
+}
 
 // Compact ExamCard Component
 export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
@@ -253,7 +255,8 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
             <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
                 <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                    <span>{getStatusBadge(exam)}</span>
+                    {/*TODO: Fix type safety*/}
+                    <span>{getStatusBadge(exam as any)}</span>
                 </span>
             </div>
 

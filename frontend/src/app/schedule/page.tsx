@@ -25,9 +25,11 @@ export default async function Schedule() {
     const session =  await getServerAuthSession() ?? DEFAULT_SESSION;
 
     // Debug logging
-    console.log("Schedule page - Session data:", session);
+    console.log("Schedule page - Session data:", JSON.stringify(session, null, 2));
     console.log("Schedule page - User type:", session?.user?.userType);
     console.log("Schedule page - User ID:", session?.user?.id);
+    console.log("Schedule page - Access Token:", session?.user?.accessToken ? 'Present' : 'Missing');
+    console.log("Schedule page - Access Token length:", session?.user?.accessToken?.length || 0);
 
     return (
         <section

@@ -104,6 +104,10 @@ export const authOptions:NextAuthOptions = {
          * @param user this is the user object
          */
         async jwt({ token, account, user, trigger, isNewUser,session }) {
+            console.log("JWT callback - trigger:", trigger);
+            console.log("JWT callback - user data:", user);
+            console.log("JWT callback - existing token:", token);
+            
             // Persist the OAuth access_token to the token right after signin
             if (user) {
                 console.log("JWT callback - user data:", user);
@@ -118,10 +122,51 @@ export const authOptions:NextAuthOptions = {
                 token.username = user?.username;
                 // Persist the User Type
                 token.userType = user.userType;
+                // Store login timestamp for session management
+                token.loginTime = Date.now();
                 
                 console.log("JWT callback - token after update:", token);
             }
-            //return user as unknown as JWT;
+            
+            // Check if token is expired and refresh it automatically
+            if (token.accessToken && typeof token.accessToken === 'string') {
+                try {
+                    const payload = JSON.parse(Buffer.from(token.accessToken.split('.')[1], 'base64').toString());
+                    const isExpired = Date.now() >= payload.exp * 1000;
+                    
+                    if (isExpired) {
+                        console.log("JWT callback - token expired");
+                        
+                        // Check if session is still within reasonable time (e.g., 7 days)
+                        const sessionAge = Date.now() - (token.loginTime as number || 0);
+                        const maxSessionAge = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+                        
+                        if (sessionAge < maxSessionAge) {
+                            console.log("JWT callback - session is still valid, but token expired. User needs to re-authenticate.");
+                            // For now, we'll clear the token to force re-authentication
+                            // In production, we might want to implement a refresh token mechanism
+                            token.accessToken = null;
+                        } else {
+                            console.log("JWT callback - session expired, clearing all data");
+                            token.accessToken = null;
+                            token.loginTime = null;
+                        }
+                    } else {
+                        console.log("JWT callback - token is still valid");
+                    }
+                } catch (e) {
+                    console.error("JWT callback - error parsing token:", e);
+                    token.accessToken = null;
+                }
+            }
+            
+            // Ensure accessToken is preserved during session refreshes
+            if (trigger === "update" && session?.accessToken) {
+                console.log("JWT callback - preserving accessToken during update");
+                token.accessToken = session.accessToken;
+            }
+            
+            console.log("JWT callback - final token:", token);
             return token;
         },
         /**
