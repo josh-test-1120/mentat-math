@@ -28,6 +28,7 @@ declare module "next-auth" {
             email?: string | null;
             accessToken?: string | null;
             userType? : string | null;
+            name?: string | null;
         }
         expires: string;
     }

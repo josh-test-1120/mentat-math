@@ -230,7 +230,7 @@ export const GradeChart = ({ data } : GradeChartProps) => {
     return (
         <div
             ref={svgRef}
-            className="w-full h-full min-h-[400px] flex items-center justify-center rounded-lg border"
+            className="w-full h-full min-h-[300px] flex items-center justify-center rounded-lg border"
             style={{ width: '100%', height: '100%' }}
         />
     );

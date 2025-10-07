@@ -196,7 +196,7 @@ export default function GradesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br p-6">
+        <div className="min-h-screen bg-gradient-to-br">
             <div className="max-w-5xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -211,25 +211,37 @@ export default function GradesPage() {
                     <h2 className="text-xl font-semibold">Your Grades</h2>
                     <div className="flex gap-2">
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                filter === 'all'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('all')}
                         >
                             All Grades
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'passed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                filter === 'passed'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('passed')}
                         >
                             Passed
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'failed' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                filter === 'failed'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('failed')}
                         >
                             Failed
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                filter === 'pending'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
                             onClick={() => setFilter('pending')}
                         >
                             Pending

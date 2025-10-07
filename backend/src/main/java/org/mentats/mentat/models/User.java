@@ -134,6 +134,10 @@ public class User {
         return String.join(" ", firstName, lastName, roles.toString().toLowerCase());
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
 
     /**
      * Returns the user's role
