@@ -255,7 +255,8 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
             <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
                 <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-                    <span>{getStatusBadge(exam)}</span>
+                    {/*TODO: Fix type safety*/}
+                    <span>{getStatusBadge(exam as any)}</span>
                 </span>
             </div>
 
