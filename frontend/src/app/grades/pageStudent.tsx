@@ -4,7 +4,7 @@ import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {ExamProp, Class, ExamResult} from '@/components/types/exams';
-import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
+import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/components/UI/exams/ExamActions";
@@ -179,7 +179,7 @@ export default function GradesPage() {
                 setTests(res.tests || []); // Add logic for tests if needed
             }
         } catch (error) {
-            console.error('Error fetching student grades:', error.toString());
+            console.error('Error fetching student grades:', error as string);
             setGrades([]);
             setTests([]);
         } finally {
@@ -211,7 +211,8 @@ export default function GradesPage() {
                     <h2 className="text-xl font-semibold">Your Grades</h2>
                     <div className="flex gap-2">
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'all'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -220,7 +221,8 @@ export default function GradesPage() {
                             All Grades
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'passed'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -229,7 +231,8 @@ export default function GradesPage() {
                             Passed
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'failed'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -238,7 +241,8 @@ export default function GradesPage() {
                             Failed
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                             shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'pending'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -286,7 +290,7 @@ export default function GradesPage() {
                                         />
                                     ))}
                                 </motion.div>
-                            ) : loading === true ? (
+                            ) : loading ? (
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
@@ -307,7 +311,7 @@ export default function GradesPage() {
                     </div>
                 </motion.div>
             </div>
-            <div className="max-w-5xl mx-auto rounded-xl shadow-sm pt-6">
+            <div className="max-w-5xl mx-auto rounded-xl pt-6 mb-1">
                 <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
                 { loading ?
                     ( <div className="text-center">Calculating Grade Summary...</div> )
@@ -315,25 +319,30 @@ export default function GradesPage() {
                         <div className="text-center">No grades available</div> :
                         (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="p-4 rounded-lg border border-blue-100">
+                                <div className="p-4 rounded-lg border border-blue-100
+                                    bg-card-color shadow-md shadow-crimson-700">
                                     <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
                                     <p className="text-3xl font-bold">
                                         {grades.filter(grade => grade.status === 'passed').length}
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-lg border">
+                                <div className="p-4 rounded-lg border border-blue-100
+                                    bg-card-color shadow-md shadow-crimson-700">
                                     <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
                                     <p className="text-3xl font-bold">
                                         {grades.filter(grade => grade.status === 'failed').length}
                                     </p>
                                 </div>
 
-                                <div className="p-4 rounded-lg border">
+                                <div className="p-4 rounded-lg border border-blue-100
+                                    bg-card-color shadow-md shadow-crimson-700">
                                     <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
                                     <p className={`text-3xl font-bold ${
-                                        avgScore(grades) === 'A' || avgScore(grades) === 'B' ? 'text-green-600' :
-                                            avgScore(grades) === 'C' ? 'text-yellow-600' :
-                                                'text-red-600'
+                                        avgScore(grades) === 'A' || avgScore(grades) === 'B'
+                                            ? 'text-green-600'
+                                            : avgScore(grades) === 'C'
+                                                ? 'text-yellow-600'
+                                                : 'text-red-600'
                                     }`}>
                                         {avgScore(grades)}
                                     </p>

@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import MainPage from "@/components/services/MainPage";
+import MainPage from "@/app/dashboard/page";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
