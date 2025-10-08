@@ -20,6 +20,7 @@ interface ExamSelectionModalProps {
 interface ExamWithSelection extends Exam {
     isSelected: boolean;
     isAllowed: boolean;
+    status?: 'active' | 'inactive';
 }
 
 const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
@@ -89,11 +90,17 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
             }
             
             // Convert to ExamWithSelection format
-            const examsWithSelection: ExamWithSelection[] = examsData.map((exam: any) => ({
-                ...exam,
-                isSelected: allowedExamIds.includes(exam.exam_id),
-                isAllowed: true // Default to allowed, can be modified based on existing restrictions
-            }));
+            const examsWithSelection: ExamWithSelection[] = examsData.map((exam: any) => {
+                console.log('Raw exam data:', exam);
+                console.log('exam_state value:', exam.exam_state, 'type:', typeof exam.exam_state);
+                
+                return {
+                    ...exam,
+                    isSelected: allowedExamIds.includes(exam.exam_id),
+                    isAllowed: true, // Default to allowed, can be modified based on existing restrictions
+                    status: exam.exam_state === 1 ? 'active' : 'inactive'
+                };
+            });
 
             setExams(examsWithSelection);
         } catch (err) {
@@ -121,6 +128,9 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
 
     // Filter exams based on search and filter criteria
     const filteredExams = useMemo(() => {
+        console.log('Filtering exams. Total exams:', exams.length);
+        console.log('Status filter:', statusFilter);
+        
         return exams.filter(exam => {
             const matchesSearch = exam.exam_name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesDifficulty = difficultyFilter === 'all' || exam.exam_difficulty === difficultyFilter;
@@ -129,6 +139,8 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 (requiredFilter === 'optional' && exam.exam_required === 0);
             const matchesStatus = statusFilter === 'all' || exam.status === statusFilter;
 
+            console.log(`Exam ${exam.exam_name}: status=${exam.status}, exam_state=${exam.exam_state}, matchesStatus=${matchesStatus}`);
+            
             return matchesSearch && matchesDifficulty && matchesRequired && matchesStatus;
         });
     }, [exams, searchTerm, difficultyFilter, requiredFilter, statusFilter]);
@@ -319,7 +331,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full overflow-y-auto p-6">
+                        <div className="max-h-80 overflow-y-auto p-6 pb-10">
                             {filteredExams.length === 0 ? (
                                 <div className="text-center py-12">
                                     <BookOpen className="w-12 h-12 text-mentat-gold/60 mx-auto mb-4" />
