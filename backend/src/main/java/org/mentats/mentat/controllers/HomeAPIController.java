@@ -624,7 +624,50 @@ public class HomeAPIController {
     }
 
     /**
-     * Get the instructor exams from the database
+     * Get the exams from the database
+     * based on the course ID supplied in the URI
+     * @return List of Map objects that have {string, object} types
+     */
+    @GetMapping("/exams/course/{courseID}")
+    public List<Map<String, Object>> getExamsByCourse(@PathVariable("courseID") Long courseId) {
+        // SQL query to select from the 'exam' table where the course ID is present
+        String sql = "SELECT * FROM exam WHERE exam_course_id = ?;";
+        // list to store retrieved exam details
+        List<Map<String, Object>> exams = new ArrayList<>();
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Update the Query with the variables
+            stmt.setLong(1, courseId);  // Set the course ID
+
+            // Execute the query
+            ResultSet rs = stmt.executeQuery();
+
+            //iterates through result set
+            while (rs.next()) {
+                Map<String, Object> exam = new HashMap<>();
+                exam.put("exam_id", rs.getInt("exam_id"));
+                exam.put("exam_state", rs.getInt("exam_state"));
+                exam.put("exam_required", rs.getInt("exam_required"));
+                exam.put("exam_difficulty", rs.getInt("exam_difficulty"));
+                exam.put("exam_name", rs.getString("exam_name"));
+                exam.put("exam_course_id", rs.getInt("exam_course_id"));
+                exam.put("exam_duration", rs.getString("exam_duration"));
+                exam.put("exam_online", rs.getInt("exam_online"));
+                exams.add(exam);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Exams for course " + courseId + ": " + exams);
+        // Return list of exams
+        return exams;
+    }
+
+    /**
+     * Get the course from the database by the course ID supplied in the URI
      * based on the instructor ID supplied in the URI
      * @return Map object that have {string, object} types
      */

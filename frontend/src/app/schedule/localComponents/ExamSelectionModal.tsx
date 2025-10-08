@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Check, X, AlertCircle, Clock, Award, BookOpen } from 'lucide-react';
 import { Exam } from '@/components/types/exams';
@@ -41,49 +41,83 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+    const hasFetched = useRef(false);
+    
+    // Memoize access token to prevent unnecessary re-renders
+    const accessToken = useMemo(() => session?.user?.accessToken, [session?.user?.accessToken]);
 
-    // Fetch exams for the course
-    useEffect(() => {
-        if (!isOpen || !courseId) return;
+    // Memoized fetch function to prevent recreation on every render
+    const fetchExamsAndRestrictions = useCallback(async () => {
+        if (!courseId || !testWindowId || !accessToken) return;
 
-        const fetchExams = async () => {
-            setLoading(true);
-            setError(null);
+        setLoading(true);
+        setError(null);
 
-            try {
-                const response = await apiHandler(
+        try {
+            // Fetch exams and restrictions in parallel
+            const [examsResponse, restrictionsResponse] = await Promise.all([
+                apiHandler(
                     undefined,
                     'GET',
                     `api/exams/course/${courseId}`,
                     `${BACKEND_API}`,
-                    session?.user?.accessToken ?? undefined
-                );
+                    accessToken
+                ),
+                apiHandler(
+                    undefined,
+                    'GET',
+                    `api/test-window-exam-restrictions/test-window/${testWindowId}/allowed-ids`,
+                    `${BACKEND_API}`,
+                    accessToken
+                )
+            ]);
 
-                if (response?.error) {
-                    setError(response.message || 'Failed to fetch exams');
-                    return;
-                }
-
-                const examsData = Array.isArray(response) ? response : response?.data || [];
-                
-                // Convert to ExamWithSelection format
-                const examsWithSelection: ExamWithSelection[] = examsData.map((exam: any) => ({
-                    ...exam,
-                    isSelected: initiallySelectedExams.includes(exam.exam_id),
-                    isAllowed: true // Default to allowed, can be modified based on existing restrictions
-                }));
-
-                setExams(examsWithSelection);
-            } catch (err) {
-                console.error('Error fetching exams:', err);
-                setError('Failed to fetch exams');
-            } finally {
-                setLoading(false);
+            if (examsResponse?.error) {
+                setError(examsResponse.message || 'Failed to fetch exams');
+                return;
             }
-        };
 
-        fetchExams();
-    }, [isOpen, courseId, BACKEND_API, session?.user?.accessToken, initiallySelectedExams]);
+            const examsData = Array.isArray(examsResponse) ? examsResponse : examsResponse?.data || [];
+            
+            // Get allowed exam IDs from restrictions
+            let allowedExamIds: number[] = [];
+            if (!restrictionsResponse?.error && restrictionsResponse?.allowedExamIds) {
+                allowedExamIds = restrictionsResponse.allowedExamIds;
+            } else if (initiallySelectedExams.length > 0) {
+                // Fallback to initially selected exams if no restrictions found
+                allowedExamIds = initiallySelectedExams;
+            }
+            
+            // Convert to ExamWithSelection format
+            const examsWithSelection: ExamWithSelection[] = examsData.map((exam: any) => ({
+                ...exam,
+                isSelected: allowedExamIds.includes(exam.exam_id),
+                isAllowed: true // Default to allowed, can be modified based on existing restrictions
+            }));
+
+            setExams(examsWithSelection);
+        } catch (err) {
+            console.error('Error fetching exams and restrictions:', err);
+            setError('Failed to fetch exams');
+        } finally {
+            setLoading(false);
+        }
+    }, [courseId, testWindowId, BACKEND_API, accessToken, initiallySelectedExams]);
+
+    // Fetch exams for the course and existing restrictions
+    useEffect(() => {
+        if (!isOpen || !courseId || !testWindowId || hasFetched.current) return;
+
+        hasFetched.current = true;
+        fetchExamsAndRestrictions();
+    }, [isOpen, courseId, testWindowId, fetchExamsAndRestrictions]);
+
+    // Reset fetch flag when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            hasFetched.current = false;
+        }
+    }, [isOpen]);
 
     // Filter exams based on search and filter criteria
     const filteredExams = useMemo(() => {
@@ -119,9 +153,37 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
         }));
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const selectedIds = selectedExams.map(exam => exam.exam_id);
-        onExamsSelected(selectedIds);
+        
+        try {
+            // Save the exam restrictions to the backend
+            const response = await apiHandler(
+                {
+                    testWindowId: testWindowId,
+                    examIds: selectedIds,
+                    isAllowed: true
+                },
+                'POST',
+                `api/test-window-exam-restrictions/set`,
+                `${BACKEND_API}`,
+                accessToken ?? undefined
+            );
+
+            if (response?.error) {
+                console.error('Error saving exam restrictions:', response.error);
+                // Still call the callback for UI updates
+                onExamsSelected(selectedIds);
+            } else {
+                console.log('Exam restrictions saved successfully:', response);
+                onExamsSelected(selectedIds);
+            }
+        } catch (error) {
+            console.error('Error saving exam restrictions:', error);
+            // Still call the callback for UI updates
+            onExamsSelected(selectedIds);
+        }
+        
         onClose();
     };
 
@@ -155,37 +217,37 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+                className="bg-mentat-black border border-mentat-gold/20 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between p-6 border-b border-mentat-gold/20">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Select Allowed Exams</h2>
-                        <p className="text-gray-600 mt-1">
+                        <h2 className="text-2xl font-bold text-mentat-gold">Select Allowed Exams</h2>
+                        <p className="text-mentat-gold/80 mt-1">
                             Choose which exams can be taken in "{testWindowTitle}"
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-white/5 rounded-lg transition-colors text-mentat-gold"
                     >
                         <X className="w-6 h-6" />
                     </button>
                 </div>
 
                 {/* Search and Filters */}
-                <div className="p-6 border-b border-gray-200 bg-gray-50">
+                <div className="p-6 border-b border-mentat-gold/20 bg-white/5">
                     <div className="flex flex-col lg:flex-row gap-4">
                         {/* Search */}
                         <div className="flex-1">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-mentat-gold/60 w-5 h-5" />
                                 <input
                                     type="text"
                                     placeholder="Search exams..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full pl-10 pr-4 py-2 bg-mentat-black border border-mentat-gold/30 rounded-lg focus:ring-2 focus:ring-mentat-gold focus:border-mentat-gold text-mentat-gold placeholder-mentat-gold/50"
                                 />
                             </div>
                         </div>
@@ -195,7 +257,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                             <select
                                 value={difficultyFilter}
                                 onChange={(e) => setDifficultyFilter(e.target.value as any)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 bg-mentat-black border border-mentat-gold/30 rounded-lg focus:ring-2 focus:ring-mentat-gold text-mentat-gold"
                             >
                                 <option value="all">All Difficulties</option>
                                 <option value={1}>Difficulty 1</option>
@@ -208,7 +270,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                             <select
                                 value={requiredFilter}
                                 onChange={(e) => setRequiredFilter(e.target.value as any)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 bg-mentat-black border border-mentat-gold/30 rounded-lg focus:ring-2 focus:ring-mentat-gold text-mentat-gold"
                             >
                                 <option value="all">All Types</option>
                                 <option value="required">Required</option>
@@ -218,7 +280,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="px-3 py-2 bg-mentat-black border border-mentat-gold/30 rounded-lg focus:ring-2 focus:ring-mentat-gold text-mentat-gold"
                             >
                                 <option value="all">All Status</option>
                                 <option value="active">Active</option>
@@ -230,12 +292,12 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                     {/* Selection Summary */}
                     <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-mentat-gold/80">
                                 {selectedExams.length} of {exams.length} exams selected
                             </span>
                             <button
                                 onClick={handleSelectAll}
-                                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                                className="text-sm text-mentat-gold hover:text-mentat-gold/80 font-medium"
                             >
                                 {filteredExams.every(exam => exam.isSelected) ? 'Deselect All' : 'Select All'} (Filtered)
                             </button>
@@ -247,21 +309,21 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 <div className="flex-1 overflow-hidden">
                     {loading ? (
                         <div className="flex items-center justify-center h-64">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mentat-gold"></div>
                         </div>
                     ) : error ? (
                         <div className="flex items-center justify-center h-64">
                             <div className="text-center">
-                                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                                <p className="text-red-600">{error}</p>
+                                <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                                <p className="text-red-400">{error}</p>
                             </div>
                         </div>
                     ) : (
                         <div className="h-full overflow-y-auto p-6">
                             {filteredExams.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500">No exams found matching your criteria</p>
+                                    <BookOpen className="w-12 h-12 text-mentat-gold/60 mx-auto mb-4" />
+                                    <p className="text-mentat-gold/80">No exams found matching your criteria</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
@@ -272,8 +334,8 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                             animate={{ opacity: 1, y: 0 }}
                                             className={`p-4 border rounded-lg cursor-pointer transition-all ${
                                                 exam.isSelected 
-                                                    ? 'border-blue-500 bg-blue-50' 
-                                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                    ? 'border-mentat-gold bg-mentat-gold/10' 
+                                                    : 'border-mentat-gold/30 hover:border-mentat-gold/50 hover:bg-white/5'
                                             }`}
                                             onClick={() => handleExamToggle(exam.exam_id)}
                                         >
@@ -281,14 +343,14 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                                                         exam.isSelected 
-                                                            ? 'bg-blue-500 border-blue-500' 
-                                                            : 'border-gray-300'
+                                                            ? 'bg-mentat-gold border-mentat-gold' 
+                                                            : 'border-mentat-gold/50'
                                                     }`}>
-                                                        {exam.isSelected && <Check className="w-3 h-3 text-white" />}
+                                                        {exam.isSelected && <Check className="w-3 h-3 text-mentat-black" />}
                                                     </div>
                                                     
                                                     <div className="flex-1">
-                                                        <h3 className="font-semibold text-gray-900">{exam.exam_name}</h3>
+                                                        <h3 className="font-semibold text-mentat-gold">{exam.exam_name}</h3>
                                                         <div className="flex items-center gap-4 mt-1">
                                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exam.exam_difficulty)}`}>
                                                                 Difficulty {exam.exam_difficulty}
@@ -302,7 +364,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                                             </span>
                                                             <div className="flex items-center gap-1">
                                                                 {getStatusIcon(exam.status || 'inactive')}
-                                                                <span className="text-xs text-gray-600 capitalize">
+                                                                <span className="text-xs text-mentat-gold/70 capitalize">
                                                                     {exam.status || 'inactive'}
                                                                 </span>
                                                             </div>
@@ -310,13 +372,13 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="text-right text-sm text-gray-500">
+                                                <div className="text-right text-sm text-mentat-gold/80">
                                                     <div>Duration: {exam.exam_duration || 'Not specified'}</div>
                                                     <div className="flex items-center gap-1 mt-1">
                                                         {exam.exam_online === 1 ? (
-                                                            <span className="text-green-600">Online</span>
+                                                            <span className="text-green-400">Online</span>
                                                         ) : (
-                                                            <span className="text-gray-600">In-person</span>
+                                                            <span className="text-mentat-gold/60">In-person</span>
                                                         )}
                                                     </div>
                                                 </div>
@@ -330,8 +392,8 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-                    <div className="text-sm text-gray-600">
+                <div className="flex items-center justify-between p-6 border-t border-mentat-gold/20 bg-white/5">
+                    <div className="text-sm text-mentat-gold/80">
                         {selectedExams.length > 0 && (
                             <span>
                                 {selectedExams.length} exam{selectedExams.length !== 1 ? 's' : ''} selected
@@ -341,13 +403,13 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="px-4 py-2 text-mentat-gold bg-mentat-black border border-mentat-gold/30 rounded-lg hover:bg-white/5 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            className="px-6 py-2 bg-[#A30F32] text-white rounded-lg hover:bg-[#8e0d2b] transition-colors"
                         >
                             Save Selection
                         </button>
