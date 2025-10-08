@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
-import {Plus} from 'lucide-react';
+import {Plus, Loader2} from 'lucide-react';
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -15,12 +15,16 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * Default Schedule Page
  * @constructor
  */
-export default function CreateExam() {
+interface CreateExamProps {
+    onExamCreated?: () => void;
+}
+
+export default function CreateExam({ onExamCreated }: CreateExamProps) {
 
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
-        exam_course_id: 1,
+        exam_course_id: "",
         exam_name: "",
         exam_difficulty: "",
         is_published: "",
@@ -34,11 +38,58 @@ export default function CreateExam() {
         email: ''
     });
 
+    // Course-related state
+    const [courses, setCourses] = useState<any[]>([]);
+    const [coursesLoading, setCoursesLoading] = useState(false);
+    const [coursesError, setCoursesError] = useState<string | null>(null);
+
     // Session information
     const { data: session } = useSession()
 
     // Form Mapping
     const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
+
+    /**
+     * Fetch courses from the backend
+     */
+    const fetchCourses = async () => {
+        if (!session?.user?.accessToken || !userSession.id) return;
+        
+        setCoursesLoading(true);
+        setCoursesError(null);
+
+        try {
+            const response = await apiHandler(
+                undefined,
+                'GET',
+                `course/listCourses?id=${userSession.id}`,
+                `${BACKEND_API}`,
+                session.user.accessToken
+            );
+
+            if (response?.error) {
+                setCoursesError(response.message || 'Failed to fetch courses');
+                return;
+            }
+
+            const coursesData = Array.isArray(response) ? response : response?.data || [];
+            console.log('Courses data received:', coursesData); // Debug log
+            setCourses(coursesData);
+            
+            // Set the first course as default if available
+            if (coursesData.length > 0 && !exam_course_id) {
+                setFormData(prev => ({
+                    ...prev,
+                    exam_course_id: coursesData[0].courseId?.toString() || ""
+                }));
+            }
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+            setCoursesError('Failed to fetch courses');
+        } finally {
+            setCoursesLoading(false);
+        }
+    };
 
     /**
      * Used to handle session hydration
@@ -53,6 +104,15 @@ export default function CreateExam() {
             setSessionReady(prev => prev || userSession.id !== "");
         }
     }, [session]);
+
+    /**
+     * Fetch courses when userSession is ready
+     */
+    useEffect(() => {
+        if (userSession.id && session?.user?.accessToken) {
+            fetchCourses();
+        }
+    }, [userSession.id, session?.user?.accessToken]);
 
 
     // Setting data by name, value, type, and checked value
@@ -78,34 +138,36 @@ export default function CreateExam() {
             console.log(`This is the session info: ${userSession}`)
             let index = 1;
             console.log(`This is the exam course id: ${exam_course_id}`)
-            const response = await fetch("http://localhost:8080/api/createExam", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            const response = await apiHandler(
+                {
                     exam_name,
                     is_published: is_published ? 1 : 0,
                     is_required: is_required ? 1 : 0,
-                    exam_difficulty,
-                    exam_course_id,
-                })
-            });
+                    exam_difficulty: parseInt(exam_difficulty),
+                    exam_course_id: parseInt(exam_course_id),
+                },
+                'POST',
+                'api/createExam',
+                `${BACKEND_API}`,
+                session?.user?.accessToken ?? undefined
+            );
             console.log(`This is the response:`);
             console.log(response);
             // Response handler
-            if (response.ok) {
+            if (response?.error) {
+                toast.error(response.message || "Failed to create exam");
+            } else {
                 toast.success("Exam created successfully");
                 setIsModalOpen(false);
                 setFormData({
-                    exam_course_id: 1,
+                    exam_course_id: courses.length > 0 ? courses[0].courseId?.toString() || "" : "",
                     exam_name: "",
                     exam_difficulty: "",
                     is_published: "",
                     is_required: "",
                 });
-            } else {
-                toast.error("Failed to create exam");
+                // Trigger refresh of exam list
+                onExamCreated?.();
             }
         } catch (error) {
             toast.error("Failed to create exam");
@@ -146,18 +208,64 @@ export default function CreateExam() {
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
-                            <select
-                                id="exam_course_id"
-                                name="exam_course_id"
-                                value={exam_course_id}
-                                onChange={data}
-                                required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            >
-                                <option value="1">Mathematics</option>
-                                <option value="2">Physics</option>
-                                <option value="3">Chemistry</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    id="exam_course_id"
+                                    name="exam_course_id"
+                                    value={exam_course_id}
+                                    onChange={data}
+                                    required={true}
+                                    disabled={coursesLoading}
+                                    className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {coursesLoading ? (
+                                        <option key="loading" value="">Loading courses...</option>
+                                    ) : coursesError ? (
+                                        <option key="error" value="">Error loading courses</option>
+                                    ) : courses.length === 0 ? (
+                                        <option key="no-courses" value="">No courses available</option>
+                                    ) : (
+                                        courses.map((course: any, index: number) => {
+                                            // Debug log for each course - check console to see actual structure
+                                            console.log('Course object:', course);
+                                            
+                                            // Use actual API property names (update these based on console output)
+                                            const courseName = course.courseName || 'Unknown Course';
+                                            const courseSection = course.courseSection || '';
+                                            const courseQuarter = course.courseQuarter || '';
+                                            const courseYear = course.courseYear || '';
+                                            
+                                            const displayText = courseSection && courseQuarter && courseYear 
+                                                ? `${courseName} - ${courseSection} (${courseQuarter} ${courseYear})`
+                                                : courseName;
+                                            console.log("Course id is: " + course.courseId);
+                                            
+                                            return (
+                                                <option key={course.courseId || `course-${index}`} value={course.courseId}>
+                                                    {displayText}
+                                                </option>
+                                            );
+                                        })
+                                    )}
+                                </select>
+                                {coursesLoading && (
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                        <Loader2 className="w-4 h-4 animate-spin text-mentat-gold/60" />
+                                    </div>
+                                )}
+                            </div>
+                            {coursesError && (
+                                <div className="flex items-center justify-between mt-1">
+                                    <p className="text-red-400 text-xs">{coursesError}</p>
+                                    <button
+                                        type="button"
+                                        onClick={fetchCourses}
+                                        className="text-xs text-mentat-gold hover:text-mentat-gold/80 underline"
+                                    >
+                                        Retry
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>

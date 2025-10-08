@@ -248,7 +248,7 @@ export default function ExamDashboard() {
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
-                        < CreateExam />
+                        < CreateExam onExamCreated={() => setRefreshTrigger(prev => prev + 1)} />
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
                     <p>Manage and view your created exams</p>
@@ -300,9 +300,8 @@ export default function ExamDashboard() {
                             {filteredExams.map((examInst) => (
                                 <ExamCardSmall
                                     key={examInst.exam_id}
-                                    exam={examInst as ExamExtended}
-                                    index={0}
-                                    onclick={(e) => loadModalData(examInst, e)}
+                                    exam={{...examInst, exam_duration: "1"} as ExamExtended}                                    index={0}
+                                    onclick={(e) => loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
                                 />
                             ))}
                         </AnimatePresence>
