@@ -192,6 +192,9 @@ public class HomeAPIController {
                     grade.put("exam_required", rs.getInt("exam_required"));
                     grade.put("exam_name", rs.getString("exam_name"));
                     grade.put("exam_course_id", rs.getInt("exam_course_id"));
+                    grade.put("exam_difficulty", rs.getInt("exam_difficulty"));
+                    grade.put("exam_duration", rs.getDouble("exam_duration"));
+                    grade.put("exam_online", rs.getInt("exam_online"));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

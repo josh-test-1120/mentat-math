@@ -1,9 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Exam, ExamProp, ExamResult } from '@/components/types/exams';
-import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
-import { Grade } from '@/app/grades/pageStudentNew';
+import { LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
+import { Grade } from '@/app/grades/pageStudent';
 
 interface GradeCardExtendedProps {
     grade: Grade;
@@ -123,7 +122,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
                     {/* Middle section: Date and time */}
                     <div className="flex flex-col items-center px-6 border-r border-gray-100">
                         <span className="text-sm font-medium">
-                            { examTaken ?
+                            { examTaken && grade?.exam_taken_date ?
                             new Date(grade?.exam_taken_date).toLocaleDateString('en-US',
                                 { weekday: 'short', month: 'short', day: 'numeric'})
                                 :

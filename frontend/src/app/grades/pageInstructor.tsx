@@ -195,7 +195,7 @@ export default function ExamDashboard() {
             exam_course_id: exam.exam_course_id,
             exam_difficulty: exam.exam_difficulty,
             exam_required: exam.exam_required,
-            exam_duration: exam.exam_duration  || "1",
+            exam_duration: exam.exam_duration || "1",
             exam_state: exam.exam_state,
             exam_online: exam.exam_online
         }
@@ -239,11 +239,13 @@ export default function ExamDashboard() {
         // exam.status = getExamStatus(exam)
     }
 
-    if (status !== 'authenticated') return <div className="p-6">Please sign in.</div>;
-    if (loading) return <div className="p-6">Loading...</div>;
+    if (status !== 'authenticated')
+        return <div className="p-6 text-mentat-gold-700">Please sign in.</div>;
+    if (loading)
+        return <div className="p-6 text-mentat-gold-700">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br">
+        <div className="bg-gradient-to-br">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
@@ -302,7 +304,7 @@ export default function ExamDashboard() {
                                     key={examInst.exam_id}
                                     exam={examInst as ExamExtended}
                                     index={0}
-                                    onclick={(e) => loadModalData(examInst, e)}
+                                    onclick={(e) => loadModalData(examInst as ExamExtended, e)}
                                 />
                             ))}
                         </AnimatePresence>

@@ -187,7 +187,7 @@ export default function ExamsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br">
+        <div className="bg-gradient-to-br">
             {/*Course Listing Layout */}
             <div className="max-w-5xl mx-auto mb-4">
                 <div className="flex justify-between items-center mb-4">
@@ -256,7 +256,7 @@ export default function ExamsPage() {
             {/*Exam Listing Layout*/}
             <div className="max-w-5xl mx-auto">
                 {/* Line Divider */}
-                <hr className="border-crimson border-2 mb-2"></hr>
+                <hr className="border-crimson border-2 my-6"></hr>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

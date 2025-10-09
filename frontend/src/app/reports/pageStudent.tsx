@@ -3,18 +3,15 @@
 import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp, Class, ExamResult } from '@/components/types/exams';
 import Course from '@/components/types/course';
 import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import { GradeChart } from "./localComponents/StatusChart";
-import ProgressChart, { ExamAttempt } from "./localComponents/ProgressChart";
-
-export interface Report extends ExamResult {
-    course_name: string;
-    exam_online?: number;
-}
+import ProgressChart from "./localComponents/ProgressChart";
+import { GradeRequirements, GradeStrategy, GradeRequirementsJSON,
+    ExamAttempt, Report } from "./types/shared"
+import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
 
 export default function StudentReport() {
     // Session states
@@ -31,6 +28,9 @@ export default function StudentReport() {
     const [grades, setGrades] = useState<Report[]>([]);
     const [courseGrades, setCourseGrades] = useState<Report[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
+    const [gradeStrategy, setGradeStrategy] = useState<GradeStrategy>();
+    const [required, setRequired] = useState<string>('');
+    const [optional, setOptional] = useState<string>('');
     const [tests, setTests] = useState([]);
     // const [finalScore, setFinalScore] = useState('');
     const [loading, setLoading] = useState(true);
@@ -44,6 +44,7 @@ export default function StudentReport() {
     const [selectedClass, setSelectedClass] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
     const [courseFilter, setCourseFilter] = useState<string>('');
+    const [gradeFilter, setGradeFilter] = useState<'A' | 'B' | 'C' | 'D' | 'F'>('A');
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -91,6 +92,56 @@ export default function StudentReport() {
         return courses.filter(course => course.courseName === courseFilter);
     }, [courses, courseFilter]);
 
+    // Memoize the grade strategy details
+    const filteredGradeStrategy = useMemo(() => {
+        // Empty until data is ready
+        if (!courses) return null;
+        else if (!filteredCourses || filteredCourses.length === 0) {
+            return null;
+        }
+        // Get the strategy from course
+        const strategy: GradeRequirementsJSON = JSON.parse(filteredCourses[0].gradeStrategy);
+        console.log('Updating grade strategy');
+        console.log(strategy);
+
+        // Check to make sure strategy exists
+        if (!strategy) return null;
+        else {
+            let test: GradeStrategy;
+            switch (gradeFilter) {
+                case 'A':
+                    test =  strategy.GradeA
+                    break;
+                case 'B':
+                    test =  strategy.GradeB;
+                    break;
+                case 'C':
+                    test =  strategy.GradeC;
+                    break;
+                case 'D':
+                    test =  strategy.GradeD;
+                    break;
+                default: test =  strategy.GradeF;
+            }
+            console.log('New grade strategy');
+            console.log(test);
+            return {
+                required: strategy.requiredExams,
+                optional: strategy.optionalExams,
+                strategy: test
+            }
+            // return test;
+            // switch (gradeFilter) {
+            //     case 'A': return strategy.GradeA;
+            //     case 'B': return strategy.GradeB;
+            //     case 'C': return strategy.GradeC;
+            //     case 'D': return strategy.GradeD;
+            //     default: return strategy.GradeF;
+            // }
+        }
+
+    }, [filteredCourses, gradeFilter]);
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -137,6 +188,13 @@ export default function StudentReport() {
         };
         fetchData();
     }, [session, status, hasFetched, refreshTrigger]);
+
+    // // Use useEffect for grade strategy updates
+    // useEffect(() => {
+    //     if (gradeStrategy) {
+    //         setGradeStrategy(gradeStrategy);
+    //     }
+    // }, [gradeStrategy]);
 
     /**
      * Average Grade Determination
@@ -237,8 +295,8 @@ export default function StudentReport() {
         // Determine courses based on exams
         let courseIdList = examsRaw.reduce((unique: string[], grade) => {
             const courseId = grade.exam_course_id;
-            if (courseId && !unique.includes(courseId)) {
-                unique.push(courseId);
+            if (courseId && !unique.includes(courseId.toString())) {
+                unique.push(courseId.toString());
             }
             return unique;
         }, []);
@@ -298,7 +356,7 @@ export default function StudentReport() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br">
+        <div>
             {/*This is the Course Selection button*/}
             <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
                 { session ?
@@ -347,10 +405,9 @@ export default function StudentReport() {
 
                     {/* Line Divider */}
                     <hr className="border-crimson border-2 mb-2"></hr>
-
-                    <div className="overflow-y-auto max-h-[550px] pt-1
-                            scrollbar-hide"
-                    >
+                    {/*Overflow wrapper container to manage scrolling*/}
+                    <div className="overflow-y-auto pt-1 scrollbar-hide">
+                        {/*Grade Summary Charts Components*/}
                         <div className="justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold text-center">Grade Overview</h2>
                             <div className="flex gap-2">
@@ -406,38 +463,59 @@ export default function StudentReport() {
                             </div>
                         </div>
 
+                        {/*This is the Exam Details According to Grade Strategy*/}
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-semibold">Your Grades</h2>
+                            <h2 className="text-xl font-semibold">Grade Requirement Details</h2>
                             <div className="flex gap-2">
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
                                      shadow-sm shadow-mentat-gold-700 ${
-                                        filter === 'all'
+                                        gradeFilter === 'A'
                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                    onClick={() => setFilter('all')}
+                                    onClick={() => setGradeFilter('A')}
                                 >
-                                    All Grades
+                                    A
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
                                      shadow-sm shadow-mentat-gold-700 ${
-                                        filter === 'passed'
+                                        gradeFilter === 'B'
                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                    onClick={() => setFilter('passed')}
+                                    onClick={() => setGradeFilter('B')}
                                 >
-                                    Passed
+                                    B
                                 </button>
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
                                      shadow-sm shadow-mentat-gold-700 ${
-                                        filter === 'failed'
+                                        gradeFilter === 'C'
                                             ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                    onClick={() => setFilter('failed')}
+                                    onClick={() => setGradeFilter('C')}
                                 >
-                                    Failed
+                                    C
+                                </button>
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'D'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('D')}
+                                >
+                                    D
+                                </button>
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'F'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('F')}
+                                >
+                                    F
                                 </button>
                                 {/*<button*/}
                                 {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
@@ -447,101 +525,94 @@ export default function StudentReport() {
                                 {/*</button>*/}
                             </div>
                         </div>
-
+                        { loading ? (
+                            <div className="text-center py-6">
+                                Loading Grade Strategy Details...
+                            </div>
+                        ) : !filteredGradeStrategy ? (
+                            <div className="text-center py-6
+                                rounded-xl shadow-sm border p-6"
+                            >
+                                Course has no grade strategy
+                            </div>
+                        ) : (
                         <motion.div
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
-                            className="rounded-xl shadow-sm border p-6"
+                            className="rounded-xl shadow-sm border p-6 pb-3"
                         >
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center justify-between text-right">
                                 <h2 className="text-xl font-semibold">
-                                    {filter.charAt(0).toUpperCase() + filter.slice(1)} Grades
+                                    Grade {gradeFilter} course requirements
                                 </h2>
-                                <span className="text-sm">
-                                  {filteredGrades.length} grade(s) found
-                                </span>
+                                {!filteredGradeStrategy ? (
+                                    <React.Fragment />
+                                ) : (
+                                    <span className="text-sm text-mentat-gold/80 italic">
+                                      {filteredGradeStrategy.strategy.total} exams required with score greater than C <br />
+                                      {filteredGradeStrategy.strategy.requiredA} exams with an A score required
+                                    </span>
+                                )}
+                            </div>
+                            {/*New Grade Strategy Chart*/}
+                            <div className="pt-1 mt-2 bg-card-color shadow-md shadow-crimson-700">
+                                { !filteredGradeStrategy ? (
+                                    <React.Fragment />
+                                ) : (
+                                    <AnimatePresence mode="wait">
+                                        <ExamTable
+                                            exams={grades}
+                                            gradeStrategy={filteredGradeStrategy.strategy}
+                                            required={filteredGradeStrategy.required}
+                                            optional={filteredGradeStrategy.optional}
+                                        />
+                                    </AnimatePresence>
+                                )}
                             </div>
 
-                            <div className="max-h-[600px] pt-1">
-                                <AnimatePresence mode="wait">
-                                    {filteredGrades.length > 0 ? (
-                                        <motion.div
-                                            key={`${selectedClass}-${filter}`}
-                                            variants={containerVariants}
-                                            initial="hidden"
-                                            animate="visible"
-                                            className="space-y-2 mb-2"
-                                        >
-                                            {filteredGrades.map((grade) => (
-                                                <GradeCardExtended
-                                                    key={grade.exam_id}
-                                                    grade={grade}
-                                                    index={0}
-                                                    onclick={(e) => loadGradeDetails(grade, e)}
-                                                />
-                                            ))}
-                                        </motion.div>
-                                    ) : loading === true ? (
-                                        <motion.div
-                                            variants={containerVariants}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-center py-12"
-                                        >
-                                            Loading Grades...
-                                        </motion.div>
-                                    ) : (
-                                        <motion.div
-                                            variants={containerVariants}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-center py-12"
-                                        >
-                                            No grades found for the selected filters
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
+                            {/*<div className="max-h-[600px] pt-1">*/}
+                            {/*    <AnimatePresence mode="wait">*/}
+                            {/*        {filteredGrades.length > 0 ? (*/}
+                            {/*            <motion.div*/}
+                            {/*                key={`${selectedClass}-${filter}`}*/}
+                            {/*                variants={containerVariants}*/}
+                            {/*                initial="hidden"*/}
+                            {/*                animate="visible"*/}
+                            {/*                className="space-y-2 mb-2"*/}
+                            {/*            >*/}
+                            {/*                {filteredGrades.map((grade) => (*/}
+                            {/*                    <GradeCardExtended*/}
+                            {/*                        key={grade.exam_id}*/}
+                            {/*                        grade={grade}*/}
+                            {/*                        index={0}*/}
+                            {/*                        onclick={(e) => loadGradeDetails(grade, e)}*/}
+                            {/*                    />*/}
+                            {/*                ))}*/}
+                            {/*            </motion.div>*/}
+                            {/*        ) : loading === true ? (*/}
+                            {/*            <motion.div*/}
+                            {/*                variants={containerVariants}*/}
+                            {/*                initial={{ opacity: 0 }}*/}
+                            {/*                animate={{ opacity: 1 }}*/}
+                            {/*                className="text-center py-12"*/}
+                            {/*            >*/}
+                            {/*                Loading Grades...*/}
+                            {/*            </motion.div>*/}
+                            {/*        ) : (*/}
+                            {/*            <motion.div*/}
+                            {/*                variants={containerVariants}*/}
+                            {/*                initial={{ opacity: 0 }}*/}
+                            {/*                animate={{ opacity: 1 }}*/}
+                            {/*                className="text-center py-12"*/}
+                            {/*            >*/}
+                            {/*                No grades found for the selected filters*/}
+                            {/*            </motion.div>*/}
+                            {/*        )}*/}
+                            {/*    </AnimatePresence>*/}
+                            {/*</div>*/}
                         </motion.div>
-                        <div className="max-w-5xl mx-auto rounded-xl pt-6 mb-1">
-                            <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
-                            { loading ?
-                                ( <div className="text-center">Calculating Grade Summary...</div> )
-                                : courseGrades.length === 0 ?
-                                    <div className="text-center">No grades available</div> :
-                                    (
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div className="bg-card-color p-4 rounded-lg border border-blue-100
-                                                shadow-md shadow-crimson-700">
-                                                <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
-                                                <p className="text-3xl font-bold">
-                                                    {courseGrades.filter(grade => grade.status === 'passed').length}
-                                                </p>
-                                            </div>
-                                            <div className="bg-card-color p-4 rounded-lg border border-blue-100
-                                                shadow-md shadow-crimson-700">
-                                                <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
-                                                <p className="text-3xl font-bold">
-                                                    {courseGrades.filter(grade => grade.status === 'failed').length}
-                                                </p>
-                                            </div>
-
-                                            <div className="bg-card-color p-4 rounded-lg border border-blue-100
-                                                shadow-md shadow-crimson-700">
-                                                <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
-                                                <p className={`text-3xl font-bold ${
-                                                    avgScore(courseGrades) === 'A' || avgScore(courseGrades) === 'B' ? 'text-green-600' :
-                                                        avgScore(courseGrades) === 'C' ? 'text-yellow-600' :
-                                                            'text-red-600'
-                                                }`}>
-                                                    {avgScore(courseGrades)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )
-                            }
-                        </div>
+                        )}
                     </div>
                 </motion.div>
             </div>
