@@ -133,13 +133,13 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
         
         return exams.filter(exam => {
             const matchesSearch = exam.exam_name.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesDifficulty = difficultyFilter === 'all' || exam.exam_difficulty === difficultyFilter;
+            const matchesDifficulty = difficultyFilter === 'all' || exam.exam_difficulty === Number(difficultyFilter);
             const matchesRequired = requiredFilter === 'all' || 
                 (requiredFilter === 'required' && exam.exam_required === 1) ||
                 (requiredFilter === 'optional' && exam.exam_required === 0);
             const matchesStatus = statusFilter === 'all' || exam.status === statusFilter;
 
-            console.log(`Exam ${exam.exam_name}: status=${exam.status}, exam_state=${exam.exam_state}, matchesStatus=${matchesStatus}`);
+            console.log(`Exam ${exam.exam_name}: difficulty=${exam.exam_difficulty} (${typeof exam.exam_difficulty}), filter=${difficultyFilter} (${typeof difficultyFilter}), matchesDifficulty=${matchesDifficulty}`);
             
             return matchesSearch && matchesDifficulty && matchesRequired && matchesStatus;
         });
