@@ -31,7 +31,8 @@ export default async function RootLayout({
             {/* Initialize global namespace with safe defaults to avoid undefined access */}
             <Script id="mentat-init" strategy="beforeInteractive">{`
                 window.MENTAT = window.MENTAT || {};
-                window.MENTAT.toggle = window.MENTAT.toggle || function(){ /* no-op */ };
+                window.MENTAT.toggle = window.MENTAT.toggle || function(){};
+                window.MENTAT.setToggle = window.MENTAT.setToggle || function(){};
             `}</Script>
             {/*Load the Font Awesome Pack*/}
             <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
