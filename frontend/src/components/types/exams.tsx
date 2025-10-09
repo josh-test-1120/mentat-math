@@ -57,6 +57,7 @@ export interface ExamProp {
     exam_hour: number;
     exam_online: number;
     exam_minutes?: number;
+    exam_duration?: string;
 }
 
 export interface Course {

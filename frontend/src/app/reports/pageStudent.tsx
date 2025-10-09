@@ -9,7 +9,8 @@ import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCa
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import { GradeChart } from "./localComponents/StatusChart";
-import ProgressChart, { ExamAttempt } from "./localComponents/ProgressChart";
+import ProgressChart from "./localComponents/ProgressChart";
+import { GradeRequirements, GradeStrategy, GradeRequirementsJSON, ExamAttempt} from "./types/shared"
 
 export interface Report extends ExamResult {
     course_name: string;
@@ -31,6 +32,7 @@ export default function StudentReport() {
     const [grades, setGrades] = useState<Report[]>([]);
     const [courseGrades, setCourseGrades] = useState<Report[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
+    const [gradeStrategy, setGradeStrategy] = useState<GradeStrategy>();
     const [tests, setTests] = useState([]);
     // const [finalScore, setFinalScore] = useState('');
     const [loading, setLoading] = useState(true);
@@ -44,6 +46,7 @@ export default function StudentReport() {
     const [selectedClass, setSelectedClass] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
     const [courseFilter, setCourseFilter] = useState<string>('');
+    const [gradeFilter, setGradeFilter] = useState<'A' | 'B' | 'C' | 'D' | 'F'>('A');
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -91,6 +94,51 @@ export default function StudentReport() {
         return courses.filter(course => course.courseName === courseFilter);
     }, [courses, courseFilter]);
 
+    // Memoize the grade strategy details
+    const filteredGradeStrategy = useMemo(() => {
+        // Empty until data is ready
+        if (!courses) return null;
+        else if (!filteredCourses || filteredCourses.length === 0) {
+            return null;
+        }
+        // Get the strategy from course
+        const strategy: GradeRequirementsJSON = JSON.parse(filteredCourses[0].gradeStrategy);
+        console.log('Updating grade strategy');
+        console.log(strategy);
+
+        // Check to make sure strategy exists
+        if (!strategy) return null;
+        else {
+            // let test: GradeStrategy;
+            // switch (gradeFilter) {
+            //     case 'A':
+            //         test =  strategy.A;
+            //         break;
+            //     case 'B':
+            //         test =  strategy.B;
+            //         break;
+            //     case 'C':
+            //         test =  strategy.C;
+            //         break;
+            //     case 'D':
+            //         test =  strategy.D;
+            //         break;
+            //     default: test =  strategy.F;
+            // }
+            // console.log('New grade strategy');
+            // console.log(test);
+            // return test;
+            switch (gradeFilter) {
+                case 'A': return strategy.GradeA;
+                case 'B': return strategy.GradeB;
+                case 'C': return strategy.GradeC;
+                case 'D': return strategy.GradeD;
+                default: return strategy.GradeF;
+            }
+        }
+
+    }, [filteredCourses, gradeFilter]);
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -137,6 +185,13 @@ export default function StudentReport() {
         };
         fetchData();
     }, [session, status, hasFetched, refreshTrigger]);
+
+    // Use useEffect for grade strategy updates
+    useEffect(() => {
+        if (gradeStrategy) {
+            setGradeStrategy(gradeStrategy);
+        }
+    }, [gradeStrategy]);
 
     /**
      * Average Grade Determination
@@ -405,6 +460,132 @@ export default function StudentReport() {
                                 </div>
                             </div>
                         </div>
+
+                        {/*This is the Exam Details According to Grade Strategy*/}
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-semibold">Grade Requirement Details</h2>
+                            <div className="flex gap-2">
+                                <button
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'all'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('A')}
+                                >
+                                    A
+                                </button>
+                                <button
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'passed'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('B')}
+                                >
+                                    B
+                                </button>
+                                <button
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'failed'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('C')}
+                                >
+                                    C
+                                </button>
+                                <button
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'failed'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('D')}
+                                >
+                                    D
+                                </button>
+                                <button
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                     shadow-sm shadow-mentat-gold-700 ${
+                                        filter === 'failed'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('F')}
+                                >
+                                    F
+                                </button>
+                                {/*<button*/}
+                                {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
+                                {/*    onClick={() => setFilter('pending')}*/}
+                                {/*>*/}
+                                {/*    Pending*/}
+                                {/*</button>*/}
+                            </div>
+                        </div>
+
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            className="rounded-xl shadow-sm border p-6 mb-6"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-semibold">
+                                    Grade {gradeFilter} exam requirements
+                                </h2>
+                                <span className="text-sm">
+                                  {/*{filteredGrades.length} exams(s) found*/}
+                                    { !filteredGradeStrategy ? (
+                                        <React.Fragment />
+                                    ) : (
+                                        `${filteredGradeStrategy.total} exams required
+                                        and ${filteredGradeStrategy.requiredA} As`
+                                    )}
+                                </span>
+                            </div>
+
+                            <div className="max-h-[600px] pt-1">
+                                <AnimatePresence mode="wait">
+                                    {filteredGrades.length > 0 ? (
+                                        <motion.div
+                                            key={`${selectedClass}-${filter}`}
+                                            variants={containerVariants}
+                                            initial="hidden"
+                                            animate="visible"
+                                            className="space-y-2 mb-2"
+                                        >
+                                            {filteredGrades.map((grade) => (
+                                                <GradeCardExtended
+                                                    key={grade.exam_id}
+                                                    grade={grade}
+                                                    index={0}
+                                                    onclick={(e) => loadGradeDetails(grade, e)}
+                                                />
+                                            ))}
+                                        </motion.div>
+                                    ) : loading === true ? (
+                                        <motion.div
+                                            variants={containerVariants}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-center py-12"
+                                        >
+                                            Loading Grades...
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            variants={containerVariants}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-center py-12"
+                                        >
+                                            No grades found for the selected filters
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
 
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold">Your Grades</h2>
