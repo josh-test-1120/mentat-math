@@ -195,7 +195,7 @@ export default function ExamDashboard() {
             exam_course_id: exam.exam_course_id,
             exam_difficulty: exam.exam_difficulty,
             exam_required: exam.exam_required,
-            exam_duration: exam.exam_duration  || "1",
+            exam_duration: exam.exam_duration || "1",
             exam_state: exam.exam_state,
             exam_online: exam.exam_online
         }
@@ -302,7 +302,7 @@ export default function ExamDashboard() {
                                     key={examInst.exam_id}
                                     exam={examInst as ExamExtended}
                                     index={0}
-                                    onclick={(e) => loadModalData(examInst, e)}
+                                    onclick={(e) => loadModalData(examInst as ExamExtended, e)}
                                 />
                             ))}
                         </AnimatePresence>
