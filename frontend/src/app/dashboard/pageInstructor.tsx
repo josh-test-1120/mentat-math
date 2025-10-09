@@ -89,7 +89,7 @@ export default function InstructorCoursesClient() {
     if (status !== 'authenticated') {
         return (
             <div className="p-6 text-center">
-                <div className="text-gray-600">Please sign in to view your courses.</div>
+                <div className="text-mentat-gold-700">Please sign in to view your courses.</div>
             </div>
         );
     }
@@ -97,7 +97,7 @@ export default function InstructorCoursesClient() {
     if (loading) {
         return (
             <div className="p-6 text-center">
-                <div className="text-gray-600">Loading your courses...</div>
+                <div className="text-mentat-gold-700">Loading your courses...</div>
             </div>
         );
     }
@@ -132,7 +132,7 @@ export default function InstructorCoursesClient() {
     };
 
     return (
-        <div className="min-h-screen overflow-auto max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto">
             <div className="mb-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>

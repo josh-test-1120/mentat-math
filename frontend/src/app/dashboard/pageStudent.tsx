@@ -187,7 +187,7 @@ export default function ExamsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br">
+        <div className="bg-gradient-to-br">
             {/*Course Listing Layout */}
             <div className="max-w-5xl mx-auto mb-4">
                 <div className="flex justify-between items-center mb-4">

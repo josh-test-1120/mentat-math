@@ -239,11 +239,13 @@ export default function ExamDashboard() {
         // exam.status = getExamStatus(exam)
     }
 
-    if (status !== 'authenticated') return <div className="p-6">Please sign in.</div>;
-    if (loading) return <div className="p-6">Loading...</div>;
+    if (status !== 'authenticated')
+        return <div className="p-6 text-mentat-gold-700">Please sign in.</div>;
+    if (loading)
+        return <div className="p-6 text-mentat-gold-700">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br">
+        <div className="bg-gradient-to-br">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
