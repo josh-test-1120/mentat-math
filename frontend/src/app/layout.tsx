@@ -30,16 +30,16 @@ export default async function RootLayout({
         <html lang="en" className="h-full bg-mentat-black">
             {/*Load the Font Awesome Pack*/}
             <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
-            <body className="h-full overflow-hidden">
+            <body className="h-full overflow-auto">
                 <ToastProvider>
                     <AuthProvider session={session}>
                         <div className="h-full flex flex-col">
                             <Header/>
-                            <div className="flex flex-1 overflow-hidden">
+                            <div className="flex flex-1 min-h-0">
                                 <div id="sidebar-box" className="w-64 flex-shrink-0">
                                     <Sidebar/>
                                 </div>
-                                <div id="mainbar-box" className="flex-1 overflow-hidden">
+                                <div id="mainbar-box" className="flex-1 min-h-0 overflow-auto">
                                     {children}
                                 </div>
                             </div>
