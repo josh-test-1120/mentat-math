@@ -39,7 +39,7 @@ export default async function RootLayout({
                                 <div id="sidebar-box" className="w-64 flex-shrink-0">
                                     <Sidebar/>
                                 </div>
-                                <div id="mainbar-box" className="flex-1 min-h-0 overflow-auto">
+                                <div id="mainbar-box" className="flex-1 min-h-0 overflow-auto scrollbar-hide">
                                     {children}
                                 </div>
                             </div>
