@@ -11,9 +11,9 @@ export interface Exam {
 }
 
 export interface ExamResult {
-    exam_id: string;
-    exam_name: string;
-    exam_course_id: string;
+    exam_id: number;
+    exam_name: String;
+    exam_course_id: number;
     exam_required: number;
     exam_scheduled_date: string;
     exam_taken_date?: string | undefined;

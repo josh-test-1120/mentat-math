@@ -18,39 +18,6 @@ import { GradeRequirements, GradeStrategy, CourseStrategy, ExamAttempt} from "..
 /**
  * Define some types and interfaces for the chart
  */
-// type GradeRequirements = Record<'F' | 'D' | 'C' | 'B' | 'A', {
-//     total: number;
-//     requiredA: number;
-//     optional: String[];
-//     allOptional: Boolean;
-// }>;
-//
-// interface GradeStrategy {
-//     optional : String[];
-//     allOptional: Boolean;
-//     total: number;
-//     requiredA: number;
-// }
-//
-// interface CourseStrategy {
-//     requiredExams: String[];
-//     optionalExams: String[];
-//     GradeA: GradeStrategy,
-//     'GradeA-': GradeStrategy,
-//     'GradeB+': GradeStrategy,
-//     GradeB: GradeStrategy,
-//     'GradeB-': GradeStrategy,
-//     'GradeC+': GradeStrategy,
-//     GradeC: GradeStrategy,
-//     GradeD: GradeStrategy,
-//     GradeF: GradeStrategy,
-// }
-//
-// export interface ExamAttempt extends ExamResult {
-//     attempts?: number | null | undefined;
-//     bestScore?: string | null | undefined;
-// }
-
 interface ProgressChartProps {
     exams: ExamAttempt[];
     course: Course;

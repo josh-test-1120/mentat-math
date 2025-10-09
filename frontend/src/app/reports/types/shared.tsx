@@ -10,11 +10,14 @@ export type GradeRequirements = Record<'F' | 'D' | 'C' | 'B' | 'A', {
     allOptional: Boolean;
 }>;
 
-export type GradeRequirementsJSON = Record<'GradeF' | 'GradeD' | 'GradeC' | 'GradeB' | 'GradeA', {
+export type GradeRequirementsJSON = {
+    requiredExams: string[];
+    optionalExams: string[];
+} & Record<'GradeF' | 'GradeD' | 'GradeC' | 'GradeB' | 'GradeA', {
     total: number;
     requiredA: number;
-    optional: String[];
-    allOptional: Boolean;
+    optional: string[];
+    allOptional: boolean;
 }>;
 
 export interface GradeStrategy {
@@ -41,4 +44,15 @@ export interface CourseStrategy {
 export interface ExamAttempt extends ExamResult {
     attempts?: number | null | undefined;
     bestScore?: string | null | undefined;
+}
+
+interface ExamResultComplete extends ExamResult {
+    exam_version: number;
+    exam_difficulty: number;
+    exam_duration: number;
+}
+
+export interface Report extends ExamResultComplete {
+    course_name: string;
+    exam_online?: number;
 }
