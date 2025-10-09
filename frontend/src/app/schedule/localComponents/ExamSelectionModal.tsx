@@ -67,7 +67,8 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 apiHandler(
                     undefined,
                     'GET',
-                    `api/test-window-exam-restrictions/test-window/${testWindowId}/allowed-ids`,
+                    // Fetch RESTRICTED exams (is_allowed = 0)
+                    `api/test-window-exam-restrictions/test-window/${testWindowId}/restricted`,
                     `${BACKEND_API}`,
                     accessToken
                 )
@@ -80,23 +81,28 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
 
             const examsData = Array.isArray(examsResponse) ? examsResponse : examsResponse?.data || [];
             
-            // Get allowed exam IDs from restrictions
-            let allowedExamIds: number[] = [];
-            if (!restrictionsResponse?.error && restrictionsResponse?.allowedExamIds) {
-                allowedExamIds = restrictionsResponse.allowedExamIds;
-            } else if (initiallySelectedExams.length > 0) {
-                // Fallback to initially selected exams if no restrictions found
-                allowedExamIds = initiallySelectedExams;
+            // Get RESTRICTED exam IDs (is_allowed=0) from restrictions
+            let restrictedExamIds: number[] = [];
+            if (!restrictionsResponse?.error) {
+                // Response shape: { restrictedExams: [{ examId: number, ...}, ...] }
+                const items = restrictionsResponse?.restrictedExams || restrictionsResponse?.data || [];
+                restrictedExamIds = Array.isArray(items)
+                    ? items.map((r: any) => r.examId ?? r.exam_id).filter((id: any) => typeof id === 'number')
+                    : [];
             }
+            console.log('Restricted exam ids:', restrictedExamIds);
             
             // Convert to ExamWithSelection format
             const examsWithSelection: ExamWithSelection[] = examsData.map((exam: any) => {
                 console.log('Raw exam data:', exam);
                 console.log('exam_state value:', exam.exam_state, 'type:', typeof exam.exam_state);
                 
+                // Default: select all; If restricted list present, deselect those
+                const isSelected = restrictedExamIds.length === 0 ? true : !restrictedExamIds.includes(exam.exam_id);
+                
                 return {
                     ...exam,
-                    isSelected: allowedExamIds.includes(exam.exam_id),
+                    isSelected: isSelected,
                     isAllowed: true, // Default to allowed, can be modified based on existing restrictions
                     status: exam.exam_state === 1 ? 'active' : 'inactive'
                 };
@@ -166,36 +172,59 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
     };
 
     const handleSave = async () => {
+        // Selected exams are implicitly allowed (1)
         const selectedIds = selectedExams.map(exam => exam.exam_id);
-        
+        const unselectedIds = exams.filter(exam => !exam.isSelected).map(exam => exam.exam_id);
+
         try {
-            // Save the exam restrictions to the backend
-            const response = await apiHandler(
-                {
-                    testWindowId: testWindowId,
-                    examIds: selectedIds,
-                    isAllowed: true
-                },
-                'POST',
-                `api/test-window-exam-restrictions/set`,
+            // 1) Fetch currently restricted (disallowed) exams from backend
+            const currentRestrictedRes = await apiHandler(
+                undefined,
+                'GET',
+                `api/test-window-exam-restrictions/test-window/${testWindowId}/restricted`,
                 `${BACKEND_API}`,
                 accessToken ?? undefined
             );
 
-            if (response?.error) {
-                console.error('Error saving exam restrictions:', response.error);
-                // Still call the callback for UI updates
-                onExamsSelected(selectedIds);
-            } else {
-                console.log('Exam restrictions saved successfully:', response);
-                onExamsSelected(selectedIds);
+            let currentRestrictedIds: number[] = [];
+            if (!currentRestrictedRes?.error) {
+                const items = currentRestrictedRes?.restrictedExams || currentRestrictedRes?.data || [];
+                currentRestrictedIds = Array.isArray(items)
+                    ? items.map((r: any) => r.examId ?? r.exam_id).filter((id: any) => typeof id === 'number')
+                    : [];
             }
+
+            // 2) Compute diff
+            const toAdd = unselectedIds.filter(id => !currentRestrictedIds.includes(id)); // newly disallowed
+            const toRemove = currentRestrictedIds.filter(id => !unselectedIds.includes(id)); // re-allowed
+
+            // 3) Perform adds (POST) and removes (DELETE) in parallel
+            const addPromises = toAdd.map(id => apiHandler(
+                undefined,
+                'POST',
+                `api/test-window-exam-restrictions/test-window/${testWindowId}/exam/${id}?isAllowed=false`,
+                `${BACKEND_API}`,
+                accessToken ?? undefined
+            ));
+
+            const removePromises = toRemove.map(id => apiHandler(
+                undefined,
+                'DELETE',
+                `api/test-window-exam-restrictions/test-window/${testWindowId}/exam/${id}`,
+                `${BACKEND_API}`,
+                accessToken ?? undefined
+            ));
+
+            await Promise.all([...addPromises, ...removePromises]);
+            console.log('Restrictions updated. Added (disallowed):', toAdd, 'Removed (re-allowed):', toRemove);
+
+            // Update parent with currently selected exams for UI sync
+            onExamsSelected(selectedIds);
         } catch (error) {
             console.error('Error saving exam restrictions:', error);
-            // Still call the callback for UI updates
             onExamsSelected(selectedIds);
         }
-        
+
         onClose();
     };
 
