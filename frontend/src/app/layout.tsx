@@ -28,6 +28,11 @@ export default async function RootLayout({
 
     return (
         <html lang="en" className="h-full bg-mentat-black">
+            {/* Initialize global namespace with safe defaults to avoid undefined access */}
+            <Script id="mentat-init" strategy="beforeInteractive">{`
+                window.MENTAT = window.MENTAT || {};
+                window.MENTAT.toggle = window.MENTAT.toggle || function(){ /* no-op */ };
+            `}</Script>
             {/*Load the Font Awesome Pack*/}
             <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
             <body className="h-full overflow-auto">
