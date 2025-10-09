@@ -12,6 +12,7 @@ import ProgressChart from "./localComponents/ProgressChart";
 import { GradeRequirements, GradeStrategy, GradeRequirementsJSON,
     ExamAttempt, Report } from "./types/shared"
 import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
+import {Exam} from "@/components/types/exams";
 
 export default function StudentReport() {
     // Session states
@@ -28,6 +29,7 @@ export default function StudentReport() {
     const [grades, setGrades] = useState<Report[]>([]);
     const [courseGrades, setCourseGrades] = useState<Report[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
+    const [exams, setExams] = useState<Exam[]>([]);
     const [gradeStrategy, setGradeStrategy] = useState<GradeStrategy>();
     const [required, setRequired] = useState<string>('');
     const [optional, setOptional] = useState<string>('');
@@ -89,7 +91,10 @@ export default function StudentReport() {
         console.log(courses.filter(course => course.courseName === courseFilter)[0]);
 
         // First filter by course
-        return courses.filter(course => course.courseName === courseFilter);
+        let result = courses.filter(course => course.courseName === courseFilter);
+        // fetchExams(result[0]);
+        // return courses.filter(course => course.courseName === courseFilter);
+        return result;
     }, [courses, courseFilter]);
 
     // Memoize the grade strategy details
@@ -177,8 +182,10 @@ export default function StudentReport() {
             try {
                 // Get local response to pass to next fetch
                 // Since delays occur with useState synchronization
-                let examsRaw = await fetchExams();
-                await fetchCourses(examsRaw);
+                let examsRaw = await fetchGrades();
+                let courses = await fetchCourses(examsRaw);
+                await fetchExams(courses[0]);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching API Data:', error);
             }
@@ -189,12 +196,12 @@ export default function StudentReport() {
         fetchData();
     }, [session, status, hasFetched, refreshTrigger]);
 
-    // // Use useEffect for grade strategy updates
-    // useEffect(() => {
-    //     if (gradeStrategy) {
-    //         setGradeStrategy(gradeStrategy);
-    //     }
-    // }, [gradeStrategy]);
+    // Use useEffect for exams updates when course changes
+    useEffect(() => {
+        if (filteredCourses && !loading) {
+            fetchExams(filteredCourses[0]);
+        }
+    }, [filteredCourses, loading]);
 
     /**
      * Average Grade Determination
@@ -236,11 +243,11 @@ export default function StudentReport() {
     }
 
     /**
-     * Fetch Exams
+     * Fetch Grades
      * Implementation for general API handler
      */
-    async function fetchExams() {
-        console.log('Fetching data for student report page: Exam data');
+    async function fetchGrades() {
+        console.log('Fetching data for student report page: Grade data');
         setLoading(true);
         let examsRaw: Report[] = [];
 
@@ -343,7 +350,53 @@ export default function StudentReport() {
                 setCourses([]);
             }
             // Now we are done loading data
-            setLoading(false);
+            // setLoading(false);
+            return coursesData;
+        }
+    }
+
+    /**
+     * Fetch Exams
+     * Implementation for general API handler
+     */
+    async function fetchExams(course: Course) {
+        console.log('Fetching data for exams: Exam data');
+        console.log(course);
+        let examsRaw: Exam[] = [];
+
+        try {
+            const res = await apiHandler(
+                undefined,
+                'GET',
+                `api/exams/course/${course.courseId}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+            console.log(res);
+
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching exams for course:', res.error);
+                // setGrades([]);
+                // setCourseGrades([]);
+            } else {
+                // Assuming your API returns both exams and tests
+                // Adjust this based on your actual API response structure
+                // Ensure all grades have a status
+                examsRaw = res.exams || res; // Once grabbed, it is gone
+                // setGrades(examsRaw);
+                // setCourseGrades(examsRaw);
+            }
+        } catch (error) {
+            console.error('Error fetching student grades:', error as string);
+        } finally {
+            if (examsRaw.length === 0) {
+                setExams([]);
+            }
+            else {
+                setExams(examsRaw);
+            }
+            // setLoading(false);
+            return examsRaw;
         }
     }
 
@@ -562,10 +615,11 @@ export default function StudentReport() {
                                 ) : (
                                     <AnimatePresence mode="wait">
                                         <ExamTable
-                                            exams={grades}
+                                            grades={courseGrades}
                                             gradeStrategy={filteredGradeStrategy.strategy}
                                             required={filteredGradeStrategy.required}
                                             optional={filteredGradeStrategy.optional}
+                                            exams={exams}
                                         />
                                     </AnimatePresence>
                                 )}

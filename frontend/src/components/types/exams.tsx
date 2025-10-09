@@ -1,12 +1,12 @@
 export interface Exam {
-    exam_id: number;
-    exam_name: string;
-    exam_course_id: number;
-    exam_difficulty: number;
-    exam_required: number;
-    exam_duration: string;
-    exam_state: number;
-    exam_online: number;
+    examId: number;
+    courseId: number;
+    examDifficulty: number;
+    examDuration: number;
+    examName: String;
+    examOnline: number;
+    examRequired: number;
+    examState: number;
     status?: 'active' | 'inactive';
 }
 

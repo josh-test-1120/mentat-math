@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import {Report, GradeStrategy, GradeRequirements} from "../types/shared";
+import { Report, GradeStrategy, GradeRequirements } from "../types/shared";
+import { StarIcon } from "lucide-react";
+import {Exam} from "@/components/types/exams";
 
 interface ReportTableProps {
-    exams: Report[];
+    grades: Report[];
+    exams: Exam[];
     gradeStrategy: GradeStrategy;
     required: String[];
     optional: String[];
@@ -11,20 +14,50 @@ interface ReportTableProps {
 
 
 export const ExamTable: React.FC<ReportTableProps> =
-    ({ exams, gradeStrategy, required, optional }: ReportTableProps) => {
+    ({ grades, gradeStrategy, required, optional, exams }: ReportTableProps) => {
+
+    // Create a map of existing exams for easy lookup
+    const examMap = new Map(grades.map(grade => [grade.exam_name, grade]));
+
+    const statusMap: Record<string, "pending" | "passed" | "failed" | undefined> = {
+        "pending": "pending",
+        "passed": "passed",
+        "failed": "failed"
+    };
     // De-duplicate and reduce the optional exams array
     let reducer = gradeStrategy.allOptional ? 2 : 1;
     let optionalSize = (gradeStrategy.total - required.length) - reducer;
 
-    const remainingOptionalExams = optional.filter((item => {return !gradeStrategy.optional.includes(item)}))
+
+    const optionalTaken = grades
+        .filter(item => optional.some(name => name === item.exam_name))
+        .map(item => item.exam_name);
+    console.log('Optional Taken');
+    console.log(optionalTaken);
+
+    const remainingOptionalExams = optional.filter(item => {
+        const isNotInStrategy = !gradeStrategy.optional.includes(item);
+        const isNotTaken = !grades.some(grade => grade.exam_name === item);
+        return isNotInStrategy && isNotTaken;
+    })
+
 
     console.log('This is the de-duplicated and reduced optional exams');
     console.log(remainingOptionalExams);
 
+    // const allOptionalExams = optionalSize > 0 ? [
+    //     ...gradeStrategy.optional,
+    //     ...optionalTaken,
+    //     ...remainingOptionalExams.slice(0, optionalSize),
+    // ] : []
+
     const allOptionalExams = optionalSize > 0 ? [
         ...gradeStrategy.optional,
-        ...remainingOptionalExams.slice(0, optionalSize),
-    ] : []
+        ...optionalTaken,
+        ...remainingOptionalExams.slice(0, optionalSize)
+    ].reduce((unique: String[], item: String) => {
+        return unique.includes(item) ? unique : [...unique, item];
+    }, []) : [];
 
     const allExamNames = [
         ...required,
@@ -35,34 +68,87 @@ export const ExamTable: React.FC<ReportTableProps> =
     console.log('This is the combined exams array');
     console.log(allExamNames);
 
-    // Create a map of existing exams for easy lookup
-    const examMap = new Map(exams.map(exam => [exam.exam_name, exam]));
-
-    const statusMap: Record<string, "pending" | "passed" | "failed" | undefined> = {
-        "pending": "pending",
-        "passed": "passed",
-        "failed": "failed"
-    };
-
     const calculateCurrentGrade = () => {
 
-        let passed = exams.filter((grade) =>
+        let passed = grades.filter((grade) =>
             grade.status === "passed").length;
-        let passedAs = exams.filter((grade) =>
+        let passedAs = grades.filter((grade) =>
             grade.exam_score === "A").length;
 
         if (passed >= gradeStrategy.total && passedAs >= gradeStrategy.requiredA) return 'Passed';
         else return 'Not Yet';
     }
 
-    // Separate into required and optional based on grade strategy
-    const requiredExams = required
+    console.log('These are the passes grades');
+    console.log(grades);
+    console.log(exams);
+
+    const requiredExams = required.map(item1 => {
+        const matchingExam = exams.find(item =>
+            item.examName === item1);
+        const matchingExamResult = grades.find(item =>
+            item.exam_id === matchingExam?.examId);
+        if (matchingExam)
+            return {
+                item1,
+                ...matchingExam,
+                ...matchingExamResult
+            };
+        else
+            return {
+                examName: item1,
+                examRequired: 1,
+                examDuration: 1,
+                examDifficulty: 0,
+                exam_score: undefined,
+                course_name: 'test',
+                exam_version: 1,
+                exam_id: -99,
+                exam_course_id: -99,
+                status: statusMap['pending'],
+                exam_scheduled_date: ''
+            };
+    });
+    console.log('This is the required exams array');
+    console.log(requiredExams);
+
+    const optionalExams = allOptionalExams.map(item1 => {
+        const matchingExam = exams.find(item =>
+            item.examName === item1);
+        const matchingExamResult = grades.find(item =>
+            item.exam_id === matchingExam?.examId);
+        if (matchingExam)
+            return {
+                item1,
+                ...matchingExam,
+                ...matchingExamResult
+            };
+        else
+            return {
+                examName: item1,
+                examRequired: 0,
+                examDuration: 1,
+                examDifficulty: 0,
+                exam_score: undefined,
+                course_name: 'test',
+                exam_version: 1,
+                exam_id: -99,
+                exam_course_id: -99,
+                status: statusMap['pending'],
+                exam_scheduled_date: ''
+            };
+    });
+
+    console.log('This is the optional exams array');
+    console.log(optionalExams);
+
+    const requiredExams1 = required
         .slice()
         .map(name => examMap.get(name.toString()) || {
             exam_name: name,
             exam_required: 1,
             exam_duration: 1,
-            exam_difficulty: 5,
+            exam_difficulty: 0,
             exam_score: undefined,
             course_name: 'test',
             exam_version: 1,
@@ -72,13 +158,13 @@ export const ExamTable: React.FC<ReportTableProps> =
             exam_scheduled_date: ''
         });
 
-    const optionalExams = allOptionalExams
+    const optionalExams1 = allOptionalExams
         .slice()
         .map(name => examMap.get(name.toString()) || {
             exam_name: name,
             exam_required: 1,
             exam_duration: 1,
-            exam_difficulty: 5,
+            exam_difficulty: 0,
             exam_score: undefined,
             course_name: 'test',
             exam_version: 1,
@@ -88,7 +174,8 @@ export const ExamTable: React.FC<ReportTableProps> =
             exam_scheduled_date: ''
         });
 
-    const ExamRow: React.FC<{ exam: Report; index: number; isOptional?: boolean }> = ({ exam, index, isOptional = false }) => (
+    const ExamRow: React.FC<{ grade: Report; index: number; isOptional?: boolean }> =
+        ({ grade, index, isOptional = false }) => (
         <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -103,25 +190,27 @@ export const ExamTable: React.FC<ReportTableProps> =
             className={`
                 flex items-center min-h-16 border-b border-gray-200
                 hover:bg-crimson-700/30 transition-colors duration-200
-                ${exam.exam_score === undefined ? 'opacity-75' : ''}
             `}
         >
             {/* Exam Name Column */}
             <div className="w-1/4 px-4 py-3 border-r border-gray-300 font-medium">
-                {exam.exam_name}
-                {exam.exam_score === undefined && (
-                    <span className="ml-2 text-xs italic">(Not attempted)</span>
+                {grade.examName}
+                {grade.exam_score === undefined && (
+                    <span className="ml-2 text-xs italic text-mentat-gold-700">
+                        (Not attempted)
+                    </span>
                 )}
             </div>
 
             {/* Exam Details - Individual bordered sections */}
             <div className="flex-1 flex items-stretch">
                 {/* Required Status */}
-                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex items-center">
+                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex
+                    items-center justify-center">
                     <div className="text-sm">
                         {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
                         {/*    text-mentat-gold-700 mb-1">Required</span>*/}
-                        {exam.exam_required ? (
+                        {grade.examRequired ? (
                             <span className="text-green-600 font-medium">Yes</span>
                         ) : (
                             <span className="text-blue-600 font-medium">Optional</span>
@@ -130,30 +219,52 @@ export const ExamTable: React.FC<ReportTableProps> =
                 </div>
 
                 {/* Duration */}
-                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex items-center">
+                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex
+                    items-center justify-center">
                     <div className="text-sm">
-                        <span className="font-medium block text-xs uppercase tracking-wide
-                            text-mentat-gold-700 mb-1">Duration</span>
-                        {exam.exam_duration || 1} hour(s)
+                        {/*<span className="font-medium block text-2xs uppercase tracking-wide*/}
+                        {/*    text-mentat-gold-700 mb-1">Duration</span>*/}
+                        { grade.examDuration > 0 ? grade.examDuration : 1 } hour(s)
                     </div>
                 </div>
 
                 {/* Difficulty */}
-                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex items-center">
+                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex
+                    items-center justify-center">
                     <div className="text-sm">
-                        <span className="font-medium block text-xs uppercase tracking-wide
-                            text-mentat-gold-700 mb-1">Difficulty</span>
+                        {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
+                        {/*    text-mentat-gold-700 mb-1">Difficulty</span>*/}
                         <div className="flex items-center">
-                            <span className="mr-2">{exam.exam_difficulty || 5}</span>
-                            <div className="flex space-x-1">
+                            <span className="mr-2">
+                                { grade.examDifficulty >= 0 ? grade.examDifficulty : 5 }
+                            </span>
+                            {/*<div className="flex space-x-1">*/}
+                            {/*    {[1, 2, 3, 4, 5].map((star) => (*/}
+                            {/*        <div*/}
+                            {/*            key={star}*/}
+                            {/*            className={`w-2 h-2 rounded-full ${*/}
+                            {/*                star <= (exam.exam_difficulty || 5)*/}
+                            {/*                    ? 'bg-yellow-500'*/}
+                            {/*                    : 'bg-gray-300'*/}
+                            {/*            }`}*/}
+                            {/*        />*/}
+                            {/*    ))}*/}
+                            {/*</div>*/}
+                            <div className="flex space-x-0.5">
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                    <div
+                                    <StarIcon
                                         key={star}
-                                        className={`w-2 h-2 rounded-full ${
-                                            star <= (exam.exam_difficulty || 5)
-                                                ? 'bg-yellow-500'
-                                                : 'bg-gray-300'
-                                        }`}
+                                        size={14} // Smaller size
+                                        strokeWidth={1.5} // Thinner outline
+                                        className={`
+                                            transition-colors duration-200
+                                            ${star <= (
+                                                grade.examDifficulty >= 0 
+                                                    ? grade.examDifficulty : 0)
+                                                ? 'fill-yellow-400 text-yellow-500' // filled with slightly different colors
+                                                : 'fill-gray-100 text-gray-300' // light fill with gray outline
+                                            }
+                                        `}
                                     />
                                 ))}
                             </div>
@@ -162,11 +273,11 @@ export const ExamTable: React.FC<ReportTableProps> =
                 </div>
 
                 {/* Status */}
-                <div className="flex-1 px-4 py-3 flex items-center">
+                <div className="flex-1 px-4 py-3 flex items-center justify-center">
                     <div className="text-sm">
-                        <span className="font-medium block text-xs uppercase tracking-wide
-                            text-mentat-gold-700 mb-1">Status</span>
-                        {exam.exam_score !== undefined ? (
+                        {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
+                        {/*    text-mentat-gold-700 mb-1">Status</span>*/}
+                        { grade.exam_score !== undefined && grade.exam_score ? (
                             <span className="text-green-600 font-medium">Completed</span>
                         ) : (
                             <span className="text-orange-600 font-medium">Not Started</span>
@@ -178,12 +289,12 @@ export const ExamTable: React.FC<ReportTableProps> =
             {/* Exam Score */}
             <div className="w-32 px-4 py-3 border-l border-gray-300 text-right">
                 <div className="text-sm">
-                    <span className="font-medium block text-xs uppercase tracking-wide
-                        text-mentat-gold-700 mb-1">Score</span>
-                    {exam.exam_score !== undefined ? (
-                        <span className="font-medium text-lg">{exam.exam_score}</span>
+                    {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
+                    {/*    text-mentat-gold-700 mb-1">Score</span>*/}
+                    {grade.exam_score !== undefined ? (
+                        <span className="font-medium text-lg">{grade.exam_score}</span>
                     ) : (
-                        <span className="text-red-500 font-medium">Not met</span>
+                        <span className="text-red-500 font-medium">No Grade</span>
                     )}
                 </div>
             </div>
@@ -246,8 +357,11 @@ export const ExamTable: React.FC<ReportTableProps> =
                     )}
 
                     {/* Required Exams */}
-                    {requiredExams.map((exam, index) => (
-                        <ExamRow key={`required-${exam.exam_name}`} exam={exam} index={index} />
+                    {requiredExams.map((grade, index) => (
+                        <ExamRow
+                            key={`required-${grade.examName}`}
+                            grade={grade}
+                            index={index} />
                     ))}
 
                     {/* Header before optional exams */}
@@ -256,10 +370,10 @@ export const ExamTable: React.FC<ReportTableProps> =
                     )}
 
                     {/* Optional Exams */}
-                    {optionalExams.map((exam, index) => (
+                    {optionalExams.map((grade, index) => (
                         <ExamRow
-                            key={`optional-${exam.exam_name}`}
-                            exam={exam}
+                            key={`optional-${grade.examName}`}
+                            grade={grade}
                             index={index + requiredExams.length}
                             isOptional={true}
                         />

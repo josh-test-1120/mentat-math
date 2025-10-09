@@ -41,12 +41,24 @@ export interface CourseStrategy {
     GradeF: GradeStrategy,
 }
 
-export interface ExamAttempt extends ExamResult {
+export interface Exam extends ExamResult{
+    examId: number;
+    courseId: number;
+    examDifficulty: number;
+    examDuration: number;
+    examName: String;
+    examOnline: number;
+    examRequired: number;
+    examState: number;
+    status?: 'active' | 'inactive';
+}
+
+export interface ExamAttempt extends Exam {
     attempts?: number | null | undefined;
     bestScore?: string | null | undefined;
 }
 
-interface ExamResultComplete extends ExamResult {
+interface ExamResultComplete extends Exam {
     exam_version: number;
     exam_difficulty: number;
     exam_duration: number;
