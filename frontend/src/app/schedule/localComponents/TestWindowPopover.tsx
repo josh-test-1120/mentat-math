@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import Popover from '@/components/UI/calendar/Popover';
 import { ActiveTestWindow } from '../hooks/useDeleteActions';
 import ExamSelectionModal from './ExamSelectionModal';
+import ModifyPatternModal from './ModifyPatternModal';
 
 interface TestWindowPopoverProps {
     isOpen: boolean;
@@ -13,6 +14,8 @@ interface TestWindowPopoverProps {
     onControlAllowedTests: () => void;
     onDeleteTestWindow: () => void;
     courseId?: number;
+    courses?: any[];
+    onTestWindowUpdated?: () => void;
 }
 
 /**
@@ -26,13 +29,16 @@ export const TestWindowPopover: React.FC<TestWindowPopoverProps> = ({
     onModifySettings,
     onControlAllowedTests,
     onDeleteTestWindow,
-    courseId
+    courseId,
+    courses = [],
+    onTestWindowUpdated
 }) => {
     const [isExamSelectionOpen, setIsExamSelectionOpen] = useState(false);
+    const [isModifyPatternOpen, setIsModifyPatternOpen] = useState(false);
     const handleModifySettings = () => {
         if (!activeTestWindow) return;
-        toast.info(`Modify settings for "${activeTestWindow.title}" (id: ${activeTestWindow.id})`);
-        onModifySettings();
+        setIsModifyPatternOpen(true);
+        onClose(); // Close the popover when opening the modal
     };
 
     const handleControlAllowedTests = () => {
@@ -88,6 +94,18 @@ export const TestWindowPopover: React.FC<TestWindowPopoverProps> = ({
                     testWindowTitle={activeTestWindow.title}
                     courseId={courseId}
                     onExamsSelected={handleExamsSelected}
+                />
+            )}
+
+            {/* Modify Pattern Modal */}
+            {activeTestWindow && (
+                <ModifyPatternModal
+                    isOpen={isModifyPatternOpen}
+                    onClose={() => setIsModifyPatternOpen(false)}
+                    testWindowId={activeTestWindow.id}
+                    testWindowTitle={activeTestWindow.title}
+                    courses={courses}
+                    onTestWindowUpdated={onTestWindowUpdated}
                 />
             )}
         </>
