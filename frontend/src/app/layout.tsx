@@ -28,15 +28,15 @@ export default async function RootLayout({
 
     return (
         <html lang="en" className="h-full bg-mentat-black">
-            {/* Initialize global namespace with safe defaults to avoid undefined access */}
-            <Script id="mentat-init" strategy="beforeInteractive">{`
-                window.MENTAT = window.MENTAT || {};
-                window.MENTAT.toggle = window.MENTAT.toggle || function(){};
-                window.MENTAT.setToggle = window.MENTAT.setToggle || function(){};
-            `}</Script>
-            {/*Load the Font Awesome Pack*/}
-            <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
             <body className="h-full overflow-auto">
+                {/* Initialize global namespace with safe defaults to avoid undefined access */}
+                <Script id="mentat-init" strategy="beforeInteractive">{`
+                    window.MENTAT = window.MENTAT || {};
+                    window.MENTAT.toggle = window.MENTAT.toggle || function(){};
+                    window.MENTAT.setToggle = window.MENTAT.setToggle || function(){};
+                `}</Script>
+                {/*Load the Font Awesome Pack*/}
+                <Script src="https://kit.fontawesome.com/dad875225f.js" crossOrigin="anonymous" />
                 <ToastProvider>
                     <AuthProvider session={session}>
                         <div className="h-full flex flex-col">
