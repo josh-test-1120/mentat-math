@@ -10,6 +10,29 @@ export interface Exam {
     status?: 'active' | 'inactive';
 }
 
+export interface ExamOld {
+    exam_id: number;
+    course_id: number;
+    exam_difficulty: number;
+    exam_duration: number;
+    exam_name: String;
+    exam_online: number;
+    exam_required: number;
+    exam_state: number;
+    status?: 'active' | 'inactive';
+}
+
+export interface Grade extends ExamResult {
+    course_name: string;
+    exam_online?: number;
+}
+
+export interface GradeCardExtendedProps {
+    grade: Grade;
+    index: number;
+    onclick?: (e: any) => void;
+}
+
 export interface ExamResult {
     exam_id: number;
     exam_name: String;

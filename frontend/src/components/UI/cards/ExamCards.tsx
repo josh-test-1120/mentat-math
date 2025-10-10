@@ -1,13 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Exam, ExamProp, Course } from '@/components/types/exams';
+import { ExamOld, ExamProp, Course } from '@/components/types/exams';
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 import { useState } from "react";
 
-export interface ExamExtended extends Exam {
+export interface ExamExtended extends ExamOld {
     exam_course_name: string;
-    exam_duration: string;
+    // exam_duration: string;
     exam_online: number;
 }
 
@@ -64,7 +64,8 @@ const ScoreDisplay = ({ score }: { score: string }) => {
 };
 
 // Total Score Display Component
-const TotalScoreDisplay = ({ score, totalScore }: { score: number; totalScore: number }) => {
+const TotalScoreDisplay =
+    ({ score, totalScore }: { score: number; totalScore: number }) => {
     const percentage = (score / totalScore) * 100;
     let scoreColor = 'text-red-600';
 
@@ -85,7 +86,8 @@ const TotalScoreDisplay = ({ score, totalScore }: { score: number; totalScore: n
 };
 
 // Determine exam status based on date and grade
-export const getExamPropStatus = (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+export const getExamPropStatus =
+    (exam: ExamProp): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
     // Get the proper exam scheduled date, with timezone
     const examDate = new Date(exam.exam_scheduled_date);
     const examPstDate = new Date(examDate.toLocaleString('en-US',
@@ -116,7 +118,7 @@ export const getExamStatus = (exam: ExamExtended): 'active' | 'inactive' => {
 };
 
 // Determine course name for an exam
-export const getExamCourse = (exam: Exam): string => {
+export const getExamCourse = (exam: ExamOld): string => {
     // TODO: Fix this exam type safety, this is technical debt
     return (exam as any).course;
 };
