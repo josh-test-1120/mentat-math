@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
-import {Plus} from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
