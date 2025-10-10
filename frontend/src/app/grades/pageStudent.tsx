@@ -3,16 +3,11 @@
 import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import {ExamProp, Class, ExamResult} from '@/components/types/exams';
+import { ExamProp, Class, ExamResult, Grade } from '@/components/types/exams';
 import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/components/UI/exams/ExamActions";
-
-export interface Grade extends ExamResult {
-    course_name: string;
-    exam_online?: number;
-}
 
 export default function GradesPage() {
     // Session states

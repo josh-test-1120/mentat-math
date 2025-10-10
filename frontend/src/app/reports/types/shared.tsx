@@ -50,7 +50,7 @@ export interface Exam extends ExamResult{
     examOnline: number;
     examRequired: number;
     examState: number;
-    status?: 'active' | 'inactive';
+    examStatus?: "active" | "inactive" | undefined;
 }
 
 export interface ExamAttempt extends Exam {
@@ -68,3 +68,9 @@ export interface Report extends ExamResultComplete {
     course_name: string;
     exam_online?: number;
 }
+
+export const StatusMap: Record<string, "pending" | "passed" | "failed" | undefined> = {
+    "pending": "pending",
+    "passed": "passed",
+    "failed": "failed"
+};

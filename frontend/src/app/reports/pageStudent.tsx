@@ -4,7 +4,7 @@ import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import Course from '@/components/types/course';
-import { GradeCardExtended, getGradeStatus } from '@/components/UI/cards/GradeCards';
+import { getGradeStatus } from '@/app/grades/localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import { GradeChart } from "./localComponents/StatusChart";
@@ -12,13 +12,16 @@ import ProgressChart from "./localComponents/ProgressChart";
 import { GradeRequirements, GradeStrategy, GradeRequirementsJSON,
     ExamAttempt, Report } from "./types/shared"
 import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
-import {Exam} from "@/components/types/exams";
+import { Exam, Grade } from "@/components/types/exams";
+import StrategyProgressBar from "@/app/reports/localComponents/StrategyProgressBar";
+import GradeDashboard from "@/app/reports/localComponents/GradeDashboard";
+import {TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
 
-export default function StudentReport() {
+export function StudentReport() {
     // Session states
     const [sessionReady, setSessionReady] = useState(false);
-    const { data: session, status } = useSession();
-    const [userSession, setSession] = useState({
+    const {data: session, status} = useSession();
+    const [userSession, setUserSession] = useState({
         id: '',
         username: '',
         email: '',
@@ -31,8 +34,7 @@ export default function StudentReport() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [exams, setExams] = useState<Exam[]>([]);
     const [gradeStrategy, setGradeStrategy] = useState<GradeStrategy>();
-    const [required, setRequired] = useState<string>('');
-    const [optional, setOptional] = useState<string>('');
+    const [currentGrade, setCurrentGrade] = useState<String>('A');
     const [tests, setTests] = useState([]);
     // const [finalScore, setFinalScore] = useState('');
     const [loading, setLoading] = useState(true);
@@ -50,105 +52,172 @@ export default function StudentReport() {
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
+    // Load the specific grade strategy details
+    const loadGradeStrategy = (strategy: GradeStrategy) => {
+        // Define the grade letter strategy
+        let newStrategy: GradeStrategy = {
+            total: strategy?.total || 0,
+            requiredA: strategy?.requiredA || 0,
+            optional: strategy?.optional || [],
+            allOptional: strategy?.allOptional || false
+        }
+        // Return the new Grade Strategy
+        return newStrategy;
+    }
+
+    // Grade Calculation based on course strategy
+    const calculateCurrentGrade = (passed: number, passedAs: number,
+                                   requirements: GradeRequirements) => {
+        if (passed >= requirements.A.total && passedAs >= requirements.A.requiredA) return 'A';
+        if (passed >= requirements.B.total && passedAs >= requirements.B.requiredA) return 'B';
+        if (passed >= requirements.C.total && passedAs >= requirements.C.requiredA) return 'C';
+        if (passed >= requirements.D.total && passedAs >= requirements.D.requiredA) return 'D';
+        return 'F';
+    }
+
+
+    // Memoized computations (IMPROVED)
     const filteredGrades = useMemo(() => {
-        // Wait until grades data is loaded and available
-        if (!courseGrades || courseGrades.length === 0) {
-            return [];
-        }
-
-        // First filter by class
-        let result = filter === 'all'
-            ? courseGrades
-            : courseGrades.filter(grade => grade.status === filter);
-
-        // Then filter by status
-        if (filter !== 'all') {
-            result = courseGrades.filter(grade => getGradeStatus(grade) === filter);
-        }
-
-        return result;
+        if (!courseGrades || courseGrades.length === 0) return [];
+        if (filter === 'all') return courseGrades;
+        return courseGrades.filter(grade => getGradeStatus(grade) === filter);
     }, [courseGrades, filter]);
 
     const filteredCourses = useMemo(() => {
-        // Wait until grades data is loaded and available
-        if (!courses || courses.length === 0) {
-            return [];
-        }
-
-        // Update the exams only assigned to this course
-        let reducedGrades: Report[];
-        // Reset the exams on course change
-        if (grades.length !== courseGrades.length) {
-            setCourseGrades(grades);
-        }
-        // Now reduce the exams by the new course
-        reducedGrades = grades.filter(grade => grade.course_name === courseFilter);
-        console.log('Updating the Course filter');
-        console.log(reducedGrades);
-        // Update the course grades
-        setCourseGrades(reducedGrades);
-
-        console.log(courses.filter(course => course.courseName === courseFilter)[0]);
-
-        // First filter by course
-        let result = courses.filter(course => course.courseName === courseFilter);
-        // fetchExams(result[0]);
-        // return courses.filter(course => course.courseName === courseFilter);
-        return result;
+        if (!courses || courses.length === 0) return [];
+        return courses.filter(course => course.courseName === courseFilter);
     }, [courses, courseFilter]);
 
-    // Memoize the grade strategy details
+    // FIXED: More efficient grade strategy calculation
     const filteredGradeStrategy = useMemo(() => {
-        // Empty until data is ready
-        if (!courses) return null;
-        else if (!filteredCourses || filteredCourses.length === 0) {
-            return null;
-        }
-        // Get the strategy from course
-        const strategy: GradeRequirementsJSON = JSON.parse(filteredCourses[0].gradeStrategy);
-        console.log('Updating grade strategy');
-        console.log(strategy);
+        if (!filteredCourses?.[0]?.gradeStrategy) return null;
 
-        // Check to make sure strategy exists
-        if (!strategy) return null;
-        else {
-            let test: GradeStrategy;
+        try {
+            console.log('Inside the filtered grade strategy memo');
+            const strategy: GradeRequirementsJSON = JSON.parse(filteredCourses[0].gradeStrategy);
+            let selectedStrategy: GradeStrategy;
+
             switch (gradeFilter) {
-                case 'A':
-                    test =  strategy.GradeA
-                    break;
-                case 'B':
-                    test =  strategy.GradeB;
-                    break;
-                case 'C':
-                    test =  strategy.GradeC;
-                    break;
-                case 'D':
-                    test =  strategy.GradeD;
-                    break;
-                default: test =  strategy.GradeF;
+                case 'A': selectedStrategy = strategy.GradeA; break;
+                case 'B': selectedStrategy = strategy.GradeB; break;
+                case 'C': selectedStrategy = strategy.GradeC; break;
+                case 'D': selectedStrategy = strategy.GradeD; break;
+                default: selectedStrategy = strategy.GradeF;
             }
-            console.log('New grade strategy');
-            console.log(test);
+
             return {
                 required: strategy.requiredExams,
                 optional: strategy.optionalExams,
-                strategy: test
-            }
-            // return test;
-            // switch (gradeFilter) {
-            //     case 'A': return strategy.GradeA;
-            //     case 'B': return strategy.GradeB;
-            //     case 'C': return strategy.GradeC;
-            //     case 'D': return strategy.GradeD;
-            //     default: return strategy.GradeF;
-            // }
+                strategy: selectedStrategy
+            };
+        } catch (error) {
+            console.error('Error parsing grade strategy:', error);
+            return null;
         }
-
     }, [filteredCourses, gradeFilter]);
 
+    // FIXED: Memoized grade requirements calculation
+    const gradeRequirements = useMemo(() => {
+        if (!filteredCourses?.[0]?.gradeStrategy) return null;
+
+        try {
+            console.log('Inside the grade requirements memo');
+            const strategyJSON: GradeRequirementsJSON = JSON.parse(filteredCourses[0].gradeStrategy);
+            return {
+                A: loadGradeStrategy(strategyJSON.GradeA),
+                B: loadGradeStrategy(strategyJSON.GradeB),
+                C: loadGradeStrategy(strategyJSON.GradeC),
+                D: loadGradeStrategy(strategyJSON.GradeD),
+                F: loadGradeStrategy(strategyJSON.GradeF)
+            };
+        } catch (error) {
+            console.error('Error calculating grade requirements:', error);
+            return null;
+        }
+    }, [filteredCourses]);
+
+    // FIXED: Memoized current grade calculation
+    const calculatedCurrentGrade = useMemo(() => {
+        if (!gradeRequirements) return 'F';
+
+        const passed = grades.filter(grade => grade.status === 'passed').length;
+        const passedAs = grades.filter(grade => grade.exam_score === 'A').length;
+        return calculateCurrentGrade(passed, passedAs, gradeRequirements);
+    }, [grades, gradeRequirements, gradeFilter]);
+
+    // EFFECT 1: Initial data loading (IMPROVED)
+    useEffect(() => {
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+
+        const fetchData = async () => {
+            hasFetched.current = true;
+            setLoading(true);
+
+            try {
+                const examsRaw = await fetchGrades();
+                const coursesData = await fetchCourses(examsRaw);
+
+                if (coursesData.length > 0) {
+                    // Set initial course filter
+                    setCourseFilter(coursesData[0].courseName);
+                    // Don't fetch exams here - let EFFECT 2 handle it
+                }
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [session, status]); // Removed refreshTrigger and hasFetched from deps
+
+    // EFFECT 2: Course-specific data (IMPROVED)
+    useEffect(() => {
+        if (!filteredCourses?.[0] || loading) return;
+
+        const updateCourseData = async () => {
+            // Update course grades
+            const reducedGrades = grades.filter(grade => grade.course_name === courseFilter);
+            setCourseGrades(reducedGrades);
+
+            // Fetch exams for this course
+            await fetchExams(filteredCourses[0]);
+        };
+
+        updateCourseData();
+    }, [filteredCourses?.[0]?.courseId, courseFilter, loading]); // More specific deps
+
+    // EFFECT 3: Grade strategy updates (SIMPLIFIED)
+    useEffect(() => {
+        if (filteredGradeStrategy) {
+            console.log('Inside the filtered grade strategy useAffect');
+            setGradeStrategy(filteredGradeStrategy.strategy);
+        }
+    }, [filteredGradeStrategy]); // Only depend on the memoized value
+
+    // EFFECT 4: Current grade updates (SIMPLIFIED)
+    useEffect(() => {
+        console.log('Calculate current grade:');
+        console.log(calculatedCurrentGrade)
+        setCurrentGrade(calculatedCurrentGrade);
+    }, [calculatedCurrentGrade]); // Only depend on the memoized value
+
+    // EFFECT 5: Session management (separate from data fetching)
+    useEffect(() => {
+        if (status === 'authenticated' && session) {
+            setUserSession({
+                id: session.user.id?.toString() || '',
+                username: session.user.username || '',
+                email: session.user.email || '',
+                name: session.user.name || ''
+            });
+            setSessionReady(true);
+        }
+    }, [session, status]);
+
     const containerVariants = {
-        hidden: { opacity: 0 },
+        hidden: {opacity: 0},
         visible: {
             opacity: 1,
             transition: {
@@ -156,52 +225,6 @@ export default function StudentReport() {
             }
         }
     };
-
-    /**
-     * Used to handle session hydration
-     */
-    useEffect(() => {
-        console.log(`This is the session ready state: ${sessionReady}`)
-        // If not authenticated, return
-        if (status !== 'authenticated') return;
-
-        if (session) {
-            setSession(() => ({
-                id: session?.user.id?.toString() || '',
-                username: session?.user.username || '',
-                email: session?.user.email || '',
-                name: session?.user.name || ''
-            }));
-            if (userSession.id != "") { setSessionReady(true); }
-        }
-        // Wrapper for async function
-        const fetchData = async () => {
-            if (hasFetched.current) return;
-            hasFetched.current = true;
-
-            try {
-                // Get local response to pass to next fetch
-                // Since delays occur with useState synchronization
-                let examsRaw = await fetchGrades();
-                let courses = await fetchCourses(examsRaw);
-                await fetchExams(courses[0]);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching API Data:', error);
-            }
-            finally {
-                setRefreshTrigger(prev => prev + 1);
-            }
-        };
-        fetchData();
-    }, [session, status, hasFetched, refreshTrigger]);
-
-    // Use useEffect for exams updates when course changes
-    useEffect(() => {
-        if (filteredCourses && !loading) {
-            fetchExams(filteredCourses[0]);
-        }
-    }, [filteredCourses, loading]);
 
     /**
      * Average Grade Determination
@@ -273,7 +296,7 @@ export default function StudentReport() {
                 // Ensure each grade has a proper status
                 examsRaw = examsRaw.map(grade => ({
                     ...grade,
-                    status: getGradeStatus(grade)
+                    status: getGradeStatus(grade as Grade)
                 }));
                 // setGrades(examsRaw);
                 // setCourseGrades(examsRaw);
@@ -283,8 +306,7 @@ export default function StudentReport() {
         } finally {
             if (examsRaw.length === 0) {
                 setGrades([]);
-            }
-            else {
+            } else {
                 setGrades(examsRaw);
             }
             return examsRaw;
@@ -345,8 +367,7 @@ export default function StudentReport() {
                 // First course retried as default
                 setCourseFilter(coursesData[0].courseName);
                 setCourses(coursesData);
-            }
-            else {
+            } else {
                 setCourses([]);
             }
             // Now we are done loading data
@@ -391,8 +412,7 @@ export default function StudentReport() {
         } finally {
             if (examsRaw.length === 0) {
                 setExams([]);
-            }
-            else {
+            } else {
                 setExams(examsRaw);
             }
             // setLoading(false);
@@ -401,7 +421,7 @@ export default function StudentReport() {
     }
 
     // Load Grade Details Modal
-    const loadGradeDetails = async (grade: Report, e : any) => {
+    const loadGradeDetails = async (grade: Report, e: any) => {
         e.preventDefault();
         console.log('Grade event click:', e);
         // setExamResult(grade);
@@ -412,12 +432,12 @@ export default function StudentReport() {
         <div>
             {/*This is the Course Selection button*/}
             <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
-                { session ?
+                {session ?
                     (
                         <React.Fragment>
                             <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
                             <div className="flex gap-2">
-                                { loading ? ( <React.Fragment /> ) : filteredCourses.length === 0
+                                {loading ? (<React.Fragment/>) : filteredCourses.length === 0
                                     ? (
                                         <div>
                                             <p>Student has no courses</p>
@@ -430,8 +450,8 @@ export default function StudentReport() {
                                                     key={course.courseId}
                                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
                                                      shadow-sm shadow-mentat-gold-700 ${
-                                                        courseFilter === course.courseName 
-                                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat' 
+                                                        courseFilter === course.courseName
+                                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                                             : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
                                                         `}
                                                     onClick={() => setCourseFilter(course.courseName)}
@@ -444,15 +464,15 @@ export default function StudentReport() {
                                 }
                             </div>
                         </React.Fragment>
-                    ) : ( <React.Fragment /> )
+                    ) : (<React.Fragment/>)
                 }
             </div>
             {/*Main Area for details of page*/}
             <div className="max-w-5xl mx-auto">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.6}}
                 >
                     <h1 className="text-3xl font-bold text-center mb-1">Student Performance Report</h1>
 
@@ -462,37 +482,39 @@ export default function StudentReport() {
                     <div className="overflow-y-auto pt-1 scrollbar-hide">
                         {/*Grade Summary Charts Components*/}
                         <div className="justify-between items-center mb-6">
-                            <h2 className="text-xl font-semibold text-center">Grade Overview</h2>
+                            <h2 className="text-xl font-semibold text-center mb-1">Grade Analysis Overview</h2>
                             <div className="flex gap-2">
                                 <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
-                                    { loading ? (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-center py-12"
-                                        >
-                                            Generating...
-                                        </motion.div>
-                                    ) :
-                                    (
-                                        <motion.div
-                                            // key={`${selectedClass}-${filter}`}
-                                            // variants={containerVariants}
-                                            initial="hidden"
-                                            animate="visible"
-                                            className="space-y-2 mb-2"
-                                        >
-                                            <GradeChart
-                                                data={filteredGrades}
-                                            />
-                                        </motion.div>
-                                    )}
+                                    {loading ? (
+                                            <motion.div
+                                                initial={{opacity: 0}}
+                                                animate={{opacity: 1}}
+                                                className="text-center py-12"
+                                            >
+                                                Generating...
+                                            </motion.div>
+                                        ) :
+                                        (
+                                            <motion.div
+                                                // key={`${selectedClass}-${filter}`}
+                                                // variants={containerVariants}
+                                                initial="hidden"
+                                                animate="visible"
+                                                className="space-y-2 mb-2"
+                                            >
+                                                <GradeChart
+                                                    key={`grade-chart-${courseFilter}-
+                                                        ${filteredGrades.length}`}
+                                                    data={filteredGrades}
+                                                />
+                                            </motion.div>
+                                        )}
                                 </div>
                                 <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
-                                    { loading ? (
+                                    {loading ? (
                                             <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
+                                                initial={{opacity: 0}}
+                                                animate={{opacity: 1}}
                                                 className="text-center py-12"
                                             >
                                                 Generating...
@@ -507,6 +529,7 @@ export default function StudentReport() {
                                                 className="space-y-2 mb-2"
                                             >
                                                 <ProgressChart
+                                                    key={`progress-chart-${courseFilter}`}
                                                     exams={filteredGrades as ExamAttempt[]}
                                                     course={filteredCourses[0]}
                                                 />
@@ -516,9 +539,17 @@ export default function StudentReport() {
                             </div>
                         </div>
 
+                        {/*This is the grade statistics dashboard*/}
+                        { !loading && filteredGrades && (
+                            <div className="justify-between items-center mb-6">
+                                <GradeDashboard
+                                    grades={filteredGrades}
+                                />
+                            </div>)}
+
                         {/*This is the Exam Details According to Grade Strategy*/}
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-semibold">Grade Requirement Details</h2>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold">Grade Selection Filter</h2>
                             <div className="flex gap-2">
                                 <button
                                     className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
@@ -578,7 +609,29 @@ export default function StudentReport() {
                                 {/*</button>*/}
                             </div>
                         </div>
-                        { loading ? (
+                        <hr className="border-crimson border-1 my-4"></hr>
+
+                        {/*This is the grade progress bar*/}
+                        { !loading && filteredGrades && gradeStrategy && (
+                            <div className="justify-between items-center mb-6">
+                                <StrategyProgressBar
+                                    grades={filteredGrades}
+                                    strategy={gradeStrategy}
+                                />
+                            </div>)
+                        }
+
+                        {/*This is the revision progress bars*/}
+                        { !loading && filteredGrades && (
+                            <div className="justify-between items-center mb-6">
+                                <TopicBreakdown
+                                    grades={filteredGrades}
+                                />
+                            </div>)
+                        }
+
+                        {/*This is the Exam Table*/}
+                        {loading ? (
                             <div className="text-center py-6">
                                 Loading Grade Strategy Details...
                             </div>
@@ -589,83 +642,86 @@ export default function StudentReport() {
                                 Course has no grade strategy
                             </div>
                         ) : (
-                        <motion.div
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                            className="rounded-xl shadow-sm border p-6 pb-3"
-                        >
-                            <div className="flex items-center justify-between text-right">
-                                <h2 className="text-xl font-semibold">
-                                    Grade {gradeFilter} course requirements
-                                </h2>
-                                {!filteredGradeStrategy ? (
-                                    <React.Fragment />
-                                ) : (
-                                    <span className="text-sm text-mentat-gold/80 italic">
-                                      {filteredGradeStrategy.strategy.total} exams required with score greater than C <br />
-                                      {filteredGradeStrategy.strategy.requiredA} exams with an A score required
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="rounded-xl shadow-sm border p-6 pb-3"
+                            >
+                                <div className="flex items-center justify-between text-right">
+                                    <h2 className="text-xl font-semibold">
+                                        Grade {gradeFilter} Course Requirements
+                                    </h2>
+                                    {!filteredGradeStrategy ? (
+                                        <React.Fragment/>
+                                    ) : (
+                                        <span className="text-sm text-mentat-gold/80 italic">
+                                      {filteredGradeStrategy.strategy.total} exams required with score greater than C <br/>
+                                            {filteredGradeStrategy.strategy.requiredA} exams with an A score required
                                     </span>
-                                )}
-                            </div>
-                            {/*New Grade Strategy Chart*/}
-                            <div className="pt-1 mt-2 bg-card-color shadow-md shadow-crimson-700">
-                                { !filteredGradeStrategy ? (
-                                    <React.Fragment />
-                                ) : (
-                                    <AnimatePresence mode="wait">
-                                        <ExamTable
-                                            grades={courseGrades}
-                                            gradeStrategy={filteredGradeStrategy.strategy}
-                                            required={filteredGradeStrategy.required}
-                                            optional={filteredGradeStrategy.optional}
-                                            exams={exams}
-                                        />
-                                    </AnimatePresence>
-                                )}
-                            </div>
+                                    )}
+                                </div>
+                                {/*New Grade Strategy Chart*/}
+                                <div className="pt-1 mt-2 bg-card-color shadow-md shadow-crimson-700">
+                                    {!filteredGradeStrategy && !filteredCourses
+                                    && !exams && !courseGrades ? (
+                                        <React.Fragment/>
+                                    ) : (
+                                        <AnimatePresence mode="wait">
+                                            <ExamTable
+                                                grades={courseGrades}
+                                                gradeStrategy={filteredGradeStrategy.strategy}
+                                                required={filteredGradeStrategy.required}
+                                                optional={filteredGradeStrategy.optional}
+                                                exams={exams}
+                                                course={filteredCourses[0]}
+                                                currentGrade={currentGrade}
+                                            />
+                                        </AnimatePresence>
+                                    )}
+                                </div>
 
-                            {/*<div className="max-h-[600px] pt-1">*/}
-                            {/*    <AnimatePresence mode="wait">*/}
-                            {/*        {filteredGrades.length > 0 ? (*/}
-                            {/*            <motion.div*/}
-                            {/*                key={`${selectedClass}-${filter}`}*/}
-                            {/*                variants={containerVariants}*/}
-                            {/*                initial="hidden"*/}
-                            {/*                animate="visible"*/}
-                            {/*                className="space-y-2 mb-2"*/}
-                            {/*            >*/}
-                            {/*                {filteredGrades.map((grade) => (*/}
-                            {/*                    <GradeCardExtended*/}
-                            {/*                        key={grade.exam_id}*/}
-                            {/*                        grade={grade}*/}
-                            {/*                        index={0}*/}
-                            {/*                        onclick={(e) => loadGradeDetails(grade, e)}*/}
-                            {/*                    />*/}
-                            {/*                ))}*/}
-                            {/*            </motion.div>*/}
-                            {/*        ) : loading === true ? (*/}
-                            {/*            <motion.div*/}
-                            {/*                variants={containerVariants}*/}
-                            {/*                initial={{ opacity: 0 }}*/}
-                            {/*                animate={{ opacity: 1 }}*/}
-                            {/*                className="text-center py-12"*/}
-                            {/*            >*/}
-                            {/*                Loading Grades...*/}
-                            {/*            </motion.div>*/}
-                            {/*        ) : (*/}
-                            {/*            <motion.div*/}
-                            {/*                variants={containerVariants}*/}
-                            {/*                initial={{ opacity: 0 }}*/}
-                            {/*                animate={{ opacity: 1 }}*/}
-                            {/*                className="text-center py-12"*/}
-                            {/*            >*/}
-                            {/*                No grades found for the selected filters*/}
-                            {/*            </motion.div>*/}
-                            {/*        )}*/}
-                            {/*    </AnimatePresence>*/}
-                            {/*</div>*/}
-                        </motion.div>
+                                {/*<div className="max-h-[600px] pt-1">*/}
+                                {/*    <AnimatePresence mode="wait">*/}
+                                {/*        {filteredGrades.length > 0 ? (*/}
+                                {/*            <motion.div*/}
+                                {/*                key={`${selectedClass}-${filter}`}*/}
+                                {/*                variants={containerVariants}*/}
+                                {/*                initial="hidden"*/}
+                                {/*                animate="visible"*/}
+                                {/*                className="space-y-2 mb-2"*/}
+                                {/*            >*/}
+                                {/*                {filteredGrades.map((grade) => (*/}
+                                {/*                    <GradeCardExtended*/}
+                                {/*                        key={grade.exam_id}*/}
+                                {/*                        grade={grade}*/}
+                                {/*                        index={0}*/}
+                                {/*                        onclick={(e) => loadGradeDetails(grade, e)}*/}
+                                {/*                    />*/}
+                                {/*                ))}*/}
+                                {/*            </motion.div>*/}
+                                {/*        ) : loading === true ? (*/}
+                                {/*            <motion.div*/}
+                                {/*                variants={containerVariants}*/}
+                                {/*                initial={{ opacity: 0 }}*/}
+                                {/*                animate={{ opacity: 1 }}*/}
+                                {/*                className="text-center py-12"*/}
+                                {/*            >*/}
+                                {/*                Loading Grades...*/}
+                                {/*            </motion.div>*/}
+                                {/*        ) : (*/}
+                                {/*            <motion.div*/}
+                                {/*                variants={containerVariants}*/}
+                                {/*                initial={{ opacity: 0 }}*/}
+                                {/*                animate={{ opacity: 1 }}*/}
+                                {/*                className="text-center py-12"*/}
+                                {/*            >*/}
+                                {/*                No grades found for the selected filters*/}
+                                {/*            </motion.div>*/}
+                                {/*        )}*/}
+                                {/*    </AnimatePresence>*/}
+                                {/*</div>*/}
+                            </motion.div>
                         )}
                     </div>
                 </motion.div>
@@ -686,6 +742,7 @@ export default function StudentReport() {
             {/*        }}*/}
             {/*    />*/}
             {/*</Modal>*/}
+
         </div>
     );
 }
