@@ -1,15 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Exam, ExamProp, ExamResult } from '@/components/types/exams';
-import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
-import { Grade } from '@/app/grades/pageStudent';
-
-interface GradeCardExtendedProps {
-    grade: Grade;
-    index: number;
-    onclick?: (e: any) => void;
-}
+import { LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
+import { Grade, GradeCardExtendedProps } from '@/components/types/exams';
 
 // Determine grade status based on score
 export const getGradeStatus = (grade: Grade): 'passed' | 'failed' | 'pending' | undefined => {
