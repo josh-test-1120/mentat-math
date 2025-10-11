@@ -431,12 +431,12 @@ export function StudentReport() {
 
     return (
         <div>
-            { loading ? (
-                <div className="flex justify-center items-center min-h-[500px]">
-                    <RingSpinner size={'md'} color={'mentat-gold'} />
-                    <p className="ml-3 text-2xl text-mentat-gold">Loading report details...</p>
-                </div>
-            ) : (
+            {/*{ loading ? (*/}
+            {/*    <div className="flex justify-center items-center min-h-[500px]">*/}
+            {/*        <RingSpinner size={'md'} color={'mentat-gold'} />*/}
+            {/*        <p className="ml-3 text-2xl text-mentat-gold">Loading report details...</p>*/}
+            {/*    </div>*/}
+            {/*) : (*/}
                 <React.Fragment>
                 {/*This is the course header*/}
                 <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
@@ -495,13 +495,17 @@ export function StudentReport() {
                                 <div className="flex gap-2">
                                     <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
                                         {loading ? (
-                                                <motion.div
-                                                    initial={{opacity: 0}}
-                                                    animate={{opacity: 1}}
-                                                    className="text-center py-12"
-                                                >
-                                                    Generating...
-                                                </motion.div>
+                                                <div className="flex justify-center items-center pt-6">
+                                                    <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                                    <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
+                                                </div>
+                                                // <motion.div
+                                                //     initial={{opacity: 0}}
+                                                //     animate={{opacity: 1}}
+                                                //     className="text-center py-12"
+                                                // >
+                                                //     Generating...
+                                                // </motion.div>
                                             ) :
                                             (
                                                 <motion.div
@@ -521,13 +525,17 @@ export function StudentReport() {
                                     </div>
                                     <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
                                         {loading ? (
-                                                <motion.div
-                                                    initial={{opacity: 0}}
-                                                    animate={{opacity: 1}}
-                                                    className="text-center py-12"
-                                                >
-                                                    Generating...
-                                                </motion.div>
+                                                <div className="flex justify-center items-center pt-6">
+                                                    <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                                    <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
+                                                </div>
+                                                // <motion.div
+                                                //     initial={{opacity: 0}}
+                                                //     animate={{opacity: 1}}
+                                                //     className="text-center py-12"
+                                                // >
+                                                //     Generating...
+                                                // </motion.div>
                                             ) :
                                             (
                                                 <motion.div
@@ -643,8 +651,9 @@ export function StudentReport() {
 
                             {/*This is the Exam Table*/}
                             {loading ? (
-                                <div className="text-center py-6">
-                                    Loading Grade Strategy Details...
+                                <div className="flex justify-center items-center pt-6">
+                                    <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                    <p className="ml-3 text-md text-mentat-gold">Loading Grade Strategy Details...</p>
                                 </div>
                             ) : !filteredGradeStrategy ? (
                                 <div className="text-center py-6
@@ -738,7 +747,7 @@ export function StudentReport() {
                     </motion.div>
                 </div>
                 </React.Fragment>
-            )}
+
 
             {/*/!* Exam Action Modal *!/*/}
             {/*<Modal*/}
