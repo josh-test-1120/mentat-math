@@ -24,7 +24,7 @@ export default function Schedule() {
     return (
         <section
             id={"schedulePageMain"}
-            className="h-full w-full flex font-bold bg-mentat-black text-mentat-gold"
+            className="h-full font-bold bg-mentat-black text-mentat-gold"
         >
             {status === "loading" ? (
                 <div>Loading...</div>
