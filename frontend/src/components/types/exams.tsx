@@ -33,7 +33,7 @@ export interface GradeCardExtendedProps {
     onclick?: (e: any) => void;
 }
 
-export interface ExamResult {
+export interface ExamResultProper {
     exam_id: number;
     exam_name: String;
     exam_course_id: number;
@@ -41,6 +41,9 @@ export interface ExamResult {
     exam_scheduled_date: string;
     exam_taken_date?: string | undefined;
     exam_score?: string | undefined;
+}
+
+export interface ExamResult extends ExamResultProper {
     status: 'passed' | 'failed' | 'pending' | undefined;
 }
 

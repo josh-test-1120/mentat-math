@@ -23,6 +23,7 @@ const config: Config = {
         crimson: {
           DEFAULT: "#A30F32",
           700: "#8e0d2b",
+          900: "rgb(142, 13, 50 / 0.05)"
         },
         "card-color": "rgb(255 255 255 / 0.05)",
         "button-hover": "#d1d5db"
