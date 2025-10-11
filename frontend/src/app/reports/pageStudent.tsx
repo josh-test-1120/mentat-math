@@ -13,7 +13,7 @@ import { GradeRequirements, GradeStrategy, GradeRequirementsJSON,
     ExamAttempt, Report } from "./types/shared"
 import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
 import { Exam, Grade } from "@/components/types/exams";
-import StrategyProgressBar from "@/app/reports/localComponents/StrategyProgressBar";
+import { StrategyProgressBar } from "./localComponents/StrategyProgressBar";
 import GradeDashboard from "@/app/reports/localComponents/GradeDashboard";
 import {TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
 
@@ -612,11 +612,13 @@ export function StudentReport() {
                         <hr className="border-crimson border-1 my-4"></hr>
 
                         {/*This is the grade progress bar*/}
-                        { !loading && filteredGrades && gradeStrategy && (
+                        { !loading && filteredGrades && filteredGradeStrategy && (
                             <div className="justify-between items-center mb-6">
                                 <StrategyProgressBar
                                     grades={filteredGrades}
-                                    strategy={gradeStrategy}
+                                    strategy={filteredGradeStrategy?.strategy}
+                                    required={filteredGradeStrategy?.required}
+                                    optional={filteredGradeStrategy?.optional}
                                 />
                             </div>)
                         }
