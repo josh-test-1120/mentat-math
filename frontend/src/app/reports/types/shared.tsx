@@ -41,12 +41,24 @@ export interface CourseStrategy {
     GradeF: GradeStrategy,
 }
 
-export interface ExamAttempt extends ExamResult {
+export interface Exam extends ExamResult{
+    examId: number;
+    courseId: number;
+    examDifficulty: number;
+    examDuration: number;
+    examName: String;
+    examOnline: number;
+    examRequired: number;
+    examState: number;
+    examStatus?: "active" | "inactive" | undefined;
+}
+
+export interface ExamAttempt extends Exam {
     attempts?: number | null | undefined;
     bestScore?: string | null | undefined;
 }
 
-interface ExamResultComplete extends ExamResult {
+interface ExamResultComplete extends Exam {
     exam_version: number;
     exam_difficulty: number;
     exam_duration: number;
@@ -56,3 +68,9 @@ export interface Report extends ExamResultComplete {
     course_name: string;
     exam_online?: number;
 }
+
+export const StatusMap: Record<string, "pending" | "passed" | "failed" | undefined> = {
+    "pending": "pending",
+    "passed": "passed",
+    "failed": "failed"
+};

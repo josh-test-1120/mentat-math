@@ -15,7 +15,7 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * Default Schedule Page
  * @constructor
  */
-export default function CreateExam() {
+export default function CreateScheduledExam() {
 
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,7 +124,7 @@ export default function CreateExam() {
                     <span className="inline-flex items-center mr-1">
                         <Plus className="w-5 h-5" />
                     </span>
-                    <span>Create Exam</span>
+                    <span>Schedule Exam</span>
                 </button>
             </div>
 

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import InstructorsPage from "./pageInstructor";
-import StudentsPage from "./pageStudent";
+import {StudentReport as StudentsPage} from "./pageStudent";
 
 /**
  * Client Side Page that uses the AuthProvider session from RootLayout

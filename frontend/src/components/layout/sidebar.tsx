@@ -551,7 +551,7 @@ export default function Sidebar() {
             // className="h-full w-full flex flex-col transition-[width] ease-in-out delay-50 bg-crimson"
             className="h-full w-full flex flex-col transition-[width]
                     ease-in-out delay-50 bg-gradient-to-br
-                    from-crimson  via-zinc-900 to-mentat-black"
+                    from-crimson-700  via-mentat-black/50 to-mentat-black"
             aria-label="Sidenav"
         >
             {/* Put back the entire hgslider-block as this is REQUIRED for collapse animations*/}
@@ -791,5 +791,3 @@ export default function Sidebar() {
         </aside>
     );
 };
-
-//export default Sidebar;

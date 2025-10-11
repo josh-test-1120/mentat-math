@@ -3,16 +3,12 @@
 import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import {ExamProp, Class, ExamResult} from '@/components/types/exams';
+import { ExamProp, Class, ExamResult, Grade } from '@/components/types/exams';
 import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/components/UI/exams/ExamActions";
-
-export interface Grade extends ExamResult {
-    course_name: string;
-    exam_online?: number;
-}
+import { RingSpinner } from "@/components/UI/Spinners";
 
 export default function GradesPage() {
     // Session states
@@ -296,7 +292,10 @@ export default function GradesPage() {
                                     animate={{ opacity: 1 }}
                                     className="text-center py-12"
                                 >
-                                    Loading Grades...
+                                    <div className="flex justify-center items-center">
+                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                        <p className="ml-3 text-md text-mentat-gold">Loading grades...</p>
+                                    </div>
                                 </motion.div>
                             ) : (
                                 <motion.div
@@ -311,10 +310,15 @@ export default function GradesPage() {
                     </div>
                 </motion.div>
             </div>
-            <div className="max-w-5xl mx-auto rounded-xl pt-6 mb-1">
+            <div className="max-w-5xl mx-auto rounded-xl pt-6 pb-4">
                 <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
                 { loading ?
-                    ( <div className="text-center">Calculating Grade Summary...</div> )
+                    (
+                        <div className="flex justify-center items-center pt-6">
+                            <RingSpinner size={'sm'} color={'mentat-gold'} />
+                            <p className="ml-3 text-md text-mentat-gold">Calculating Grade Summary...</p>
+                        </div>
+                    )
                     : grades.length === 0 ?
                         <div className="text-center">No grades available</div> :
                         (

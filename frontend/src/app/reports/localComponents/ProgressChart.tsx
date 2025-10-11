@@ -13,7 +13,8 @@ import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { ExamResult } from "@/components/types/exams";
 import Course from "@/components/types/course";
-import { GradeRequirements, GradeStrategy, CourseStrategy, ExamAttempt} from "../types/shared"
+import { GradeRequirements, GradeStrategy, CourseStrategy, ExamAttempt} from "../types/shared";
+import { emptyStrategy } from "../types/defaults";
 
 /**
  * Define some types and interfaces for the chart
@@ -30,39 +31,6 @@ export default function ProgressChart({ exams, course }: ProgressChartProps) {
     const [bestExams, setBestExams] = useState<ExamAttempt[]>([]);
     const [ready, setReady] = useState<Boolean>(false);
 
-    // Empty requirements state
-    const emptyStrategy: GradeRequirements = {
-        A: {
-            total: 0,
-            requiredA: 0,
-            optional: [],
-            allOptional: false
-        },
-        B: {
-            total: 0,
-            requiredA: 0,
-            optional: [],
-            allOptional: false
-        },
-        C: {
-            total: 0,
-            requiredA: 0,
-            optional: [],
-            allOptional: false
-        },
-        D: {
-            total: 0,
-            requiredA: 0,
-            optional: [],
-            allOptional: false
-        },
-        F: {
-            total: 0,
-            requiredA: 0,
-            optional: [],
-            allOptional: false
-        },
-    };
     // Grade Strategy
     const [gradeStrategy, setGradeStrategy] = useState<GradeRequirements>(emptyStrategy);
 

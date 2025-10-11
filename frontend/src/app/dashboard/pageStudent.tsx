@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/components/UI/exams/ExamActions";
 import JoinCourseComponent from "@/app/courses/JoinCourse";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 export default function ExamsPage() {
     const { data: session, status } = useSession();
@@ -358,7 +359,10 @@ export default function ExamsPage() {
                                     animate={{ opacity: 1 }}
                                     className="text-center py-12"
                                 >
-                                    Loading Exams...
+                                    <div className="flex justify-center items-center">
+                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                        <p className="ml-3 text-md text-mentat-gold">Loading exams...</p>
+                                    </div>
                                 </motion.div>
                             ) : (
                                 <motion.div

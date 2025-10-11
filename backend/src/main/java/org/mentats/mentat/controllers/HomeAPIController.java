@@ -4,6 +4,7 @@ import org.mentats.mentat.models.*;
 
 import org.mentats.mentat.payload.request.ExamRequest;
 import org.mentats.mentat.repositories.CourseRepository;
+import org.mentats.mentat.repositories.ExamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,13 @@ import java.util.*;
 public class HomeAPIController {
     // Repository services
     private final CourseRepository courseRepository;
+    private final ExamRepository examRepository;
 
     // Constructor for DI (Dependency Injection)
-    public HomeAPIController(CourseRepository courseRepository) {
+    public HomeAPIController(CourseRepository courseRepository,
+                             ExamRepository examRepository) {
         this.courseRepository = courseRepository;
+        this.examRepository = examRepository;
     }
 
     /**
@@ -539,6 +543,16 @@ public class HomeAPIController {
         System.out.println(exams);
         // Return list of exams
         return exams;
+    }
+
+    /**
+     * Get the exams from the database
+     * based on the course ID supplied in the URI
+     * @return List of Map objects that have {string, object} types
+     */
+    @GetMapping("/exams/course/{courseID}")
+    public List<Exam> getExamsByCourse(@PathVariable("courseID") Long cid) {
+        return examRepository.findByCourseId(cid);
     }
 
     /**
