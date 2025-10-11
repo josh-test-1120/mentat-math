@@ -239,11 +239,6 @@ export default function ExamDashboard() {
         // exam.status = getExamStatus(exam)
     }
 
-    if (status !== 'authenticated')
-        return <div className="p-6 text-mentat-gold-700">Please sign in.</div>;
-    if (loading)
-        return <div className="p-6 text-mentat-gold-700">Loading...</div>;
-
     return (
         <div className="bg-gradient-to-br">
             <div className="max-w-5xl mx-auto">
@@ -297,23 +292,32 @@ export default function ExamDashboard() {
                 <div className="shadow-sm p-4 pt-2 max-h-[60vh] min-h-[200px]
                     overflow-y-auto scrollbar-hide"
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        <AnimatePresence>
-                            {filteredExams.map((examInst) => (
-                                <ExamCardSmall
-                                    key={examInst.exam_id}
-                                    exam={examInst as ExamExtended}
-                                    index={0}
-                                    onclick={(e) => loadModalData(examInst as ExamExtended, e)}
-                                />
-                            ))}
-                        </AnimatePresence>
-                    </div>
-
-                    {filteredExams.length === 0 && (
-                        <div className="text-center py-12">
-                            No exams found for the selected filter.
+                    { filteredExams.length === 0 ? (
+                        <div className="flex justify-center items-center pt-10">
+                            <RingSpinner size={'sm'} color={'mentat-gold'} />
+                            <p className="ml-3 text-md text-mentat-gold">Loading exams...</p>
                         </div>
+                    ) : (
+                        <React.Fragment>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                <AnimatePresence>
+                                    {filteredExams.map((examInst) => (
+                                        <ExamCardSmall
+                                            key={examInst.exam_id}
+                                            exam={examInst as ExamExtended}
+                                            index={0}
+                                            onclick={(e) => loadModalData(examInst as ExamExtended, e)}
+                                        />
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+
+                            {filteredExams.length === 0 && (
+                                <div className="text-center py-12">
+                                    No exams found for the selected filter.
+                                </div>
+                            )}
+                        </React.Fragment>
                     )}
 
                     <div className="rounded-xl shadow-sm pt-6 mb-1">
