@@ -27,21 +27,21 @@ export const updateRecord = (grades: ExamAttempt[]) => {
     for (let record of grades) {
         // Set the attempts property
         record.attempts = grades.filter(exam => exam.exam_id === record.exam_id).length;
-        console.log(`For exam: ${record.exam_name} there are ${record.attempts} attempts`);
+        // console.log(`For exam: ${record.exam_name} there are ${record.attempts} attempts`);
 
         const records = grades.filter(exam => exam.exam_id === record.exam_id);
         const highestExam = records.reduce((highest: ExamAttempt, current: ExamAttempt) => {
             if (!highest) return current;
-            console.log(`This is highest: ${highest.exam_score}, and this is current: ${current.exam_score}`);
+            // console.log(`This is highest: ${highest.exam_score}, and this is current: ${current.exam_score}`);
             const currentScore = scoreToNumber(current.exam_score);
             const highestScore = scoreToNumber(highest.exam_score);
-            console.log(`This is the highest score: ${highestScore}` +
-                `, and current: ${currentScore}`);
+            // console.log(`This is the highest score: ${highestScore}` +
+            //     `, and current: ${currentScore}`);
             return currentScore > highestScore ? current : highest;
         }, records[0]);
         // Set the best score property
         record.bestScore = highestExam ? highestExam.exam_score?.toString() : null;
-        console.log(`For exam: ${record.exam_name} the best score is: ${record.bestScore}`);
+        // console.log(`For exam: ${record.exam_name} the best score is: ${record.bestScore}`);
     }
 }
 
@@ -56,7 +56,7 @@ export const reduceRecords = (grades: ExamAttempt[]) => {
 
 // Current Grade Determination Utility
 export default function GradeDetermination(grades: ExamAttempt[],
-                                           strategies: GradeRequirements) {
+                                           strategies?: GradeRequirements) {
     /**
      * Main part of function code
      */
@@ -69,10 +69,27 @@ export default function GradeDetermination(grades: ExamAttempt[],
         exam.status === 'passed').length;
     let passedAs = bestGrades.filter(exam =>
         exam?.exam_score === 'A').length;
+
     // Determine letter grade
-    if (passed >= strategies.A.total && passedAs >= strategies.A.requiredA) return 'A';
-    else if (passed >= strategies.B.total && passedAs >= strategies.B.requiredA) return 'B';
-    else if (passed >= strategies.C.total && passedAs >= strategies.C.requiredA) return 'C';
-    else if (passed >= strategies.D.total && passedAs >= strategies.D.requiredA) return 'D';
-    else return 'F';
+    // Handle determination if strategies are supplied
+    if (strategies) {
+        if (passed >= strategies.A.total && passedAs >= strategies.A.requiredA) return 'A';
+        else if (passed >= strategies.B.total && passedAs >= strategies.B.requiredA) return 'B';
+        else if (passed >= strategies.C.total && passedAs >= strategies.C.requiredA) return 'C';
+        else if (passed >= strategies.D.total && passedAs >= strategies.D.requiredA) return 'D';
+        else return 'F';
+    }
+    // Default determination based on raw average
+    else {
+        let count = 0;
+        bestGrades.forEach((grade) => {
+            count += scoreToNumber(grade.exam_score)
+        })
+        let gradeNumber = Math.floor(count / bestGrades.length);
+        if (gradeNumber === 5) return 'A';
+        else if (gradeNumber === 4) return 'B';
+        else if (gradeNumber === 3) return 'C';
+        else if (gradeNumber === 2) return 'D';
+        else return 'F';
+    }
 }

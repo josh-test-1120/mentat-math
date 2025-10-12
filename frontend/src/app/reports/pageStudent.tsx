@@ -140,11 +140,22 @@ export function StudentReport() {
 
     // FIXED: Memoized current grade calculation
     const calculatedCurrentGrade = useMemo(() => {
-        // If no grades requirements, return F
-        if (!gradeRequirements) return 'F';
+
+        console.log('🟢 CALCULATED_CURRENT_GRADE useMemo RUNNING');
+        console.log('🟢 gradeRequirements:', gradeRequirements);
+        console.log('🟢 filteredGrades:', filteredGrades);
+        console.log('🟢 filteredGrades length:', filteredGrades?.length);
+        console.log('🟢 grades:', grades);
+
+        // // If no grades requirements, return F
+        // if (!gradeRequirements) return 'F';
         // If we have grades to make a grade determination on
-        else if (filteredGrades && filteredGrades.length > 0)
+        if (gradeRequirements && filteredGrades && filteredGrades.length > 0)
             return GradeDetermination(filteredGrades, gradeRequirements);
+        else if (!gradeRequirements && filteredGrades && filteredGrades.length > 0) {
+            console.log('No Strategy Grade Determination');
+            return GradeDetermination(filteredGrades);
+        }
         // If neither of those exist, return F
         else return 'F'
     }, [filteredGrades, gradeRequirements, gradeFilter]);
@@ -568,6 +579,7 @@ export function StudentReport() {
                                     <GradeDashboard
                                         grades={filteredGrades}
                                         score={currentGrade}
+                                        isStrategy={!!filteredGradeStrategy?.strategy}
                                     />
                                 </div>)}
 
