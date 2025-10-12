@@ -192,65 +192,71 @@ export default function GradesPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col px-4">
+            {/*This is the header section with filters*/}
+            <div className="sticky top-0 pt-8 z-10 bg-mentat-black
+                max-w-5xl mx-auto w-full">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-8"
+                >
+                    <h1 className="text-3xl font-bold mb-2">Grade Summary</h1>
+                </motion.div>
+
+                <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-xl font-semibold">Your Grades</h2>
+                    <div className="flex gap-2">
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                         shadow-sm shadow-mentat-gold-700 ${
+                                filter === 'all'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('all')}
+                        >
+                            All Grades
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                         shadow-sm shadow-mentat-gold-700 ${
+                                filter === 'passed'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('passed')}
+                        >
+                            Passed
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                         shadow-sm shadow-mentat-gold-700 ${
+                                filter === 'failed'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('failed')}
+                        >
+                            Failed
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                         shadow-sm shadow-mentat-gold-700 ${
+                                filter === 'pending'
+                                    ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                    : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                            onClick={() => setFilter('pending')}
+                        >
+                            Pending
+                        </button>
+                    </div>
+                </div>
+                {/* Line Divider */}
+                <hr className="border-crimson border-2 mb-2"></hr>
+            </div>
+
             {/* This becomes the primary content container */}
             <div className="flex-1 overflow-y-auto">
                 <div className="max-w-5xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="mb-8"
-                    >
-                        <h1 className="text-3xl font-bold mb-2">Grade Summary</h1>
-                    </motion.div>
-
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-semibold">Your Grades</h2>
-                        <div className="flex gap-2">
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                         shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'all'
-                                        ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                onClick={() => setFilter('all')}
-                            >
-                                All Grades
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                         shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'passed'
-                                        ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                onClick={() => setFilter('passed')}
-                            >
-                                Passed
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                         shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'failed'
-                                        ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                onClick={() => setFilter('failed')}
-                            >
-                                Failed
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                         shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'pending'
-                                        ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                onClick={() => setFilter('pending')}
-                            >
-                                Pending
-                            </button>
-                        </div>
-                    </div>
-
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
@@ -315,8 +321,9 @@ export default function GradesPage() {
             {/* Sticky footer container
             stays at bottom with black background to cover overflow */}
             <div className="sticky bottom-0 pt-2 z-10 bg-mentat-black">
-                <div className="max-w-5xl mx-auto pt-1 pb-4 border-t-2
-                border-crimson-700">
+                {/* Line Divider */}
+                <hr className="border-crimson border-2 mb-1"></hr>
+                <div className="max-w-5xl mx-auto pb-4">
                     <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
                     { loading ?
                         (
