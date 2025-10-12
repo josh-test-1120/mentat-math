@@ -115,6 +115,19 @@ export const ExamTable: React.FC<ReportTableProps> =
     console.log('This is the optional exams array');
     console.log(optionalExams);
 
+    const passedRequiredAndOptional = grades.filter(grade =>
+        grade.status === 'passed' &&
+        (requiredExams.some(req => req.exam_name === grade.exam_name) ||
+            optionalExams.some(opt => opt.exam_name === grade.exam_name))
+    ).length;
+
+    const requiredCount = requiredExams.filter(exam =>
+        exam.exam_score !== undefined && exam.exam_score
+        && exam.status === 'passed').length;
+    const optionalCount = optionalExams.filter(exam =>
+        exam.exam_score !== undefined && exam.exam_score
+        && exam.status === 'passed').length;
+
     const ExamRow: React.FC<{ grade: Report; index: number; isOptional?: boolean }> =
         ({ grade, index, isOptional = false }) => (
         <motion.div
@@ -329,75 +342,69 @@ export const ExamTable: React.FC<ReportTableProps> =
                     ))}
 
                     {/* Summary Footer */}
-                    <div className="flex items-center min-h-12 border-t border-gray-300">
-                        <div className="w-1/4 px-4 py-3 border-r border-gray-300 font-medium">
-                            Progress Summary
-                        </div>
-                        <div className="flex-1 flex items-stretch">
-                            <div className="flex-1 px-4 py-3 border-r border-gray-300 text-sm">
-                                Required: {requiredExams.filter(exam =>
-                                    exam.exam_score !== undefined && exam.exam_score).length}/{requiredExams.length}
-                            </div>
-                            <div className="flex-1 px-4 py-3 border-r border-gray-300 text-sm">
-                                Optional: {optionalExams.filter(exam =>
-                                    exam.exam_score !== undefined && exam.exam_score).length}/{optionalExams.length}
-                            </div>
-                            <div className="flex-1 px-4 py-3 border-r border-gray-300 text-sm">
-                                Total: { grades.filter(grade =>
-                                    requiredExams.filter((req) =>
-                                        req.examName === grade.examName)
-                                    || optionalExams.filter((opt) =>
-                                        opt.examName === grade.examName)).length }/{ gradeStrategy.total }
-                            </div>
-                            <div className="flex-1 px-4 py-3 text-sm font-normal">
-                                Current Grade: { currentGrade === 'A'
-                                ? (
-                                    <span className="text-green-700">
-                                        A
-                                    </span>
-                                ) : currentGrade === 'B' ? (
-                                    <span className="text-blue-700">
-                                        B
-                                    </span>
-                                ) : currentGrade === 'C' ? (
-                                    <span className="text-mentat-gold">
-                                        C
-                                    </span>
-                                ) : currentGrade === 'D' ? (
-                                    <span className="text-orange-600">
-                                        D
-                                    </span>
-                                ) : (
-                                    <span className="text-red-600">
-                                        F
-                                    </span>
-                                )}
-                                {/*Completion: { grades.filter(grade =>*/}
-                                {/*    grade.examRequired === 1).length >= gradeStrategy.total*/}
-                                {/*    && grades.filter((grade) =>*/}
-                                {/*    grade.exam_score === 'A').length >= gradeStrategy.requiredA*/}
-                                {/*    ? (*/}
-                                {/*        <span className="text-green-600">*/}
-                                {/*            Achieved!*/}
-                                {/*        </span>*/}
-                                {/*    ) : (*/}
-                                {/*        <span className="text-orange-600">*/}
-                                {/*            Not Yet!*/}
-                                {/*        </span>*/}
-                                {/*    )}*/}
-                                {/*Math.round((allExamNames.filter(name =>*/}
-                                {/*    examMap.has(name.toString())).length / allExamNames.length) * 100)}%*/}
-                            </div>
-                        </div>
-                        <div className="w-32 px-4 py-3 border-l border-gray-300 text-right">
-                            <div className="text-sm font-medium">
-                                Avg: {exams.length > 0
-                                ? calculateCurrentGrade()
-                                : 0
-                            }
-                            </div>
-                        </div>
-                    </div>
+                    {/*<div className="flex items-center min-h-12 border-t border-gray-300">*/}
+                    {/*    <div className="w-1/4 px-4 py-3 border-r border-gray-300 font-medium">*/}
+                    {/*        Progress Summary*/}
+                    {/*    </div>*/}
+                    {/*    <div className="flex-1 flex items-stretch">*/}
+                    {/*        <div className="flex-1 px-4 py-3 border-r border-gray-300 text-sm">*/}
+                    {/*            Required: {requiredCount}/{requiredExams.length}*/}
+                    {/*        </div>*/}
+                    {/*        <div className="flex-1 px-4 py-3 border-r border-gray-300 text-sm">*/}
+                    {/*            Optional: {optionalCount}/{optionalExams.length}*/}
+                    {/*        </div>*/}
+                    {/*        <div className="flex-1 px-4 py-3 border-r border-gray-300 text-sm">*/}
+                    {/*            Total: {passedRequiredAndOptional}/{gradeStrategy.total}*/}
+                    {/*        </div>*/}
+                    {/*        <div className="flex-1 px-4 py-3 text-sm font-normal">*/}
+                    {/*            Current Grade: { currentGrade === 'A'*/}
+                    {/*            ? (*/}
+                    {/*                <span className="text-green-700">*/}
+                    {/*                    A*/}
+                    {/*                </span>*/}
+                    {/*            ) : currentGrade === 'B' ? (*/}
+                    {/*                <span className="text-blue-700">*/}
+                    {/*                    B*/}
+                    {/*                </span>*/}
+                    {/*            ) : currentGrade === 'C' ? (*/}
+                    {/*                <span className="text-mentat-gold">*/}
+                    {/*                    C*/}
+                    {/*                </span>*/}
+                    {/*            ) : currentGrade === 'D' ? (*/}
+                    {/*                <span className="text-orange-600">*/}
+                    {/*                    D*/}
+                    {/*                </span>*/}
+                    {/*            ) : (*/}
+                    {/*                <span className="text-red-600">*/}
+                    {/*                    F*/}
+                    {/*                </span>*/}
+                    {/*            )}*/}
+                    {/*            /!*Completion: { grades.filter(grade =>*!/*/}
+                    {/*            /!*    grade.examRequired === 1).length >= gradeStrategy.total*!/*/}
+                    {/*            /!*    && grades.filter((grade) =>*!/*/}
+                    {/*            /!*    grade.exam_score === 'A').length >= gradeStrategy.requiredA*!/*/}
+                    {/*            /!*    ? (*!/*/}
+                    {/*            /!*        <span className="text-green-600">*!/*/}
+                    {/*            /!*            Achieved!*!/*/}
+                    {/*            /!*        </span>*!/*/}
+                    {/*            /!*    ) : (*!/*/}
+                    {/*            /!*        <span className="text-orange-600">*!/*/}
+                    {/*            /!*            Not Yet!*!/*/}
+                    {/*            /!*        </span>*!/*/}
+                    {/*            /!*    )}*!/*/}
+                    {/*            /!*Math.round((allExamNames.filter(name =>*!/*/}
+                    {/*            /!*    examMap.has(name.toString())).length / allExamNames.length) * 100)}%*!/*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*    <div className="w-32 px-4 py-3 border-l border-gray-300 text-right">*/}
+                    {/*        <div className="text-sm font-medium">*/}
+                    {/*            Avg: {exams.length > 0*/}
+                    {/*            ? calculateCurrentGrade()*/}
+                    {/*            : 0*/}
+                    {/*        }*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
                 </div>
             </motion.div>
         </div>
