@@ -7,51 +7,20 @@
 'use client';
 
 import React from "react";
-import { Report, GradeStrategy } from "../types/shared";
+import { Report } from "../types/shared";
 
 /**
  * Define some types and interfaces for the chart
  */
 interface GradeDashboardProps {
     grades: Report[];
+    score: String;
 }
 
-export default function GradeDashboard({ grades }: GradeDashboardProps) {
-
-    const calculateAverage = () => {
-        let count = 0;
-
-        let reduced = grades.filter(grade => grade.exam_score && true);
-        reduced.map(grade => {
-            switch (grade.exam_score) {
-                case 'A':
-                    count += 4;
-                    break;
-                case 'B':
-                    count += 3;
-                    break;
-                case 'C':
-                    count += 2;
-                    break;
-                case 'D':
-                    count += 1;
-                    break;
-                default:
-            }
-        })
-        let average = Math.min(count / grades.length, 1);
-        switch (average) {
-            case 5: return 'A';
-            case 4: return 'B';
-            case 3: return 'C';
-            case 2: return 'D';
-            default: return 'F';
-        }
-    }
+export default function GradeDashboard({ grades, score }: GradeDashboardProps) {
 
     const findHighestScore = () => {
         let count = 0;
-
         let reduced = grades.filter(grade => grade.exam_score && true);
         reduced.map(grade => {
             switch (grade.exam_score) {
@@ -71,10 +40,10 @@ export default function GradeDashboard({ grades }: GradeDashboardProps) {
             }
         })
         switch (count) {
-            case 5: return 'A';
-            case 4: return 'B';
-            case 3: return 'C';
-            case 2: return 'D';
+            case 4: return 'A';
+            case 3: return 'B';
+            case 2: return 'C';
+            case 1: return 'D';
             default: return 'F';
         }
     }
@@ -107,27 +76,9 @@ export default function GradeDashboard({ grades }: GradeDashboardProps) {
             <div className="bg-card-color p-4 rounded-lg shadow-md border
                 shadow-crimson-700">
                 <h3 className="text-sm font-medium text-mentat-gold/80">Average Score</h3>
-                { calculateAverage() === 'A' ? (
-                    <React.Fragment>
-                        <p className="text-2xl font-bold text-green-500">{calculateAverage()}</p>
-                    </React.Fragment>
-                ) : calculateAverage() === 'B' ? (
-                    <React.Fragment>
-                        <p className="text-2xl font-bold text-blue-600">{calculateAverage()}</p>
-                    </React.Fragment>
-                ) : calculateAverage() === 'C' ? (
-                    <React.Fragment>
-                        <p className="text-2xl font-bold text-mentat-gold">{calculateAverage()}</p>
-                    </React.Fragment>
-                ) : calculateAverage() === 'D' ? (
-                    <React.Fragment>
-                        <p className="text-2xl font-bold text-orange-600">{calculateAverage()}</p>
-                    </React.Fragment>
-                ) : (
-                    <React.Fragment>
-                        <p className="text-2xl font-bold text-red-600">{calculateAverage()}</p>
-                    </React.Fragment>
-                )}
+                <p className="text-2xl font-bold text-green-500">
+                    {score}
+                </p>
             </div>
 
             {/* Highest Score */}
