@@ -264,7 +264,7 @@ export default function GradesPage() {
                         </span>
                     </div>
 
-                    <div className="overflow-y-auto max-h-[600px] pt-1
+                    <div className="overflow-y-auto max-h-[35vh] pt-1
                         scrollbar-thin scrollbar-thumb-mentat-gold
                         scrollbar-track-gray-100"
                     >
