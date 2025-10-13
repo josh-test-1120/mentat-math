@@ -9,7 +9,7 @@ import { ExamCardExtended, getExamPropStatus } from '@/components/UI/cards/ExamC
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/components/UI/exams/ExamActions";
-import JoinCourseComponent from "@/app/courses/JoinCourse";
+import JoinCourseComponent from "@/app/dashboard/localComponents/JoinCourse";
 import { RingSpinner } from "@/components/UI/Spinners";
 
 export default function ExamsPage() {

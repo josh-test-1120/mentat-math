@@ -5,12 +5,12 @@ import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import { toast } from 'react-toastify';
 
-interface CreateCourseClientProps {
+interface CreateCourseProps {
   onCourseCreated?: () => void;
   onCancel?: () => void;
 }
 
-export default function CreateCourseClient({ onCourseCreated, onCancel }: CreateCourseClientProps) {
+export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourseProps) {
   const { data: session } = useSession();
   const [formData, setFormData] = useState({
     courseName: '',
