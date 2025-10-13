@@ -117,7 +117,7 @@ export default function CreateScheduledExam() {
             <div className="p-6 inline-flex items-center">
                 <button
                     className="bg-crimson hover:bg-crimson-700 text-mentat-gold
-                        font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
+                        font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline
                         inline-flex"
                     onClick={() => setIsModalOpen(true)}
                 >

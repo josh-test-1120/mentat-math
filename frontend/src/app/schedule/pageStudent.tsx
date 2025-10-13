@@ -12,7 +12,10 @@ import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledE
 import Modal from "@/components/services/Modal";
 import ExamDetailsComponent from "@/components/UI/exams/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
-import { ExamCardMedium, ExamResult } from "@/app/schedule/localComponents/ExamCard";
+import { ExamCardMedium, ExamMedium } from "@/app/schedule/localComponents/ExamCard";
+import ExamResult from "@/components/types/exam_result";
+import { ExamAction } from "@/app/schedule/localComponents/ScheduledExamDetailsComponent"
+import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetailsComponent";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -310,9 +313,9 @@ export default function StudentSchedule() {
                                     {filteredExams.map((examInst) => (
                                         <ExamCardMedium
                                             key={examInst.exam_id}
-                                            exam={examInst as ExamResult}
+                                            exam={examInst as ExamMedium}
                                             index={0}
-                                            onclick={(e) => loadScheduledExamData(examInst as ExamResult, e)}
+                                            onclick={(e) => loadScheduledExamData(examInst as ExamMedium, e)}
                                         />
                                     ))}
                                 </AnimatePresence>
@@ -362,28 +365,28 @@ export default function StudentSchedule() {
                     {/*</div>*/}
                 </div>
             </div>
-            {/* Exam Action Modal */}
-            <Modal
-                isOpen={isExamModalOpen}
-                onClose={() => setIsExamModalOpen(false)}
-                title="Modify Exam Details"
-            >
-                {isModalLoading ? (
-                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                        <RingSpinner size={'sm'} color={'mentat-gold'} />
-                        <p className="mt-4 text-mentat-gold">Loading scheduled exam details...</p>
-                    </div>
-                ) : (
-                    <ExamDetailsComponent
-                        exam={exam}
-                        course={course}
-                        cancelAction={() => {
-                            setIsExamModalOpen(false);
-                            // Trigger refresh when modal closes
-                            setRefreshTrigger(prev => prev + 1);
-                        }}
-                    />)}
-            </Modal>
+            {/*/!* Exam Action Modal *!/*/}
+            {/*<Modal*/}
+            {/*    isOpen={isExamModalOpen}*/}
+            {/*    onClose={() => setIsExamModalOpen(false)}*/}
+            {/*    title="Reschedule Exam Options"*/}
+            {/*>*/}
+            {/*    {isModalLoading ? (*/}
+            {/*        <div className="flex flex-col items-center justify-center min-h-[200px]">*/}
+            {/*            <RingSpinner size={'sm'} color={'mentat-gold'} />*/}
+            {/*            <p className="mt-4 text-mentat-gold">Loading scheduled exam windows...</p>*/}
+            {/*        </div>*/}
+            {/*    ) : (*/}
+            {/*        <ScheduledExamDetailsComponent*/}
+            {/*            exam={exam as ExamAction}*/}
+            {/*            course={course}*/}
+            {/*            cancelAction={() => {*/}
+            {/*                setIsExamModalOpen(false);*/}
+            {/*                // Trigger refresh when modal closes*/}
+            {/*                setRefreshTrigger(prev => prev + 1);*/}
+            {/*            }}*/}
+            {/*        />)}*/}
+            {/*</Modal>*/}
         </div>
     );
 };
