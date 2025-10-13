@@ -195,7 +195,7 @@ export default function ExamsPage() {
                     <h1 className="text-3xl font-semibold">My Enrolled Courses</h1>
                     <button
                         onClick={() => setIsJoinModalOpen(true)}
-                        className="font-bold py-2 px-4 rounded-md transition-all duration-200
+                        className="font-bold py-2 px-4 rounded-lg transition-all duration-200
                             hover:brightness-110 flex items-center gap-2 shadow-sm shadow-mentat-gold-700"
                         style={{ backgroundColor: '#A30F32' }}
                     >
