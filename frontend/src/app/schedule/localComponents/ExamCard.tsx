@@ -2,16 +2,19 @@
 
 import { motion } from 'framer-motion';
 import {ExamOld, ExamProp, Course, ExamResultProper} from '@/components/types/exams';
+import ExamResult from "@/components/types/exam_result";
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 import React, {useEffect, useRef, useState} from "react";
+import Modal from "@/components/services/Modal";
+import {RingSpinner} from "@/components/UI/Spinners";
+import ScheduledExamDetailsComponent, {ExamAction} from "@/app/schedule/localComponents/ScheduledExamDetails";
 
-export interface ExamExtended extends ExamOld {
+export interface ExamMedium extends ExamResult {
+    exam_name: string;
     exam_course_name: string;
-    // exam_duration: string;
+    exam_duration: string;
+    exam_required: number;
     exam_online: number;
-}
-
-export interface ExamResult extends ExamResultProper {
     status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
 }
 
@@ -22,13 +25,13 @@ interface ExamCardExtendedProps {
 }
 
 interface ExamCardMediumProps {
-    exam: ExamResult;
+    exam: ExamMedium;
     index: number;
     onclick?: (e: any) => void;
 }
 
 interface ExamCardCompactProps {
-    exam: ExamExtended;
+    exam: ExamMedium;
     index: number;
     onclick?: (e: any) => void;
 }
@@ -39,10 +42,10 @@ interface ExamCardCompactProps {
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig = {
-        upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-4 h-4" /> },
-        completed: { color: 'bg-green-100 text-green-800', icon: <Award className="w-4 h-4" /> },
-        canceled: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4" /> },
-        missing: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-4 h-4" /> }
+        upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-3 h-3" /> },
+        completed: { color: 'bg-green-100 text-green-800', icon: <Award className="w-3 h-3" /> },
+        canceled: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-3 h-3" /> },
+        missing: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-3 h-3" /> }
     };
 
     const config =
@@ -51,7 +54,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
     return (
         <span className={`inline-flex items-center px-1 py-0.5 rounded-full
-            text-xs font-medium ${config.color}`}>
+            text-[10px] font-medium ${config.color}`}>
           <span className="mr-1">{config.icon}</span>
             {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
@@ -108,6 +111,9 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
     // exam.status = status;
 
     const [isHovered, setIsHovered] = useState(false);
+    const [isModalLoading, setIsModalLoading] = useState(false);
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+
     // Add a timeout ref to your component
     const closeTimeoutRef = useRef(null);
 
@@ -312,76 +318,129 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
         //     </div>
         //
         // </motion.div>
-        <motion.div
-            className="relative rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md
-        hover:shadow-crimson-700 transition-shadow"
-            whileHover={{ y: -2 }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            onClick={onclick}
-            onMouseEnter={(e) => openScheduledExamData(e)}
-            onMouseLeave={(e) => closeScheduledExamData(e)}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.exam_name}</h3>
-                <span className="text-xs py-1 rounded-full flex items-center gap-1 whitespace-nowrap">
-            <StatusBadge status={status}/>
-        </span>
-            </div>
-
-            <div className="flex justify-between items-center mb-2">
-        <span className="text-xs text-mentat-gold py-1 rounded">
-          {exam.exam_course_name}
-        </span>
-                <span className="text-xs text-mentat-gold py-1 text-end rounded">
-          Difficulty Level: {exam.exam_difficulty}
-        </span>
-            </div>
-
-            <div className="flex justify-between items-center">
-        <span className="text-xs font-medium text-mentat-gold">
-          {exam.exam_required === 1 ? 'Required' : 'Not Required'}
-        </span>
-            </div>
-
-            {/* Schedule Action Box */}
-            <div
-                id="action-box"
-                className="absolute left-0 right-0 bottom-0 transform translate-y-full
-                   flex flex-col justify-end mt-0
-                   opacity-0 pointer-events-none
-                   transition-opacity duration-200 ease-in-out delay-150"
+        <div>
+            <motion.div
+                className="relative rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md
+            hover:shadow-crimson-700 transition-shadow"
+                whileHover={{ y: -2 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                onClick={onclick}
+                onMouseEnter={(e) => openScheduledExamData(e)}
+                onMouseLeave={(e) => closeScheduledExamData(e)}
             >
-                <div className="flex justify-between items-center border border-white/20
-                   rounded-b-lg bg-card-color/10 p-2
-                   backdrop-blur-lg backdrop-saturate-150">
-                    <button
-                        className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
-                         bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
-                         backdrop-blur-sm`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('Reschedule clicked');
-                        }}
-                    >
-                        Reschedule
-                    </button>
-                    <button
-                        className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
-                         bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
-                         backdrop-blur-sm opacity-100`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            console.log('Cancel clicked');
-                        }}
-                    >
-                        Cancel
-                    </button>
+                <div className="flex justify-between items-start pb-0.5">
+                    <h3 className="font-semibold text-mentat-gold text-sm truncate
+                        hover:whitespace-normal hover:overflow-visible hover:z-10">
+                        {exam.exam_name}
+                    </h3>
+                    <div className="flex items-start">
+                        <span className="text-xs rounded-full flex gap-1 whitespace-nowrap">
+                            <StatusBadge status={status}/>
+                        </span>
+                    </div>
                 </div>
-                {/*/!* Add buffer zone *!/*/}
-                {/*<div className="h-4 w-full bg-transparent"></div>*/}
-            </div>
-        </motion.div>
+
+                <div className="flex justify-center">
+                    <span className="text-[11px] font-medium text-mentat-gold pb-0.5 rounded">
+                    <span className="italic">Date</span>
+                        : {' '}
+                        <span className="text-green-500">
+                            {exam.exam_scheduled_date}
+                        </span>
+                    </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-medium text-mentat-gold pb-0.5 text-end rounded">
+                    <span className="italic">Duration</span>
+                        : {exam.exam_duration || 1}
+                    </span>
+                    <span className="text-[11px] font-medium text-mentat-gold pb-0.5 text-end rounded">
+                      <span className="italic">Online</span>
+                        : {exam.exam_online ? (
+                            <span className="text-[#DA70D6]">
+                                True
+                            </span>) : 'False'}
+                    </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-medium text-mentat-gold">
+                      <span className="italic">Version</span>
+                      : {exam.exam_version > 1 ? exam.exam_version : 1}
+                    </span>
+                    <span className="text-[11px] font-medium text-mentat-gold">
+                      {exam.exam_required === 1 ? (
+                          <span className="text-[#E0B0FF]">
+                              Required
+                          </span>) : ('Not Required')}
+                    </span>
+                </div>
+
+                {/* Schedule Action Box */}
+                <div
+                    id="action-box"
+                    className="absolute left-0 right-0 bottom-0 transform translate-y-full
+                       flex flex-col justify-end mt-0
+                       opacity-0 pointer-events-none
+                       transition-opacity duration-200 ease-in-out delay-150"
+                >
+                    <div className="flex justify-between items-center border border-white/20
+                       rounded-b-lg bg-card-color/10 p-2
+                       backdrop-blur-lg backdrop-saturate-150">
+                        <button
+                            className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
+                             bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
+                             backdrop-blur-sm`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Reschedule clicked');
+                                setIsScheduleModalOpen(true);
+
+                            }}
+                        >
+                            Reschedule
+                        </button>
+                        <button
+                            className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
+                             bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
+                             backdrop-blur-sm opacity-100`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Cancel clicked');
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                    {/*/!* Add buffer zone *!/*/}
+                    {/*<div className="h-4 w-full bg-transparent"></div>*/}
+                </div>
+            </motion.div>
+            {/* Reschedule Action Modal */}
+            <Modal
+                isOpen={isScheduleModalOpen}
+                onClose={() => setIsScheduleModalOpen(false)}
+                title="Reschedule Exam Options"
+                isFullScreen={true}
+            >
+                {isModalLoading ? (
+                    <div className="flex flex-col items-center justify-center min-h-[200px]">
+                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                        <p className="mt-4 text-mentat-gold">Loading scheduled exam windows...</p>
+                    </div>
+                ) : (
+                    <ScheduledExamDetailsComponent
+                        exam={exam as ExamAction}
+                        cancelAction={() => {
+                            setIsScheduleModalOpen(false);
+                            // Trigger refresh when modal closes
+                            // setRefreshTrigger(prev => prev + 1);
+                        }}
+                    />)}
+            </Modal>
+        </div>
     );
 };
