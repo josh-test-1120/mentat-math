@@ -192,8 +192,10 @@ export default function GradesPage() {
     }
 
     return (
-        <div className="bg-gradient-to-br">
-            <div className="max-w-5xl mx-auto">
+        <div className="min-h-screen flex flex-col px-4">
+            {/*This is the header section with filters*/}
+            <div className="sticky top-0 pt-8 z-10 bg-mentat-black
+                max-w-5xl mx-auto w-full">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -203,12 +205,12 @@ export default function GradesPage() {
                     <h1 className="text-3xl font-bold mb-2">Grade Summary</h1>
                 </motion.div>
 
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-2">
                     <h2 className="text-xl font-semibold">Your Grades</h2>
                     <div className="flex gap-2">
                         <button
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                             shadow-sm shadow-mentat-gold-700 ${
+                         shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'all'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -218,7 +220,7 @@ export default function GradesPage() {
                         </button>
                         <button
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                             shadow-sm shadow-mentat-gold-700 ${
+                         shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'passed'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -228,7 +230,7 @@ export default function GradesPage() {
                         </button>
                         <button
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                             shadow-sm shadow-mentat-gold-700 ${
+                         shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'failed'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -238,7 +240,7 @@ export default function GradesPage() {
                         </button>
                         <button
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                             shadow-sm shadow-mentat-gold-700 ${
+                         shadow-sm shadow-mentat-gold-700 ${
                                 filter === 'pending'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
@@ -248,129 +250,125 @@ export default function GradesPage() {
                         </button>
                     </div>
                 </div>
-
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="rounded-xl shadow-sm border p-6"
-                >
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-semibold">
-                            {filter.charAt(0).toUpperCase() + filter.slice(1)} Grades
-                        </h2>
-                        <span className="text-sm">
-                          {filteredGrades.length} grade(s) found
-                        </span>
-                    </div>
-
-                    <div className="overflow-y-auto max-h-[600px] pt-1
-                        scrollbar-thin scrollbar-thumb-mentat-gold
-                        scrollbar-track-gray-100"
-                    >
-                        <AnimatePresence mode="wait">
-                            {filteredGrades.length > 0 ? (
-                                <motion.div
-                                    key={`${selectedClass}-${filter}`}
-                                    variants={containerVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                    className="space-y-2 mb-2"
-                                >
-                                    {filteredGrades.map((grade) => (
-                                        <GradeCardExtended
-                                            key={grade.exam_id}
-                                            grade={grade}
-                                            index={0}
-                                            onclick={(e) => loadGradeDetails(grade, e)}
-                                        />
-                                    ))}
-                                </motion.div>
-                            ) : loading ? (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-center py-12"
-                                >
-                                    <div className="flex justify-center items-center">
-                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                        <p className="ml-3 text-md text-mentat-gold">Loading grades...</p>
-                                    </div>
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-center py-12"
-                                >
-                                    No grades found for the selected filters
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                </motion.div>
+                {/* Line Divider */}
+                <hr className="border-crimson border-2 mb-2"></hr>
             </div>
-            <div className="max-w-5xl mx-auto rounded-xl pt-6 pb-4">
-                <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
-                { loading ?
-                    (
-                        <div className="flex justify-center items-center pt-6">
-                            <RingSpinner size={'sm'} color={'mentat-gold'} />
-                            <p className="ml-3 text-md text-mentat-gold">Calculating Grade Summary...</p>
-                        </div>
-                    )
-                    : grades.length === 0 ?
-                        <div className="text-center">No grades available</div> :
-                        (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="p-4 rounded-lg border border-blue-100
-                                    bg-card-color shadow-md shadow-crimson-700">
-                                    <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
-                                    <p className="text-3xl font-bold">
-                                        {grades.filter(grade => grade.status === 'passed').length}
-                                    </p>
-                                </div>
-                                <div className="p-4 rounded-lg border border-blue-100
-                                    bg-card-color shadow-md shadow-crimson-700">
-                                    <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
-                                    <p className="text-3xl font-bold">
-                                        {grades.filter(grade => grade.status === 'failed').length}
-                                    </p>
-                                </div>
 
-                                <div className="p-4 rounded-lg border border-blue-100
-                                    bg-card-color shadow-md shadow-crimson-700">
-                                    <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
-                                    <p className={`text-3xl font-bold ${
-                                        avgScore(grades) === 'A' || avgScore(grades) === 'B'
-                                            ? 'text-green-600'
-                                            : avgScore(grades) === 'C'
-                                                ? 'text-yellow-600'
-                                                : 'text-red-600'
-                                    }`}>
-                                        {avgScore(grades)}
-                                    </p>
-                                </div>
+            {/* This becomes the primary content container */}
+            <div className="flex-1 overflow-y-auto">
+                <div className="max-w-5xl mx-auto">
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="rounded-xl shadow-sm border p-6"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-semibold">
+                                {filter.charAt(0).toUpperCase() + filter.slice(1)} Grades
+                            </h2>
+                            <span className="text-sm">
+                      {filteredGrades.length} grade(s) found
+                    </span>
+                        </div>
+
+                        {/* REMOVE max-height - let content flow naturally */}
+                        <div className="pt-1">
+                            <AnimatePresence mode="wait">
+                                {filteredGrades.length > 0 ? (
+                                    <motion.div
+                                        key={`${selectedClass}-${filter}`}
+                                        variants={containerVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        className="space-y-2 mb-2"
+                                    >
+                                        {filteredGrades.map((grade) => (
+                                            <GradeCardExtended
+                                                key={grade.exam_id}
+                                                grade={grade}
+                                                index={0}
+                                                onclick={(e) => loadGradeDetails(grade, e)}
+                                            />
+                                        ))}
+                                    </motion.div>
+                                ) : loading ? (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-center py-12"
+                                    >
+                                        <div className="flex justify-center items-center">
+                                            <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                            <p className="ml-3 text-md text-mentat-gold">Loading grades...</p>
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-center py-12"
+                                    >
+                                        No grades found for the selected filters
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+
+            {/* Sticky footer container
+            stays at bottom with black background to cover overflow */}
+            <div className="sticky bottom-0 pt-2 z-10 bg-mentat-black">
+                {/* Line Divider */}
+                <hr className="border-crimson border-2 mb-1"></hr>
+                <div className="max-w-5xl mx-auto pb-4">
+                    <h2 className="text-xl font-semibold mb-4">Grade Performance Summary</h2>
+                    { loading ?
+                        (
+                            <div className="flex justify-center items-center pt-6">
+                                <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                <p className="ml-3 text-md text-mentat-gold">Calculating Grade Summary...</p>
                             </div>
                         )
-                    }
-            </div>
+                        : grades.length === 0 ?
+                            <div className="text-center">No grades available</div> :
+                            (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="p-4 rounded-lg border border-blue-100
+                                bg-card-color shadow-md shadow-crimson-700">
+                                        <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
+                                        <p className="text-3xl font-bold">
+                                            {grades.filter(grade => grade.status === 'passed').length}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 rounded-lg border border-blue-100
+                                bg-card-color shadow-md shadow-crimson-700">
+                                        <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
+                                        <p className="text-3xl font-bold">
+                                            {grades.filter(grade => grade.status === 'failed').length}
+                                        </p>
+                                    </div>
 
-            {/*/!* Exam Action Modal *!/*/}
-            {/*<Modal*/}
-            {/*    isOpen={isExamModalOpen}*/}
-            {/*    onClose={() => setIsExamModalOpen(false)}*/}
-            {/*    title="Alter Scheduled Exam"*/}
-            {/*>*/}
-            {/*    <ExamActionsComponent*/}
-            {/*        examResult={examResult}*/}
-            {/*        cancelAction={() => {*/}
-            {/*            setIsExamModalOpen(false);*/}
-            {/*            // Trigger refresh when modal closes*/}
-            {/*            setRefreshTrigger(prev => prev + 1);*/}
-            {/*        }}*/}
-            {/*    />*/}
-            {/*</Modal>*/}
+                                    <div className="p-4 rounded-lg border border-blue-100
+                                bg-card-color shadow-md shadow-crimson-700">
+                                        <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
+                                        <p className={`text-3xl font-bold ${
+                                            avgScore(grades) === 'A' || avgScore(grades) === 'B'
+                                                ? 'text-green-600'
+                                                : avgScore(grades) === 'C'
+                                                    ? 'text-yellow-600'
+                                                    : 'text-red-600'
+                                        }`}>
+                                            {avgScore(grades)}
+                                        </p>
+                                    </div>
+                                </div>
+                            )
+                    }
+                </div>
+            </div>
         </div>
     );
 }

@@ -17,6 +17,7 @@ import { StrategyProgressBar } from "./localComponents/StrategyProgressBar";
 import GradeDashboard from "@/app/reports/localComponents/GradeDashboard";
 import { TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
 import { PulseSpinner, RingSpinner } from "@/components/UI/Spinners";
+import GradeDetermination from "@/app/reports/utils/GradeDetermination";
 
 export function StudentReport() {
     // Session states
@@ -139,12 +140,25 @@ export function StudentReport() {
 
     // FIXED: Memoized current grade calculation
     const calculatedCurrentGrade = useMemo(() => {
-        if (!gradeRequirements) return 'F';
 
-        const passed = grades.filter(grade => grade.status === 'passed').length;
-        const passedAs = grades.filter(grade => grade.exam_score === 'A').length;
-        return calculateCurrentGrade(passed, passedAs, gradeRequirements);
-    }, [grades, gradeRequirements, gradeFilter]);
+        console.log('🟢 CALCULATED_CURRENT_GRADE useMemo RUNNING');
+        console.log('🟢 gradeRequirements:', gradeRequirements);
+        console.log('🟢 filteredGrades:', filteredGrades);
+        console.log('🟢 filteredGrades length:', filteredGrades?.length);
+        console.log('🟢 grades:', grades);
+
+        // // If no grades requirements, return F
+        // if (!gradeRequirements) return 'F';
+        // If we have grades to make a grade determination on
+        if (gradeRequirements && filteredGrades && filteredGrades.length > 0)
+            return GradeDetermination(filteredGrades, gradeRequirements);
+        else if (!gradeRequirements && filteredGrades && filteredGrades.length > 0) {
+            console.log('No Strategy Grade Determination');
+            return GradeDetermination(filteredGrades);
+        }
+        // If neither of those exist, return F
+        else return 'F'
+    }, [filteredGrades, gradeRequirements, gradeFilter]);
 
     // EFFECT 1: Initial data loading (IMPROVED)
     useEffect(() => {
@@ -179,7 +193,8 @@ export function StudentReport() {
 
         const updateCourseData = async () => {
             // Update course grades
-            const reducedGrades = grades.filter(grade => grade.course_name === courseFilter);
+            const reducedGrades = grades.filter(grade =>
+                grade.course_name === courseFilter);
             setCourseGrades(reducedGrades);
 
             // Fetch exams for this course
@@ -549,6 +564,7 @@ export function StudentReport() {
                                                         key={`progress-chart-${courseFilter}`}
                                                         exams={filteredGrades as ExamAttempt[]}
                                                         course={filteredCourses[0]}
+                                                        currentGrade={currentGrade}
                                                     />
                                                 </motion.div>
                                             )}
@@ -557,10 +573,13 @@ export function StudentReport() {
                             </div>
 
                             {/*This is the grade statistics dashboard*/}
-                            { !loading && filteredGrades && (
+                            { !loading && filteredGrades.length != 0
+                                && currentGrade && (
                                 <div className="justify-between items-center mb-6">
                                     <GradeDashboard
                                         grades={filteredGrades}
+                                        score={currentGrade}
+                                        isStrategy={!!filteredGradeStrategy?.strategy}
                                     />
                                 </div>)}
 

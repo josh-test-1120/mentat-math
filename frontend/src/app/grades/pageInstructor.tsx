@@ -240,7 +240,7 @@ export default function ExamDashboard() {
     }
 
     return (
-        <div className="bg-gradient-to-br">
+        <div className="px-4 py-8">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-8">
                     <div className="flex items-center justify-between">

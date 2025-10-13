@@ -15,6 +15,7 @@ import { ExamResult } from "@/components/types/exams";
 import Course from "@/components/types/course";
 import { GradeRequirements, GradeStrategy, CourseStrategy, ExamAttempt} from "../types/shared";
 import { emptyStrategy } from "../types/defaults";
+import { updateRecord, reduceRecords } from "../utils/GradeDetermination";
 
 /**
  * Define some types and interfaces for the chart
@@ -22,9 +23,10 @@ import { emptyStrategy } from "../types/defaults";
 interface ProgressChartProps {
     exams: ExamAttempt[];
     course: Course;
+    currentGrade: String;
 }
 
-export default function ProgressChart({ exams, course }: ProgressChartProps) {
+export default function ProgressChart({ exams, course, currentGrade }: ProgressChartProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -68,8 +70,8 @@ export default function ProgressChart({ exams, course }: ProgressChartProps) {
     useEffect(() => {
         if (exams.length > 0 && course) {
             console.log('Processing data...');
-            updateRecord();
-            reduceRecords();
+            updateRecord(exams);
+            setBestExams(reduceRecords(exams))
             populateGradeStrategy();
         }
     }, [exams, course]);
@@ -89,59 +91,6 @@ export default function ProgressChart({ exams, course }: ProgressChartProps) {
     // Needed to confirm equality on maps
     const deepEqual = (obj1: GradeRequirements, obj2: GradeRequirements) => {
         return JSON.stringify(obj1) === JSON.stringify(obj2);
-    }
-
-    const scoreToNumber = (score: string | undefined) => {
-        if (!score) return 0;
-
-        switch (score) {
-            case 'A':
-                return 5;
-                break;
-            case 'B':
-                return 4;
-                break;
-            case 'C':
-                return 3;
-                break;
-            case 'D':
-                return 2;
-                break;
-            default:
-                return 1;
-        }
-    }
-
-    // Determine and assign the best grade for an exam
-    const updateRecord = () => {
-        for (let record of exams) {
-            record.attempts = exams.filter(exam => exam.exam_id === record.exam_id).length;
-            console.log(`For exam: ${record.exam_name} there are ${record.attempts} attempts`);
-
-            const records = exams.filter(exam => exam.exam_id === record.exam_id);
-            const highestExam = records.reduce((highest: ExamAttempt, current: ExamAttempt) => {
-                if (!highest) return current;
-                console.log(`This is highest: ${highest.exam_score}, and this is current: ${current.exam_score}`);
-                const currentScore = scoreToNumber(current.exam_score);
-                const highestScore = scoreToNumber(highest.exam_score);
-                console.log(`This is the highest score: ${highestScore}` +
-                    `, and current: ${currentScore}`);
-                return currentScore > highestScore ? current : highest;
-            }, records[0]);
-
-            record.bestScore = highestExam ? highestExam.exam_score?.toString() : null;
-            console.log(`For exam: ${record.exam_name} the best score is: ${record.bestScore}`);
-        }
-
-    }
-
-    // Reduce the records to the best exams only
-    const reduceRecords = () => {
-        // Reduce the duplicate exams to the highest score only
-        let records: ExamAttempt[] = exams.filter(exam =>
-            {return exam.exam_score === exam.bestScore});
-        // Set the best exams state
-        setBestExams(records)
     }
 
     // Load the specific grade strategy details
@@ -239,9 +188,6 @@ export default function ProgressChart({ exams, course }: ProgressChartProps) {
             exam.status === 'passed').length;
         const passedAExams = bestExams.filter(exam =>
             exam.status === 'passed' && exam.exam_score === 'A').length;
-        // const currentGrade = calculateCurrentGrade(passedExams, gradeRequirements);
-        const currentGrade = calculateCurrentGrade(passedExams,
-            passedAExams, gradeStrategy);
 
         // Scales
         const xScale = d3.scaleBand()
@@ -426,16 +372,6 @@ export default function ProgressChart({ exams, course }: ProgressChartProps) {
                 .attr('fill', '#A30F32')
                 .text(`${grade}: ${requirements.requiredA}/${requirements.total}`);
         });
-
-        // Helper functions
-        function calculateCurrentGrade(passed: number, passedAs: number,
-                                       requirements: GradeRequirements) {
-            if (passed >= requirements.A.total && passedAs >= requirements.A.requiredA) return 'A';
-            if (passed >= requirements.B.total && passedAs >= requirements.B.requiredA) return 'B';
-            if (passed >= requirements.C.total && passedAs >= requirements.C.requiredA) return 'C';
-            if (passed >= requirements.D.total && passedAs >= requirements.D.requiredA) return 'D';
-            return 'F';
-        }
 
         function getPreviousGrade(grade: string) {
             const grades = ['F', 'D', 'C', 'B', 'A'];
