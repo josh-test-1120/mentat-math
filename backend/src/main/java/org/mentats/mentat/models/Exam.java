@@ -3,6 +3,7 @@ package org.mentats.mentat.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -23,7 +24,7 @@ public class Exam {
     private Long Id;
 
     // The course id assigned to exam
-    @NotBlank
+    @NotNull
     @JsonProperty("courseId") // Map JSON field to Java field
     @Column(name = "exam_course_id")
     private Long courseId;
@@ -35,31 +36,31 @@ public class Exam {
     private String name;
 
     // The status assigned to exam
-    @NotBlank
+    @NotNull
     @JsonProperty("examState") // Map JSON field to Java field
     @Column(name = "exam_state")
     private Integer state;
 
     // The required state of the exam
-    @NotBlank
+    @NotNull
     @JsonProperty("examRequired") // Map JSON field to Java field
     @Column(name = "exam_required")
     private Integer required;
 
     // The required state of the exam
-    @NotBlank
+    @NotNull
     @JsonProperty("examDifficulty") // Map JSON field to Java field
     @Column(name = "exam_difficulty")
     private Integer difficulty;
 
     // The duration of the exam
-    @NotBlank
+    @NotNull
     @JsonProperty("examDuration") // Map JSON field to Java field
     @Column(name = "exam_duration")
     private Double duration;
 
     // Is the exam online or offline
-    @NotBlank
+    @NotNull
     @JsonProperty("examOnline") // Map JSON field to Java field
     @Column(name = "exam_online")
     private Integer online;

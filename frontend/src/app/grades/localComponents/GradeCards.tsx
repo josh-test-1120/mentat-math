@@ -163,3 +163,4 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
         </motion.div>
     );
 };
+
