@@ -4,10 +4,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import Modal from '@/components/services/Modal';
-import CreateCourseClient from '../courses/createCourse/pageClient';
+import CreateCourseClient from '@/app/dashboard/localComponents/CreateCourse';
 import { toast } from 'react-toastify';
-import {Plus} from "lucide-react";
-import {RingSpinner} from "@/components/UI/Spinners";
+import { Plus } from "lucide-react";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 type Course = {
     courseId: number;
