@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 import { StatusChart } from "./localComponents/StatusChart";
 import ProgressChart from "./localComponents/ProgressChart";
 import { GradeRequirements, GradeStrategy, GradeRequirementsJSON,
-    ExamAttempt, Report } from "./types/shared"
+    Report } from "./types/shared"
 import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
 import { Grade } from "@/app/grades/util/types";
 import { StrategyProgressBar } from "./localComponents/StrategyProgressBar";
