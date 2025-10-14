@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, Long> {
     // Find exams by course ID
-    List<Exam> findByCourseId(Long courseId);
+    List<Exam> findByCourse_CourseId(Long courseId);
     // Find exams by state (active/inactive)
     List<Exam> findByState(Integer state);
     // Find exams by required status
@@ -21,7 +21,7 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
     // Find exams by online status
     List<Exam> findByOnline(Integer online);
     // Find exams by course ID and state
-    List<Exam> findByCourseIdAndState(Long courseId, Integer state);
+    List<Exam> findByCourse_CourseIdAndState(Long courseId, Integer state);
     // Delete exams by course ID
-    void deleteByCourseId(Long courseId);
+    void deleteByCourse_CourseId(Long courseId);
 }

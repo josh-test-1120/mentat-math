@@ -1,5 +1,6 @@
 package org.mentats.mentat.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
  * @author Joshua Summers
  */
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Repository
 public class Exam {
     /**
@@ -24,10 +26,17 @@ public class Exam {
     private Long Id;
 
     // The course id assigned to exam
-    @NotNull
-    @JsonProperty("courseId") // Map JSON field to Java field
-    @Column(name = "exam_course_id")
-    private Long courseId;
+    // Fix course relationship - should be ManyToOne to Course entity
+    @ManyToOne(fetch = FetchType.EAGER)  // ← EAGER instead of LAZY
+    @JoinColumn(name = "exam_course_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Course course;
+
+//    // The course id assigned to exam
+//    @NotNull
+//    @JsonProperty("courseId") // Map JSON field to Java field
+//    @Column(name = "exam_course_id")
+//    private Long courseId;
 
     // The name assigned to exam
     @NotBlank
@@ -68,7 +77,7 @@ public class Exam {
     /**
      * This is the constructor for the Exam entity
      * @param Id
-     * @param courseId
+     * @param course
      * @param name
      * @param state
      * @param required
@@ -76,10 +85,10 @@ public class Exam {
      * @param duration
      * @param online
      */
-    public Exam(Long Id, Long courseId, String name, Integer state,
+    public Exam(Long Id, Course course, String name, Integer state,
                 Integer required, Integer difficulty, Double duration, Integer online) {
         this.Id = Id;
-        this.courseId = courseId;
+        this.course = course;
         this.name = name;
         this.state = state;
         this.required = required;
@@ -104,13 +113,17 @@ public class Exam {
         Id = id;
     }
 
-    public Long getCourseId() {
-        return courseId;
-    }
+    public Course getCourse() { return course; }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
-    }
+    public void setCourse(Course course) { this.course = course; }
+
+//    public Long getCourseId() {
+//        return courseId;
+//    }
+//
+//    public void setCourseId(Long courseId) {
+//        this.courseId = courseId;
+//    }
 
     public String getName() {
         return name;
@@ -160,6 +173,11 @@ public class Exam {
         this.difficulty = difficulty;
     }
 
+    @JsonProperty("courseId")
+    public Long getCourseId() {
+        return course != null ? course.getCourseId() : null;
+    }
+
     /**
      * This is the toString override for String result responses
      * @return String output of keys and values
@@ -168,7 +186,7 @@ public class Exam {
     public String toString() {
         return "Exam{" +
                 "Id=" + Id +
-                ", courseId=" + courseId +
+                ", courseId=" + course.toString() +
                 ", name='" + name + '\'' +
                 ", state=" + state +
                 ", required=" + required +

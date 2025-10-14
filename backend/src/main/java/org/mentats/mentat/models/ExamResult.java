@@ -2,6 +2,8 @@ package org.mentats.mentat.models;
 
 import java.math.BigInteger;
 import java.sql.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -26,17 +28,32 @@ public class ExamResult {
     @Column(name = "exam_result_id", updatable = false, nullable = false)
     private Long Id;
 
-    // The student assigned to exam result
-    @NotBlank
-    @JsonProperty("examStudentId") // Map JSON field to Java field
-    @Column(name = "exam_student_id")
-    protected Long studentId;
+    // Fix the student relationship - should be ManyToOne to Student entity
+    @ManyToOne(fetch = FetchType.EAGER)  // ← EAGER instead of LAZY
+    @JoinColumn(name = "exam_student_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private User student;
 
-    // The exam assigned to the result
-    @JsonProperty("examId") // Map JSON field to Java field
-    @NotBlank
-    @Column(name = "exam_id")
-    private Long examId;
+    // Fix the exam relationship - should be ManyToOne to Exam entity
+    @ManyToOne(fetch = FetchType.EAGER)  // ← EAGER instead of LAZY
+    @JoinColumn(name = "exam_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Exam exam;
+
+//    // The student assigned to exam result
+//    @NotBlank
+//    @JsonProperty("examStudentId") // Map JSON field to Java field
+//    @Column(name = "exam_student_id")
+//    protected Long studentId;
+//
+//    // The exam assigned to the result
+//    @JsonProperty("examId") // Map JSON field to Java field
+//    @NotBlank
+//    @Column(name = "exam_id")
+//    @ManyToOne
+//    @JoinColumn(name = "exam_id")
+//    private Exam exam;
+////    private Long examId;
 
     // The version of the exam assigned
     @Size(max = 20)
@@ -66,20 +83,20 @@ public class ExamResult {
 
     /**
      * This is the constructor for the ExamResult entity
-     *
-     * @param Id                this is the exam result id
-     * @param studentId         this is the student id
-     * @param examId            this is the exam id
-     * @param examVersion       this is the exam version
-     * @param examScheduledDate this is the exam scheduled date
-     * @param examTakenDate     this is the exam taken date
+     * @param Id
+     * @param student
+     * @param exam
+     * @param examVersion
+     * @param examScore
+     * @param examScheduledDate
+     * @param examTakenDate
      */
-    public ExamResult(Long Id, Long studentId, Long examId,
+    public ExamResult(Long Id, User student, Exam exam,
                       Integer examVersion, String examScore,
                       Date examScheduledDate, Date examTakenDate) {
         this.Id = Id;
-        this.studentId = studentId;
-        this.examId = examId;
+        this.student = student;
+        this.exam = exam;
         this.examVersion = examVersion;
         this.examScore = examScore;
         this.examScheduledDate = examScheduledDate;
@@ -98,13 +115,17 @@ public class ExamResult {
         return Id;
     }
 
-    public Long getStudentId() {
-        return studentId;
-    }
+    public User getStudent() { return student; }
 
-    public Long getExamId() {
-        return examId;
-    }
+    public Exam getExam() { return exam; }
+
+//    public Long getStudentId() {
+//        return studentId;
+//    }
+//
+//    public Long getExamId() {
+//        return examId;
+//    }
 
     public Integer getExamVersion() {
         return examVersion;
@@ -127,13 +148,17 @@ public class ExamResult {
         this.Id = Id;
     }
 
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
+    public void setStudent(User student) { this.student = student; }
 
-    public void setExamId(Long examId) {
-        this.examId = examId;
-    }
+    public void setExam(Exam exam) { this.exam = exam; }
+
+//    public void setStudentId(Long studentId) {
+//        this.studentId = studentId;
+//    }
+//
+//    public void setExamId(Long examId) {
+//        this.examId = examId;
+//    }
 
     public void setExamVersion(Integer examVersion) {
         this.examVersion = examVersion;
@@ -151,6 +176,17 @@ public class ExamResult {
         this.examTakenDate = examTakenDate;
     }
 
+    // JSON properties for API responses
+    @JsonProperty("studentId")
+    public Long getStudentId() {
+        return student != null ? student.getId() : null;
+    }
+
+    @JsonProperty("examId")
+    public Long getExamId() {
+        return exam != null ? exam.getId() : null;
+    }
+
     /**
      * This is the toString override for String result responses
      * @return String output of keys and values
@@ -159,8 +195,8 @@ public class ExamResult {
     public String toString() {
         return "ExamResult{" +
                 "examResultId=" + Id +
-                ", studentId=" + studentId +
-                ", examId=" + examId +
+                ", student=" + student.toString() +
+                ", exam=" + exam.toString() +
                 ", examVersion=" + examVersion +
                 ", examScore='" + examScore +
                 ", examScheduledDate=" + examScheduledDate.toString() +
