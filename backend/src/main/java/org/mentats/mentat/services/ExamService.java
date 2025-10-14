@@ -62,7 +62,7 @@ public class ExamService {
     // Read exams by course ID
     public List<Exam> getExamsByCourseId(Long courseId) {
         validator.validateCourseId(courseId);
-        return examRepository.findByCourseId(courseId);
+        return examRepository.findByCourse_CourseId(courseId);
     }
 
     /**
@@ -116,7 +116,7 @@ public class ExamService {
         if (state == null) {
             throw new ValidationException("Exam state cannot be null");
         }
-        return examRepository.findByCourseIdAndState(courseId, state);
+        return examRepository.findByCourse_CourseIdAndState(courseId, state);
     }
 
     /**
@@ -134,7 +134,7 @@ public class ExamService {
 
         // Update only provided fields (partial update)
         if (examUpdates.getCourseId() != null) {
-            existing.setCourseId(examUpdates.getCourseId());
+            existing.setCourse(examUpdates.getCourse());
         }
         if (examUpdates.getName() != null) {
             existing.setName(examUpdates.getName());
@@ -174,6 +174,6 @@ public class ExamService {
     // Delete exams by course ID
     public void deleteExamsByCourseId(Long courseId) {
         validator.validateCourseId(courseId);
-        examRepository.deleteByCourseId(courseId);
+        examRepository.deleteByCourse_CourseId(courseId);
     }
 }

@@ -14,6 +14,7 @@ import * as d3 from 'd3';
 import { ExamResult } from "@/components/types/exams";
 import Course from "@/components/types/course";
 import { GradeRequirements, GradeStrategy, CourseStrategy, ExamAttempt} from "../types/shared";
+import { Report } from "@/app/reports/types/shared";
 import { emptyStrategy } from "../types/defaults";
 import { updateRecord, reduceRecords } from "../utils/GradeDetermination";
 
@@ -21,7 +22,7 @@ import { updateRecord, reduceRecords } from "../utils/GradeDetermination";
  * Define some types and interfaces for the chart
  */
 interface ProgressChartProps {
-    exams: ExamAttempt[];
+    exams: Report[];
     course: Course;
     currentGrade: String;
 }
@@ -30,7 +31,7 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-    const [bestExams, setBestExams] = useState<ExamAttempt[]>([]);
+    const [bestExams, setBestExams] = useState<Report[]>([]);
     const [ready, setReady] = useState<Boolean>(false);
 
     // Grade Strategy
@@ -187,7 +188,7 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
         const passedExams = bestExams.filter(exam =>
             exam.status === 'passed').length;
         const passedAExams = bestExams.filter(exam =>
-            exam.status === 'passed' && exam.exam_score === 'A').length;
+            exam.status === 'passed' && exam.examScore === 'A').length;
 
         // Scales
         const xScale = d3.scaleBand()

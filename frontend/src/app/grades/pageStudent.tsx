@@ -3,12 +3,14 @@
 import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp, Class, ExamResult, Grade } from '@/components/types/exams';
+import { Grade } from '@/app/grades/util/types';
 import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
-import Modal from "@/components/services/Modal";
-import ExamActionsComponent from "@/components/UI/exams/ExamActions";
 import { RingSpinner } from "@/components/UI/Spinners";
+import {ExamResultExtended} from "@/app/dashboard/util/types";
+import Exam from "@/components/types/exam";
+import ExamResult from "@/components/types/exam_result";
+import Course from "@/components/types/course";
 
 export default function GradesPage() {
     // Session states
@@ -23,6 +25,14 @@ export default function GradesPage() {
     // View data states
     const [grades, setGrades] = useState<Grade[]>([]);
     const [tests, setTests] = useState([]);
+
+    const [examResults, setExamResults] = useState<ExamResult[]>([]);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [examResult, setExamResult] = useState<ExamResultExtended>();
+    const [examsLoading, setExamsLoading] = useState(true);
+    const [examResultsLoading, setExamResultsLoading] = useState(true);
+    const [coursesExamLoading, setCoursesExamLoading] = useState(true);
+
     // const [finalScore, setFinalScore] = useState('');
     const [loading, setLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
@@ -86,6 +96,7 @@ export default function GradesPage() {
             hasFetched.current = true;
 
             try {
+                // await fetchExams();
                 await fetchExams();
                 // avgScore(grades);
             } catch (error) {
@@ -98,6 +109,29 @@ export default function GradesPage() {
         fetchData();
     }, [session, status, hasFetched, refreshTrigger]);
 
+    // // Effects for getting exams after exam results
+    // useEffect(() => {
+    //     if (examResultsLoading) return;
+    //     else if (examResults && examResults.length !== 0) {
+    //         console.log('examResults use effects')
+    //         console.log(`use effects: ${examResultsLoading}`);
+    //         fetchExams();
+    //         // fetchCourses();
+    //         console.log('Fetching exams');
+    //     }
+    // }, [examResults, examResultsLoading]); // Include all dependencies
+
+    // // Effects for getting courses after exams
+    // useEffect(() => {
+    //     if (examsLoading) return;
+    //     if (examResultsLoading) return;
+    //     else if (grades && grades.length !== 0) {
+    //         fetchCourses();
+    //         console.log('Fetching courses')
+    //     }
+    //     else return;
+    // }, [examsLoading, examResultsLoading]);
+
     /**
      * Average Grade Determination
      * Implementation for getting the average of the grades
@@ -108,16 +142,16 @@ export default function GradesPage() {
         let finalGrade;
         // Process each element (async)
         grades.forEach((grade: Grade) => {
-            if (grade.exam_score == 'A') counter += 5;
-            else if (grade.exam_score == 'B') counter += 4;
-            else if (grade.exam_score == 'C') counter += 3;
-            else if (grade.exam_score == 'D') counter += 2;
-            else if (grade.exam_score == 'F') counter += 1;
+            if (grade.examScore == 'A') counter += 5;
+            else if (grade.examScore == 'B') counter += 4;
+            else if (grade.examScore == 'C') counter += 3;
+            else if (grade.examScore == 'D') counter += 2;
+            else if (grade.examScore == 'F') counter += 1;
         });
 
         // Get the average of the scores (filter out null scores)
         let scoredGrades = grades.filter((grade: Grade) =>
-            {return grade.exam_score !== null});
+            {return grade.examScore !== null});
         const avgGrade = Math.round(counter / scoredGrades.length);
         switch (avgGrade) {
             case 5:
@@ -143,6 +177,180 @@ export default function GradesPage() {
      * Fetch Exams
      * Implementation for general API handler
      */
+    // // Fetch exams
+    // const fetchExamResults = async () => {
+    //         // Convert object to array
+    //         let examResults = [];
+    //         // Try wrapper to handle async exceptions
+    //         try {
+    //             // API Handler
+    //             const res = await apiHandler(
+    //                 undefined, // No body for GET request
+    //                 'GET',
+    //                 `api/exam/result/user/${session?.user?.id}`,
+    //                 `${BACKEND_API}`,
+    //                 session?.user?.accessToken || undefined
+    //             );
+    //
+    //             // Handle errors
+    //             if (res instanceof Error || (res && res.error)) {
+    //                 console.error('Error fetching exam results:', res.error);
+    //                 setExamResults([]);
+    //             } else {
+    //                 // If res is an array, set coursesData to res
+    //                 if (Array.isArray(res)) {
+    //                     examResults = res;
+    //                     // If res is an object, set coursesData to the values of the object
+    //                 } else if (res && typeof res === 'object') {
+    //                     // Use Object.entries() to get key-value pairs, then map to values
+    //                     examResults = Object.entries(res)
+    //                         .filter(([key, value]) => value !== undefined && value !== null)
+    //                         .map(([key, value]) => value);
+    //                     // If res is not an array or object, set coursesData to an empty array
+    //                 } else {
+    //                     examResults = [];
+    //                 }
+    //
+    //                 // Filter out invalid entries
+    //                 examResults = examResults.filter(c => c && typeof c === 'object');
+    //
+    //                 console.log('Processed exam results data:', examResults);
+    //                 // Set courses to coursesData
+    //                 setExamResults(examResults);
+    //             }
+    //         } catch (e) {
+    //             // Error fetching courses
+    //             console.error('Error fetching exam results:', e);
+    //             // Set courses to empty array
+    //             setExamResults([]);
+    //         } finally {
+    //             // Set loading to false
+    //             setExamResultsLoading(false);
+    //             // setLoading(false);
+    //             // return coursesData;
+    //         }
+    //     }
+
+    // // Fetch exams
+    // const fetchExams = async () => {
+    //     let examsData: ExamResultExtended[] = [];
+    //
+    //     for (const result of examResults) {
+    //         // let examDataLocal = [];
+    //         // Try wrapper to handle async exceptions
+    //         try {
+    //             // API Handler
+    //             const res = await apiHandler(
+    //                 undefined, // No body for GET request
+    //                 'GET',
+    //                 `api/exam/${result.examId}`,
+    //                 `${BACKEND_API}`,
+    //                 session?.user?.accessToken || undefined
+    //             );
+    //
+    //             // Handle errors
+    //             if (res instanceof Error || (res && res.error)) {
+    //                 console.error('Error fetching exams:', res.error);
+    //                 // setExams([]);
+    //             } else {
+    //
+    //                 // Convert response to Exam interface object
+    //                 const examData: Exam = {
+    //                     examId: res.examId,
+    //                     examName: res.examName,
+    //                     courseId: res.courseId,
+    //                     examDifficulty: res.examDifficulty,
+    //                     examRequired: res.examRequired,
+    //                     examState: res.examState,
+    //                     examDuration: res.examDuration,
+    //                     examOnline: res.examOnline
+    //                 };
+    //
+    //                 // Now combine them into a unique type
+    //                 let examDataLocal = [{
+    //                     ...result,
+    //                     ...examData
+    //                 }];
+    //                 // Push the types to list
+    //                 examsData.push(...examDataLocal);
+    //
+    //                 console.log('Processed exam data:', examDataLocal);
+    //                 // Set courses to coursesData
+    //                 // setExams(examDataLocal);
+    //             }
+    //         } catch (e) {
+    //             // Error fetching courses
+    //             console.error('Error fetching exam:', e);
+    //             // Set courses to empty array
+    //             setGrades([]);
+    //         } finally {
+    //             // Set loading to false
+    //             // setExams(examsData)
+    //             // setExamsLoading(false);
+    //             // setLoading(false);
+    //             // return coursesData;
+    //         }
+    //     }
+    //     setGrades(examsData as Grade[])
+    //     setExamsLoading(false);
+    // }
+
+    // // Fetch courses
+    // const fetchCourses = async () => {
+    //     let coursesData: ExamResultExtended[] = [];
+    //
+    //     for (const result of grades as ExamResultExtended[]) {
+    //         // Try wrapper to handle async exceptions
+    //         try {
+    //             // API Handler
+    //             const res = await apiHandler(
+    //                 undefined, // No body for GET request
+    //                 'GET',
+    //                 `api/course/${result.courseId}`,
+    //                 `${BACKEND_API}`,
+    //                 session?.user?.accessToken || undefined
+    //             );
+    //
+    //             // Handle errors
+    //             if (res instanceof Error || (res && res.error)) {
+    //                 console.error('Error fetching exams:', res.error);
+    //                 // setExams([]);
+    //             } else {
+    //
+    //                 // Convert response to Exam interface object
+    //                 const courseData = {
+    //                     courseName: res.courseName
+    //                 };
+    //
+    //                 // Now combine them into a unique type
+    //                 let courseDataLocal = [{
+    //                     ...result,
+    //                     ...courseData
+    //                 }];
+    //                 // Push the types to list
+    //                 coursesData.push(...courseDataLocal);
+    //
+    //                 console.log('Processed courses data:', courseDataLocal);
+    //                 // Set courses to coursesData
+    //                 // setExams(examDataLocal);
+    //             }
+    //         } catch (e) {
+    //             // Error fetching courses
+    //             console.error('Error fetching courses:', e);
+    //             // Set courses to empty array
+    //             // setExams([]);
+    //         } finally {
+    //             // Set loading to false
+    //             // setExamsLoading(false);
+    //             // setLoading(false);
+    //             // return coursesData;
+    //         }
+    //     }
+    //     setGrades(coursesData as Grade[]);
+    //     setCoursesExamLoading(false);
+    // }
+
+
     async function fetchExams() {
         console.log('Fetching data for student grades page');
         setLoading(true);
@@ -261,7 +469,7 @@ export default function GradesPage() {
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className="rounded-xl shadow-sm border p-6"
+                        className="rounded-xl shadow-sm border p-6 pb-1"
                     >
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-semibold">
@@ -275,7 +483,7 @@ export default function GradesPage() {
                         {/* REMOVE max-height - let content flow naturally */}
                         <div className="pt-1">
                             <AnimatePresence mode="wait">
-                                {filteredGrades.length > 0 ? (
+                                {!loading && filteredGrades.length > 0 ? (
                                     <motion.div
                                         key={`${selectedClass}-${filter}`}
                                         variants={containerVariants}
@@ -285,7 +493,7 @@ export default function GradesPage() {
                                     >
                                         {filteredGrades.map((grade) => (
                                             <GradeCardExtended
-                                                key={grade.exam_id}
+                                                key={grade.examId}
                                                 grade={grade}
                                                 index={0}
                                                 onclick={(e) => loadGradeDetails(grade, e)}

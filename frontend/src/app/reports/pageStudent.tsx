@@ -4,19 +4,19 @@ import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import Course from '@/components/types/course';
+import Exam from "@/components/types/exam";
 import { getGradeStatus } from '@/app/grades/localComponents/GradeCards';
 import { useSession } from "next-auth/react";
-import Modal from "@/components/services/Modal";
-import { GradeChart } from "./localComponents/StatusChart";
+import { StatusChart } from "./localComponents/StatusChart";
 import ProgressChart from "./localComponents/ProgressChart";
 import { GradeRequirements, GradeStrategy, GradeRequirementsJSON,
-    ExamAttempt, Report } from "./types/shared"
+    Report } from "./types/shared"
 import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
-import { Exam, Grade } from "@/components/types/exams";
+import { Grade } from "@/app/grades/util/types";
 import { StrategyProgressBar } from "./localComponents/StrategyProgressBar";
 import GradeDashboard from "@/app/reports/localComponents/GradeDashboard";
 import { TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
-import { PulseSpinner, RingSpinner } from "@/components/UI/Spinners";
+import { RingSpinner } from "@/components/UI/Spinners";
 import GradeDetermination from "@/app/reports/utils/GradeDetermination";
 
 export function StudentReport() {
@@ -82,7 +82,7 @@ export function StudentReport() {
     const filteredGrades = useMemo(() => {
         if (!courseGrades || courseGrades.length === 0) return [];
         if (filter === 'all') return courseGrades;
-        return courseGrades.filter(grade => getGradeStatus(grade) === filter);
+        return courseGrades.filter(grade => getGradeStatus(grade as Grade) === filter);
     }, [courseGrades, filter]);
 
     const filteredCourses = useMemo(() => {
@@ -194,7 +194,7 @@ export function StudentReport() {
         const updateCourseData = async () => {
             // Update course grades
             const reducedGrades = grades.filter(grade =>
-                grade.course_name === courseFilter);
+                grade.courseName === courseFilter);
             setCourseGrades(reducedGrades);
 
             // Fetch exams for this course
@@ -252,11 +252,11 @@ export function StudentReport() {
         let finalGrade;
         // Process each element (async)
         grades.forEach((grade: Report) => {
-            if (grade.exam_score == 'A') counter += 5;
-            else if (grade.exam_score == 'B') counter += 4;
-            else if (grade.exam_score == 'C') counter += 3;
-            else if (grade.exam_score == 'D') counter += 2;
-            else if (grade.exam_score == 'F') counter += 1;
+            if (grade.examScore == 'A') counter += 5;
+            else if (grade.examScore == 'B') counter += 4;
+            else if (grade.examScore == 'C') counter += 3;
+            else if (grade.examScore == 'D') counter += 2;
+            else if (grade.examScore == 'F') counter += 1;
         });
 
         // Get the average of the scores
@@ -339,7 +339,7 @@ export function StudentReport() {
         console.log(examsRaw);
         // Determine courses based on exams
         let courseIdList = examsRaw.reduce((unique: string[], grade) => {
-            const courseId = grade.exam_course_id;
+            const courseId = grade.courseId;
             if (courseId && !unique.includes(courseId.toString())) {
                 unique.push(courseId.toString());
             }
@@ -405,14 +405,14 @@ export function StudentReport() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/exams/course/${course.courseId}`,
+                `api/exam/course/${course.courseId}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
             console.log(res);
 
             if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching exams for course:', res.error);
+                console.error('Error fetching exams for exams:', res.error);
                 // setGrades([]);
                 // setCourseGrades([]);
             } else {
@@ -424,7 +424,7 @@ export function StudentReport() {
                 // setCourseGrades(examsRaw);
             }
         } catch (error) {
-            console.error('Error fetching student grades:', error as string);
+            console.error('Error fetching course exams:', error as string);
         } finally {
             if (examsRaw.length === 0) {
                 setExams([]);
@@ -432,6 +432,8 @@ export function StudentReport() {
                 setExams(examsRaw);
             }
             // setLoading(false);
+            console.log('Fetched Exams');
+            console.log(examsRaw);
             return examsRaw;
         }
     }
@@ -446,326 +448,311 @@ export function StudentReport() {
 
     return (
         <div>
-            {/*{ loading ? (*/}
-            {/*    <div className="flex justify-center items-center min-h-[500px]">*/}
-            {/*        <RingSpinner size={'md'} color={'mentat-gold'} />*/}
-            {/*        <p className="ml-3 text-2xl text-mentat-gold">Loading report details...</p>*/}
-            {/*    </div>*/}
-            {/*) : (*/}
-                <React.Fragment>
-                {/*This is the course header*/}
-                <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
-                    {/*This is the Course Selection button*/}
-                    {session ?
-                        (
-                            <React.Fragment>
-                                <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
-                                <div className="flex gap-2">
-                                    {loading ? (<React.Fragment/>) : filteredCourses.length === 0
-                                        ? (
-                                            <div>
-                                                <p>Student has no courses</p>
+            {/*This is the course header*/}
+            <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
+                {/*This is the Course Selection button*/}
+                {session ?
+                    (
+                        <React.Fragment>
+                            <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
+                            <div className="flex gap-2">
+                                {loading ? (<React.Fragment/>) : filteredCourses.length === 0
+                                    ? (
+                                        <div>
+                                            <p>Student has no courses</p>
+                                        </div>
+                                    )
+                                    : (
+                                        <React.Fragment>
+                                            {courses.map((course) => (
+                                                <button
+                                                    key={course.courseId}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                                     shadow-sm shadow-mentat-gold-700 ${
+                                                        courseFilter === course.courseName
+                                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
+                                                        `}
+                                                    onClick={() => setCourseFilter(course.courseName)}
+                                                >
+                                                    {course.courseName}
+                                                </button>
+                                            ))}
+                                        </React.Fragment>
+                                    )
+                                }
+                            </div>
+                        </React.Fragment>
+                    ) : (<React.Fragment/>)
+                }
+            </div>
+            {/*Main Area for details of page*/}
+            <div className="max-w-5xl mx-auto">
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.6}}
+                >
+                    <h1 className="text-3xl font-bold text-center mb-1">Student Performance Report</h1>
+
+                    {/* Line Divider */}
+                    <hr className="border-crimson border-2 mb-2"></hr>
+                    {/*Overflow wrapper container to manage scrolling*/}
+                    <div className="overflow-y-auto pt-1 scrollbar-hide max-h-[70vh]">
+                        {/*Grade Summary Charts Components*/}
+                        <div className="justify-between items-center mb-6">
+                            <h2 className="text-xl font-semibold text-center mb-1">Grade Analysis Overview</h2>
+                            <div className="flex gap-2">
+                                <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
+                                    {loading ? (
+                                            <div className="flex justify-center items-center pt-6">
+                                                <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                                <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
                                             </div>
-                                        )
-                                        : (
-                                            <React.Fragment>
-                                                {courses.map((course) => (
-                                                    <button
-                                                        key={course.courseId}
-                                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                                                         shadow-sm shadow-mentat-gold-700 ${
-                                                            courseFilter === course.courseName
-                                                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
-                                                            `}
-                                                        onClick={() => setCourseFilter(course.courseName)}
-                                                    >
-                                                        {course.courseName}
-                                                    </button>
-                                                ))}
-                                            </React.Fragment>
-                                        )
-                                    }
-                                </div>
-                            </React.Fragment>
-                        ) : (<React.Fragment/>)
-                    }
-                </div>
-                {/*Main Area for details of page*/}
-                <div className="max-w-5xl mx-auto">
-                    <motion.div
-                        initial={{opacity: 0, y: 20}}
-                        animate={{opacity: 1, y: 0}}
-                        transition={{duration: 0.6}}
-                    >
-                        <h1 className="text-3xl font-bold text-center mb-1">Student Performance Report</h1>
-
-                        {/* Line Divider */}
-                        <hr className="border-crimson border-2 mb-2"></hr>
-                        {/*Overflow wrapper container to manage scrolling*/}
-                        <div className="overflow-y-auto pt-1 scrollbar-hide max-h-[70vh]">
-                            {/*Grade Summary Charts Components*/}
-                            <div className="justify-between items-center mb-6">
-                                <h2 className="text-xl font-semibold text-center mb-1">Grade Analysis Overview</h2>
-                                <div className="flex gap-2">
-                                    <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
-                                        {loading ? (
-                                                <div className="flex justify-center items-center pt-6">
-                                                    <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                                    <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
-                                                </div>
-                                                // <motion.div
-                                                //     initial={{opacity: 0}}
-                                                //     animate={{opacity: 1}}
-                                                //     className="text-center py-12"
-                                                // >
-                                                //     Generating...
-                                                // </motion.div>
-                                            ) :
-                                            (
-                                                <motion.div
-                                                    // key={`${selectedClass}-${filter}`}
-                                                    // variants={containerVariants}
-                                                    initial="hidden"
-                                                    animate="visible"
-                                                    className="space-y-2 mb-2"
-                                                >
-                                                    <GradeChart
-                                                        key={`grade-chart-${courseFilter}-
-                                                                    ${filteredGrades.length}`}
-                                                        data={filteredGrades}
-                                                    />
-                                                </motion.div>
-                                            )}
-                                    </div>
-                                    <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
-                                        {loading ? (
-                                                <div className="flex justify-center items-center pt-6">
-                                                    <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                                    <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
-                                                </div>
-                                                // <motion.div
-                                                //     initial={{opacity: 0}}
-                                                //     animate={{opacity: 1}}
-                                                //     className="text-center py-12"
-                                                // >
-                                                //     Generating...
-                                                // </motion.div>
-                                            ) :
-                                            (
-                                                <motion.div
-                                                    // key={`${selectedClass}-${filter}`}
-                                                    // variants={containerVariants}
-                                                    initial="hidden"
-                                                    animate="visible"
-                                                    className="space-y-2 mb-2"
-                                                >
-                                                    <ProgressChart
-                                                        key={`progress-chart-${courseFilter}`}
-                                                        exams={filteredGrades as ExamAttempt[]}
-                                                        course={filteredCourses[0]}
-                                                        currentGrade={currentGrade}
-                                                    />
-                                                </motion.div>
-                                            )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/*This is the grade statistics dashboard*/}
-                            { !loading && filteredGrades.length != 0
-                                && currentGrade && (
-                                <div className="justify-between items-center mb-6">
-                                    <GradeDashboard
-                                        grades={filteredGrades}
-                                        score={currentGrade}
-                                        isStrategy={!!filteredGradeStrategy?.strategy}
-                                    />
-                                </div>)}
-
-                            {/*This is the Exam Details According to Grade Strategy*/}
-                            <div className="flex justify-between items-center">
-                                <h2 className="text-xl font-semibold">Grade Selection Filter</h2>
-                                <div className="flex gap-2">
-                                    <button
-                                        className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
-                                                 shadow-sm shadow-mentat-gold-700 ${
-                                            gradeFilter === 'A'
-                                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                        onClick={() => setGradeFilter('A')}
-                                    >
-                                        A
-                                    </button>
-                                    <button
-                                        className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
-                                                 shadow-sm shadow-mentat-gold-700 ${
-                                            gradeFilter === 'B'
-                                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                        onClick={() => setGradeFilter('B')}
-                                    >
-                                        B
-                                    </button>
-                                    <button
-                                        className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
-                                                 shadow-sm shadow-mentat-gold-700 ${
-                                            gradeFilter === 'C'
-                                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                        onClick={() => setGradeFilter('C')}
-                                    >
-                                        C
-                                    </button>
-                                    <button
-                                        className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
-                                                 shadow-sm shadow-mentat-gold-700 ${
-                                            gradeFilter === 'D'
-                                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                        onClick={() => setGradeFilter('D')}
-                                    >
-                                        D
-                                    </button>
-                                    <button
-                                        className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
-                                                 shadow-sm shadow-mentat-gold-700 ${
-                                            gradeFilter === 'F'
-                                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                        onClick={() => setGradeFilter('F')}
-                                    >
-                                        F
-                                    </button>
-                                    {/*<button*/}
-                                    {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
-                                    {/*    onClick={() => setFilter('pending')}*/}
-                                    {/*>*/}
-                                    {/*    Pending*/}
-                                    {/*</button>*/}
-                                </div>
-                            </div>
-                            <hr className="border-crimson border-1 my-4"></hr>
-
-                            {/*This is the grade progress bar*/}
-                            { !loading && filteredGrades && filteredGradeStrategy && (
-                                <div className="justify-between items-center mb-6">
-                                    <StrategyProgressBar
-                                        grades={filteredGrades}
-                                        strategy={filteredGradeStrategy?.strategy}
-                                        required={filteredGradeStrategy?.required}
-                                        optional={filteredGradeStrategy?.optional}
-                                    />
-                                </div>)
-                            }
-
-                            {/*This is the revision progress bars*/}
-                            { !loading && filteredGrades && (
-                                <div className="justify-between items-center mb-6">
-                                    <TopicBreakdown
-                                        grades={filteredGrades}
-                                    />
-                                </div>)
-                            }
-
-                            {/*This is the Exam Table*/}
-                            {loading ? (
-                                <div className="flex justify-center items-center pt-6">
-                                    <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                    <p className="ml-3 text-md text-mentat-gold">Loading Grade Strategy Details...</p>
-                                </div>
-                            ) : !filteredGradeStrategy ? (
-                                <div className="text-center py-6
-                                            rounded-xl shadow-sm border p-6"
-                                >
-                                    Course has no grade strategy
-                                </div>
-                            ) : (
-                                <motion.div
-                                    variants={containerVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                    className="rounded-xl shadow-sm border p-6 pb-3"
-                                >
-                                    <div className="flex items-center justify-between text-right">
-                                        <h2 className="text-xl font-semibold">
-                                            Grade {gradeFilter} Course Requirements
-                                        </h2>
-                                        {!filteredGradeStrategy ? (
-                                            <React.Fragment/>
-                                        ) : (
-                                            <span className="text-sm text-mentat-gold/80 italic">
-                                                  {filteredGradeStrategy.strategy.total} exams required with score greater than C <br/>
-                                                {filteredGradeStrategy.strategy.requiredA} exams with an A score required
-                                                </span>
+                                        ) :
+                                        (
+                                            <motion.div
+                                                // key={`${selectedClass}-${filter}`}
+                                                // variants={containerVariants}
+                                                initial="hidden"
+                                                animate="visible"
+                                                className="space-y-2 mb-2"
+                                            >
+                                                <StatusChart
+                                                    key={`grade-chart-${courseFilter}-
+                                                                ${filteredGrades.length}`}
+                                                    data={filteredGrades}
+                                                />
+                                            </motion.div>
                                         )}
-                                    </div>
-                                    {/*New Grade Strategy Chart*/}
-                                    <div className="pt-1 mt-2 bg-card-color shadow-md shadow-crimson-700">
-                                        {!filteredGradeStrategy && !filteredCourses
-                                        && !exams && !courseGrades ? (
-                                            <React.Fragment/>
-                                        ) : (
-                                            <AnimatePresence mode="wait">
-                                                <ExamTable
-                                                    grades={courseGrades}
-                                                    gradeStrategy={filteredGradeStrategy.strategy}
-                                                    required={filteredGradeStrategy.required}
-                                                    optional={filteredGradeStrategy.optional}
-                                                    exams={exams}
+                                </div>
+                                <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
+                                    {loading ? (
+                                            <div className="flex justify-center items-center pt-6">
+                                                <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                                <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
+                                            </div>
+                                            // <motion.div
+                                            //     initial={{opacity: 0}}
+                                            //     animate={{opacity: 1}}
+                                            //     className="text-center py-12"
+                                            // >
+                                            //     Generating...
+                                            // </motion.div>
+                                        ) :
+                                        (
+                                            <motion.div
+                                                // key={`${selectedClass}-${filter}`}
+                                                // variants={containerVariants}
+                                                initial="hidden"
+                                                animate="visible"
+                                                className="space-y-2 mb-2"
+                                            >
+                                                <ProgressChart
+                                                    key={`progress-chart-${courseFilter}`}
+                                                    exams={filteredGrades}
                                                     course={filteredCourses[0]}
                                                     currentGrade={currentGrade}
                                                 />
-                                            </AnimatePresence>
+                                            </motion.div>
                                         )}
-                                    </div>
-
-                                    {/*<div className="max-h-[600px] pt-1">*/}
-                                    {/*    <AnimatePresence mode="wait">*/}
-                                    {/*        {filteredGrades.length > 0 ? (*/}
-                                    {/*            <motion.div*/}
-                                    {/*                key={`${selectedClass}-${filter}`}*/}
-                                    {/*                variants={containerVariants}*/}
-                                    {/*                initial="hidden"*/}
-                                    {/*                animate="visible"*/}
-                                    {/*                className="space-y-2 mb-2"*/}
-                                    {/*            >*/}
-                                    {/*                {filteredGrades.map((grade) => (*/}
-                                    {/*                    <GradeCardExtended*/}
-                                    {/*                        key={grade.exam_id}*/}
-                                    {/*                        grade={grade}*/}
-                                    {/*                        index={0}*/}
-                                    {/*                        onclick={(e) => loadGradeDetails(grade, e)}*/}
-                                    {/*                    />*/}
-                                    {/*                ))}*/}
-                                    {/*            </motion.div>*/}
-                                    {/*        ) : loading === true ? (*/}
-                                    {/*            <motion.div*/}
-                                    {/*                variants={containerVariants}*/}
-                                    {/*                initial={{ opacity: 0 }}*/}
-                                    {/*                animate={{ opacity: 1 }}*/}
-                                    {/*                className="text-center py-12"*/}
-                                    {/*            >*/}
-                                    {/*                Loading Grades...*/}
-                                    {/*            </motion.div>*/}
-                                    {/*        ) : (*/}
-                                    {/*            <motion.div*/}
-                                    {/*                variants={containerVariants}*/}
-                                    {/*                initial={{ opacity: 0 }}*/}
-                                    {/*                animate={{ opacity: 1 }}*/}
-                                    {/*                className="text-center py-12"*/}
-                                    {/*            >*/}
-                                    {/*                No grades found for the selected filters*/}
-                                    {/*            </motion.div>*/}
-                                    {/*        )}*/}
-                                    {/*    </AnimatePresence>*/}
-                                    {/*</div>*/}
-                                </motion.div>
-                            )}
+                                </div>
+                            </div>
                         </div>
-                    </motion.div>
-                </div>
-                </React.Fragment>
+
+                        {/*This is the grade statistics dashboard*/}
+                        { !loading && filteredGrades.length != 0
+                            && currentGrade && (
+                            <div className="justify-between items-center mb-6">
+                                <GradeDashboard
+                                    grades={filteredGrades}
+                                    score={currentGrade}
+                                    isStrategy={!!filteredGradeStrategy?.strategy}
+                                />
+                            </div>)}
+
+                        {/*This is the Exam Details According to Grade Strategy*/}
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold">Grade Selection Filter</h2>
+                            <div className="flex gap-2">
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                             shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'A'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('A')}
+                                >
+                                    A
+                                </button>
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                             shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'B'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('B')}
+                                >
+                                    B
+                                </button>
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                             shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'C'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('C')}
+                                >
+                                    C
+                                </button>
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                             shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'D'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('D')}
+                                >
+                                    D
+                                </button>
+                                <button
+                                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-colors
+                                             shadow-sm shadow-mentat-gold-700 ${
+                                        gradeFilter === 'F'
+                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
+                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
+                                    onClick={() => setGradeFilter('F')}
+                                >
+                                    F
+                                </button>
+                                {/*<button*/}
+                                {/*    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-crimson text-mentat-gold-700' : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}*/}
+                                {/*    onClick={() => setFilter('pending')}*/}
+                                {/*>*/}
+                                {/*    Pending*/}
+                                {/*</button>*/}
+                            </div>
+                        </div>
+                        <hr className="border-crimson border-1 my-4"></hr>
+
+                        {/*This is the grade progress bar*/}
+                        { !loading && filteredGrades && filteredGradeStrategy && (
+                            <div className="justify-between items-center mb-6">
+                                <StrategyProgressBar
+                                    grades={filteredGrades}
+                                    strategy={filteredGradeStrategy?.strategy}
+                                    required={filteredGradeStrategy?.required}
+                                    optional={filteredGradeStrategy?.optional}
+                                />
+                            </div>)
+                        }
+
+                        {/*This is the revision progress bars*/}
+                        { !loading && filteredGrades && (
+                            <div className="justify-between items-center mb-6">
+                                <TopicBreakdown
+                                    grades={filteredGrades}
+                                />
+                            </div>)
+                        }
+
+                        {/*This is the Exam Table*/}
+                        {loading ? (
+                            <div className="flex justify-center items-center pt-6">
+                                <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                <p className="ml-3 text-md text-mentat-gold">Loading Grade Strategy Details...</p>
+                            </div>
+                        ) : !filteredGradeStrategy ? (
+                            <div className="text-center py-6
+                                        rounded-xl shadow-sm border p-6"
+                            >
+                                Course has no grade strategy
+                            </div>
+                        ) : (
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="rounded-xl shadow-sm border p-6 pb-3"
+                            >
+                                <div className="flex items-center justify-between text-right">
+                                    <h2 className="text-xl font-semibold">
+                                        Grade {gradeFilter} Course Requirements
+                                    </h2>
+                                    {!filteredGradeStrategy ? (
+                                        <React.Fragment/>
+                                    ) : (
+                                        <span className="text-sm text-mentat-gold/80 italic">
+                                              {filteredGradeStrategy.strategy.total} exams required with score greater than C <br/>
+                                            {filteredGradeStrategy.strategy.requiredA} exams with an A score required
+                                            </span>
+                                    )}
+                                </div>
+                                {/*New Grade Strategy Chart*/}
+                                <div className="pt-1 mt-2 bg-card-color shadow-md shadow-crimson-700">
+                                    {!filteredGradeStrategy && !filteredCourses
+                                    && !exams && !courseGrades ? (
+                                        <React.Fragment/>
+                                    ) : (
+                                        <AnimatePresence mode="wait">
+                                            <ExamTable
+                                                grades={courseGrades}
+                                                gradeStrategy={filteredGradeStrategy.strategy}
+                                                required={filteredGradeStrategy.required}
+                                                optional={filteredGradeStrategy.optional}
+                                                exams={exams}
+                                                course={filteredCourses[0]}
+                                                currentGrade={currentGrade}
+                                            />
+                                        </AnimatePresence>
+                                    )}
+                                </div>
+
+                                {/*<div className="max-h-[600px] pt-1">*/}
+                                {/*    <AnimatePresence mode="wait">*/}
+                                {/*        {filteredGrades.length > 0 ? (*/}
+                                {/*            <motion.div*/}
+                                {/*                key={`${selectedClass}-${filter}`}*/}
+                                {/*                variants={containerVariants}*/}
+                                {/*                initial="hidden"*/}
+                                {/*                animate="visible"*/}
+                                {/*                className="space-y-2 mb-2"*/}
+                                {/*            >*/}
+                                {/*                {filteredGrades.map((grade) => (*/}
+                                {/*                    <GradeCardExtended*/}
+                                {/*                        key={grade.exam_id}*/}
+                                {/*                        grade={grade}*/}
+                                {/*                        index={0}*/}
+                                {/*                        onclick={(e) => loadGradeDetails(grade, e)}*/}
+                                {/*                    />*/}
+                                {/*                ))}*/}
+                                {/*            </motion.div>*/}
+                                {/*        ) : loading === true ? (*/}
+                                {/*            <motion.div*/}
+                                {/*                variants={containerVariants}*/}
+                                {/*                initial={{ opacity: 0 }}*/}
+                                {/*                animate={{ opacity: 1 }}*/}
+                                {/*                className="text-center py-12"*/}
+                                {/*            >*/}
+                                {/*                Loading Grades...*/}
+                                {/*            </motion.div>*/}
+                                {/*        ) : (*/}
+                                {/*            <motion.div*/}
+                                {/*                variants={containerVariants}*/}
+                                {/*                initial={{ opacity: 0 }}*/}
+                                {/*                animate={{ opacity: 1 }}*/}
+                                {/*                className="text-center py-12"*/}
+                                {/*            >*/}
+                                {/*                No grades found for the selected filters*/}
+                                {/*            </motion.div>*/}
+                                {/*        )}*/}
+                                {/*    </AnimatePresence>*/}
+                                {/*</div>*/}
+                            </motion.div>
+                        )}
+                    </div>
+                </motion.div>
+            </div>
 
 
             {/*/!* Exam Action Modal *!/*/}

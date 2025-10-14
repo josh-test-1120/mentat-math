@@ -9,7 +9,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Report, GradeStrategy, GradeRequirements } from "../types/shared";
 import { StarIcon } from "lucide-react";
-import {Exam, Grade} from "@/components/types/exams";
+import { Grade } from "@/components/types/exams";
+import Exam from "@/components/types/exam";
 import Course from "@/components/types/course";
 import { examRequiredDefault, examOptionalDefault } from '../types/defaults'
 
@@ -30,7 +31,7 @@ export const ExamTable: React.FC<ReportTableProps> =
     // console.log(`This is the current grade: ${currentGrade}`);
 
     // Create a map of existing exams for easy lookup
-    const examMap = new Map(grades.map(grade => [grade.exam_name, grade]));
+    const examMap = new Map(grades.map(grade => [grade.examName, grade]));
 
     // De-duplicate and reduce the optional exams array
     let reducer = gradeStrategy.allOptional ? 2 : 1;
@@ -38,15 +39,15 @@ export const ExamTable: React.FC<ReportTableProps> =
 
     // Let's determine which optional ones a student has taken
     const optionalTaken = grades
-        .filter(item => optional.some(name => name === item.exam_name))
-        .map(item => item.exam_name);
+        .filter(item => optional.some(name => name === item.examName))
+        .map(item => item.examName);
     // console.log('Optional Taken');
     // console.log(optionalTaken);
 
     // Now let's append remaining optional exams, since you have not scheduled any yet
     const remainingOptionalExams = optional.filter(item => {
         const isNotInStrategy = !gradeStrategy.optional.includes(item);
-        const isNotTaken = !grades.some(grade => grade.exam_name === item);
+        const isNotTaken = !grades.some(grade => grade.examName === item);
         return isNotInStrategy && isNotTaken;
     })
     // console.log('This is the de-duplicated and reduced optional exams');
@@ -68,30 +69,29 @@ export const ExamTable: React.FC<ReportTableProps> =
         let passed = grades.filter((grade) =>
             grade.status === "passed").length;
         let passedAs = grades.filter((grade) =>
-            grade.exam_score === "A").length;
+            grade.examScore === "A").length;
         // Return the determination based on grade strategy number requirements
         if (passed >= gradeStrategy.total && passedAs >= gradeStrategy.requiredA) return 'Passed';
         else return 'Not Yet';
     }
 
-    // console.log('These are the passes grades');
-    // console.log(grades);
-    // console.log(exams);
+    console.log('These are the passes grades');
+    console.log(grades);
+    console.log(exams);
 
     // Let's create the required exams list
     const requiredExams = required.map(item1 => {
         const matchingExam = exams.find(item =>
             item.examName === item1);
         const matchingExamResult = grades.find(item =>
-            item.exam_id === matchingExam?.examId);
-        if (matchingExam)
+            item.examId === matchingExam?.examId);
+        if (matchingExamResult)
             return {
-                item1,
                 ...matchingExam,
                 ...matchingExamResult
             } as Report;
         // This is a generic layout
-        else return examRequiredDefault(item1,
+        else return examRequiredDefault(item1.toString(),
             course.courseName) as Report;
     });
     console.log('This is the required exams array');
@@ -102,14 +102,13 @@ export const ExamTable: React.FC<ReportTableProps> =
         const matchingExam = exams.find(item =>
             item.examName === item1);
         const matchingExamResult = grades.find(item =>
-            item.exam_id === matchingExam?.examId);
-        if (matchingExam)
+            item.examId === matchingExam?.examId);
+        if (matchingExamResult)
             return {
-                item1,
                 ...matchingExam,
                 ...matchingExamResult
             } as Report;
-        else return examOptionalDefault(item1,
+        else return examOptionalDefault(item1.toString(),
             course.courseName, gradeStrategy) as Report;
     });
     console.log('This is the optional exams array');
@@ -117,15 +116,15 @@ export const ExamTable: React.FC<ReportTableProps> =
 
     const passedRequiredAndOptional = grades.filter(grade =>
         grade.status === 'passed' &&
-        (requiredExams.some(req => req.exam_name === grade.exam_name) ||
-            optionalExams.some(opt => opt.exam_name === grade.exam_name))
+        (requiredExams.some(req => req.examName === grade.examName) ||
+            optionalExams.some(opt => opt.examName === grade.examName))
     ).length;
 
     const requiredCount = requiredExams.filter(exam =>
-        exam.exam_score !== undefined && exam.exam_score
+        exam.examScore !== undefined && exam.examScore
         && exam.status === 'passed').length;
     const optionalCount = optionalExams.filter(exam =>
-        exam.exam_score !== undefined && exam.exam_score
+        exam.examScore !== undefined && exam.examScore
         && exam.status === 'passed').length;
 
     const ExamRow: React.FC<{ grade: Report; index: number; isOptional?: boolean }> =
@@ -149,7 +148,7 @@ export const ExamTable: React.FC<ReportTableProps> =
             {/* Exam Name Column */}
             <div className="w-1/4 px-4 py-3 border-r border-gray-300 font-medium">
                 {grade.examName}
-                {grade.exam_score === undefined && !grade.exam_score && (
+                {grade.examScore === undefined && !grade.examScore && (
                     <span className="ml-2 text-xs italic text-mentat-gold-700">
                         (Not attempted)
                     </span>
@@ -220,7 +219,7 @@ export const ExamTable: React.FC<ReportTableProps> =
                     <div className="text-sm">
                         {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
                         {/*    text-mentat-gold-700 mb-1">Status</span>*/}
-                        { grade.exam_score !== undefined && grade.exam_score ? (
+                        { grade.examScore !== undefined && grade.examScore ? (
                             <span className="text-green-600 font-medium">Completed</span>
                         ) : (
                             <span className="text-orange-600 font-medium">Not Started</span>
@@ -234,26 +233,26 @@ export const ExamTable: React.FC<ReportTableProps> =
                 <div className="text-sm">
                     {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
                     {/*    text-mentat-gold-700 mb-1">Score</span>*/}
-                    {grade.exam_score !== undefined && grade.exam_score ?
-                    grade.exam_score === 'A' ? (
+                    {grade.examScore !== undefined && grade.examScore ?
+                    grade.examScore === 'A' ? (
                         <span className="font-medium text-lg text-green-700">
-                            {grade.exam_score}
+                            {grade.examScore}
                         </span>
-                    ) : grade.exam_score === 'B' ? (
+                    ) : grade.examScore === 'B' ? (
                         <span className="font-medium text-lg text-blue-700">
-                            {grade.exam_score}
+                            {grade.examScore}
                         </span>
-                    ) : grade.exam_score === 'C' ? (
+                    ) : grade.examScore === 'C' ? (
                         <span className="font-medium text-lg text-mentat-gold">
-                            {grade.exam_score}
+                            {grade.examScore}
                         </span>
-                    ) : grade.exam_score === 'D' ? (
+                    ) : grade.examScore === 'D' ? (
                         <span className="font-medium text-lg text-orange-600">
-                            {grade.exam_score}
+                            {grade.examScore}
                         </span>
                     ) : (
                         <span className="font-medium text-lg text-red-600">
-                            {grade.exam_score}
+                            {grade.examScore}
                         </span>
                     ) : (
                         <span className="text-red-500 font-medium">No Grade</span>

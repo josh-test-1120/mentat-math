@@ -27,8 +27,8 @@ export default function GradeDashboard({ grades, score, isStrategy=false }: Grad
         if (reduced.length === 0) {
             console.log('passrate: No status was assigned to grades');
             console.log('passrate: Reverting to manual checks');
-            reduced = grades.filter(grade => grade.exam_score === 'A'
-                || grade.exam_score === 'B' || grade.exam_score === 'C');
+            reduced = grades.filter(grade => grade.examScore === 'A'
+                || grade.examScore === 'B' || grade.examScore === 'C');
         }
         console.log(`This is the reduced exams that were passed: ${reduced.length}`);
         // Return the percentage
@@ -40,12 +40,12 @@ export default function GradeDashboard({ grades, score, isStrategy=false }: Grad
         if (!grades || grades.length === 0) return 'F';
 
         const scoreValues: Record<string, number> = { 'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0 };
-        const validGrades = grades.filter(grade => grade.exam_score);
+        const validGrades = grades.filter(grade => grade.examScore);
 
         if (validGrades.length === 0) return 'F';
 
         const maxScoreValue = Math.max(...validGrades.map(grade => {
-            const score = grade.exam_score;
+            const score = grade.examScore;
             return score && score in scoreValues ? scoreValues[score] : 0;
         }));
 

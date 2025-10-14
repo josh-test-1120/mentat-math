@@ -79,7 +79,7 @@ export default function Modal({ isOpen, onClose, title, isFullScreen = false, ch
             <div className="relative bg-mentat-black text-mentat-gold border border-mentat-gold/20
             rounded-xl shadow-2xl w-11/12 h-5/6 flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b
+                <div className="flex items-center justify-between p-4 border-b
                 border-mentat-gold/20 mx-4 flex-shrink-0">
                     <h2 className="text-2xl font-semibold">{title}</h2>
                     <button

@@ -1,5 +1,6 @@
 package org.mentats.mentat.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
  * @author Joshua Summers
  */
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Repository
 @Table(name = "course",
         uniqueConstraints = {

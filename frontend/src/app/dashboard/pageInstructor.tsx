@@ -87,36 +87,6 @@ export default function InstructorCoursesClient() {
         fetchInstructorCourses();
     }, [fetchInstructorCourses]);
 
-    // if (status !== 'authenticated') {
-    //     return (
-    //         <div className="p-6 text-center">
-    //             <div className="text-mentat-gold-700">Please sign in to view your courses.</div>
-    //         </div>
-    //     );
-    // }
-    //
-    // if (loading) {
-    //     return (
-    //         <div className="p-6 text-center">
-    //             <div className="text-mentat-gold-700">Loading your courses...</div>
-    //         </div>
-    //     );
-    // }
-    //
-    // if (error) {
-    //     return (
-    //         <div className="p-6 text-center">
-    //             <div className="text-red-600">Error: {error}</div>
-    //             <button
-    //                 onClick={() => window.location.reload()}
-    //                 className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    //             >
-    //                 Retry
-    //             </button>
-    //         </div>
-    //     );
-    // }
-
     const handleCreateCourse = () => {
         setIsCreateModalOpen(true);
     };
