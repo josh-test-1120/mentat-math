@@ -2,7 +2,6 @@
 
 import React, {useEffect, useState} from 'react';
 import Link from "next/link";
-
 import {useSession} from "next-auth/react";
 
 /**
@@ -422,6 +421,7 @@ const HamburgerSvgComponent = (props : any) => (
 export default function Sidebar() {
     // State to manage the open/close state of the sidebar
     const [isOpen, setIsOpen] = useState(true);
+    
     // Date and Time
     const [currDate, setCurrDate] = useState('');
     const [currTime, setCurrTime] = useState('');
@@ -453,105 +453,29 @@ export default function Sidebar() {
     }, [session, status]);
 
     /**
-     * Collapse and Uncollapse Toggle event
-     * @param e DOM event
+     * Toggle sidebar open/closed state
      */
-    const sidebarHandler = async (e : any) => {
-        e.preventDefault();
-        // console.log('Sidebar Handler');
-
-        // Get the elements to modify
-        var parent = document.getElementById('sidebar');
-        var middle = document.getElementById('sidebar-middle');
-        var bottom = document.getElementById('sidebar-bottom');
-        var hamburgerSlider = document.getElementById('hgSlider');
-        var hamburgerSliderBlock = document.getElementById('hgslider-block');
-        var hamburgerSliderParent = document.getElementById('hgslider-parent');
-        var sidebarBox = document.getElementById('sidebar-box');
-        var mainBox = document.getElementById('mainbar-box');
-
-        // Only handle if elements exists
-        if (parent != null && middle != null && bottom != null && hamburgerSlider != null
-                && hamburgerSliderBlock != null && hamburgerSliderParent != null
-                && sidebarBox != null && mainBox != null) {
-            // Determine current sidebar status
-            if (isOpen) {
-                setIsOpen(false);
-                // Main sidebar collapse
-                // Adjust the sidebar colors
-                parent.classList.remove("bg-gradient-to-r");
-                parent.classList.remove("from-crimson");
-                parent.classList.remove("via-zinc-900");
-                parent.classList.remove("to-mentat-black");
-                parent.classList.add("bg-mentat-black")
-                // hamburgerSliderBlock.classList.remove("bg-gradient-to-r");
-                // hamburgerSliderBlock.classList.remove("from-crimson");
-                // hamburgerSliderBlock.classList.remove("via-zinc-900");
-                // hamburgerSliderBlock.classList.remove("to-neutral-950");
-                hamburgerSliderBlock.classList.add("bg-mentat-black");
-
-                // Shift the hamburger into absolute position
-                hamburgerSliderParent.classList.add("absolute")
-                hamburgerSliderParent.classList.add("bg-mentat-black");
-
-                // Bottom element visibility
-                bottom.classList.add("invisible")
-
-                // Middle element visibility
-                middle.classList.add("invisible");
-
-                // Update rounded status
-                hamburgerSliderBlock.classList.add("rounded-xl");
-                hamburgerSliderParent.classList.add("rounded-xl");
-
-                // Update the box sizes
-                sidebarBox.classList.remove("w-64")
-                sidebarBox.classList.add("w-4")
-                sidebarBox.classList.add("h-4")
-                mainBox.classList.remove("w-auto")
-                mainBox.classList.add("w-full")
-            } else {
-                setIsOpen(true);
-                // Main sidebar uncollapse
-                // Adjust the sidebar colors
-                parent.classList.remove("bg-mentat-black")
-                parent.classList.add("bg-gradient-to-br");
-                parent.classList.add("from-crimson");
-                parent.classList.add("via-zinc-900");
-                parent.classList.add("to-mentat-black");
-                hamburgerSliderBlock.classList.remove("bg-mentat-black");
-
-                // Normalize the hamburger
-                hamburgerSliderParent.classList.remove("absolute")
-                hamburgerSliderParent.classList.remove("bg-mentat-black");
-
-                // Bottom element visibility
-                bottom.classList.remove("invisible")
-
-                // Middle element visibility
-                middle.classList.remove("invisible");
-
-                // Update the rounded corners
-                hamburgerSliderBlock.classList.remove("rounded-xl");
-                hamburgerSliderParent.classList.remove("rounded-xl");
-
-                // Update the box sizes for sidebar and mainbox
-                sidebarBox.classList.remove("w-4")
-                sidebarBox.classList.remove("h-4")
-                sidebarBox.classList.add("w-64")
-                mainBox.classList.remove("w-full")
-                mainBox.classList.add("w-auto")
-            }
+    const toggleSidebar = () => {
+        const newIsOpen = !isOpen;
+        setIsOpen(newIsOpen);
+        
+        // Update the sidebar container width
+        const sidebarBox = document.getElementById('sidebar-box');
+        if (sidebarBox) {
+            sidebarBox.className = `flex-shrink-0 transition-all duration-300 ease-in-out ${
+                newIsOpen ? 'w-64' : 'w-16'
+            }`;
         }
     }
 
     return (
         <aside 
             id="sidebar" 
-            // className="h-full w-full flex flex-col transition-[width] ease-in-out delay-50 bg-crimson"
-            className="h-full w-full flex flex-col transition-[width]
-                    ease-in-out delay-50 bg-gradient-to-br
-                    from-crimson  via-zinc-900 to-mentat-black"
+            className={`h-full w-full flex flex-col transition-all duration-300 ease-in-out ${
+                isOpen 
+                    ? 'bg-gradient-to-br from-crimson via-zinc-900 to-mentat-black' 
+                    : 'bg-mentat-black'
+            }`}
             aria-label="Sidenav"
         >
             {/* Put back the entire hgslider-block as this is REQUIRED for collapse animations*/}
@@ -559,9 +483,9 @@ export default function Sidebar() {
                 {/* Floating slider box */}
                 <div
                     id="hgslider-block"
-                    className={`
-                      z-10 inline-block w-full rounded-lg
-                      transition-all duration-300 ease-in-out`}
+                    className={`z-10 inline-block w-full transition-all duration-300 ease-in-out ${
+                        isOpen ? 'rounded-lg' : 'rounded-xl bg-mentat-black'
+                    }`}
                 >
                     <div
                         id="hgSlider"
@@ -574,19 +498,22 @@ export default function Sidebar() {
                         &nbsp;
                     </div>
 
-                    <div id="hgslider-parent" className="inline-block">
-                        <a
-                            href="#"
-                            onClick={sidebarHandler}
-                            className="group flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-crimson-700 group"
+                    <div 
+                        id="hgslider-parent" 
+                        className={`inline-block transition-all duration-300 ease-in-out ${
+                            isOpen ? '' : 'absolute bg-mentat-black rounded-xl'
+                        }`}
+                    >
+                        <button
+                            onClick={toggleSidebar}
+                            className="group flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-crimson-700"
                         >
                             <HamburgerSvgComponent
-                                className={`
-                                    w-4 h-4 text-white transition-all duration-150 group-hover:bg-crimson-700
-                                    ${isOpen ? 'zinc-900 rotate-0' : 'bg-mentat-black rotate-180'}
-                                  `}
+                                className={`w-4 h-4 text-white transition-all duration-150 group-hover:bg-crimson-700 ${
+                                    isOpen ? 'rotate-0' : 'rotate-180'
+                                }`}
                             />
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -594,7 +521,9 @@ export default function Sidebar() {
             {/* Menu selections and details */}
             <div 
                 id="sidebar-middle" 
-                className="flex-1 overflow-y-auto pb-5 px-3"
+                className={`flex-1 overflow-y-auto pb-5 px-3 transition-all duration-300 ease-in-out ${
+                    isOpen ? 'opacity-100' : 'opacity-0 invisible'
+                }`}
             >
                 <ul className="space-y-2">
                     <li>
@@ -714,8 +643,12 @@ export default function Sidebar() {
                 </div>
             </div>
             {/*Footer Bar*/}
-            <div id="sidebar-bottom"
-                 className="hidden bottom-0 left-0 justify-center p-1 rounded-md space-x-4 w-full lg:flex bg-mentat-gold dark:bg-mentat-gold-700 z-20">
+            <div 
+                id="sidebar-bottom"
+                className={`bottom-0 left-0 justify-center p-1 rounded-md space-x-4 w-full lg:flex bg-mentat-gold dark:bg-mentat-gold-700 z-20 transition-all duration-300 ease-in-out ${
+                    isOpen ? 'opacity-100' : 'opacity-0 invisible'
+                }`}
+            >
                 <p className="text-xs text-center">Copyright @2025</p>
             </div>
 
