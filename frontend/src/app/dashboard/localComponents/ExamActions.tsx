@@ -201,7 +201,7 @@ export default function ExamActionsComponent({ examResult,
                     </button>
                     <button
                         className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-bold
-                            py-2 px-4 rounded-md"
+                            py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
                         type="submit"
                         onClick={handleDelete}
                     >
@@ -209,7 +209,7 @@ export default function ExamActionsComponent({ examResult,
                     </button>
                     <button
                         className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
-                            py-2 px-4 rounded-md"
+                            py-2 px-4 rounded-md shadow-sm shadow-crimson-700"
                         type="submit"
                         onClick={handleReschedule}
                     >

@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import {ExamOld, ExamProp, Course, ExamResultProper} from '@/components/types/exams';
+import { ExamOld, ExamProp, Course, ExamResultProper } from '@/components/types/exams';
+import Grade from "@/components/types/grade";
 import ExamResult from "@/components/types/exam_result";
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 import React, {useEffect, useRef, useState} from "react";
@@ -25,7 +26,7 @@ interface ExamCardExtendedProps {
 }
 
 interface ExamCardMediumProps {
-    exam: ExamMedium;
+    exam: Grade;
     index: number;
     onclick?: (e: any) => void;
 }
@@ -79,11 +80,16 @@ const ScoreDisplay = ({ score }: { score: string }) => {
     );
 };
 
+// Determine course name for an exam
+export const getExamPropCourse = (exam: Grade): string => {
+    return exam.courseName;
+};
+
 // Determine exam status based on date and grade
 export const getExamPropStatus =
-    (exam: ExamResult): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+    (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
         // Get the proper exam scheduled date, with timezone
-        const examDate = new Date(exam.exam_scheduled_date);
+        const examDate = new Date(exam.examScheduledDate);
         const examPstDate = new Date(examDate.toLocaleString('en-US',
             { timeZone: 'America/Los_Angeles' }));
         // Get the today's date, with timezone
@@ -93,10 +99,10 @@ export const getExamPropStatus =
         // If exam date is in the future, it's upcoming
         if (examPstDate > todayPstDate) return 'upcoming';
         // If exam date is in the past and has a score, it's completed
-        else if ((exam.exam_score !== undefined) && (exam.exam_score !== '')) return 'completed';
+        else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
         // If no exam date and no score
-        else if (((exam.exam_scheduled_date == undefined) || (exam.exam_scheduled_date == ''))
-            && (exam.exam_score == undefined)|| (exam.exam_score == '')) return 'missing';
+        else if (((exam.examScheduledDate == undefined) || (exam.examScheduledDate == ''))
+            && (exam.examScore == undefined)|| (exam.examScore == '')) return 'missing';
         // If the exam date is in the past but no score, it's pending
         else return 'pending';
     };
@@ -333,7 +339,7 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
                 <div className="flex justify-between items-start pb-0.5">
                     <h3 className="font-semibold text-mentat-gold text-sm truncate
                         hover:whitespace-normal hover:overflow-visible hover:z-10">
-                        {exam.exam_name}
+                        {exam.examName}
                     </h3>
                     <div className="flex items-start">
                         <span className="text-xs rounded-full flex gap-1 whitespace-nowrap">
@@ -347,7 +353,7 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
                     <span className="italic">Date</span>
                         : {' '}
                         <span className="text-green-500">
-                            {exam.exam_scheduled_date}
+                            {exam.examScheduledDate}
                         </span>
                     </span>
                 </div>
@@ -355,11 +361,11 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
                 <div className="flex justify-between items-center">
                     <span className="text-[11px] font-medium text-mentat-gold pb-0.5 text-end rounded">
                     <span className="italic">Duration</span>
-                        : {exam.exam_duration || 1}
+                        : {exam.examDuration || 1}
                     </span>
                     <span className="text-[11px] font-medium text-mentat-gold pb-0.5 text-end rounded">
                       <span className="italic">Online</span>
-                        : {exam.exam_online ? (
+                        : {exam.examOnline ? (
                             <span className="text-[#DA70D6]">
                                 True
                             </span>) : 'False'}
@@ -369,10 +375,10 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
                 <div className="flex justify-between items-center">
                     <span className="text-[11px] font-medium text-mentat-gold">
                       <span className="italic">Version</span>
-                      : {exam.exam_version > 1 ? exam.exam_version : 1}
+                      : {exam.examVersion > 1 ? exam.examVersion : 1}
                     </span>
                     <span className="text-[11px] font-medium text-mentat-gold">
-                      {exam.exam_required === 1 ? (
+                      {exam.examRequired === 1 ? (
                           <span className="text-[#E0B0FF]">
                               Required
                           </span>) : ('Not Required')}
@@ -433,7 +439,7 @@ export function ExamCardMedium({ exam, index, onclick }: ExamCardMediumProps ) {
                     </div>
                 ) : (
                     <ScheduledExamDetailsComponent
-                        exam={exam as ExamAction}
+                        exam={exam}
                         cancelAction={() => {
                             setIsScheduleModalOpen(false);
                             // Trigger refresh when modal closes

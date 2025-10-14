@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.stereotype.Repository;
 
@@ -56,27 +57,25 @@ public class ExamResult {
 ////    private Long examId;
 
     // The version of the exam assigned
-    @Size(max = 20)
+//    @Size(max = 20)
     @JsonProperty("examVersion") // Map JSON field to Java field
-    @NotBlank
+    @NotNull
     @Column(name = "exam_version")
     public Integer examVersion;
 
     // The score of the exam assigned
     @Size(max = 1)
     @JsonProperty("examScore") // Map JSON field to Java field
-    @NotBlank
     @Column(name = "exam_score")
     public String examScore;
 
     // This is the date the exam is scheduled for
-    @NotBlank
+    @NotNull
     @JsonProperty("examScheduledDate") // Map JSON field to Java field
     @Column(name = "exam_scheduled_date")
     private Date examScheduledDate;
 
     // This is the date the exam was taken
-    @NotBlank
     @JsonProperty("examTakenDate") // Map JSON field to Java field
     @Column(name = "exam_taken_date")
     public Date examTakenDate;

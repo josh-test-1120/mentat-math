@@ -7,15 +7,12 @@ import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Exam, ExamProp, Course } from "@/components/types/exams";
-import { getExamPropCourse, ExamCardSmall, getExamStatus, ExamExtended } from "@/components/UI/cards/ExamCards";
+import Grade from "@/components/types/grade";
+import { getExamStatus, ExamExtended } from "@/components/UI/cards/ExamCards";
+import { getExamPropCourse } from "@/app/schedule/localComponents/ExamCard";
 import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledExam";
-import Modal from "@/components/services/Modal";
-import ExamDetailsComponent from "@/components/UI/exams/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamCardMedium, ExamMedium } from "@/app/schedule/localComponents/ExamCard";
-import ExamResult from "@/components/types/exam_result";
-import { ExamAction } from "@/app/schedule/localComponents/ScheduledExamDetailsComponent"
-import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetailsComponent";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -43,8 +40,8 @@ const avgScore = (exams: ExamProp[]) => {
 // Main Component
 export default function StudentSchedule() {
     const {data: session, status} = useSession();
-    const [exams, setExams] = useState<ExamProp[]>([]);
-    const [exam, setExam] = useState<Exam>();
+    const [exams, setExams] = useState<Grade[]>([]);
+    const [exam, setExam] = useState<Grade>();
     const [course, setCourse] = useState<Course>();
     const [loading, setLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
@@ -88,7 +85,7 @@ export default function StudentSchedule() {
             const res = await apiHandler(
                 undefined, // No body for GET request
                 'GET',
-                `api/exams/${id}`,
+                `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -189,28 +186,28 @@ export default function StudentSchedule() {
     }
 
     // Load Exam Actions Modal
-    const loadScheduledExamData = async (exam: ExamProp, e: any) => {
+    const loadScheduledExamData = async (exam: Grade, e: any) => {
         e.preventDefault();
 
-        // Set basic data and open modal immediately
-        const examData: Exam = {
-            exam_id: exam.exam_id,
-            exam_name: exam.exam_name,
-            exam_course_id: exam.exam_course_id,
-            exam_difficulty: exam.exam_difficulty,
-            exam_required: exam.exam_required,
-            exam_duration: exam.exam_duration || "1",
-            exam_state: exam.exam_state,
-            exam_online: exam.exam_online
-        }
+        // // Set basic data and open modal immediately
+        // const examData: Exam = {
+        //     exam_id: exam.exam_id,
+        //     exam_name: exam.exam_name,
+        //     exam_course_id: exam.exam_course_id,
+        //     exam_difficulty: exam.exam_difficulty,
+        //     exam_required: exam.exam_required,
+        //     exam_duration: exam.exam_duration || "1",
+        //     exam_state: exam.exam_state,
+        //     exam_online: exam.exam_online
+        // }
 
-        setExam(examData);
+        setExam(exam);
         setIsExamModalOpen(true); // Open modal immediately
         setIsModalLoading(true); // Show spinner inside modal
 
         try {
             // Load course data while modal is open
-            await fetchCourse(exam.exam_course_id);
+            await fetchCourse(exam.courseId);
         } catch (error) {
             console.error('Failed to load course details:', error);
         } finally {
@@ -218,30 +215,6 @@ export default function StudentSchedule() {
         }
     }
 
-    const splitCourseExam = async (examResult: ExamExtended) => {
-        // Split the data into an exam only detail
-        const exam: Exam = {
-            exam_id: examResult.exam_id,
-            exam_state: examResult.exam_state,
-            exam_required: examResult.exam_required,
-            exam_difficulty: examResult.exam_difficulty,
-            exam_name: examResult.exam_name,
-            exam_course_id: examResult.exam_course_id,
-            exam_duration: examResult.exam_duration || "1",
-            exam_online: examResult.exam_online || 0
-        };
-        exam.status = getExamStatus(exam as ExamExtended);
-        setExam(exam);
-        // Get and set the course
-        await fetchCourse(exam.exam_course_id)
-
-        // const course: Course = {
-        //     course_id: examResult.exam_course_id,
-        //     course_name: examResult.exam_course_name,
-        //     course_year: examResult.
-        // };
-        // exam.status = getExamStatus(exam)
-    }
     //
     // if (status !== 'authenticated')
     //     return <div className="p-6 text-mentat-gold-700">Please sign in.</div>;
@@ -312,10 +285,10 @@ export default function StudentSchedule() {
                                 <AnimatePresence>
                                     {filteredExams.map((examInst) => (
                                         <ExamCardMedium
-                                            key={examInst.exam_id}
-                                            exam={examInst as ExamMedium}
+                                            key={examInst.examId}
+                                            exam={examInst}
                                             index={0}
-                                            onclick={(e) => loadScheduledExamData(examInst as ExamMedium, e)}
+                                            onclick={(e) => loadScheduledExamData(examInst, e)}
                                         />
                                     ))}
                                 </AnimatePresence>
