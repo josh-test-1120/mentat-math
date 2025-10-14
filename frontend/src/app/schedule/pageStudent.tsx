@@ -88,7 +88,7 @@ export default function StudentSchedule() {
             const res = await apiHandler(
                 undefined, // No body for GET request
                 'GET',
-                `api/exams/${id}`,
+                `api/exam/student/${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
