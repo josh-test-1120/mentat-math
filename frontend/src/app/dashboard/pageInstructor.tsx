@@ -39,7 +39,7 @@ export default function InstructorCoursesClient() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `course/listCourses?id=${id}`,
+                `api/course/listCourses?id=${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );

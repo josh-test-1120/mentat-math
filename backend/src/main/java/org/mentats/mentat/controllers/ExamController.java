@@ -1,8 +1,6 @@
 package org.mentats.mentat.controllers;
 
-import org.mentats.mentat.exceptions.DataAccessException;
-import org.mentats.mentat.exceptions.ExamResultDeletionException;
-import org.mentats.mentat.exceptions.ExamResultNotFoundException;
+import org.mentats.mentat.exceptions.*;
 import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.services.Database;
@@ -47,7 +45,7 @@ public class ExamController {
      * based on the exam Id
      * @return Exam Entity (Model) or null
      */
-    @GetMapping("/exam/{examId}")
+    @GetMapping("/{examId}")
     public Optional<Exam> getExamsById(@PathVariable("examId") Long eid) {
         return examRepository.findById(eid);
     }
@@ -59,7 +57,7 @@ public class ExamController {
      * @param eid exam Id
      * @return ResponseEntity
      */
-    @PatchMapping("/exam/{examID}")
+    @PatchMapping("/{examID}")
     public ResponseEntity<?> updateExam(@RequestBody Exam examUpdates, @PathVariable("examID") Long eid) {
         try {
             // Find the existing exam
@@ -95,64 +93,64 @@ public class ExamController {
      * based on the course ID supplied in the URI
      * @return List of Map objects that have {string, object} types
      */
-    @GetMapping("/exams/course/{courseID}")
-    public List<Exam> getExamsByCourse(@PathVariable("courseID") Long cid) {
+    @GetMapping("/course/{courseID}")
+    public List<Exam> getExamsByCourseId(@PathVariable("courseID") Long cid) {
         return examRepository.findByCourse_CourseId(cid);
     }
 
     /**
-     * Return Exams from exam table
-     * based on Course Id
-     * @param courseId
-     * @return
+     * Delete an exam from the exam table
+     * @param eid Exam Id
+     * @return ResponseEntity of operation
      */
-    @GetMapping("/exam/course/{courseId}")
-    public List<Exam> getExamResultsByCourseId(@PathVariable Long courseId) {
-        return examRepository.findByCourse_CourseId(courseId);
+    @DeleteMapping("/{examID}")
+    public ResponseEntity<Void> deleteExam(@PathVariable("examID") Long eid) {
+        examRepository.deleteById(eid);
+        return ResponseEntity.ok().build();
     }
 
-    /**
-     * Delete the exam from the database
-     * based on the exam ID supplied in the URI
-     * @return JSON encoded ok
-     */
-    @DeleteMapping("/exam/{examID}")
-    public void deleteExam(@PathVariable("examID") Long eid) {
-        // SQL query to delete from the 'exam' table where the exam ID is present
-        String sql = "DELETE FROM exam \n" +
-                "WHERE exam_id = ?;\n";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            // Update the Query with the variables
-            stmt.setLong(1, eid);  // Set the exam ID
-
-            // Update the database
-            int affectedRows = stmt.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new ExamResultNotFoundException("Exam not found with id: " + eid);
-            }
-
-        } catch (SQLException e) {
-            // Handle database errors
-            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
-                throw new ExamResultDeletionException(
-                        "Cannot delete exam: It is referenced by other records"
-                );
-            } else {
-                throw new DataAccessException("Database error while deleting exam: " + e.getMessage());
-            }
-        }
-    }
+//    /**
+//     * Delete the exam from the database
+//     * based on the exam ID supplied in the URI
+//     * @return JSON encoded ok
+//     */
+//    @DeleteMapping("/exam/{examID}")
+//    public void deleteExam(@PathVariable("examID") Long eid) {
+//        // SQL query to delete from the 'exam' table where the exam ID is present
+//        String sql = "DELETE FROM exam \n" +
+//                "WHERE exam_id = ?;\n";
+//
+//        try (Connection conn = Database.getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(sql)) {
+//
+//            // Update the Query with the variables
+//            stmt.setLong(1, eid);  // Set the exam ID
+//
+//            // Update the database
+//            int affectedRows = stmt.executeUpdate();
+//
+//            if (affectedRows == 0) {
+//                throw new ExamResultNotFoundException("Exam not found with id: " + eid);
+//            }
+//
+//        } catch (SQLException e) {
+//            // Handle database errors
+//            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
+//                throw new ExamResultDeletionException(
+//                        "Cannot delete exam: It is referenced by other records"
+//                );
+//            } else {
+//                throw new DataAccessException("Database error while deleting exam: " + e.getMessage());
+//            }
+//        }
+//    }
 
     /**
      * Get the exams from the database
      * based on the student ID supplied in the URI
      * @return List of Map objects that have {string, object} types
      */
-    @GetMapping("/exams/{studentID}")
+    @GetMapping("/student/{studentID}")
     public List<Map<String, Object>> getStudentExams(@PathVariable("studentID") Long sid) {
 
         // SQL query to select from the 'exam' table where the student ID is present
@@ -257,7 +255,7 @@ public class ExamController {
      * based on the instructor ID supplied in the URI
      * @return List of Map objects that have {string, object} types
      */
-    @GetMapping("/exams/instructor/{instructorID}")
+    @GetMapping("/instructor/{instructorID}")
     public List<Map<String, Object>> getInstructorExams(@PathVariable("instructorID") Long id) {
 
         // SQL query to select from the 'course' table where the instructor ID is present
