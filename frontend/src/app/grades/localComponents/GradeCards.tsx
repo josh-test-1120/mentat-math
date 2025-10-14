@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
-import { Grade, GradeCardExtendedProps } from '@/components/types/exams';
+import { Grade, GradeCardExtendedProps } from '@/app/grades/util/types';
 
 // Determine grade status based on score
 export const getGradeStatus = (grade: Grade): 'passed' | 'failed' | 'pending' | undefined => {
@@ -11,11 +11,11 @@ export const getGradeStatus = (grade: Grade): 'passed' | 'failed' | 'pending' | 
     const failingGrade = ['D', 'F'];
 
     // If a score exists:
-    if (grade?.exam_score) {
+    if (grade?.examScore) {
         // Check for active states
-        if (passingGrade.includes(grade?.exam_score)) return 'passed';
+        if (passingGrade.includes(grade?.examScore)) return 'passed';
         // Check for inactive states
-        else if (failingGrade.includes(grade?.exam_score)) return 'failed';
+        else if (failingGrade.includes(grade?.examScore)) return 'failed';
     }
     // Default state is pending
     else return 'pending';
@@ -44,6 +44,8 @@ const ScoreDisplay = ({ score }: { score: string | undefined }) => {
  */
 // Extended GradeCard Component
 export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedProps) {
+    // Set the grade status
+    grade.status = getGradeStatus(grade);
     // Grade Status Badge details
     const StatusBadge = ({ status }: { status: string}) => {
         const statusConfig = {
@@ -64,7 +66,8 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
 
     // View variables
     const darkCimson = '#61091e';
-    const examTaken = (grade.exam_taken_date !== undefined && grade.exam_taken_date !== null);
+    const examTaken = (grade.examTakenDate !== undefined
+        && grade.examTakenDate !== null);
 
     // Accent color for cards
     const accentColor = 'rgba(163, 15, 50, 1.0)';
@@ -99,7 +102,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
                     {/* Left section: Title and subject */}
                     <div className="flex-1 min-w-0 pr-6 border-r border-gray-100">
                         <div className="flex items-center space-x-3 ">
-                            <h3 className="text-md font-semibold truncate">{grade.exam_name}</h3>
+                            <h3 className="text-md font-semibold truncate">{grade.examName}</h3>
                             {/*<span className="text-sm mt-1">{grade.course_name}</span>*/}
                         </div>
 
@@ -107,7 +110,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
 
                     <div className="flex-1 min-w-0 px-6 border-r border-gray-100">
                         <div className="flex items-center justify-center space-x-3">
-                            <span className="text-sm font-semibold truncate">{grade.course_name}</span>
+                            <span className="text-sm font-semibold truncate">{grade.courseName}</span>
                             {/*<span className="text-sm mt-1">{grade.course_name}</span>*/}
                         </div>
 
@@ -116,11 +119,11 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
                     {/* Middle section: Date and time */}
                     <div className="flex flex-col items-center px-6 border-r border-gray-100">
                         <span className="text-sm font-medium">
-                            { examTaken && grade?.exam_taken_date ?
-                            new Date(grade?.exam_taken_date).toLocaleDateString('en-US',
+                            { examTaken && grade?.examTakenDate ?
+                            new Date(grade?.examTakenDate).toLocaleDateString('en-US',
                                 { weekday: 'short', month: 'short', day: 'numeric'})
                                 :
-                            new Date(grade.exam_scheduled_date).toLocaleDateString('en-US',
+                            new Date(grade.examScheduledDate).toLocaleDateString('en-US',
                                 { weekday: 'short', month: 'short', day: 'numeric'})}
                             {/*{new Date(grade.exam_taken_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}*/}
                         </span>
@@ -137,11 +140,11 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
                     <div className="flex-1 flex flex-col items-center px-6 border-r border-gray-100">
                         {/*<StatusBadge status={grade.status !== undefined ? grade.status : ''} />*/}
                         {/*<span className="text-sm">{grade.location}</span>*/}
-                        {grade.status !== 'pending' && grade.exam_score !== undefined ? (
-                            <ScoreDisplay score={grade.exam_score} />
+                        {grade.status !== 'pending' && grade.examScore !== undefined ? (
+                            <ScoreDisplay score={grade.examScore} />
                         ) : (
                             <div className="mt-1 text-xs font-medium">
-                                {new Date(grade.exam_scheduled_date) > new Date() ? 'Upcoming' : 'Pending grade'}
+                                {new Date(grade.examScheduledDate) > new Date() ? 'Upcoming' : 'Pending grade'}
                             </div>
                         )}
                     </div>

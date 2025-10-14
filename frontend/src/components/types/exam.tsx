@@ -3,7 +3,7 @@ export default interface Exam {
     courseId: number;
     examDifficulty: number;
     examDuration: number;
-    examName: String;
+    examName: string;
     examOnline: number;
     examRequired: number;
     examState: number;

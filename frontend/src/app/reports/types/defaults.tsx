@@ -8,53 +8,53 @@
 
 import {GradeRequirements, GradeStrategy, StatusMap} from './shared'
 
-export const examRequiredDefault = (name: String, course: String) => {
+export const examRequiredDefault = (name: string, course: string) => {
     console.log(`This is the course name: ${course}`);
     return {
         examName: name,
         examRequired: 1,
         examDuration: 1,
         examDifficulty: 0,
-        exam_score: undefined,
-        course_name: course,
-        exam_version: 1,
-        exam_id: -99,
-        exam_course_id: -99,
-        status: StatusMap['pending'],
-        exam_scheduled_date: '',
-        exam_difficulty: 0,
-        exam_duration: 1,
+        examScore: undefined,
+        courseName: course,
+        examVersion: 1,
         examId: -99,
+        status: StatusMap['pending'],
+        examScheduledDate: '',
         courseId: -99,
         examOnline: 0,
         examState: 1,
-        exam_name: name,
-        exam_required: 1
+        examResultId: 1,
+        examStudentId: 1,
+        courseProfessorId: 1,
+        courseQuarter: '',
+        courseSection: '',
+        courseYear: 2025
     };
 };
 
 export const examOptionalDefault =
-    (name: String, course: String, optionalRequired: GradeStrategy) => {
+    (name: string, course: string, optionalRequired: GradeStrategy) => {
     return {
         examName: name,
         examRequired: optionalRequired.optional.includes(name) ? 1 : 0,
         examDuration: 1,
         examDifficulty: 0,
-        exam_score: undefined,
-        course_name: course,
-        exam_version: 1,
-        exam_id: -99,
-        exam_course_id: -99,
-        status: StatusMap['pending'],
-        exam_scheduled_date: '',
-        exam_difficulty: 0,
-        exam_duration: 1,
+        examScore: undefined,
+        courseName: course,
+        examVersion: 1,
         examId: -99,
         courseId: -99,
+        status: StatusMap['pending'],
+        examScheduledDate: '',
         examOnline: 0,
         examState: 1,
-        exam_name: name,
-        exam_required: optionalRequired.optional.includes(name) ? 1 : 0
+        examResultId: 1,
+        examStudentId: 1,
+        courseProfessorId: 1,
+        courseQuarter: '',
+        courseSection: '',
+        courseYear: 2025
     };
 };
 

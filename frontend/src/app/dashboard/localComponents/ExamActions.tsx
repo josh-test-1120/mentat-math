@@ -7,6 +7,7 @@ import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
 import { ExamProp } from "@/components/types/exams";
+import { ExamResultExtended} from "@/app/dashboard/util/types";
 import ErrorToast from "@/components/services/error";
 
 // interface JoinCourseComponentProps {
@@ -14,11 +15,13 @@ import ErrorToast from "@/components/services/error";
 // }
 
 interface ExamActionsComponentProps {
-    examResult: ExamProp | undefined
+    examResult: ExamResultExtended | undefined
     cancelAction: () => void
+    updateAction: () => void
 }
 
-export default function ExamActionsComponent({ examResult, cancelAction } : ExamActionsComponentProps) {
+export default function ExamActionsComponent({ examResult,
+                                                 cancelAction, updateAction } : ExamActionsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
 
@@ -70,7 +73,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
             const res = await apiHandler(
                 undefined,
                 "DELETE",
-                `api/exam/result/${examResult?.exam_result_id}`,
+                `api/exam/result/${examResult?.examResultId}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -88,7 +91,7 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
             toast.error("Exam Action Failed");
         } finally {
             // Run the cancel/close callback
-            cancelAction();
+            updateAction();
         }
     }
 
@@ -102,8 +105,10 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             type="text"
                             id="exam_name"
                             name="exam_name"
-                            value={examResult?.exam_name}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            value={examResult?.examName}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold
+                                placeholder-mentat-gold/60 border border-mentat-gold/20
+                                focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             readOnly={true}
                         />
                     </div>
@@ -114,8 +119,10 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             type="text"
                             id="exam_course_id"
                             name="exam_course_id"
-                            value={examResult?.exam_course_id}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            value={examResult?.courseName}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0
+                                px-3 py-2"
                             readOnly={true}
                         >
                         </input>
@@ -127,8 +134,10 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             id="exam_difficulty"
                             type="text"
                             name="exam_difficulty"
-                            value={examResult?.exam_difficulty}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            value={examResult?.examDifficulty}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
+                                py-2"
                             readOnly={true}
                         >
                         </input>
@@ -140,21 +149,25 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                             id="exam_version"
                             type="text"
                             name="exam_version"
-                            value={examResult?.exam_version}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            value={examResult?.examVersion}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
+                                py-2"
                             readOnly={true}
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_date_scheduled" className="text-sm">Exam Version</label>
+                        <label htmlFor="exam_date_scheduled" className="text-sm">Exam Scheduled Date</label>
                         <input
                             id="exam_date_scheduled"
                             type="text"
                             name="exam_date_scheduled"
-                            value={examResult?.exam_scheduled_date}
+                            value={examResult?.examScheduledDate}
                             // onChange={data}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
+                                py-2"
                             readOnly={true}
                         />
                     </div>
@@ -165,9 +178,11 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                                 id="is_required"
                                 type="checkbox"
                                 name="is_required"
-                                checked={Boolean(examResult?.exam_required)}
+                                checked={examResult !== undefined
+                                    ? examResult.examRequired === 1 : false}
                                 // onChange={data}
-                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
+                                    text-mentat-gold focus:ring-mentat-gold"
                                 readOnly={true}
                             />
                             <label htmlFor="is_required" className="select-none">Is Exam Required</label>
@@ -179,19 +194,22 @@ export default function ExamActionsComponent({ examResult, cancelAction } : Exam
                     <button
                         type="button"
                         onClick={cancelAction}
-                        className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
+                        className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold
+                            py-2 px-4 rounded-md border border-mentat-gold/20"
                     >
                         Cancel
                     </button>
                     <button
-                        className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-bold py-2 px-4 rounded-md"
+                        className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-bold
+                            py-2 px-4 rounded-md"
                         type="submit"
                         onClick={handleDelete}
                     >
                         Delete Scheduled Exam
                     </button>
                     <button
-                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold py-2 px-4 rounded-md"
+                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
+                            py-2 px-4 rounded-md"
                         type="submit"
                         onClick={handleReschedule}
                     >

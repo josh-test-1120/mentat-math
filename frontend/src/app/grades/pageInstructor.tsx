@@ -87,12 +87,9 @@ export default function ExamDashboard() {
     }, [status, session, BACKEND_API, refreshTrigger]);
 
     useEffect(() => {
-        if (session?.user?.id) fetchExams(session.user.id);
+        if (!courses) return;
+        if (courses && courses.length > 0) fetchExams();
     }, [courses]);
-
-    useEffect(() => {
-        if (exams && exams.length > 0) fetchExamResults();
-    }, [exams]);
 
     const filteredExams = useMemo(() => {
         // First filter by class
@@ -104,6 +101,14 @@ export default function ExamDashboard() {
 
         return result;
     }, [filter, exams]);
+
+    useEffect(() => {
+        if (!filteredExams || filteredExams.length === 0) return;
+        else if (filteredExams && filteredExams.length > 0) {
+            setExamResultsLoading(true);
+            fetchExamResults();
+        }
+    }, [filteredExams]);
 
     const fetchCourses = async (id: string) => {
         // Try wrapper to handle async exceptions
@@ -162,7 +167,7 @@ export default function ExamDashboard() {
     }
 
     // Fetch exams
-    const fetchExams = async (id: string) => {
+    const fetchExams = async () => {
         // Full exam list
         let examsData: ExamExtended[] = [];
         // Iterate through the courses
@@ -237,7 +242,7 @@ export default function ExamDashboard() {
         // Full exam list
         let examResults: ExamResult[] = [];
         // Iterate through the courses
-        for (const exam of exams) {
+        for (const exam of filteredExams) {
             // Try wrapper to handle async exceptions
             try {
                 // API Handler
@@ -295,6 +300,7 @@ export default function ExamDashboard() {
             } finally {
                 // Set loading to false
                 // setLoading(false);
+                // setExamResults(examResults);
             }
         }
         console.log('Exam Result fetched');
@@ -381,6 +387,7 @@ export default function ExamDashboard() {
     return (
         <div className="px-4 pt-8 pb-1">
             <div className="max-w-5xl mx-auto">
+                {/*Create Exam Component*/}
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
@@ -426,7 +433,7 @@ export default function ExamDashboard() {
                 {/* Line Divider */}
                 <hr className="border-crimson border-2 mb-2"></hr>
                 {/* Card Layout */}
-                <div className="shadow-sm p-4 pt-2 max-h-[35vh] min-h-[200px]
+                <div className="shadow-sm p-4 pt-2 max-h-[36vh] min-h-[200px]
                     overflow-y-auto scrollbar-hide"
                 >
                     { filteredExams.length === 0 ? (
@@ -458,13 +465,15 @@ export default function ExamDashboard() {
                     )}
                 </div>
                 {/*Exam Analysis Dashboard Component*/}
+                {/* Line Divider */}
+                <hr className="border-crimson border-2 my-2"></hr>
                 { examResultsLoading ? (
                     <div className="flex justify-center items-center pt-10">
                         <RingSpinner size={'sm'} color={'mentat-gold'} />
-                        <p className="ml-3 text-md text-mentat-gold">Loading exam results...</p>
+                        <p className="ml-3 text-md text-mentat-gold">Generating Exam Statistics...</p>
                     </div>
                 ) : examResults && (
-                    <div className="rounded-xl shadow-sm px-4 pt-6 mb-1">
+                    <div className="rounded-xl shadow-sm px-4 mb-1">
                         <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="p-4 rounded-lg border bg-card-color

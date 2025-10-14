@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
-import { ExamResult, ExamExtended } from "@/app/grades/util/types";
+import { ExamExtended } from "@/app/grades/util/types";
 import { useState } from "react";
 
 interface ExamCardCompactProps {
@@ -15,7 +15,7 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
 
     // Determine exam status based on date and grade
     const getExamStatus =
-        (exam: ExamResult): 'active' | 'inactive' => {
+        (exam: ExamExtended): 'active' | 'inactive' => {
             // Check for active states
             if (exam.examState == 1) return 'active';
             // Check for inactive states

@@ -5,5 +5,5 @@ export default interface Course {
     courseQuarter: string;
     courseSection: string;
     courseYear: number;
-    // gradeStrategy?: string;
+    gradeStrategy?: string;
 }

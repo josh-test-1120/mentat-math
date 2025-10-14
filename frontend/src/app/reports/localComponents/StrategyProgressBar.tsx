@@ -23,26 +23,26 @@ export function StrategyProgressBar({grades, strategy, required, optional}: Stra
         // Calculate the required passed exams from grades
         const requiredCompleted = currentGrades.filter(grade =>
             grade.status === 'passed' &&
-            grade.exam_required === 1 &&
-            required.includes(grade.exam_name)
+            grade.examRequired === 1 &&
+            required.includes(grade.examName)
         ).length;
         const optionalCompleted = currentGrades.filter(grade =>
             grade.status === 'passed' &&
-            grade.exam_required === 0 &&
-            optional.includes(grade.exam_name)
+            grade.examRequired === 0 &&
+            optional.includes(grade.examName)
         ).length;
         const totalCompleted = requiredCompleted + optionalCompleted;
 
         // Calculate the required A exams from grades
         const requiredAGrades = currentGrades.filter(grade =>
-            grade.exam_score === 'A' &&
-            grade.exam_required === 1 &&
-            required.includes(grade.exam_name)
+            grade.examScore === 'A' &&
+            grade.examRequired === 1 &&
+            required.includes(grade.examName)
         ).length;
         const optionalAGrades = currentGrades.filter(grade =>
-            grade.exam_score === 'A' &&
-            grade.exam_required === 0 &&
-            optional.includes(grade.exam_name)
+            grade.examScore === 'A' &&
+            grade.examRequired === 0 &&
+            optional.includes(grade.examName)
         ).length;
         const totalAGrades = requiredAGrades + optionalAGrades;
         // Return a map of all the values for later access

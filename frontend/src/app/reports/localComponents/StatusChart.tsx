@@ -3,11 +3,10 @@
 
 import {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
-import { Grade } from "@/app/grades/pageStudent";
-import {List} from "postcss/lib/list";
+import { Report } from "@/app/reports/types/shared";
 
-interface GradeChartProps {
-    data: Grade[];
+interface StatusChartProps {
+    data: Report[];
 }
 
 interface GradeStatus {
@@ -15,7 +14,7 @@ interface GradeStatus {
     value: number;
 }
 
-export const GradeChart = ({ data } : GradeChartProps) => {
+export const StatusChart = ({ data } : StatusChartProps) => {
     // Chart Variables
     const svgRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -23,20 +22,11 @@ export const GradeChart = ({ data } : GradeChartProps) => {
     const scoreToNumber = (score: string) : number => {
         // Convert the letter grade to a number for graphing
         switch (score) {
-            case "A":
-                return 5;
-                break;
-            case "B":
-                return 4;
-                break;
-            case "C":
-                return 3;
-                break;
-            case "D":
-                return 2;
-                break;
-            default:
-                return 1;
+            case "A": return 5;
+            case "B": return 4;
+            case "C": return 3;
+            case "D": return 2;
+            default: return 1;
         }
     }
 
@@ -44,14 +34,14 @@ export const GradeChart = ({ data } : GradeChartProps) => {
         // Count the number of exams that match the status
         let counter = 0;
         // Check each grade and add to the counter
-        data.forEach((grade: Grade) => {
+        data.forEach((grade: Report) => {
             if (grade.status === status) counter += 1;
         })
         // Return the counter
         return counter;
     }
 
-    const calculateStatus = (data: Grade[]) : GradeStatus[] => {
+    const calculateStatus = (data: Report[]) : GradeStatus[] => {
         // New status map
         let statusMap: GradeStatus[] = [];
 

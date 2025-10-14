@@ -1,4 +1,6 @@
-import { ExamResult } from "@/components/types/exams";
+// import { ExamResult } from "@/components/types/exams";
+import Course from "@/components/types/course";
+import ExamResult from "@/components/types/exam_result";
 
 /**
  * Define some types and interfaces for the reports and report charts
@@ -64,9 +66,15 @@ interface ExamResultComplete extends Exam {
     exam_duration: number;
 }
 
-export interface Report extends ExamResultComplete {
-    course_name: string;
-    exam_online?: number;
+// export interface Report extends ExamResultComplete {
+//     course_name: string;
+//     exam_online?: number;
+// }
+
+export interface Report extends Exam, Course, ExamResult {
+    status?: 'passed' | 'failed' | 'pending';
+    attempts?: number | null | undefined;
+    bestScore?: string | null | undefined;
 }
 
 export const StatusMap: Record<string, "pending" | "passed" | "failed" | undefined> = {
@@ -74,3 +82,8 @@ export const StatusMap: Record<string, "pending" | "passed" | "failed" | undefin
     "passed": "passed",
     "failed": "failed"
 };
+
+export interface Grade extends ExamResult {
+    course_name: string;
+    exam_online?: number;
+}
