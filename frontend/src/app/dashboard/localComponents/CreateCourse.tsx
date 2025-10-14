@@ -58,7 +58,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
         const res = await apiHandler(
             courseData,
             'POST',
-            'course/createCourse',
+            'api/course/createCourse',
             `${BACKEND_API}`,
             session?.user?.accessToken || undefined
         );
