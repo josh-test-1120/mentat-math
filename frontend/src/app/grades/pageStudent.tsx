@@ -358,7 +358,7 @@ export default function GradesPage() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/grades/${session?.user?.id}`,
+                `api/exam/result/grades/${session?.user?.id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
