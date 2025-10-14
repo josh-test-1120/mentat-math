@@ -111,7 +111,7 @@ export default function ExamsPage() {
             const res = await apiHandler(
                 undefined, // No body for GET request
                 'GET',
-                `api/grades/${id}`,
+                `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );

@@ -6,6 +6,7 @@ import org.mentats.mentat.models.StudentCourse;
 import org.mentats.mentat.payload.request.CourseJoinRequest;
 import org.mentats.mentat.payload.request.JoinCourseRequest;
 import org.mentats.mentat.payload.response.MessageResponse;
+import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.services.CourseJoinService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +15,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/course")
+@RequestMapping("/api/course")
 public class CourseController {
     /**
      * CourseController Fields
      */
     @Autowired
     private CourseJoinService courseJoinService;
+
+    // Repository services
+    private final CourseRepository courseRepository;
     
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+
+    /**
+     * Dependency Injection Constructor
+     * @param courseRepository
+     */
+    public CourseController(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
+    }
 
     /**
      * A method to creates a course and writes into the database.
@@ -131,6 +144,57 @@ public class CourseController {
             logger.error("Error fetching enrolled courses: " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error fetching enrolled courses"));
+        }
+    }
+
+    /**
+     * Get the instructor exams from the database
+     * based on the instructor ID supplied in the URI
+     * @return Map object that have {string, object} types
+     */
+    @GetMapping("/{courseID}")
+    public ResponseEntity<Course> getCourse(@PathVariable("courseID") Long id) {
+        try {
+            // Use the repository to find the course by ID
+            Optional<Course> courseOptional = courseRepository.findById(id);
+            // Check to make sure record exists
+            if (courseOptional.isPresent()) {
+                Course course = courseOptional.get();
+                return ResponseEntity.ok(course);
+            } else {
+                // Return 404 if course not found
+                return ResponseEntity.notFound().build();
+            }
+            // Exception Handler
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Get the courses from the database
+     * based on the instructor ID supplied in the URI
+     * @param iId Instructor Id
+     * @return ResponseEntity of Courses
+     */
+    @GetMapping("/instructor/{instructorID}")
+    public ResponseEntity<List<Course>> getCourseByInstructorId(@PathVariable("instructorID") Long iId) {
+        try {
+            // Use the repository to find courses by instructor ID
+            List<Course> courses = courseRepository.findByCourseProfessorId(iId);
+
+            // Check if any courses were found
+            if (courses != null && !courses.isEmpty()) {
+                return ResponseEntity.ok(courses);
+            } else {
+                // Return 404 if no courses found for this instructor
+                return ResponseEntity.notFound().build();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
