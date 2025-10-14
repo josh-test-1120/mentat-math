@@ -6,42 +6,31 @@ import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
+import Exam from "@/components/types/exam";
 import Course from "@/components/types/course";
-import ExamResult from "@/components/types/exam_result";
+import { ExamExtended } from "@/app/grades/util/types";
 import ErrorToast from "@/components/services/error";
 
-interface ExamActions extends ExamResult {
-    exam_name: string;
-    exam_state: number;
-    exam_difficulty: number;
-    exam_required: number;
-    exam_course_name: string;
-    exam_duration: number;
-    exam_online: number;
-    status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
-}
-
 interface ExamDetailsComponentProps {
-    exam: ExamActions | undefined;
-    course: Course | undefined;
+    exam: ExamExtended;
     cancelAction: () => void
 }
 
-export default function ScheduledExamDetailsComponent({ exam, course, cancelAction } : ExamDetailsComponentProps) {
+export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetailsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
 
     // Session Information
     const {data: session, status} = useSession();
     const [examData, setExamData] = useState({
-        examId: exam?.exam_id,
-        examName: exam?.exam_name || '',
-        courseId: exam?.exam_course_id.toString() || '',
-        examDifficulty: exam?.exam_difficulty.toString() || '',
-        examRequired: exam?.exam_required.toString() || '',
-        examDuration: exam?.exam_duration.toString() || '',
-        examState: exam?.exam_state.toString() || '',
-        examOnline: exam?.exam_online.toString() || ''
+        examId: exam.examId,
+        examName: exam.examName,
+        courseId: exam.courseId.toString(),
+        examDifficulty: exam.examDifficulty.toString(),
+        examRequired: exam.examRequired.toString(),
+        examDuration: exam.examDuration.toString(),
+        examState: exam.examState.toString(),
+        examOnline: exam.examOnline.toString()
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
@@ -87,7 +76,7 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
             const res = await apiHandler(
                 examData,
                 "PATCH",
-                `api/exam/${exam?.exam_id}`,
+                `api/exam/${exam?.examId}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -121,7 +110,7 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
             const res = await apiHandler(
                 undefined,
                 "DELETE",
-                `api/exam/${exam?.exam_id}`,
+                `api/exam/${exam?.examId}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -143,9 +132,6 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
         }
     }
 
-    console.log('This is the course info')
-    console.log(course);
-
     return (
         <div className="flex inset-0 justify-center items-center">
             <form id="ExamActionForm" className="w-full space-y-6">
@@ -156,8 +142,9 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                             type="text"
                             id="exam_course_name"
                             name="exam_course_name"
-                            value={course?.courseName}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            value={exam.courseName}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
+                            focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             readOnly={true}
                         >
                         </input>
@@ -169,9 +156,11 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                             type="text"
                             id="exam_name"
                             name="exam_name"
-                            value={examData.examName}
-                            onChange={(e) => setExamData({ ...examData, examName: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            value={examData.examName.toString()}
+                            onChange={(e) =>
+                                setExamData({ ...examData, examName: e.target.value })}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60
+                                border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         />
                     </div>
 
@@ -182,8 +171,10 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                             type="text"
                             name="exam_difficulty"
                             value={examData.examDifficulty}
-                            onChange={(e) => setExamData({ ...examData, examDifficulty: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            onChange={(e) =>
+                                setExamData({ ...examData, examDifficulty: e.target.value })}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
+                                focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         >
                         </input>
                     </div>
@@ -195,8 +186,10 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                             type="text"
                             name="exam_duration"
                             value={examData.examDuration}
-                            onChange={(e) => setExamData({ ...examData, examDuration: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            onChange={(e) =>
+                                setExamData({ ...examData, examDuration: e.target.value })}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
+                                focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         />
                     </div>
 
@@ -207,9 +200,11 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                                     id="is_required"
                                     type="checkbox"
                                     name="is_required"
-                                    checked={Boolean(examData.examRequired)}
-                                    onChange={(e) => setExamData({ ...examData, examRequired: e.target.value })}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                    checked={examData.examRequired === '1'}
+                                    onChange={(e) =>
+                                        setExamData({ ...examData, examRequired: e.target.checked ? '1' : '0' })}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold
+                                        focus:ring-mentat-gold"
                                 />
                                 <label htmlFor="is_required" className="select-none">Is Exam Required</label>
                             </div>
@@ -219,9 +214,11 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                                     id="exam_state"
                                     type="checkbox"
                                     name="exam_state"
-                                    checked={Boolean(examData.examState)}
-                                    onChange={(e) => setExamData({ ...examData, examState: e.target.value })}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                    checked={examData.examState === '1'}
+                                    onChange={(e) =>
+                                        setExamData({ ...examData, examState: e.target.checked ? '1' : '0' })}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold
+                                        focus:ring-mentat-gold"
                                 />
                                 <label htmlFor="exam_state" className="select-none">Is Exam Active</label>
                             </div>
@@ -231,9 +228,11 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                                     id="is_online"
                                     type="checkbox"
                                     name="is_online"
-                                    checked={Boolean(examData.examOnline)}
-                                    onChange={(e) => setExamData({ ...examData, examOnline: e.target.value })}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                    checked={examData.examOnline === '1'}
+                                    onChange={(e) =>
+                                        setExamData({ ...examData, examOnline: e.target.checked ? '1' : '0' })}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold
+                                        focus:ring-mentat-gold"
                                 />
                                 <label htmlFor="is_online" className="select-none">Is Exam Online</label>
                             </div>
@@ -245,19 +244,23 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
                     <button
                         type="button"
                         onClick={cancelAction}
-                        className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
+                        className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold
+                        py-2 px-4 rounded-md border border-mentat-gold/20
+                        shadow-sm shadow-mentat-gold-700"
                     >
                         Cancel
                     </button>
                     <button
-                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2 px-4 rounded-md"
+                        className="bg-red-700 hover:bg-red-600 text-mentat-gold font-bold py-2
+                        px-4 rounded-md shadow-sm shadow-mentat-gold-700"
                         type="submit"
                         onClick={handleDelete}
                     >
                         Delete
                     </button>
                     <button
-                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold py-2 px-4 rounded-md"
+                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
+                        py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
                         type="submit"
                         onClick={handleUpdate}
                     >
@@ -268,3 +271,5 @@ export default function ScheduledExamDetailsComponent({ exam, course, cancelActi
         </div>
     );
 }
+
+
