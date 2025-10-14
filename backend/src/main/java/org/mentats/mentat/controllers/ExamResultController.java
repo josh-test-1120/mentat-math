@@ -3,6 +3,7 @@ package org.mentats.mentat.controllers;
 import org.mentats.mentat.exceptions.DataAccessException;
 import org.mentats.mentat.exceptions.ExamResultDeletionException;
 import org.mentats.mentat.exceptions.ExamResultNotFoundException;
+import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamResultRepository;
@@ -71,7 +72,7 @@ public class ExamResultController {
      * @return Single object that have has the exam details
      */
     @GetMapping("/{examResultID}")
-    public Map<String, Object> getExamResultDetails(@PathVariable("examResultID") Long erid) {
+    public Map<String, Object> getExamResult(@PathVariable("examResultID") Long erid) {
         // SQL query to select from the 'exam' table where the student ID is present
         String sql = "SELECT * \n" +
                 "FROM exam_result \n" +
@@ -109,12 +110,52 @@ public class ExamResultController {
     }
 
     /**
+     * Patch the exam result in the database
+     * based on the exam result ID supplied in the URI
+     * @param examUpdates JSON object of data
+     * @param eid exam result Id
+     * @return ResponseEntity
+     */
+    @PatchMapping("/{examResultID}")
+    public ResponseEntity<?> updateExamResult(@RequestBody ExamResult examUpdates, @PathVariable("examResultID") Long eid) {
+        try {
+            // Find the existing exam
+            ExamResult existingExamResult = examResultRepository.findById(eid)
+                    .orElseThrow(() -> new ExamResultNotFoundException("Exam not found with id: " + eid));
+
+            // Update fields directly
+            updateExamFields(existingExamResult, examUpdates);
+
+            // Save the updated exam to database
+            ExamResult savedExam = examResultRepository.save(existingExamResult);
+
+            // The @Transactional annotation will automatically save changes when method completes
+            return ResponseEntity.ok(savedExam);
+
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Database error while updating exam: " + e.getMessage());
+        }
+    }
+
+    // Helper method to update fields
+    private void updateExamFields(ExamResult existing, ExamResult updates) {
+        if (updates.getExamScheduledDate() != null)
+            existing.setExamScheduledDate(updates.getExamScheduledDate());
+        if (updates.getExamTakenDate() != null)
+            existing.setExamTakenDate(updates.getExamTakenDate());
+        if (updates.getExamScore() != null) existing.setExamScore(updates.getExamScore());
+        if (updates.getExamVersion() != null) existing.setExamVersion(updates.getExamVersion());
+//        if (updates.getExam() != null) existing.setExam(updates.getExam());
+//        if (updates.getStudent() != null) existing.setStudent(updates.getStudent());
+    }
+
+    /**
      * Delete the exam result from the database
      * based on the exam result ID supplied in the URI
      * @return JSON encoded ok
      */
     @DeleteMapping("/{examResultID}")
-    public void deleteExamResultDetails(@PathVariable("examResultID") Long erid) {
+    public void deleteExamResult(@PathVariable("examResultID") Long erid) {
         // SQL query to select from the 'exam' table where the student ID is present
         String sql = "DELETE FROM exam_result \n" +
                 "WHERE exam_result_id = ?;\n";

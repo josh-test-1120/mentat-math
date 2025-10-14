@@ -8,23 +8,27 @@ import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
 import Course from "@/components/types/course";
 import ExamResult from "@/components/types/exam_result";
+import Grade from "@/components/types/grade";
 import ErrorToast from "@/components/services/error";
 import {DayFlag, DayPicker, getDefaultClassNames, UI} from "react-day-picker";
 import {string} from "prop-types";
+import TestWindow from "@/components/types/test_window";
+import {RingSpinner} from "@/components/UI/Spinners";
 
 export interface ExamAction extends ExamResult {
-    exam_name: string;
-    exam_state: number;
-    exam_difficulty: number;
-    exam_required: number;
-    exam_course_name: string;
-    exam_duration: number;
-    exam_online: number;
+    examName: string;
+    examState: number;
+    examDifficulty: number;
+    examRequired: number;
+    courseId: number;
+    courseName: string;
+    examDuration: number;
+    examOnline: number;
     status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
 }
 
 interface ScheduledExamDetailsComponentProps {
-    exam: ExamAction | undefined;
+    exam: Grade;
     // course: Course | undefined;
     cancelAction: () => void
 }
@@ -32,18 +36,33 @@ interface ScheduledExamDetailsComponentProps {
 export default function ScheduledExamDetailsComponent({ exam, cancelAction } : ScheduledExamDetailsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
+    console.log(exam);
 
     // Session Information
     const {data: session, status} = useSession();
-    const [examData, setExamData] = useState({
-        examId: exam?.exam_id,
-        examName: exam?.exam_name || '',
-        courseId: exam?.exam_course_id.toString() || '',
-        examDifficulty: exam?.exam_difficulty.toString() || '',
-        examRequired: exam?.exam_required.toString() || '',
-        examDuration: exam?.exam_duration.toString() || '',
-        examState: exam?.exam_state.toString() || '',
-        examOnline: exam?.exam_online.toString() || ''
+    const [testWindows, setTestWindows] = useState<TestWindow[]>([]);
+    const [testWindowsLoading, setTestWindowsLoading] = useState<boolean>(true);
+    const [examData, setExamData] = useState<ExamResult>();
+    const [examResultData, setExamResultData] = useState<Grade>({
+        examResultId: exam.examResultId,
+        examId: exam.examId,
+        examVersion: exam.examVersion,
+        examName: exam.examName,
+        examScore: exam.examScore,
+        examTakenDate: exam.examTakenDate,
+        examScheduledDate: exam.examScheduledDate,
+        examStudentId: exam.examStudentId,
+        examOnline: exam.examOnline,
+        examRequired: exam.examRequired,
+        examDuration: exam.examDuration,
+        examState: exam.examState,
+        examDifficulty: exam.examDifficulty,
+        courseProfessorId: exam.courseProfessorId,
+        courseName: exam.courseName,
+        courseYear: exam.courseYear,
+        courseQuarter: exam.courseQuarter,
+        courseSection: exam.courseSection,
+        courseId: exam.courseId
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
@@ -57,6 +76,9 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [currentMonth, setCurrentMonth] = useState<Date | undefined>(undefined); // Separate state for displayed month
     const defaultClassNames = getDefaultClassNames();
+
+    // Add state to track which card is showing overlay
+    const [activeOverlay, setActiveOverlay] = useState<number | null>(null);
 
     const colors = {
         'mentat-gold': '#dab05a',
@@ -86,45 +108,67 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
     // Exam hydration of state
     useEffect(() => {
         // Set default date when component mount with exam
-        if (exam) {
-            setSelectedDate(encodeStringDate(exam.exam_scheduled_date));
-            setCurrentMonth(encodeStringDate(exam.exam_scheduled_date));
+        if (examResultData) {
+            setSelectedDate(encodeStringDate(examResultData.examScheduledDate));
+            setCurrentMonth(encodeStringDate(examResultData.examScheduledDate));
+            fetchTestWindows();
         }
-    }, [exam]);
+    }, [examResultData]);
 
-    const handleUpdate = async (event: React.FormEvent) => {
+    const handleUpdate = async (window: TestWindow) => {
         // Prevent default events
-        event.preventDefault();
-        console.log("Modify Exam");
+        console.log("Reschedule Exam");
         console.log(exam);
-        console.log(examData);
-        // API Handler call
-        try {
-            console.log("Updating Exam");
-            console.log(session);
-            // API Handler
-            const res = await apiHandler(
-                examData,
-                "PATCH",
-                `api/exam/${exam?.exam_id}`,
-                `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
-            );
+        console.log(window);
+        // If the window exists
+        if (window) {
+            // Update data map
+            const updatedData: ExamResult = {
+                examResultId: examResultData.examResultId,
+                examStudentId: examResultData.examStudentId,
+                examId: examResultData.examId,
+                examVersion: examResultData.examVersion || 1,
+                examScore: examResultData?.examScore?.toString() || '',
+                examScheduledDate: window?.testWindowStartDate?.toString() ||
+                    examResultData.examTakenDate?.toString() || '',
+                examTakenDate: examResultData?.examTakenDate?.toString() || ''
+            };
+            setExamData(updatedData);
 
-            // Handle errors properly
-            if (res instanceof Error || (res && res.error)) {
-                toast.error(res?.message || "Failed to update the exam");
-            } else {
-                toast.success("Successfully updated the exam!");
-                // updateExam(undefined);
-                console.log("Exam Update Succeeded.");
-                console.log(res.toString());
+            // Update the state directly, to update UI
+            setExamResultData(prev => ({
+                ...prev,
+                examScheduledDate: window.testWindowStartDate?.toString() || ''
+            }));
+
+            // API Handler call
+            try {
+                console.log("Updating Exam Result");
+                // API Handler
+                const res = await apiHandler(
+                    updatedData,
+                    "PATCH",
+                    `api/exam/result/${exam?.examResultId}`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
+
+                // Handle errors properly
+                if (res instanceof Error || (res && res.error)) {
+                    toast.error(res?.message || "Failed to update the exam result");
+                } else {
+                    toast.success("Successfully updated the exam result!");
+                    // updateExam(undefined);
+                    console.log("Exam Result Update Succeeded.");
+                    console.log(res.toString());
+                }
+            } catch (e) {
+                toast.error("Exam Result Update Failed");
+            } finally {
+                // Run the cancel/close callback
+                setActiveOverlay(null);
+                cancelAction();
             }
-        } catch (e) {
-            toast.error("Exam Update Failed");
-        } finally {
-            // Run the cancel/close callback
-            cancelAction();
         }
     }
 
@@ -140,7 +184,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
             const res = await apiHandler(
                 undefined,
                 "DELETE",
-                `api/exam/${exam?.exam_id}`,
+                `api/exam/${exam?.examId}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -162,8 +206,86 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
         }
     }
 
+    // Fetch test windows
+    const fetchTestWindows = async () => {
+        // Try wrapper to handle async exceptions
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/test-window/course/${examResultData.courseId}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching test windows:', res.error);
+                // setTestWindows([]);
+            } else {
+                // Convert object to array
+                let testWindowsData = [];
+
+                // If res is an array, set coursesData to res
+                if (Array.isArray(res)) {
+                    testWindowsData = res;
+                    // If res is an object, set coursesData to the values of the object
+                } else if (res && typeof res === 'object') {
+                    // Use Object.entries() to get key-value pairs, then map to values
+                    testWindowsData = Object.entries(res)
+                        .filter(([key, value]) => value !== undefined && value !== null)
+                        .map(([key, value]) => value);
+                    // If res is not an array or object, set coursesData to an empty array
+                } else {
+                    testWindowsData = [];
+                }
+
+                // Filter out invalid entries
+                testWindowsData = testWindowsData.filter(c => c && typeof c === 'object');
+
+                console.log('Processed test windows data:', testWindowsData);
+                // Set courses to coursesData
+                setTestWindows(testWindowsData);
+                // setFilter('all');
+                // console.log('Length of filter:', filteredExams.length);
+            }
+        } catch (e) {
+            // Error fetching courses
+            console.error('Error fetching test windows:', e);
+            // Set courses to empty array
+            // setExams([]);
+        } finally {
+            // Set loading to false
+            // setLoading(false);
+            setTestWindowsLoading(false);
+        }
+    }
+
     const encodeStringDate = (date: string) => {
         return new Date(date + 'T00:00:00.000-08:00');
+    }
+
+    // Handle Delete
+    const navigateTestWindow = async (window: TestWindow) => {
+        // API Handler call
+        try {
+            console.log("Moving Calendar");
+            // console.log(window);
+            console.log(activeOverlay)
+            setActiveOverlay(window.testWindowId);
+
+            if (window.testWindowStartDate) {
+                let moveToDate = encodeStringDate(window.testWindowStartDate);
+                setSelectedDate(moveToDate);
+                setCurrentMonth(moveToDate);
+            }
+        } catch (e) {
+            toast.error("Test Window Move Failed");
+        } finally {
+            // Run the cancel/close callback
+            // cancelAction();
+        }
     }
 
     return (
@@ -178,7 +300,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 </div>
                 <div className="bg-mentat-gold/10 rounded-lg">
                     <span className="p-2">
-                        {exam?.exam_name}
+                        {examResultData.examName}
                     </span>
                 </div>
                 <hr className="m-2 border border-mentat-gold/10" />
@@ -189,7 +311,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 </div>
                 <div className="bg-mentat-gold/10 rounded-lg">
                     <span className="p-2">
-                        {exam?.exam_course_name}
+                        {examResultData.courseName}
                     </span>
                 </div>
                 <hr className="m-2 border border-mentat-gold/10" />
@@ -200,7 +322,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 </div>
                 <div className="bg-mentat-gold/10 rounded-lg">
                     <span className="p-2">
-                        {exam?.exam_scheduled_date}
+                        {examResultData.examScheduledDate}
                     </span>
                 </div>
                 <hr className="m-2 border border-mentat-gold/10" />
@@ -209,7 +331,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                         Exam Version:
                     </span>
                     <span className="">
-                        {exam?.exam_version}
+                        {examResultData.examVersion}
                     </span>
                 </div>
                 <hr className="m-2 border border-mentat-gold/10" />
@@ -218,7 +340,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                         Exam Difficulty:
                     </span>
                     <span className="">
-                        {exam?.exam_difficulty}
+                        {examResultData.examDifficulty}
                     </span>
                 </div>
                 <hr className="m-2 border border-mentat-gold/10" />
@@ -227,9 +349,9 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                         Exam Online:
                     </span>
                     <span className={`
-                        ${exam?.exam_online ? 'text-green-600' : 'text-red-600'}
+                        ${examResultData.examOnline ? 'text-green-600' : 'text-red-600'}
                     `}>
-                        {exam?.exam_online ? 'True' : 'False'}
+                        {examResultData.examOnline ? 'True' : 'False'}
                     </span>
                 </div>
             </div>
@@ -360,9 +482,123 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 </style>
             </div>
             {/*This is the right panel content*/}
-            <div className="flex flex-col w-1/5 h-full min-h-0 rounded-lg">
+            { testWindowsLoading ? (
+                <div className="flex justify-center items-center pt-10">
+                    <RingSpinner size={'sm'} color={'mentat-gold'} />
+                    <p className="ml-3 text-md text-mentat-gold">Loading test windows...</p>
+                </div>
+            ) : testWindows.length === 0 ? (
+                <div className="flex flex-col w-1/5 h-full min-h-0 p-4 rounded-lg">
+                    No Test Windows Assigned to Course
+                </div>
+            ) : (
+                <div className="flex flex-col w-1/5 h-full min-h-0">
+                    <h3 className="text-center text-lg mt-1">Test Windows</h3>
+                    {/* Line Divider */}
+                    <hr className="border-crimson border-1 my-1"></hr>
+                    <div className="p-4 rounded-lg overflow-y-auto">
+                        {/*These are the test windows*/}
+                        { testWindows.map(testWindow => (
+                            // In your map function:
+                            <div className="relative" key={testWindow.testWindowId}>
+                                {/* Your existing card */}
+                                <div
+                                    className="border border-mentat-gold/20 mb-2
+                                rounded-xl bg-card-color p-2 hover:bg-card-color/10"
+                                    onClick={() => {
+                                        if (activeOverlay !== testWindow.testWindowId) {
+                                            navigateTestWindow(testWindow);
+                                        }
+                                    }}
+                                >
+                                    <div>
+                                        <div className="flex font-semibold italic justify-between">
+                                        <span className="">
+                                            Description:
+                                        </span>
+                                        </div>
+                                        <div className="rounded-lg text-sm">
+                                        <span className="text-mentat-gold-700">
+                                            {testWindow.description}
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div className="my-1">
+                                        <div className="flex font-semibold italic justify-between">
+                                        <span className="">
+                                            Start Date/Time:
+                                        </span>
+                                        </div>
+                                        <div className="rounded-lg text-sm">
+                                        <span className="text-mentat-gold-700">
+                                            {testWindow.testWindowStartDate}: {testWindow.testStartTime}
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div className="my-1 overflow-y-auto">
+                                        <div className="flex font-semibold italic justify-between">
+                                        <span className="">
+                                            End Date/Time:
+                                        </span>
+                                        </div>
+                                        <div className="rounded-lg text-sm">
+                                        <span className="text-mentat-gold-700">
+                                            {testWindow.testWindowEndDate}: {testWindow.testEndTime}
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div className="my-1">
+                                        <div className="flex font-semibold italic justify-between">
+                                        <span className="">
+                                            Active:
+                                        </span>
+                                            <span className={`${ testWindow.isActive ?
+                                                'text-green-700' : 'text-red-700'
+                                            }`}>
+                                            <span className="not-italic">
+                                                {testWindow.isActive.toString()}
+                                            </span>
+                                        </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Overlay that appears when active */}
+                                {activeOverlay === testWindow.testWindowId && (
+                                    <div className="absolute inset-0 bg-mentat-black/10 backdrop-blur-sm rounded-xl
+                                    flex items-center justify-center z-20"
+                                    >
+                                        <div className="flex flex-col gap-3 items-center">
+                                            <button
+                                                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                                                     shadow-sm shadow-mentat-gold-700 bg-crimson
+                                                     text-mentat-gold hover:bg-crimson-700"
+                                                // className="bg-crimson text-mentat-black px-6 py-3 rounded-lg
+                                                //    font-semibold hover:bg-mentat-gold/80 transition-colors
+                                                //    w-32"
+                                                onClick={() => handleUpdate(testWindow)}
+                                            >
+                                                Reschedule
+                                            </button>
+                                            <button
+                                                className="px-4 py-2 rounded-lg text-sm bg-mentat-gold
+                                            transform-colors hover:bg-mentat-gold-700
+                                            text-crimson font-bold shadow-sm shadow-crimson-700"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setActiveOverlay(null);
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-            </div>
+            )}
         </div>
     );
 }
