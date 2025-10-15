@@ -6,13 +6,15 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exam, ExamProp, Course } from "@/components/types/exams";
+import { Exam, ExamProp } from "@/components/types/exams";
+import Course from "@/components/types/course";
 import Grade from "@/components/types/grade";
 import { getExamStatus, ExamExtended } from "@/components/UI/cards/ExamCards";
 import { getExamPropCourse } from "@/app/schedule/localComponents/ExamCard";
 import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledExam";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamCardMedium, ExamMedium } from "@/app/schedule/localComponents/ExamCard";
+import {Report} from "@/app/reports/types/shared";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -43,6 +45,7 @@ export default function StudentSchedule() {
     const [exams, setExams] = useState<Grade[]>([]);
     const [exam, setExam] = useState<Grade>();
     const [course, setCourse] = useState<Course>();
+    const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
@@ -50,7 +53,7 @@ export default function StudentSchedule() {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const [selectedCourse, setSelectedCourse] = useState<string>('all');
-    const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330'>('all');
+    const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330' | string>('all');
 
     // Fetch exams
     useEffect(() => {
@@ -63,6 +66,7 @@ export default function StudentSchedule() {
 
         // Fetch Exams
         fetchExams(id);
+        fetchCourses(id)
 
     }, [status, session, BACKEND_API, refreshTrigger]);
 
@@ -76,6 +80,21 @@ export default function StudentSchedule() {
 
         return result;
     }, [filter, exams]);
+
+    const filteredCourses = useMemo(() => {
+        if (!courses) return;
+        console.log('Courses', courses);
+
+        let result = filter === 'all'
+            ? courses
+            : courses.filter(course => course.courseName === filter);
+
+        console.log('result of course filter:', result);
+        console.log('length of courses:', courses.length);
+
+        return result;
+
+    }, [filter, courses]);
 
     // Fetch exams
     const fetchExams = async (id: string) => {
@@ -132,6 +151,52 @@ export default function StudentSchedule() {
         }
     }
 
+    /**
+     * Fetch Courses
+     * Implementation for general API handler
+     */
+    const fetchCourses = async ()=> {
+        console.log('Fetching data for instructor exam page: Course data');
+        // Courses List
+        let coursesData: Course[] = [];
+        // Exception Wrapper for API handler
+        try {
+            const res = await apiHandler(
+                undefined,
+                'GET',
+                `api/course/enrollments?studentId=${session?.user.id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+            console.log('Course API response');
+            console.log(res);
+
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching courses:', res.error);
+            } else {
+                coursesData = [
+                    ...res
+                    ]
+            }
+
+            console.log('This is the courses data:', coursesData);
+            console.log(coursesData);
+
+        } catch (error) {
+            console.error('Error fetching instructor courses:', error as string);
+            // setCourses([]);
+        } finally {
+            if (coursesData.length !== 0) {
+                setCourses(coursesData);
+            } else {
+                setCourses([]);
+            }
+            // Now we are done loading data
+            // setLoading(false);
+            return coursesData;
+        }
+    }
+
     // Fetch Course
     const fetchCourse = async (courseId: number) => {
         // API Handler call
@@ -160,12 +225,12 @@ export default function StudentSchedule() {
 
                 // Convert response to Exam interface object
                 const courseData: Course = {
-                    course_name: res.course_name,
-                    course_id: res.course_id,
-                    course_professor_id: res.course_professor_id,
-                    course_year: res.course_year,
-                    course_quarter: res.course_year,
-                    course_section: res.course_section
+                    courseName: res.courseName,
+                    courseId: res.courseId,
+                    courseProfessorId: res.courseProfessorId,
+                    courseYear: res.courseYear,
+                    courseQuarter: res.courseQuarter,
+                    courseSection: res.courseSection
                 };
 
                 console.log('Processed course data:', courseData);
@@ -227,7 +292,13 @@ export default function StudentSchedule() {
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Manage Scheduled Exams</h1>
-                        < CreateScheduledExam />
+                        { session?.user?.id && filteredCourses ? (
+                            < CreateScheduledExam
+                                studentId={session?.user?.id}
+                                courses={filteredCourses}
+                            />
+                        ): ( <React.Fragment /> )}
+
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
                     <p>Manage and view your scheduled exams</p>
@@ -289,6 +360,10 @@ export default function StudentSchedule() {
                                             exam={examInst}
                                             index={0}
                                             onclick={(e) => loadScheduledExamData(examInst, e)}
+                                            updateAction={() => {
+                                                // Trigger refresh when modal closes
+                                                setRefreshTrigger(prev => prev + 1);
+                                            }}
                                         />
                                     ))}
                                 </AnimatePresence>

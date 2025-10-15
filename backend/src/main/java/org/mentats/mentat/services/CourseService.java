@@ -56,26 +56,26 @@ public class CourseService {
 
     /**
      * Fetch all Course objects by Professor Id from the database
-     * @param professorId
+     * @param courseProfessorId
      * @return List of Course objects
      */
     // Read courses by professor ID
-    public List<Course> getCoursesByProfessorId(Long professorId) {
-        validator.validateProfessorId(professorId);
-        return courseRepository.findByCourseProfessorId(professorId);
+    public List<Course> getCoursesByProfessorId(Long courseProfessorId) {
+        validator.validateProfessorId(courseProfessorId);
+        return courseRepository.findByCourseProfessorId(courseProfessorId);
     }
 
     /**
      * Fetch all Course objects by year and quarter
-     * @param year
-     * @param quarter
+     * @param courseYear
+     * @param courseQuarter
      * @return List of Course objects
      */
     // Read courses by year and quarter
-    public List<Course> getCoursesByYearAndQuarter(Integer year, String quarter) {
-        validator.validateYear(year);
-        validator.validateQuarter(quarter);
-        return courseRepository.findByCourseYearAndCourseQuarter(year, quarter);
+    public List<Course> getCoursesByYearAndQuarter(Integer courseYear, String courseQuarter) {
+        validator.validateYear(courseYear);
+        validator.validateQuarter(courseQuarter);
+        return courseRepository.findByCourseYearAndCourseQuarter(courseYear, courseQuarter);
     }
 
     /**
@@ -91,19 +91,19 @@ public class CourseService {
 
     /**
      * Fetch Course object by section, year, and quarter
-     * @param section
-     * @param year
-     * @param quarter
+     * @param courseSection
+     * @param courseYear
+     * @param courseQuarter
      * @return Course object
      */
     // Read course by section, year, and quarter
-    public Course getCourseBySectionYearQuarter(String section, Integer year, String quarter) {
-        validator.validateSection(section);
-        validator.validateYear(year);
-        validator.validateQuarter(quarter);
-        return courseRepository.findByCourseSectionAndCourseYearAndCourseQuarter(section, year, quarter)
-                .orElseThrow(() -> new CourseNotFoundException("Course not found with section: " + section +
-                        ", year: " + year + ", quarter: " + quarter));
+    public Course getCourseBySectionYearQuarter(String courseSection, Integer courseYear, String courseQuarter) {
+        validator.validateSection(courseSection);
+        validator.validateYear(courseYear);
+        validator.validateQuarter(courseQuarter);
+        return courseRepository.findByCourseSectionAndCourseYearAndCourseQuarter(courseSection, courseYear, courseQuarter)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found with section: " + courseSection +
+                        ", year: " + courseYear + ", quarter: " + courseQuarter));
     }
 
     /**
@@ -183,14 +183,14 @@ public class CourseService {
 
     /**
      * Check if course with same section, year, and quarter already exists
-     * @param section
-     * @param year
-     * @param quarter
+     * @param courseSection
+     * @param courseYear
+     * @param courseQuarter
      * @param excludeId
      * @return boolean
      */
     // Check uniqueness
-    public boolean isCourseUnique(String section, Integer year, String quarter, Long excludeId) {
-        return validator.isCourseUnique(section, year, quarter, excludeId);
+    public boolean isCourseUnique(String courseSection, Integer courseYear, String courseQuarter, Long excludeId) {
+        return validator.isCourseUnique(courseSection, courseYear, courseQuarter, excludeId);
     }
 }

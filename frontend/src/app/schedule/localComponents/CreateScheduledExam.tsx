@@ -7,17 +7,28 @@ import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
 import { Plus } from 'lucide-react';
+import Course from "@/components/types/course";
+import Exam from "@/components/types/exam";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
+interface CreateScheduledExamProps {
+    studentId: string | undefined;
+    courses: Course[] | undefined;
+}
+
 /**
- * Default Schedule Page
+ * Student Schedule Page
  * @constructor
  */
-export default function CreateScheduledExam() {
+export default function CreateScheduledExam({ studentId, courses }:CreateScheduledExamProps ) {
 
     // State information
+    const [course, setCourse] = useState<Course>();
+    const [exams, setExams] = useState<Exam[]>([]);
+    const [currentExam, setCurrentExam] = useState<Exam>();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         exam_course_id: 1,
@@ -66,6 +77,92 @@ export default function CreateScheduledExam() {
         });
     };
 
+    // Fetch exams
+    const fetchExamsByCourse = async (id: string) => {
+        // Try wrapper to handle async exceptions
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/exam/course/${id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching exams:', res.error);
+                setExams([]);
+            } else {
+                // Convert object to array
+                let examsData = [];
+
+                // If res is an array, set coursesData to res
+                if (Array.isArray(res)) {
+                    examsData = res;
+                    // If res is an object, set coursesData to the values of the object
+                } else if (res && typeof res === 'object') {
+                    // Use Object.entries() to get key-value pairs, then map to values
+                    examsData = Object.entries(res)
+                        .filter(([key, value]) => value !== undefined && value !== null)
+                        .map(([key, value]) => value);
+                    // If res is not an array or object, set coursesData to an empty array
+                } else {
+                    examsData = [];
+                }
+
+                // Filter out invalid entries
+                examsData = examsData.filter(c => c && typeof c === 'object');
+
+                console.log('Processed exams data:', examsData);
+                // Set courses to coursesData
+                setExams(examsData);
+                // setFilter('all');
+                // console.log('Length of filter:', filteredExams.length);
+            }
+        } catch (e) {
+            // Error fetching courses
+            console.error('Error fetching exams:', e);
+            // Set courses to empty array
+            setExams([]);
+        } finally {
+            // Set loading to false
+            // setLoading(false);
+        }
+    }
+
+    const handleCourseChange = (event) => {
+        const selectedValue = event.target.value;
+        if (courses && courses.length > 0) {
+            let currentCourse = courses.filter(course => course.courseId === selectedValue);
+            console.log(selectedValue);
+            setCourse(currentCourse[0]);
+
+            // Get the exams that are available for that course
+            fetchExamsByCourse(selectedValue);
+
+            // Your callback logic here
+            console.log('Selected course ID:', selectedValue);
+        }
+
+        // onCourseSelect?.(selectedValue); // Optional callback prop
+    };
+
+    const handleExamChange = (event) => {
+        const selectedValue = event.target.value;
+        if (exams && exams.length > 0) {
+            let current = exams.filter(exam => exam.examId === selectedValue);
+            console.log(selectedValue);
+            setCurrentExam(current[0]);
+
+            // Your callback logic here
+            console.log('Selected exam ID:', selectedValue);
+        }
+
+        // onCourseSelect?.(selectedValue); // Optional callback prop
+    };
+
     /**
      * Submit button for Form
      * @param event Event from DOM
@@ -112,6 +209,9 @@ export default function CreateScheduledExam() {
         }
     };
 
+    console.log(courses);
+    console.log(studentId);
+
     return (
         <div className="bg-mentat-black text-mentat-gold">
             <div className="p-6 inline-flex items-center">
@@ -131,32 +231,46 @@ export default function CreateScheduledExam() {
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
-                            <input
-                                type="text"
-                                id="exam_name"
-                                name="exam_name"
-                                value={exam_name}
-                                onChange={data}
-                                required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                                placeholder="Enter exam name"
-                            />
-                        </div>
+                        {/*Course Selection and logic*/}
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
                             <select
                                 id="exam_course_id"
                                 name="exam_course_id"
-                                value={exam_course_id}
-                                onChange={data}
+                                value={course?.courseName}
+                                onChange={handleCourseChange}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             >
-                                <option value="1">Mathematics</option>
-                                <option value="2">Physics</option>
-                                <option value="3">Chemistry</option>
+                                <option value="">Select a course</option>
+                                {courses && courses.map(course => (
+                                    <option
+                                        key={course.courseId}
+                                        value={course.courseId}>
+                                        {course.courseName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {/*Exam Selection and Logic*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
+                            <select
+                                id="exam_name"
+                                name="exam_name"
+                                value={currentExam?.examName}
+                                onChange={handleExamChange}
+                                required={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            >
+                                <option value="">Select an exam</option>
+                                {exams && exams.map(exam => (
+                                    <option
+                                        key={exam.examId}
+                                        value={exam.examName}>
+                                        {exam.examName}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div className="flex flex-col gap-2">

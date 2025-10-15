@@ -30,10 +30,12 @@ export interface ExamAction extends ExamResult {
 interface ScheduledExamDetailsComponentProps {
     exam: Grade;
     // course: Course | undefined;
-    cancelAction: () => void
+    cancelAction: () => void;
+    updateAction: () => void;
 }
 
-export default function ScheduledExamDetailsComponent({ exam, cancelAction } : ScheduledExamDetailsComponentProps) {
+export default function ScheduledExamDetailsComponent(
+        { exam, cancelAction, updateAction } : ScheduledExamDetailsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
     console.log(exam);
@@ -74,7 +76,8 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
     });
 
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-    const [currentMonth, setCurrentMonth] = useState<Date | undefined>(undefined); // Separate state for displayed month
+    // Separate state for displayed month
+    const [currentMonth, setCurrentMonth] = useState<Date | undefined>(undefined);
     const defaultClassNames = getDefaultClassNames();
 
     // Add state to track which card is showing overlay
@@ -109,8 +112,12 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
     useEffect(() => {
         // Set default date when component mount with exam
         if (examResultData) {
-            setSelectedDate(encodeStringDate(examResultData.examScheduledDate));
-            setCurrentMonth(encodeStringDate(examResultData.examScheduledDate));
+            setSelectedDate(examResultData.examScheduledDate);
+            setCurrentMonth(examResultData.examScheduledDate);
+            // setSelectedDate(encodeStringDate(examResultData.examScheduledDate.toLocaleString('en-US',
+            //     { timeZone: 'America/Los_Angeles' })));
+            // setCurrentMonth(encodeStringDate(examResultData.examScheduledDate.toLocaleString('en-US',
+            //     { timeZone: 'America/Los_Angeles' })));
             fetchTestWindows();
         }
     }, [examResultData]);
@@ -129,16 +136,16 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 examId: examResultData.examId,
                 examVersion: examResultData.examVersion || 1,
                 examScore: examResultData?.examScore?.toString() || '',
-                examScheduledDate: window?.testWindowStartDate?.toString() ||
-                    examResultData.examTakenDate?.toString() || '',
-                examTakenDate: examResultData?.examTakenDate?.toString() || ''
+                examScheduledDate: selectedDate ||
+                    examResultData.examScheduledDate,
+                examTakenDate: examResultData?.examTakenDate
             };
             setExamData(updatedData);
 
             // Update the state directly, to update UI
             setExamResultData(prev => ({
                 ...prev,
-                examScheduledDate: window.testWindowStartDate?.toString() || ''
+                examScheduledDate: selectedDate || examResultData.examScheduledDate
             }));
 
             // API Handler call
@@ -157,7 +164,7 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 if (res instanceof Error || (res && res.error)) {
                     toast.error(res?.message || "Failed to update the exam result");
                 } else {
-                    toast.success("Successfully updated the exam result!");
+                    toast.success("Successfully rescheduled the Exam!");
                     // updateExam(undefined);
                     console.log("Exam Result Update Succeeded.");
                     console.log(res.toString());
@@ -167,7 +174,8 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
             } finally {
                 // Run the cancel/close callback
                 setActiveOverlay(null);
-                cancelAction();
+                updateAction()
+                // cancelAction();
             }
         }
     }
@@ -276,7 +284,8 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
             setActiveOverlay(window.testWindowId);
 
             if (window.testWindowStartDate) {
-                let moveToDate = encodeStringDate(window.testWindowStartDate);
+                let moveToDate = encodeStringDate(window.testWindowStartDate.toLocaleString('en-US',
+                    { timeZone: 'America/Los_Angeles' }));
                 setSelectedDate(moveToDate);
                 setCurrentMonth(moveToDate);
             }
@@ -322,7 +331,8 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                 </div>
                 <div className="bg-mentat-gold/10 rounded-lg">
                     <span className="p-2">
-                        {examResultData.examScheduledDate}
+                        {new Date(examResultData.examScheduledDate).toLocaleDateString('en-US',
+                            { timeZone: 'America/Los_Angeles' })}
                     </span>
                 </div>
                 <hr className="m-2 border border-mentat-gold/10" />
@@ -531,7 +541,8 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                                         </div>
                                         <div className="rounded-lg text-sm">
                                         <span className="text-mentat-gold-700">
-                                            {testWindow.testWindowStartDate}: {testWindow.testStartTime}
+                                            {testWindow?.testWindowStartDate?.toLocaleString('en-US',
+                                                { timeZone: 'America/Los_Angeles' })}: {testWindow?.testStartTime}
                                         </span>
                                         </div>
                                     </div>
@@ -543,7 +554,8 @@ export default function ScheduledExamDetailsComponent({ exam, cancelAction } : S
                                         </div>
                                         <div className="rounded-lg text-sm">
                                         <span className="text-mentat-gold-700">
-                                            {testWindow.testWindowEndDate}: {testWindow.testEndTime}
+                                            {testWindow?.testWindowEndDate?.toLocaleString('en-US',
+                                                { timeZone: 'America/Los_Angeles' })}: {testWindow?.testEndTime}
                                         </span>
                                         </div>
                                     </div>

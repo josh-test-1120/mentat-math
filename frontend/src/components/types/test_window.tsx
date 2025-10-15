@@ -2,9 +2,9 @@ export default interface TestWindow {
     testWindowId: number;
     testStartTime: string;
     testEndTime: string;
-    testWindowCreatedDatetime: string;
-    testWindowStartDate?: string;
-    testWindowEndDate?: string;
+    testWindowCreatedDatetime: Date;
+    testWindowStartDate?: Date;
+    testWindowEndDate?: Date;
     courseId: number;
     description?: string;
     testWindowTitle: string;
