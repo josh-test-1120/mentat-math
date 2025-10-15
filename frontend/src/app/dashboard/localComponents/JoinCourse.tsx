@@ -78,7 +78,7 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
             const res = await apiHandler(
                 { studentId: userSession.id, courseId },
                 "POST",
-                "course/joinCourse",
+                "api/course/joinCourse",
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );

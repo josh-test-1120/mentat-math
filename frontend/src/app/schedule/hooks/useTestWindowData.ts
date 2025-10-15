@@ -41,7 +41,7 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
                 const res = await apiHandler(
                     undefined,
                     'GET',
-                    `course/listCourses?id=${session.user.id}`,
+                    `api/course/listCourses?id=${session.user.id}`,
                     `${backendApi}`,
                     session?.user?.accessToken || undefined
                 );

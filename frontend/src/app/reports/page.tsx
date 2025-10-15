@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import InstructorsPage from "./pageInstructor";
-import StudentsPage from "./pageStudent";
+import {StudentReport as StudentsPage} from "./pageStudent";
 
 /**
  * Client Side Page that uses the AuthProvider session from RootLayout
@@ -14,7 +14,8 @@ export default function Report() {
     return (
         <section
             id={"reportsPageMain"}
-            className="font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
+            className="font-bold h-full max-w-screen-2xl px-4 py-8
+                bg-mentat-black text-mentat-gold"
         >
             {status === "loading" ? (
                 <div>Loading...</div>

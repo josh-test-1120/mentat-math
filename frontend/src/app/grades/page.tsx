@@ -14,7 +14,8 @@ export default function Grades() {
     return (
         <section
             id={"gradePageMain"}
-            className="font-bold h-full max-w-screen-2xl px-4 py-8 lg:h-screen bg-mentat-black text-mentat-gold"
+            className="font-bold h-full max-w-screen-2xl
+                bg-mentat-black text-mentat-gold"
         >
             {status === "loading" ? (
                 <div>Loading...</div>

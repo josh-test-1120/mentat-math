@@ -1,23 +1,49 @@
 export interface Exam {
-    exam_id: number;
-    exam_name: string;
-    exam_course_id: number;
-    exam_difficulty: number;
-    exam_required: number;
-    exam_duration: string;
-    exam_state: number;
-    exam_online: number;
+    examId: number;
+    courseId: number;
+    examDifficulty: number;
+    examDuration: number;
+    examName: String;
+    examOnline: number;
+    examRequired: number;
+    examState: number;
     status?: 'active' | 'inactive';
 }
 
-export interface ExamResult {
-    exam_id: string;
-    exam_name: string;
-    exam_course_id: string;
+export interface ExamOld {
+    exam_id: number;
+    course_id: number;
+    exam_difficulty: number;
+    exam_duration: number;
+    exam_name: String;
+    exam_online: number;
+    exam_required: number;
+    exam_state: number;
+    status?: 'active' | 'inactive';
+}
+
+export interface Grade extends ExamResult {
+    course_name: string;
+    exam_online?: number;
+}
+
+export interface GradeCardExtendedProps {
+    grade: Grade;
+    index: number;
+    onclick?: (e: any) => void;
+}
+
+export interface ExamResultProper {
+    exam_id: number;
+    exam_name: String;
+    exam_course_id: number;
     exam_required: number;
     exam_scheduled_date: string;
     exam_taken_date?: string | undefined;
     exam_score?: string | undefined;
+}
+
+export interface ExamResult extends ExamResultProper {
     status: 'passed' | 'failed' | 'pending' | undefined;
 }
 
@@ -57,6 +83,7 @@ export interface ExamProp {
     exam_hour: number;
     exam_online: number;
     exam_minutes?: number;
+    exam_duration?: string;
 }
 
 export interface Course {

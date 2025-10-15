@@ -8,6 +8,7 @@ import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
 import {Plus, Loader2} from 'lucide-react';
 
+
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -180,7 +181,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                 <button
                     className="bg-crimson hover:bg-crimson-700 text-mentat-gold
                         font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
-                        inline-flex"
+                        inline-flex shadow-sm shadow-mentat-gold-700"
                     onClick={() => setIsModalOpen(true)}
                 >
                     <span className="inline-flex items-center mr-1">
@@ -314,12 +315,15 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                         <button
                             type="button"
                             onClick={() => setIsModalOpen(false)}
-                            className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
+                            className="bg-crimson hover:bg-crimson-700 text-mentat-gold
+                             font-semibold py-2 px-4 rounded-md border border-mentat-gold/20
+                             shadow-sm shadow-mentat-gold-700"
                         >
                             Cancel
                         </button>
                         <button
-                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold py-2 px-4 rounded-md"
+                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
+                             font-bold py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
                             type="submit"
                         >
                             Create Exam

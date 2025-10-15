@@ -63,7 +63,7 @@ public class ExamResultService {
     // Read multiple exam results by Student ID
     public List<ExamResult> getExamResultsByStudent(Long studentId) {
         validator.validateStudentId(studentId);
-        return examResultRepository.findByStudentId(studentId);
+        return examResultRepository.findByStudent_Id(studentId);
     }
 
     /**
@@ -74,7 +74,7 @@ public class ExamResultService {
     // Read multiple exam results by Exam ID
     public List<ExamResult> getExamResultsByExamId(Long examId) {
         validator.validateExamId(examId);
-        return examResultRepository.findByExamId(examId);
+        return examResultRepository.findByExam_Id(examId);
     }
 
     /**
@@ -87,7 +87,7 @@ public class ExamResultService {
     public List<ExamResult> getExamResultsByExamIdAndVersion(Long examId, Integer examVersion) {
         validator.validateExamId(examId);
         validator.validateExamVersion(examVersion);
-        return examResultRepository.findByExamIdAndExamVersion(examId, examVersion);
+        return examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
     }
 
     /**
@@ -134,7 +134,7 @@ public class ExamResultService {
     // Delete exam results by student id
     public void deleteExamResultsByStudent(Long studentId) {
         validator.validateStudentId(studentId);
-        examResultRepository.deleteByStudentId(studentId);
+        examResultRepository.deleteByStudent_Id(studentId);
     }
 
     /**
@@ -144,6 +144,6 @@ public class ExamResultService {
     // Delete exam results by exam id
     public void deleteExamResultsByExam(Long examId) {
         validator.validateExamId(examId);
-        examResultRepository.deleteByExamId(examId);
+        examResultRepository.deleteByExam_Id(examId);
     }
 }

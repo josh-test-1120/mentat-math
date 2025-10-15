@@ -5,19 +5,23 @@ import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExamProp, Class } from '@/components/types/exams';
 import Course from '@/components/types/course';
-import { ExamCardExtended, getExamPropStatus } from '@/components/UI/cards/ExamCards';
+import ExamResult from "@/components/types/exam_result";
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
-import ExamActionsComponent from "@/components/UI/exams/ExamActions";
-import JoinCourseComponent from "@/app/courses/JoinCourse";
+import ExamActionsComponent from "@/app/dashboard/localComponents/ExamActions";
+import JoinCourseComponent from "@/app/dashboard/localComponents/JoinCourse";
+import { RingSpinner } from "@/components/UI/Spinners";
+import Exam from "@/components/types/exam";
+import { ExamResultExtended } from "@/app/dashboard/util/types";
+import { GradeCardExtended, getExamPropStatus } from "@/app/dashboard/localComponents/GradeCard";
 
 export default function ExamsPage() {
     const { data: session, status } = useSession();
-    const [exams, setExams] = useState<ExamProp[]>([]);
+    const [exams, setExams] = useState<ExamResultExtended[]>([]);
+    const [examResults, setExamResults] = useState<ExamResult[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
-    const [examResult, setExamResult] = useState<ExamProp>();
+    const [examResult, setExamResult] = useState<ExamResultExtended>();
     const [loading, setLoading] = useState(true);
-    const [examsLoading, setExamsLoading] = useState(true);
     const [coursesLoading, setCoursesLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -36,7 +40,7 @@ export default function ExamsPage() {
         // First filter by class
         let result = selectedClass === 'all'
             ? exams
-            : exams.filter(exam => exam.exam_course_name === selectedClass);
+            : exams.filter(exam => exam.courseName === selectedClass);
 
         // Then filter by status
         if (filter !== 'all') {
@@ -56,7 +60,7 @@ export default function ExamsPage() {
         }
     };
 
-    // Fetch courses
+    // Fetch exam results and enrolled courses
     useEffect(() => {
         // If not authenticated, return
         if (status !== 'authenticated') return;
@@ -66,73 +70,100 @@ export default function ExamsPage() {
         if (!id) return;
 
         console.log('This is the status:', status);
-        fetchExams(id);
-        fetchCourses(id);
+
+        // // Run first time only (initial hydration)
+        // console.log(exams);
+        // if (exams.length === 0)
+        //     if (examResults.length === 0) {
+        //         fetchExamResults(id);
+        //         fetchCourseEnrollments(id);
+        //     }
+        // For refreshes
+
+        fetchGrades(id);
+        fetchCourseEnrollments(id);
+
+        // console.log('Refresh trigger:', refreshTrigger);
+        // setExamResultsLoading(true);
+        // setExamsLoading(true);
+        // setCoursesExamLoading(true);
+        // // Hydrate the data
+        // fetchExamResults(id);
+        // fetchCourseEnrollments(id);
     }, [status, session, refreshTrigger, BACKEND_API]);
 
-    // Fetch exams
-    const fetchExams = async (id: string) => {
+    // Effects for getting exams after exam results
+    useEffect(() => {
+        if (!exams) return;
+        else if (exams && exams.length !== 0) {
+            console.log('grades use effects')
+            console.log(`use effects: ${exams}`);
+        }
+    }, [exams]);
+
+    // Fetch exams All
+    const fetchGrades = async (id: string) => {
         // Convert object to array
-        let coursesData = [];
+        let gradesData = [];
         // Try wrapper to handle async exceptions
         try {
             // API Handler
             const res = await apiHandler(
                 undefined, // No body for GET request
                 'GET',
-                `api/exams/${id}`,
+                `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
 
             // Handle errors
             if (res instanceof Error || (res && res.error)) {
-                console.error('Error fetching courses:', res.error);
+                console.error('Error fetching grades:', res.error);
                 setExams([]);
             } else {
                 // If res is an array, set coursesData to res
                 if (Array.isArray(res)) {
-                    coursesData = res;
+                    gradesData = res;
                     // If res is an object, set coursesData to the values of the object
                 } else if (res && typeof res === 'object') {
                     // Use Object.entries() to get key-value pairs, then map to values
-                    coursesData = Object.entries(res)
+                    gradesData = Object.entries(res)
                         .filter(([key, value]) => value !== undefined && value !== null)
                         .map(([key, value]) => value);
                     // If res is not an array or object, set coursesData to an empty array
                 } else {
-                    coursesData = [];
+                    gradesData = [];
                 }
 
                 // Filter out invalid entries
-                coursesData = coursesData.filter(c => c && typeof c === 'object');
+                gradesData = gradesData.filter(c => c && typeof c === 'object');
 
-                console.log('Processed courses data:', coursesData);
+                console.log('Processed grades data:', gradesData);
                 // Set courses to coursesData
-                setExams(coursesData);
+                setExams(gradesData);
             }
         } catch (e) {
             // Error fetching courses
-            console.error('Error fetching courses:', e);
+            console.error('Error fetching grades:', e);
             // Set courses to empty array
             setExams([]);
         } finally {
             // Set loading to false
-            setExamsLoading(false);
-            // setLoading(false);
+            // setExamsLoading(false);
+            setLoading(false);
             // return coursesData;
         }
     };
 
-    // Fetch courses
-    const fetchCourses = async (id: string) => {
+    // Fetch course enrollments
+    const fetchCourseEnrollments = async (id: string) => {
         // Try wrapper to handle async exceptions
         try {
             // API Handler
             const res = await apiHandler(
                 undefined, // No body for GET request
                 'GET',
-                `course/enrollments?studentId=${id}`,
+                `api/course/enrollments?studentId=${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -179,22 +210,24 @@ export default function ExamsPage() {
     };
 
     // Load Exam Actions Modal
-    const loadExamResultDetails = async (exam: ExamProp, e : any) => {
+    const loadExamResultDetails =
+            async (exam: ExamResultExtended, e : any) => {
         e.preventDefault();
         console.log('Exam event click:', e);
+        console.log(exam);
         setExamResult(exam);
         setIsExamModalOpen(true)
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br">
+        <div className="bg-gradient-to-br">
             {/*Course Listing Layout */}
             <div className="max-w-5xl mx-auto mb-4">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-semibold">My Enrolled Courses</h1>
                     <button
                         onClick={() => setIsJoinModalOpen(true)}
-                        className="font-bold py-2 px-4 rounded-md transition-all duration-200
+                        className="font-bold py-2 px-4 rounded-lg transition-all duration-200
                             hover:brightness-110 flex items-center gap-2 shadow-sm shadow-mentat-gold-700"
                         style={{ backgroundColor: '#A30F32' }}
                     >
@@ -223,7 +256,8 @@ export default function ExamsPage() {
                             }
 
                             return (
-                                <div key={c.courseId || index} className="border rounded-xl p-4 shadow-md shadow-crimson-700 bg-card-color">
+                                <div key={c.courseId || index} className="border rounded-xl p-4 shadow-md
+                                 shadow-crimson-700 bg-card-color">
                                     <div className="text-lg font-bold">
                                         {c.courseName || 'Unknown Course'}
                                     </div>
@@ -238,25 +272,11 @@ export default function ExamsPage() {
                         }).filter(Boolean)} {/* Remove null entries */}
                     </div>
                 )}
-
-                {/*/!* Join Course Modal *!/*/}
-                {/*<Modal*/}
-                {/*    isOpen={isJoinModalOpen}*/}
-                {/*    onClose={() => setIsJoinModalOpen(false)}*/}
-                {/*    title="Join New Course"*/}
-                {/*>*/}
-                {/*    <JoinCourseComponent*/}
-                {/*        onJoinSuccess={() => {*/}
-                {/*            setIsJoinModalOpen(false);*/}
-                {/*            setRefreshTrigger(prev => prev + 1);*/}
-                {/*        }}*/}
-                {/*    />*/}
-                {/*</Modal>*/}
             </div>
             {/*Exam Listing Layout*/}
             <div className="max-w-5xl mx-auto">
                 {/* Line Divider */}
-                <hr className="border-crimson border-2 mb-2"></hr>
+                <hr className="border-crimson border-2 my-6"></hr>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -276,12 +296,12 @@ export default function ExamsPage() {
                                 filter === 'all'
                                     ? 'bg-crimson text-mentat-gold-700 focus-mentat'
                                     : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                            onClick={() => {
-                                if (filter !== 'all') {
-                                    console.log(filter);
-                                }
-                                setFilter('all');
-                            }}
+                                onClick={() => {
+                                    if (filter !== 'all') {
+                                        console.log(filter);
+                                    }
+                                    setFilter('all');
+                                }}
                         >
                             All Exams
                         </button>
@@ -335,7 +355,7 @@ export default function ExamsPage() {
 
                     <div className="overflow-y-auto max-h-[250px] scrollbar-hide pt-1">
                         <AnimatePresence mode="wait">
-                            {!examsLoading && filteredExams.length > 0 ? (
+                            {!loading && filteredExams.length > 0 ? (
                                 <motion.div
                                     key={`${selectedClass}-${filter}`}
                                     variants={containerVariants}
@@ -344,21 +364,24 @@ export default function ExamsPage() {
                                     className="space-y-4 mb-2"
                                 >
                                     {filteredExams.map((exam) => (
-                                        <ExamCardExtended
-                                            key={exam.exam_id}
+                                        <GradeCardExtended
+                                            key={exam.examId}
                                             exam={exam}
                                             index={0}
                                             onclick={(e) => loadExamResultDetails(exam, e)}
                                         />
                                     ))}
                                 </motion.div>
-                            ) : examsLoading ? (
+                            ) : loading ? (
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     className="text-center py-12"
                                 >
-                                    Loading Exams...
+                                    <div className="flex justify-center items-center">
+                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                        <p className="ml-3 text-md text-mentat-gold">Loading exams...</p>
+                                    </div>
                                 </motion.div>
                             ) : (
                                 <motion.div
@@ -382,6 +405,11 @@ export default function ExamsPage() {
                 <ExamActionsComponent
                     examResult={examResult}
                     cancelAction={() => {
+                        setIsExamModalOpen(false);
+                        // Trigger refresh when modal closes
+                        // setRefreshTrigger(prev => prev + 1);
+                    }}
+                    updateAction={() => {
                         setIsExamModalOpen(false);
                         // Trigger refresh when modal closes
                         setRefreshTrigger(prev => prev + 1);

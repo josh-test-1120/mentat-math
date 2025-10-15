@@ -48,9 +48,8 @@ export default function SignInForm() {
                     </label>
                     <input
                         className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
-                            text-crimson-700 placeholder-crimson-700
-                            [&:-webkit-autofill]:!bg-crimson-700 leading-tight focus:outline-none
-                             focus:shadow-outline w-full"
+                            text-crimson-700 placeholder-crimson-900 [&:-webkit-autofill]
+                            leading-tight focus:outline-none focus:shadow-outline w-full"
                         type="text"
                         name="username"
                         placeholder="Username"
@@ -66,8 +65,8 @@ export default function SignInForm() {
                     </label>
                     <input
                         className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
-                            text-crimson-700 placeholder-crimson-700 leading-tight focus:outline-none
-                             focus:shadow-outline w-full"
+                            text-crimson-700 placeholder-crimson-700 [&:-webkit-autofill]
+                            leading-tight focus:outline-none focus:shadow-outline w-full"
                         type="email"
                         name="email"
                         id="email"
@@ -84,8 +83,8 @@ export default function SignInForm() {
                     </label>
                     <input
                         className="border border-mentat-gold-700 rounded-lg py-2 px-3
-                            text-crimson-700 placeholder-crimson-700 leading-tight focus:outline-none
-                             focus:shadow-outline w-full"
+                            text-crimson-700 placeholder-crimson-700 leading-tight
+                            focus:outline-none focus:shadow-outline w-full"
                         type="password"
                         name="password"
                         id="password"

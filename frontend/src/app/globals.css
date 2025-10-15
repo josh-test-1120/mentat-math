@@ -32,9 +32,17 @@ body {
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+    .text-balance {
+        text-wrap: balance;
+    }
+    .autofill-crimson-700 {
+        &:-webkit-autofill {
+            background-color: theme(colors.crimson.700) !important;
+            -webkit-box-shadow: 0 0 0px 1000px theme(colors.crimson.700) inset !important;
+            -webkit-text-fill-color: theme(colors.crimson.700) !important;
+            border-color: theme(colors.crimson.700) !important;
+        }
+    }
 }
 
 /* Custom scrollbar for the container */
@@ -61,11 +69,11 @@ body {
     background: #94a3b8;
 }
 
-.corner-accent {
-    width: 100%;
-    height: 100%;
-    background-color: #171717;
-    /* Apply the SVG clip-path */
-    -webkit-clip-path: polygon(0 0, 100% 0%, 100% 10%, 90% 85%, 10% 100%, 0 100%);
-    clip-path: polygon(0 0, 100% 0%, 100% 10%, 90% 85%, 10% 100%, 0 100%);
-}
+/*.corner-accent {*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    background-color: #171717;*/
+/*    !* Apply the SVG clip-path *!*/
+/*    -webkit-clip-path: polygon(0 0, 100% 0%, 100% 10%, 90% 85%, 10% 100%, 0 100%);*/
+/*    clip-path: polygon(0 0, 100% 0%, 100% 10%, 90% 85%, 10% 100%, 0 100%);*/
+/*}*/

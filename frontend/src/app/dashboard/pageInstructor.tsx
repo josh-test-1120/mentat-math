@@ -4,9 +4,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import Modal from '@/components/services/Modal';
-import CreateCourseClient from '../courses/createCourse/pageClient';
+import CreateCourseClient from '@/app/dashboard/localComponents/CreateCourse';
 import { toast } from 'react-toastify';
-import {Plus} from "lucide-react";
+import { Plus } from "lucide-react";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 type Course = {
     courseId: number;
@@ -38,7 +39,7 @@ export default function InstructorCoursesClient() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `course/listCourses?id=${id}`,
+                `api/course/listCourses?id=${id}`,
                 `${BACKEND_API}`,
                 session?.user?.accessToken || undefined
             );
@@ -86,36 +87,6 @@ export default function InstructorCoursesClient() {
         fetchInstructorCourses();
     }, [fetchInstructorCourses]);
 
-    if (status !== 'authenticated') {
-        return (
-            <div className="p-6 text-center">
-                <div className="text-gray-600">Please sign in to view your courses.</div>
-            </div>
-        );
-    }
-
-    if (loading) {
-        return (
-            <div className="p-6 text-center">
-                <div className="text-gray-600">Loading your courses...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="p-6 text-center">
-                <div className="text-red-600">Error: {error}</div>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    Retry
-                </button>
-            </div>
-        );
-    }
-
     const handleCreateCourse = () => {
         setIsCreateModalOpen(true);
     };
@@ -132,7 +103,7 @@ export default function InstructorCoursesClient() {
     };
 
     return (
-        <div className="min-h-screen overflow-auto max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto">
             <div className="mb-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>
@@ -155,10 +126,15 @@ export default function InstructorCoursesClient() {
                 </p>
             </div>
 
-            {courses.length === 0 ? (
+            {courses.length === 0 ? loading ? (
+                <div className="flex justify-center items-center pt-6">
+                    <RingSpinner size={'sm'} color={'mentat-gold'} />
+                    <p className="ml-3 text-md text-mentat-gold">Loading courses...</p>
+                </div>
+                ) : (
                 <div className="text-center py-12">
-                    <div className="text-gray-500 text-lg mb-4">No courses found</div>
-                    <p className="text-gray-400">
+                    <div className="text-lg mb-4">No courses found</div>
+                    <p>
                         You haven't created any courses yet.
                         <a href="/courses/create" className="text-yellow-300 bg-red-700 hover:underline ml-1">
                             Create your first course
