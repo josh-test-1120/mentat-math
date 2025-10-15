@@ -3,7 +3,7 @@ export default interface ExamResult {
     examId: number;
     examStudentId: number;
     examVersion: number;
-    examScheduledDate: string;
-    examTakenDate?: string | undefined;
+    examScheduledDate: Date;
+    examTakenDate?: Date | undefined;
     examScore?: string | undefined;
 }

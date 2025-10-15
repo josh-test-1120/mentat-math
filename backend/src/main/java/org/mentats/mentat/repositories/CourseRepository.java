@@ -13,13 +13,13 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
     // Find courses by professor ID
-    List<Course> findByCourseProfessorId(Long professorId);
+    List<Course> findByCourseProfessorId(Long courseProfessorId);
     // Find courses by year and quarter
-    List<Course> findByCourseYearAndCourseQuarter(Integer year, String quarter);
+    List<Course> findByCourseYearAndCourseQuarter(Integer courseYear, String courseQuarter);
     // Find courses by name (case-insensitive)
     List<Course> findByCourseNameContainingIgnoreCase(String courseName);
     // Find specific course by section, year, and quarter
-    Optional<Course> findByCourseSectionAndCourseYearAndCourseQuarter(String section, Integer year, String quarter);
+    Optional<Course> findByCourseSectionAndCourseYearAndCourseQuarter(String courseSection, Integer courseYear, String courseQuarter);
     // Check if course exists with the same section, year, and quarter
-    boolean existsByCourseSectionAndCourseYearAndCourseQuarter(String section, Integer year, String quarter);
+    boolean existsByCourseSectionAndCourseYearAndCourseQuarter(String courseSection, Integer courseYear, String courseQuarter);
 }
