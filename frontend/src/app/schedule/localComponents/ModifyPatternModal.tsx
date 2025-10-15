@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from 'next-auth/react'
-import { toast } from 'react-toastify';
+import { showErrorToast, showInfoToast } from "@/utils/toastUtils";
 import { apiHandler } from "@/utils/api";
 import { motion } from 'framer-motion';
 
@@ -119,7 +119,7 @@ export default function ModifyPatternModal({
             );
 
             if (response?.error) {
-                toast.error(response.message || 'Failed to fetch test window data');
+                showErrorToast(response.message || 'Failed to fetch test window data', { preventDuplicate: true });
                 return;
             }
 
@@ -152,7 +152,7 @@ export default function ModifyPatternModal({
 
         } catch (error) {
             console.error('Error fetching test window data:', error);
-            toast.error('Failed to fetch test window data');
+            showErrorToast('Failed to fetch test window data', { preventDuplicate: true });
         } finally {
             setFetchingData(false);
         }
@@ -273,23 +273,23 @@ export default function ModifyPatternModal({
         e.preventDefault();
         
         if (status === "loading") {
-            toast.info("Loading...");
+            showInfoToast("Loading...", { preventDuplicate: true });
             return;
         }
         
         if (status === "unauthenticated" || !session) {
-            toast.error("Please log in to modify test windows");
+            showErrorToast("Please log in to modify test windows", { preventDuplicate: true });
             return;
         }
         
         // Basic validation
         if (!formData.windowName.trim()) {
-            toast.error('Please enter a window name');
+            showErrorToast('Please enter a window name', { preventDuplicate: true });
             return;
         }
         
         if (!formData.courseId) {
-            toast.error('Please select a course');
+            showErrorToast('Please select a course', { preventDuplicate: true });
             return;
         }
 
@@ -300,7 +300,7 @@ export default function ModifyPatternModal({
         const endDate = new Date(endYear, endMonth - 1, endDay);
         
         if (startDate > endDate) {
-            toast.error('End date must be after start date');
+            showErrorToast('End date must be after start date', { preventDuplicate: true });
             return;
         }
 
@@ -309,7 +309,7 @@ export default function ModifyPatternModal({
             const startTime = new Date(`2000-01-01T${formData.startTime}`);
             const endTime = new Date(`2000-01-01T${formData.endTime}`);
             if (startTime >= endTime) {
-                toast.error('End time must be after start time');
+                showErrorToast('End time must be after start time', { preventDuplicate: true });
                 return;
             }
         }
@@ -323,14 +323,14 @@ export default function ModifyPatternModal({
         // Check if any selected days are not in the available range
         const invalidDays = selectedDays.filter(day => !availableWeekdays.includes(day));
         if (invalidDays.length > 0) {
-            toast.error(`Selected days (${invalidDays.join(', ')}) are not within the test window date range.`);
+            showErrorToast(`Selected days (${invalidDays.join(', ')}) are not within the test window date range.`, { preventDuplicate: true });
             return;
         }
 
         // For single-day windows, only allow one day selection (if any days are selected)
         const isSingleDay = formData.startDate === formData.endDate;
         if (isSingleDay && selectedDays.length > 1) {
-            toast.error('Single-day test windows cannot repeat on multiple days. Please select only one day or extend the date range.');
+            showErrorToast('Single-day test windows cannot repeat on multiple days. Please select only one day or extend the date range.', { preventDuplicate: true });
             return;
         }
 
@@ -384,17 +384,23 @@ export default function ModifyPatternModal({
             
             if (response?.error) {
                 console.error('Error updating test window:', response);
-                toast.error(response.message || 'Failed to update test window');
+                showErrorToast(response.message || 'Failed to update test window', { preventDuplicate: true });
                 return;
             }
             
             console.log('Test window updated successfully:', response);
+            
+            // Call the update callback to refresh the calendar
             onTestWindowUpdated?.();
-            onClose();
+            
+            // Close the modal after a brief delay to show success
+            setTimeout(() => {
+                onClose();
+            }, 100);
             
         } catch (error) {
             console.error('Error updating test window:', error);
-            toast.error('Error updating test window');
+            showErrorToast('Error updating test window', { preventDuplicate: true });
         } finally {
             setLoading(false);
         }

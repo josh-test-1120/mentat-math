@@ -57,3 +57,66 @@ h6 {
   cursor: default;
   opacity: 0.6;
 }
+
+/* Toast Container Styles - Prevent Overlapping */
+.toast-container {
+  z-index: 9999 !important;
+}
+
+.toast-item {
+  margin-bottom: 8px !important;
+  margin-right: 8px !important;
+  max-width: 400px !important;
+  min-width: 300px !important;
+}
+
+.toast-body {
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+.toast-progress {
+  height: 3px !important;
+}
+
+/* Ensure toasts don't overlap with each other */
+.Toastify__toast-container--top-right {
+  top: 1rem !important;
+  right: 1rem !important;
+}
+
+.Toastify__toast {
+  margin-bottom: 8px !important;
+}
+
+/* Stack toasts properly */
+.Toastify__toast-container {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* Custom toast styling for better visibility */
+.Toastify__toast--success {
+  background: white !important;
+  color: #059669 !important;
+  border-left: 4px solid #10b981 !important;
+}
+
+.Toastify__toast--error {
+  background: white !important;
+  color: #dc2626 !important;
+  border-left: 4px solid #ef4444 !important;
+}
+
+.Toastify__toast--info {
+  background: white !important;
+  color: #2563eb !important;
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.Toastify__toast--warning {
+  background: white !important;
+  color: #d97706 !important;
+  border-left: 4px solid #f59e0b !important;
+}

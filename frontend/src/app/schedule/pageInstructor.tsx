@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useSession } from 'next-auth/react';
 import Modal from "@/components/services/Modal";
 import Calendar from "@/components/UI/calendar/Calendar";
@@ -70,6 +70,7 @@ export default function TestWindowPage() {
     // Popover state
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Fetch courses when session is authenticated
     useEffect(() => {
@@ -230,15 +231,36 @@ export default function TestWindowPage() {
 
         // Refresh test windows for the selected course
         if (selectedCourseId) {
-            console.log('Refreshing test windows after update for course:', selectedCourseId);
-            console.log('Current test windows before refresh:', testWindows.length);
+            console.log('🔄 Refreshing test windows after update for course:', selectedCourseId);
+            console.log('📊 Current test windows before refresh:', testWindows.length);
 
-            // Single refresh with a small delay to ensure backend processing
-            setTimeout(async () => {
-                console.log('Starting refresh after test window update...');
-                await fetchTestWindows(selectedCourseId);
-                console.log('Refresh completed');
-            }, 500); // Reduced delay to 500ms
+            setIsRefreshing(true);
+
+            // Force a complete refresh with multiple attempts to ensure backend processing
+            const refreshTestWindows = async (attempt = 1) => {
+                try {
+                    console.log(`🔄 Refresh attempt ${attempt}...`);
+                    
+                    // Force refresh by clearing any potential cache and forcing state update
+                    await fetchTestWindows(selectedCourseId, { silent: false, force: true });
+                    
+                    console.log('✅ Refresh completed successfully');
+                    setIsRefreshing(false);
+                } catch (error) {
+                    console.error(`❌ Refresh attempt ${attempt} failed:`, error);
+                    
+                    // Retry up to 3 times with increasing delays
+                    if (attempt < 3) {
+                        setTimeout(() => refreshTestWindows(attempt + 1), attempt * 1000);
+                    } else {
+                        setIsRefreshing(false);
+                        toast.error('Failed to refresh test windows. Please reload the page.');
+                    }
+                }
+            };
+
+            // Start refresh with initial delay to ensure backend processing
+            setTimeout(() => refreshTestWindows(), 800);
         }
     };
 
@@ -368,8 +390,6 @@ export default function TestWindowPage() {
                 onTestWindowUpdated={handleTestWindowUpdated}
             />
 
-            {/* Toast Container */}
-            <ToastContainer autoClose={3000} hideProgressBar />
         </div>
     );
 }

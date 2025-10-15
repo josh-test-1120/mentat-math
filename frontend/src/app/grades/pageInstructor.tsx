@@ -436,44 +436,24 @@ export default function ExamDashboard() {
                 <div className="shadow-sm p-4 pt-2 max-h-[36vh] min-h-[200px]
                     overflow-y-auto scrollbar-hide"
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        <AnimatePresence>
-                            {filteredExams.map((examInst) => (
-                                <ExamCardSmall
-                                    key={examInst.exam_id}
-                                    exam={{...examInst, exam_duration: "1"} as ExamExtended} index={0}
-                                    onclick={(e) => loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
-                                />
-                            ))}
-                        </AnimatePresence>
-                    </div>
-
-                    {filteredExams.length === 0 && (
+                    {filteredExams.length === 0 ? (
                         <div className="text-center py-12">
                             No exams found for the selected filter.
                         </div>
                     ) : (
-                        <React.Fragment>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                <AnimatePresence>
-                                    {filteredExams.map((examInst) => (
-                                        <ExamCardSmall
-                                            key={examInst.examId}
-                                            exam={examInst}
-                                            index={0}
-                                            onclick={(e) => loadModalData(examInst, e)}
-                                        />
-                                    ))}
-                                </AnimatePresence>
-                            </div>
-
-                            {filteredExams.length === 0 && (
-                                <div className="text-center py-12">
-                                    No exams found for the selected filter.
-                                </div>
-                            )}
-                        </React.Fragment>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <AnimatePresence>
+                                {filteredExams.map((examInst) => (
+                                    <ExamCardSmall
+                                        key={examInst.examId}
+                                        exam={{...examInst, exam_duration: "1"} as ExamExtended} index={0}
+                                        onclick={(e) => loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                        </div>
                     )}
+
                 </div>
                 {/*Exam Analysis Dashboard Component*/}
                 {/* Line Divider */}

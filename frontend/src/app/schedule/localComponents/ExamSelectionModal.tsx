@@ -87,7 +87,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 // Response shape: { restrictedExams: [{ examId: number, ...}, ...] }
                 const items = restrictionsResponse?.restrictedExams || restrictionsResponse?.data || [];
                 restrictedExamIds = Array.isArray(items)
-                    ? items.map((r: any) => r.examId ?? r.exam_id).filter((id: any) => typeof id === 'number')
+                    ? items.map((r: any) => r.examId ?? r.examId).filter((id: any) => typeof id === 'number')
                     : [];
             }
             console.log('Restricted exam ids:', restrictedExamIds);
@@ -95,16 +95,16 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
             // Convert to ExamWithSelection format
             const examsWithSelection: ExamWithSelection[] = examsData.map((exam: any) => {
                 console.log('Raw exam data:', exam);
-                console.log('exam_state value:', exam.exam_state, 'type:', typeof exam.exam_state);
+                console.log('exam_state value:', exam.examState, 'type:', typeof exam.examState);
                 
                 // Default: select all; If restricted list present, deselect those
-                const isSelected = restrictedExamIds.length === 0 ? true : !restrictedExamIds.includes(exam.exam_id);
+                const isSelected = restrictedExamIds.length === 0 ? true : !restrictedExamIds.includes(exam.examId);
                 
                 return {
                     ...exam,
                     isSelected: isSelected,
                     isAllowed: true, // Default to allowed, can be modified based on existing restrictions
-                    status: exam.exam_state === 1 ? 'active' : 'inactive'
+                    status: exam.examState === 1 ? 'active' : 'inactive'
                 };
             });
 
@@ -138,14 +138,14 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
         console.log('Status filter:', statusFilter);
         
         return exams.filter(exam => {
-            const matchesSearch = exam.exam_name.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesDifficulty = difficultyFilter === 'all' || exam.exam_difficulty === Number(difficultyFilter);
+            const matchesSearch = exam.examName.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesDifficulty = difficultyFilter === 'all' || exam.examDifficulty === Number(difficultyFilter);
             const matchesRequired = requiredFilter === 'all' || 
-                (requiredFilter === 'required' && exam.exam_required === 1) ||
-                (requiredFilter === 'optional' && exam.exam_required === 0);
+                (requiredFilter === 'required' && exam.examRequired === 1) ||
+                (requiredFilter === 'optional' && exam.examRequired === 0);
             const matchesStatus = statusFilter === 'all' || exam.status === statusFilter;
 
-            console.log(`Exam ${exam.exam_name}: difficulty=${exam.exam_difficulty} (${typeof exam.exam_difficulty}), filter=${difficultyFilter} (${typeof difficultyFilter}), matchesDifficulty=${matchesDifficulty}`);
+            console.log(`Exam ${exam.examName}: difficulty=${exam.examDifficulty} (${typeof exam.examDifficulty}), filter=${difficultyFilter} (${typeof difficultyFilter}), matchesDifficulty=${matchesDifficulty}`);
             
             return matchesSearch && matchesDifficulty && matchesRequired && matchesStatus;
         });
@@ -157,7 +157,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
 
     const handleExamToggle = (examId: number) => {
         setExams(prev => prev.map(exam => 
-            exam.exam_id === examId 
+            exam.examId === examId 
                 ? { ...exam, isSelected: !exam.isSelected }
                 : exam
         ));
@@ -166,15 +166,15 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
     const handleSelectAll = () => {
         const allSelected = filteredExams.every(exam => exam.isSelected);
         setExams(prev => prev.map(exam => {
-            const isInFiltered = filteredExams.some(filtered => filtered.exam_id === exam.exam_id);
+            const isInFiltered = filteredExams.some(filtered => filtered.examId === exam.examId);
             return isInFiltered ? { ...exam, isSelected: !allSelected } : exam;
         }));
     };
 
     const handleSave = async () => {
         // Selected exams are implicitly allowed (1)
-        const selectedIds = selectedExams.map(exam => exam.exam_id);
-        const unselectedIds = exams.filter(exam => !exam.isSelected).map(exam => exam.exam_id);
+        const selectedIds = selectedExams.map(exam => exam.examId);
+        const unselectedIds = exams.filter(exam => !exam.isSelected).map(exam => exam.examId);
 
         try {
             // 1) Fetch currently restricted (disallowed) exams from backend
@@ -190,7 +190,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
             if (!currentRestrictedRes?.error) {
                 const items = currentRestrictedRes?.restrictedExams || currentRestrictedRes?.data || [];
                 currentRestrictedIds = Array.isArray(items)
-                    ? items.map((r: any) => r.examId ?? r.exam_id).filter((id: any) => typeof id === 'number')
+                    ? items.map((r: any) => r.examId ?? r.examId).filter((id: any) => typeof id === 'number')
                     : [];
             }
 
@@ -370,7 +370,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                 <div className="space-y-3">
                                     {filteredExams.map((exam) => (
                                         <motion.div
-                                            key={exam.exam_id}
+                                            key={exam.examId}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -378,7 +378,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                                     ? 'border-mentat-gold bg-mentat-gold/10' 
                                                     : 'border-mentat-gold/30 hover:border-mentat-gold/50 hover:bg-white/5'
                                             }`}
-                                            onClick={() => handleExamToggle(exam.exam_id)}
+                                            onClick={() => handleExamToggle(exam.examId)}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
@@ -391,17 +391,17 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                                     </div>
                                                     
                                                     <div className="flex-1">
-                                                        <h3 className="font-semibold text-mentat-gold">{exam.exam_name}</h3>
+                                                        <h3 className="font-semibold text-mentat-gold">{exam.examName}</h3>
                                                         <div className="flex items-center gap-4 mt-1">
-                                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exam.exam_difficulty)}`}>
-                                                                Difficulty {exam.exam_difficulty}
+                                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exam.examDifficulty)}`}>
+                                                                Difficulty {exam.examDifficulty}
                                                             </span>
                                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                                exam.exam_required === 1 
+                                                                exam.examRequired === 1 
                                                                     ? 'bg-green-100 text-green-800' 
                                                                     : 'bg-gray-100 text-gray-800'
                                                             }`}>
-                                                                {exam.exam_required === 1 ? 'Required' : 'Optional'}
+                                                                {exam.examRequired === 1 ? 'Required' : 'Optional'}
                                                             </span>
                                                             <div className="flex items-center gap-1">
                                                                 {getStatusIcon(exam.status || 'inactive')}
@@ -414,9 +414,9 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                                                 </div>
                                                 
                                                 <div className="text-right text-sm text-mentat-gold/80">
-                                                    <div>Duration: {exam.exam_duration || 'Not specified'}</div>
+                                                    <div>Duration: {exam.examDuration || 'Not specified'}</div>
                                                     <div className="flex items-center gap-1 mt-1">
-                                                        {exam.exam_online === 1 ? (
+                                                        {exam.examOnline === 1 ? (
                                                             <span className="text-green-400">Online</span>
                                                         ) : (
                                                             <span className="text-mentat-gold/60">In-person</span>
