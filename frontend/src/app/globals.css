@@ -35,13 +35,11 @@ body {
     .text-balance {
         text-wrap: balance;
     }
-    .autofill-crimson-700 {
-        &:-webkit-autofill {
-            background-color: theme(colors.crimson.700) !important;
-            -webkit-box-shadow: 0 0 0px 1000px theme(colors.crimson.700) inset !important;
-            -webkit-text-fill-color: theme(colors.crimson.700) !important;
-            border-color: theme(colors.crimson.700) !important;
-        }
+    .autofill-crimson-700:-webkit-autofill {
+        background-color: #b91c1c !important;
+        -webkit-box-shadow: 0 0 0px 1000px #b91c1c inset !important;
+        -webkit-text-fill-color: #b91c1c !important;
+        border-color: #b91c1c !important;
     }
 }
 
