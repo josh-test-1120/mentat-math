@@ -63,7 +63,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             const response = await apiHandler(
                 undefined,
                 'GET',
-                `course/listCourses?id=${userSession.id}`,
+                `api/course/listCourses?id=${userSession.id}`,
                 `${BACKEND_API}`,
                 session.user.accessToken
             );

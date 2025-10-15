@@ -287,8 +287,8 @@ export default function StudentSchedule() {
     //     return <div className="p-6 text-mentat-gold-700">Loading...</div>;
 
     return (
-        <div className="w-full max-w-screen-2xl px-4 py-8">
-            <div className="max-w-5xl mx-auto">
+        <div className="w-full max-w-screen-2xl px-4 pt-8 pb-2">
+            <div className="max-w-5xl mx-auto overflow-y-auto scrollbar-hide">
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Manage Scheduled Exams</h1>
@@ -301,7 +301,7 @@ export default function StudentSchedule() {
 
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
-                    <p>Manage and view your scheduled exams</p>
+                    {/*<p>Manage and view your scheduled exams</p>*/}
                 </header>
 
                 <div className="rounded-xl shadow-sm p-6 pb-2">

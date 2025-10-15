@@ -9,6 +9,9 @@ import Modal from "@/components/services/Modal";
 import { Plus } from 'lucide-react';
 import Course from "@/components/types/course";
 import Exam from "@/components/types/exam";
+import {RingSpinner} from "@/components/UI/Spinners";
+import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
+import Grade from "@/components/types/grade";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -28,15 +31,11 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
     const [course, setCourse] = useState<Course>();
     const [exams, setExams] = useState<Exam[]>([]);
     const [currentExam, setCurrentExam] = useState<Exam>();
+    const [examName, setExamName] = useState<string>();
+    const [courseName, setCourseName] = useState<string>();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({
-        exam_course_id: 1,
-        exam_name: "",
-        exam_difficulty: "",
-        is_published: "",
-        is_required: "",
-    });
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
@@ -47,9 +46,6 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
 
     // Session information
     const { data: session } = useSession()
-
-    // Form Mapping
-    const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
 
     /**
      * Used to handle session hydration
@@ -65,17 +61,12 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
         }
     }, [session]);
 
-
-    // Setting data by name, value, type, and checked value
-    const data = (e: any) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            // Spread data
-            ...formData,
-            // Override field name's value by type checkbox for correctness
-            [name]: type === 'checkbox' ? checked : value,
-        });
-    };
+    useEffect(() => {
+        if (!currentExam) return;
+        else {
+            console.log('Current Exam refreshed');
+        }
+    }, [currentExam]);
 
     // Fetch exams
     const fetchExamsByCourse = async (id: string) => {
@@ -133,81 +124,53 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
     }
 
     const handleCourseChange = (event) => {
-        const selectedValue = event.target.value;
+        // Get the data option for the Id
+        const selectedOption = event.target.options[event.target.selectedIndex];
+        const courseId = selectedOption.getAttribute('data-key');
+        console.log(`Course ID: ${courseId}`);
+
         if (courses && courses.length > 0) {
-            let currentCourse = courses.filter(course => course.courseId === selectedValue);
-            console.log(selectedValue);
+            let currentCourse = courses.filter(course =>
+                course.courseId.toString() === courseId);
+            console.log(courseId);
+            console.log(currentCourse);
             setCourse(currentCourse[0]);
+            setCourseName(currentCourse[0].courseName);
 
             // Get the exams that are available for that course
-            fetchExamsByCourse(selectedValue);
+            fetchExamsByCourse(courseId);
 
             // Your callback logic here
-            console.log('Selected course ID:', selectedValue);
+            console.log('Selected course ID:', courseId);
         }
 
         // onCourseSelect?.(selectedValue); // Optional callback prop
     };
 
     const handleExamChange = (event) => {
-        const selectedValue = event.target.value;
+        // Get the data option for the Id
+        const selectedOption = event.target.options[event.target.selectedIndex];
+        const examId = selectedOption.getAttribute('data-key');
         if (exams && exams.length > 0) {
-            let current = exams.filter(exam => exam.examId === selectedValue);
-            console.log(selectedValue);
+            let current = exams.filter(exam => exam.examId.toString() === examId);
+            console.log(examId);
+            console.log(current);
             setCurrentExam(current[0]);
+            setExamName(current[0].examName);
 
             // Your callback logic here
-            console.log('Selected exam ID:', selectedValue);
+            console.log('Selected exam ID:', examId);
         }
 
         // onCourseSelect?.(selectedValue); // Optional callback prop
     };
 
-    /**
-     * Submit button for Form
-     * @param event Event from DOM
-     */
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault(); // Prevent default events
-
-        // Try wrapper to handle async exceptions
-        try {
-            console.log(`This is the session info: ${userSession}`)
-            let index = 1;
-            console.log(`This is the exam course id: ${exam_course_id}`)
-            const response = await fetch("http://localhost:8080/api/createExam", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    exam_name,
-                    is_published: is_published ? 1 : 0,
-                    is_required: is_required ? 1 : 0,
-                    exam_difficulty,
-                    exam_course_id,
-                })
-            });
-            console.log(`This is the response:`);
-            console.log(response);
-            // Response handler
-            if (response.ok) {
-                toast.success("Exam created successfully");
-                setIsModalOpen(false);
-                setFormData({
-                    exam_course_id: 1,
-                    exam_name: "",
-                    exam_difficulty: "",
-                    is_published: "",
-                    is_required: "",
-                });
-            } else {
-                toast.error("Failed to create exam");
-            }
-        } catch (error) {
-            toast.error("Failed to create exam");
-        }
-    };
+    const handLoadTestWindows = (event) => {
+        const selectedValue = event.target.value;
+        console.log('Loading test windows');
+        console.log(course);
+        setIsScheduleModalOpen(true);
+    }
 
     console.log(courses);
     console.log(studentId);
@@ -228,8 +191,9 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                 </button>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
-                <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
+                   title="Create Exam">
+                <form id="createExamForm" className="w-full space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/*Course Selection and logic*/}
                         <div className="flex flex-col gap-2">
@@ -237,15 +201,16 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                             <select
                                 id="exam_course_id"
                                 name="exam_course_id"
-                                value={course?.courseName}
                                 onChange={handleCourseChange}
                                 required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             >
                                 <option value="">Select a course</option>
                                 {courses && courses.map(course => (
                                     <option
                                         key={course.courseId}
+                                        data-key={course.courseId}
                                         value={course.courseId}>
                                         {course.courseName}
                                     </option>
@@ -258,16 +223,17 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                             <select
                                 id="exam_name"
                                 name="exam_name"
-                                value={currentExam?.examName}
                                 onChange={handleExamChange}
                                 required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             >
                                 <option value="">Select an exam</option>
                                 {exams && exams.map(exam => (
                                     <option
                                         key={exam.examId}
-                                        value={exam.examName}>
+                                        data-key={exam.examId}
+                                        value={exam.examId}>
                                         {exam.examName}
                                     </option>
                                 ))}
@@ -275,20 +241,16 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
-                            <select
+                            <input
+                                type="text"
                                 id="exam_difficulty"
                                 name="exam_difficulty"
-                                value={exam_difficulty}
-                                onChange={data}
-                                required={true}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                            >
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                            </select>
+                                value={currentExam?.examDifficulty}
+                                readOnly
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2
+                                  cursor-not-allowed opacity-70"
+                            />
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
                             <div className="flex items-center gap-3">
@@ -296,9 +258,10 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                                     id="is_required"
                                     type="checkbox"
                                     name="is_required"
-                                    checked={Boolean(is_required)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                    checked={Boolean(currentExam?.examRequired === 1)}
+                                    readOnly
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
+                                    text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"
                                 />
                                 <label htmlFor="is_required" className="select-none">Make Exam Required</label>
                             </div>
@@ -307,9 +270,10 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                                     id="is_published"
                                     type="checkbox"
                                     name="is_published"
-                                    checked={Boolean(is_published)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                    checked={Boolean(currentExam?.examState === 1)}
+                                    readOnly
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
+                                    text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"
                                 />
                                 <label htmlFor="is_published" className="select-none">Publish Exam</label>
                             </div>
@@ -319,19 +283,53 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                     <div className="flex justify-end gap-3">
                         <button
                             type="button"
-                            onClick={() => setIsModalOpen(false)}
-                            className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
+                            onClick={() => {
+                                setCurrentExam(undefined);
+                                setIsModalOpen(false)
+                            }}
+                            className="bg-crimson hover:bg-crimson-700 text-mentat-gold
+                            font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
                         >
                             Cancel
                         </button>
                         <button
-                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold py-2 px-4 rounded-md"
-                            type="submit"
+                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
+                            font-bold py-2 px-4 rounded-md"
+                            type="button"
+                            onClick={handLoadTestWindows}
                         >
-                            Create Exam
+                            Load Test Windows
                         </button>
                     </div>
                 </form>
+                {/*This is the inner Modal for Test Windows*/}
+                <Modal
+                    isOpen={isScheduleModalOpen}
+                    onClose={() => setIsScheduleModalOpen(false)}
+                    title="Schedule Exam Window"
+                    isFullScreen={true}
+                >
+                    {!currentExam ? (
+                        <div className="flex flex-col items-center justify-center min-h-[200px]">
+                            <p className="mt-4 text-mentat-gold">No valid Exam details</p>
+                        </div>
+                    ) : (
+                        <ScheduledExamDetailsComponent
+                            exam={currentExam as Grade}
+                            course={course}
+                            cancelAction={() => {
+                                setIsScheduleModalOpen(false);
+                            }}
+                            updateAction={() => {
+                                setIsScheduleModalOpen(false);
+                                setIsModalOpen(false);
+                                // Handle parent updates
+                                // setCurrentExam(undefined)
+                                // if (updateAction) updateAction();
+                            }}
+                        />)}
+                </Modal>
+
             </Modal>
 
             {/*<ToastContainer autoClose={3000} hideProgressBar />*/}
