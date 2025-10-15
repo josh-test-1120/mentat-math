@@ -28,7 +28,7 @@ public class CourseController {
 
     // Repository services
     private final CourseRepository courseRepository;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
 
     /**
@@ -52,7 +52,7 @@ public class CourseController {
             System.out.println("Course quarter: " + courseJoinRequest.getCourseQuarter());
             System.out.println("Course year: " + courseJoinRequest.getCourseYear());
             System.out.println("User ID: " + courseJoinRequest.getUserId());
-            
+
             CourseJoin courseJoin = courseJoinService.createCourse(courseJoinRequest);
             System.out.println("Course successfully created: " + courseJoin.getCourseName());
             return ResponseEntity.ok(new MessageResponse("Course created successfully"));
@@ -60,6 +60,31 @@ public class CourseController {
             logger.error("Error creating course: " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error creating course: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * API Method for retrieving list of course with User Instructor ID
+     * @param id String type user ID
+     * @return Returns successful response with list of course information
+     */
+    @GetMapping("/listCourses")
+    public ResponseEntity<?> listCourses(@RequestParam String id) {
+        try {
+            // Get courses by their creator Professor ID
+            List<CourseJoin> courses = courseJoinService.getCoursesByProfessorId(id);
+
+            // Empty check
+            if (courses.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Return list of course by the Professor ID
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            logger.error("Error retrieving courses for professor " + id + ": " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving courses: " + e.getMessage()));
         }
     }
 
@@ -73,7 +98,7 @@ public class CourseController {
         try {
             courseJoinService.joinCourse(req);
             return ResponseEntity.ok(new MessageResponse("Course joined successfully!"));
-            
+
         } catch (NumberFormatException e) {
             logger.error("Number format error: " + e.getMessage(), e);
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid course ID or user ID format"));
@@ -123,51 +148,11 @@ public class CourseController {
     }
 
     /**
-     * API Method for retrieving list of course with User Instructor ID
-     * @param id String type user ID
-     * @return Returns successful response with list of course information
+     * Get the instructor exams from the database
+     * based on the instructor ID supplied in the URI
+     * @return Map object that have {string, object} types
      */
-    @GetMapping("/listCourses")
-    public ResponseEntity<?> listCourses(@RequestParam(required = false) String id) {
-        try {
-            logger.info("🔍 Received request for listCourses with id: '{}' (type: {})", id, id != null ? id.getClass().getSimpleName() : "null");
-            
-            // Check if id is provided
-            if (id == null || id.trim().isEmpty()) {
-                logger.error("❌ Missing or empty id parameter");
-                return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Missing required parameter: id"));
-            }
-            
-            logger.info("🔍 ID length: {}, isEmpty: {}", id.length(), id.isEmpty());
-            
-            // Get courses by their creator Professor ID
-            List<CourseJoin> courses = courseJoinService.getCoursesByProfessorId(id);
-            
-            logger.info("🔍 Found {} courses for professor ID: '{}'", courses.size(), id);
-
-            // Empty check
-            if (courses.isEmpty()) {
-                logger.info("🔍 No courses found for professor ID: '{}'", id);
-                return ResponseEntity.notFound().build();
-            }
-
-            // Return list of course by the Professor ID
-            logger.info("🔍 Returning {} courses for professor ID: '{}'", courses.size(), id);
-            return ResponseEntity.ok(courses);
-        } catch (Exception e) {
-            logger.error("❌ Error retrieving courses for professor '{}': {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse("Error retrieving courses: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * Get course details by course ID
-     * @param id Course ID
-     * @return Course object
-     */
-    @GetMapping("/getCourse/{courseID}")
+    @GetMapping("/{courseID}")
     public ResponseEntity<Course> getCourse(@PathVariable("courseID") Long id) {
         try {
             // Use the repository to find the course by ID
