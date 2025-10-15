@@ -105,7 +105,7 @@ export const useTestWindows = (session: any, backendApi: string) => {
     /**
      * Fetch test windows for selected course
      */
-    const fetchTestWindows = useCallback(async (courseId: number, options?: { silent?: boolean }) => {
+    const fetchTestWindows = useCallback(async (courseId: number, options?: { silent?: boolean, force?: boolean }) => {
         if (!courseId) {
             console.log('No course ID provided, skipping fetch');
             return;
@@ -117,57 +117,73 @@ export const useTestWindows = (session: any, backendApi: string) => {
         }
 
         try {
-            console.log('Fetching test windows for course:', courseId);
+            console.log('🔄 Fetching test windows for course:', courseId, options?.force ? '(FORCED)' : '');
+            
             // If not silent, set loading to true
             if (!options?.silent) {
                 setLoading(true);
             }
 
+            // Add timestamp to prevent caching
+            const timestamp = options?.force ? `?t=${Date.now()}` : '';
+            const endpoint = `api/test-window/course/${courseId}${timestamp}`;
+
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/test-window/course/${courseId}`,
+                endpoint,
                 `${backendApi}`,
                 session?.user?.accessToken || undefined
             );
 
             if (res?.error) {
-                console.error('Failed to fetch test windows:', res);
+                console.error('❌ Failed to fetch test windows:', res);
                 setTestWindows([]);
                 return;
             }
 
             const testWindowsData = Array.isArray(res) ? res : [];
-            console.log(`Fetched ${testWindowsData.length} test windows`);
+            console.log(`✅ Fetched ${testWindowsData.length} test windows`);
+
+            // If force refresh, always update state
+            if (options?.force) {
+                console.log('🔄 Force refresh - updating state regardless of changes');
+                setTestWindows(testWindowsData);
+                return;
+            }
 
             // Only update state if data has actually changed
             setTestWindows(prevTestWindows => {
                 if (prevTestWindows.length !== testWindowsData.length) {
-                    console.log('Test windows count changed, updating state');
+                    console.log('📊 Test windows count changed, updating state');
                     return testWindowsData;
                 }
 
-                // Check if any test window data has changed
+                // Check if any test window data has changed (more comprehensive check)
                 const hasChanges = testWindowsData.some((newTw, index) => {
                     const oldTw = prevTestWindows[index];
                     return !oldTw ||
                         oldTw.testWindowId !== newTw.testWindowId ||
                         oldTw.testWindowTitle !== newTw.testWindowTitle ||
                         oldTw.testWindowStartDate !== newTw.testWindowStartDate ||
-                        oldTw.testWindowEndDate !== newTw.testWindowEndDate;
+                        oldTw.testWindowEndDate !== newTw.testWindowEndDate ||
+                        oldTw.testStartTime !== newTw.testStartTime ||
+                        oldTw.testEndTime !== newTw.testEndTime ||
+                        oldTw.weekdays !== newTw.weekdays ||
+                        oldTw.isActive !== newTw.isActive;
                 });
 
                 if (hasChanges) {
-                    console.log('Test windows data changed, updating state');
+                    console.log('🔄 Test windows data changed, updating state');
                     return testWindowsData;
                 }
 
-                console.log('No changes detected, skipping state update');
+                console.log('✅ No changes detected, skipping state update');
                 return prevTestWindows;
             });
 
         } catch (e) {
-            console.error('Error fetching test windows:', e);
+            console.error('❌ Error fetching test windows:', e);
             setTestWindows([]);
         } finally {
             // If not silent, set loading to false
