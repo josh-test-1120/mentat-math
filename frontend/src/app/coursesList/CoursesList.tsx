@@ -43,7 +43,7 @@ export default function CourseList() {
             apiHandler(
             null,
             "GET",
-            `/api/course/listCourses?id=${userSession.id}`,
+            `api/course/listCourses?id=${userSession.id}`,
             `${process.env.NEXT_PUBLIC_BACKEND_API}`,
             session?.user?.accessToken || undefined
             )
