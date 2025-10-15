@@ -1,5 +1,7 @@
 'use client';
 
+// Dashboard page for displaying courses for the instructor who created them or create new courses.
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
