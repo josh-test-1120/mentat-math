@@ -391,7 +391,7 @@ export default function ExamDashboard() {
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
-                        < CreateExam />
+                        < CreateExam onExamCreated={() => setRefreshTrigger(prev => prev + 1)} />
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
                     <p>Manage and view your created exams</p>
@@ -436,10 +436,21 @@ export default function ExamDashboard() {
                 <div className="shadow-sm p-4 pt-2 max-h-[36vh] min-h-[200px]
                     overflow-y-auto scrollbar-hide"
                 >
-                    { filteredExams.length === 0 ? (
-                        <div className="flex justify-center items-center pt-10">
-                            <RingSpinner size={'sm'} color={'mentat-gold'} />
-                            <p className="ml-3 text-md text-mentat-gold">Loading exams...</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <AnimatePresence>
+                            {filteredExams.map((examInst) => (
+                                <ExamCardSmall
+                                    key={examInst.exam_id}
+                                    exam={{...examInst, exam_duration: "1"} as ExamExtended} index={0}
+                                    onclick={(e) => loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
+                                />
+                            ))}
+                        </AnimatePresence>
+                    </div>
+
+                    {filteredExams.length === 0 && (
+                        <div className="text-center py-12">
+                            No exams found for the selected filter.
                         </div>
                     ) : (
                         <React.Fragment>

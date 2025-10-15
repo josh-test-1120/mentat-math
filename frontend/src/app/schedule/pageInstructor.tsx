@@ -225,6 +225,23 @@ export default function TestWindowPage() {
         }
     };
 
+    const handleTestWindowUpdated = async () => {
+        toast.success('Test window updated successfully!');
+
+        // Refresh test windows for the selected course
+        if (selectedCourseId) {
+            console.log('Refreshing test windows after update for course:', selectedCourseId);
+            console.log('Current test windows before refresh:', testWindows.length);
+
+            // Single refresh with a small delay to ensure backend processing
+            setTimeout(async () => {
+                console.log('Starting refresh after test window update...');
+                await fetchTestWindows(selectedCourseId);
+                console.log('Refresh completed');
+            }, 500); // Reduced delay to 500ms
+        }
+    };
+
     const closePopover = () => {
         setIsPopoverOpen(false);
         setPopoverAnchor(null);
@@ -346,6 +363,9 @@ export default function TestWindowPage() {
                 onModifySettings={handleModifySettings}
                 onControlAllowedTests={handleControlAllowedTests}
                 onDeleteTestWindow={handleDeleteTestWindowClick}
+                courseId={selectedCourseId || undefined}
+                courses={courses}
+                onTestWindowUpdated={handleTestWindowUpdated}
             />
 
             {/* Toast Container */}
