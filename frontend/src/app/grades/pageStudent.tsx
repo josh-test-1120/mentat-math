@@ -463,7 +463,7 @@ export default function GradesPage() {
             </div>
 
             {/* This becomes the primary content container */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
                 <div className="max-w-5xl mx-auto">
                     <motion.div
                         variants={containerVariants}
@@ -476,11 +476,10 @@ export default function GradesPage() {
                                 {filter.charAt(0).toUpperCase() + filter.slice(1)} Grades
                             </h2>
                             <span className="text-sm">
-                      {filteredGrades.length} grade(s) found
-                    </span>
+                                {filteredGrades.length} grade(s) found
+                            </span>
                         </div>
 
-                        {/* REMOVE max-height - let content flow naturally */}
                         <div className="pt-1">
                             <AnimatePresence mode="wait">
                                 {!loading && filteredGrades.length > 0 ? (
