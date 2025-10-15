@@ -290,8 +290,6 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                             Cancel
                         </button>
                     </div>
-                    {/*/!* Add buffer zone *!/*/}
-                    {/*<div className="h-4 w-full bg-transparent"></div>*/}
                 </div>
             </motion.div>
             {/* Reschedule Action Modal */}
@@ -313,9 +311,9 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                             setIsScheduleModalOpen(false);
                         }}
                         updateAction={() => {
-                            setIsScheduleModalOpen(false)
                             // Handle parent updates
                             if (updateAction) updateAction();
+                            setIsScheduleModalOpen(false)
                         }}
                     />)}
             </Modal>
