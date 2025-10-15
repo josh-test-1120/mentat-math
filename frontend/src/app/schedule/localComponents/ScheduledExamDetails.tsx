@@ -582,7 +582,8 @@ export default function ScheduledExamDetailsComponent(
                         <p className="ml-3 text-md text-mentat-gold">Loading test windows...</p>
                     </div>
                 ) : testWindows.length === 0 ? (
-                    <div className="flex flex-col w-1/5 h-full min-h-0 p-4 rounded-lg">
+                    <div className="flex flex-col w-1/5 h-full min-h-0 p-4 rounded-lg
+                        justify-center text-center">
                         No Test Windows Assigned to Course
                     </div>
                 ) : (
