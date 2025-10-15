@@ -372,70 +372,81 @@ export default function ScheduledExamDetailsComponent(
                 <div className="text-sm flex flex-col w-1/5 h-full min-h-0 justify-center gap-2 p-4
                 rounded-lg overflow-auto">
                     <div className="flex font-semibold italic justify-between">
-                    <span className="">
-                        Exam Name:
-                    </span>
+                        <span className="">
+                            Exam Name:
+                        </span>
                     </div>
                     <div className="bg-mentat-gold/10 rounded-lg">
-                    <span className="p-2">
-                        {examResultData.examName}
-                    </span>
+                        <span className="p-2">
+                            {examResultData.examName}
+                        </span>
                     </div>
                     <hr className="m-2 border border-mentat-gold/10" />
                     <div className="flex font-semibold italic justify-between">
-                    <span className="">
-                        Course Name:
-                    </span>
+                        <span className="">
+                            Course Name:
+                        </span>
                     </div>
                     <div className="bg-mentat-gold/10 rounded-lg">
-                    <span className="p-2">
-                        {examResultData.courseName}
-                    </span>
+                        <span className="p-2">
+                            {examResultData.courseName}
+                        </span>
                     </div>
                     <hr className="m-2 border border-mentat-gold/10" />
                     <div className="flex font-semibold italic justify-between">
-                    <span className="">
-                        Scheduled Date:
-                    </span>
+                        <span className="">
+                            Scheduled Date:
+                        </span>
                     </div>
                     <div className="bg-mentat-gold/10 rounded-lg">
-                    <span className="p-2">
-                        {examResultData.examScheduledDate
-                            ? new Date(examResultData.examScheduledDate).toLocaleDateString('en-US',
-                                { timeZone: 'America/Los_Angeles' })
-                            : new Date(Date.now()).toLocaleDateString('en-US',
-                                { timeZone: 'America/Los_Angeles' })
-                        }
-                    </span>
+                        <span className="p-2">
+                            {examResultData.examScheduledDate
+                                ? new Date(examResultData.examScheduledDate).toLocaleDateString('en-US',
+                                    { timeZone: 'America/Los_Angeles' })
+                                : new Date(Date.now()).toLocaleDateString('en-US',
+                                    { timeZone: 'America/Los_Angeles' })
+                            }
+                        </span>
                     </div>
                     <hr className="m-2 border border-mentat-gold/10" />
                     <div className="flex justify-between">
-                    <span className="font-semibold italic">
-                        Exam Version:
-                    </span>
+                        <span className="font-semibold italic">
+                            Exam Version:
+                        </span>
                         <span className="">
-                        {examResultData.examVersion || '1'}
-                    </span>
+                            {examResultData.examVersion || '1'}
+                        </span>
                     </div>
                     <hr className="m-2 border border-mentat-gold/10" />
                     <div className="flex justify-between">
-                    <span className="font-semibold italic">
-                        Exam Difficulty:
-                    </span>
+                        <span className="font-semibold italic">
+                            Exam Difficulty:
+                        </span>
                         <span className="">
-                        {examResultData.examDifficulty}
-                    </span>
+                            {examResultData.examDifficulty}
+                        </span>
                     </div>
                     <hr className="m-2 border border-mentat-gold/10" />
                     <div className="flex justify-between">
-                    <span className="font-semibold italic">
-                        Exam Online:
-                    </span>
+                        <span className="font-semibold italic">
+                            Exam Required:
+                        </span>
                         <span className={`
-                        ${examResultData.examOnline ? 'text-green-600' : 'text-red-600'}
-                    `}>
-                        {examResultData.examOnline ? 'True' : 'False'}
-                    </span>
+                            ${examResultData.examRequired ? 'text-green-600' : 'text-red-600'}
+                        `}>
+                            {examResultData.examRequired ? 'True' : 'False'}
+                        </span>
+                    </div>
+                    <hr className="m-2 border border-mentat-gold/10" />
+                    <div className="flex justify-between">
+                        <span className="font-semibold italic">
+                            Exam Online:
+                        </span>
+                        <span className={`
+                            ${examResultData.examOnline ? 'text-green-600' : 'text-red-600'}
+                        `}>
+                            {examResultData.examOnline ? 'True' : 'False'}
+                        </span>
                     </div>
                 </div>
                 {/*This is the center panel content*/}
@@ -596,47 +607,47 @@ export default function ScheduledExamDetailsComponent(
                                     >
                                         <div>
                                             <div className="flex font-semibold italic justify-between">
-                                        <span className="">
-                                            Description:
-                                        </span>
+                                                <span className="">
+                                                    Description:
+                                                </span>
                                             </div>
                                             <div className="rounded-lg text-sm">
-                                        <span className="text-mentat-gold-700">
-                                            {testWindow.description}
-                                        </span>
+                                                <span className="text-mentat-gold-700">
+                                                    {testWindow.description}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="my-1">
                                             <div className="flex font-semibold italic justify-between">
-                                        <span className="">
-                                            Start Date/Time:
-                                        </span>
+                                                <span className="">
+                                                    Start Date/Time:
+                                                </span>
                                             </div>
                                             <div className="rounded-lg text-sm">
-                                        <span className="text-mentat-gold-700">
-                                            {testWindow?.testWindowStartDate?.toLocaleString('en-US',
-                                                { timeZone: 'America/Los_Angeles' })}: {testWindow?.testStartTime}
-                                        </span>
+                                                <span className="text-mentat-gold-700">
+                                                    {testWindow?.testWindowStartDate?.toLocaleString('en-US',
+                                                        { timeZone: 'America/Los_Angeles' })}: {testWindow?.testStartTime}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="my-1 overflow-y-auto">
                                             <div className="flex font-semibold italic justify-between">
-                                        <span className="">
-                                            End Date/Time:
-                                        </span>
+                                                <span className="">
+                                                    End Date/Time:
+                                                </span>
                                             </div>
                                             <div className="rounded-lg text-sm">
-                                        <span className="text-mentat-gold-700">
-                                            {testWindow?.testWindowEndDate?.toLocaleString('en-US',
-                                                { timeZone: 'America/Los_Angeles' })}: {testWindow?.testEndTime}
-                                        </span>
+                                                <span className="text-mentat-gold-700">
+                                                    {testWindow?.testWindowEndDate?.toLocaleString('en-US',
+                                                        { timeZone: 'America/Los_Angeles' })}: {testWindow?.testEndTime}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="my-1">
                                             <div className="flex font-semibold italic justify-between">
-                                        <span className="">
-                                            Active:
-                                        </span>
+                                                <span className="">
+                                                    Active:
+                                                </span>
                                                 <span className={`${ testWindow.isActive ?
                                                     'text-green-700' : 'text-red-700'
                                                 }`}>
@@ -689,7 +700,7 @@ export default function ScheduledExamDetailsComponent(
                     </div>
                 )}
             </div>
-            {/* Loading overlay that sits on top of everything */}
+            {/* Loading overlay for showing status on API handler calls */}
             {isHandlerRunning && (
                 <div className="absolute inset-0 bg-mentat-black/30 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="flex justify-center items-center pt-10">
