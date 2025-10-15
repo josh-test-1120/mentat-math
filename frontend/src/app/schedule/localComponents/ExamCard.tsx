@@ -284,10 +284,11 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                              backdrop-blur-sm opacity-100`}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                console.log('Cancel clicked');
+                                console.log('Delete clicked');
+                                console.log('Needs implementation');
                             }}
                         >
-                            Cancel
+                            Delete
                         </button>
                     </div>
                 </div>

@@ -665,9 +665,9 @@ export default function ScheduledExamDetailsComponent(
                                         >
                                             <div className="flex flex-col gap-3 items-center">
                                                 <button
-                                                    className="px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                                                     shadow-sm shadow-mentat-gold-700 bg-crimson
-                                                     text-mentat-gold hover:bg-crimson-700"
+                                                    className="px-4 py-2 rounded-lg text-sm font-medium
+                                                    transition-colors shadow-sm shadow-mentat-gold-700
+                                                    bg-crimson text-mentat-gold hover:bg-crimson-700"
                                                     // className="bg-crimson text-mentat-black px-6 py-3 rounded-lg
                                                     //    font-semibold hover:bg-mentat-gold/80 transition-colors
                                                     //    w-32"
@@ -682,8 +682,8 @@ export default function ScheduledExamDetailsComponent(
                                                 </button>
                                                 <button
                                                     className="px-4 py-2 rounded-lg text-sm bg-mentat-gold
-                                            transform-colors hover:bg-mentat-gold-700
-                                            text-crimson font-bold shadow-sm shadow-crimson-700"
+                                                    transform-colors hover:bg-mentat-gold-700
+                                                    text-crimson font-bold shadow-sm shadow-crimson-700"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setActiveOverlay(null);
