@@ -2,6 +2,7 @@ package org.mentats.mentat.components;
 
 import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.exceptions.ValidationException;
+import org.mentats.mentat.payload.request.ExamRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,12 +11,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ExamValidator {
+    // Constants
+    private static final int ONLINE_TRUE = 1;
+    private static final int ONLINE_FALSE = 0;
+    private static final int MAX_ONLINE_DURATION = 180;
 
-    public void validateForCreation(Exam exam) {
-        validateNotNull(exam, "Exam");
-        validateRequiredFields(exam);
-        validateFieldFormats(exam);
-        validateBusinessRules(exam);
+    public void validateForCreation(ExamRequest examRequest) {
+        validateNotNull(examRequest, "Exam");
+        validateRequiredFields(examRequest);
+        validateFieldFormats(examRequest);
+        validateBusinessRules(examRequest);
     }
 
     public void validateExamId(Long examId) {
@@ -48,15 +53,15 @@ public class ExamValidator {
         }
     }
 
-    public void validateForUpdate(Exam existing, Exam updates) {
-        if (updates.getName() != null) {
-            validateExamName(updates.getName());
+    public void validateForUpdate(Exam existing, ExamRequest updates) {
+        if (updates.getExamName() != null) {
+            validateExamName(updates.getExamName());
         }
-        if (updates.getDuration() != null) {
-            validateDuration(updates.getDuration());
+        if (updates.getExamDuration() != null) {
+            validateDuration(updates.getExamDuration());
         }
-        if (updates.getCourseId() != null) {
-            validateCourseId(updates.getCourseId());
+        if (updates.getExamCourseId() != null) {
+            validateCourseId(updates.getExamCourseId());
         }
     }
 
@@ -67,32 +72,33 @@ public class ExamValidator {
     }
 
     // PRIVATE VALIDATION METHODS
-    private void validateRequiredFields(Exam exam) {
-        validateCourseId(exam.getCourseId());
-        validateExamName(exam.getName());
-        validateDuration(exam.getDuration());
+    private void validateRequiredFields(ExamRequest examRequest) {
+        validateCourseId(examRequest.getExamCourseId());
+        validateExamName(examRequest.getExamName());
+        validateDuration(examRequest.getExamDuration());
 
-        if (exam.getState() == null) {
+        if (examRequest.getExamState() == null) {
             throw new ValidationException("Exam state is required");
         }
-        if (exam.getRequired() == null) {
+        if (examRequest.getExamRequired() == null) {
             throw new ValidationException("Exam required status is required");
         }
-        if (exam.getOnline() == null) {
+        if (examRequest.getExamOnline() == null) {
             throw new ValidationException("Exam online status is required");
         }
     }
 
-    private void validateFieldFormats(Exam exam) {
+    private void validateFieldFormats(ExamRequest examRequest) {
         // Additional format validations can be added here
-        if (exam.getName() != null && exam.getName().contains("<script>")) {
+        if (examRequest.getExamName() != null && examRequest.getExamName().contains("<script>")) {
             throw new ValidationException("Exam name contains invalid characters");
         }
     }
 
-    private void validateBusinessRules(Exam exam) {
-        // Business logic validation
-        if (Boolean.TRUE.equals(exam.getOnline()) && exam.getDuration() > 180) {
+    private void validateBusinessRules(ExamRequest examRequest) {
+        // Check if exam is online (assuming 1 = online, 0 = offline)
+        if (examRequest.getExamOnline() == ONLINE_TRUE
+                && examRequest.getExamDuration() > MAX_ONLINE_DURATION) {
             throw new ValidationException("Online exams cannot exceed 3 hours (180 minutes)");
         }
     }

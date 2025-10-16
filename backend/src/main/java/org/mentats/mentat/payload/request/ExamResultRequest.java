@@ -5,6 +5,12 @@ import jakarta.validation.constraints.Size;
 
 import java.sql.Date;
 
+/**
+ * Form request validation serializer
+ * Exam result request objects
+ * serialize Exam result posts
+ * @author Joshua Summers
+ */
 public class ExamResultRequest {
     @NotNull
     private Long examStudentId;
