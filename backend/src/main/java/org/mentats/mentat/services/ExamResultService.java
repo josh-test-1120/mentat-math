@@ -7,6 +7,7 @@ import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.ExamResultRequest;
 import org.mentats.mentat.payload.response.ExamResultResponse;
+import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.components.ExamResultValidator;
@@ -106,6 +107,17 @@ public class ExamResultService {
         validator.validateStudentId(studentId);
         return examResultRepository.findByStudent_Id(studentId);
     }
+    /**
+     * Fetch all ExamResult objects based on Student Id
+     * @param studentId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by Student ID, along with exam and course table
+    // Read multiple tables by complex JPQL repository call
+    public List<ExamResultDetailsProjection> getExamResultsAndExamCourseByStudent(Long studentId) {
+        validator.validateStudentId(studentId);
+        return examResultRepository.findResultDetailsByStudentId(studentId);
+    }
 
     /**
      * Fetch all ExamResult objects based on Exam Id
@@ -129,6 +141,17 @@ public class ExamResultService {
         validator.validateExamId(examId);
         validator.validateExamVersion(examVersion);
         return examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Course Id
+     * @param courseId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by complex JPQL repository call
+    public List<ExamResultDetailsProjection> getExamResultsByCourseId(Long courseId) {
+        validator.validateCourseId(courseId);
+        return examResultRepository.findResultDetailsByCourseId(courseId);
     }
 
     /**
