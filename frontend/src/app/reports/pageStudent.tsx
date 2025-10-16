@@ -495,33 +495,6 @@ export function StudentReport() {
                                         }}
                                     />
                             )}
-                            {/*<div className="flex gap-2">*/}
-                            {/*    {loading ? (<React.Fragment/>) : filteredCourses.length === 0*/}
-                            {/*        ? (*/}
-                            {/*            <div>*/}
-                            {/*                <p>Student has no courses</p>*/}
-                            {/*            </div>*/}
-                            {/*        )*/}
-                            {/*        : (*/}
-                            {/*            <React.Fragment>*/}
-                            {/*                {courses.map((course) => (*/}
-                            {/*                    <button*/}
-                            {/*                        key={course.courseId}*/}
-                            {/*                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors*/}
-                            {/*                         shadow-sm shadow-mentat-gold-700 ${*/}
-                            {/*                            courseFilter === course.courseName*/}
-                            {/*                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'*/}
-                            {/*                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}*/}
-                            {/*                            `}*/}
-                            {/*                        onClick={() => setCourseFilter(course.courseName)}*/}
-                            {/*                    >*/}
-                            {/*                        {course.courseName}*/}
-                            {/*                    </button>*/}
-                            {/*                ))}*/}
-                            {/*            </React.Fragment>*/}
-                            {/*        )*/}
-                            {/*    }*/}
-                            {/*</div>*/}
                         </React.Fragment>
                     ) : (<React.Fragment/>)
                 }

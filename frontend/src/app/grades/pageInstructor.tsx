@@ -15,6 +15,7 @@ import ExamDetailsComponent from "@/app/grades/localComponents/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamExtended } from "@/app/grades/util/types";
 import ExamResult from "@/components/types/exam_result";
+import {allCourse, CourseSelector} from "@/components/services/CourseSelector";
 
 // Status Counter
 const statusScore = (exam: ExamResult) => {
@@ -384,6 +385,27 @@ export default function ExamDashboard() {
         }
     }
 
+    // Handle Course Updates from Course Selector Components
+    const updateCourseHandle = async (courseId: string) => {
+        // Turn the string into an integer
+        let courseIdInt = parseInt(courseId);
+        // First case is the default All course
+        if (courseIdInt === -1) {
+            setFilter('all')
+            setCourse(allCourse);
+        }
+        // This is the
+        else {
+            let reduced = courses.find(course =>
+                course.courseId === courseIdInt);
+            console.log(reduced);
+            if (reduced) {
+                setFilter(reduced.courseName);
+                setCourse(reduced);
+            }
+        }
+    }
+
     return (
         <div className="px-4 pt-8 pb-1">
             <div className="max-w-5xl mx-auto">
@@ -400,34 +422,18 @@ export default function ExamDashboard() {
                 <div className="rounded-xl shadow-sm p-6 pb-2">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-semibold">Your Exams</h2>
-                        {/*Default All courses button*/}
-                        <div className="flex gap-2">
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    filter === 'all'
-                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'
-                                }`}
-                                onClick={() => setFilter('all')}
-                            >
-                                All Exams
-                            </button>
-                            {/*Load the courses of instructor*/}
-                            {!coursesLoading && courses.map((course) => (
-                                <button
-                                    key={course.courseId}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium
-                                        transition-colors shadow-sm shadow-mentat-gold-700 ${
-                                        filter === course.courseName
-                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
-                                                `}
-                                    onClick={() => setFilter(course.courseName)}
-                                >
-                                    {course.courseName}
-                                </button>
-                            ))}
-                        </div>
+                        {/*Course Selector Component*/}
+                        { courses && courses.length > 0 && (
+                            <CourseSelector
+                                courses={courses}
+                                selectedCourseId={course?.courseId}
+                                onCourseChange={(e) => {
+                                    updateCourseHandle(e.target.value);
+                                    console.log(filter);
+                                }}
+                                allDefault={true}
+                            />
+                        )}
                     </div>
                 </div>
                 {/* Line Divider */}
