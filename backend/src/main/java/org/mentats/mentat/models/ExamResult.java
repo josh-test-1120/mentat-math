@@ -3,6 +3,7 @@ package org.mentats.mentat.models;
 import java.math.BigInteger;
 import java.sql.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Repository;
  * @author Joshua Summers
  */
 @Entity
-@Repository
+@Table(name = "exam_result")
 public class ExamResult {
     /**
      * Exam Result model class fields.
@@ -25,58 +26,37 @@ public class ExamResult {
     // Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonProperty("examResultId") // Map JSON field to Java field
     @Column(name = "exam_result_id", updatable = false, nullable = false)
     private Long Id;
 
     // Fix the student relationship - should be ManyToOne to Student entity
-    @ManyToOne(fetch = FetchType.EAGER)  // ← EAGER instead of LAZY
+    @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
     @JoinColumn(name = "exam_student_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @NotNull
     private User student;
 
     // Fix the exam relationship - should be ManyToOne to Exam entity
-    @ManyToOne(fetch = FetchType.EAGER)  // ← EAGER instead of LAZY
+    @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
     @JoinColumn(name = "exam_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @NotNull
     private Exam exam;
 
-//    // The student assigned to exam result
-//    @NotBlank
-//    @JsonProperty("examStudentId") // Map JSON field to Java field
-//    @Column(name = "exam_student_id")
-//    protected Long studentId;
-//
-//    // The exam assigned to the result
-//    @JsonProperty("examId") // Map JSON field to Java field
-//    @NotBlank
-//    @Column(name = "exam_id")
-//    @ManyToOne
-//    @JoinColumn(name = "exam_id")
-//    private Exam exam;
-////    private Long examId;
-
     // The version of the exam assigned
-//    @Size(max = 20)
-    @JsonProperty("examVersion") // Map JSON field to Java field
     @NotNull
     @Column(name = "exam_version")
     public Integer examVersion;
 
     // The score of the exam assigned
     @Size(max = 1)
-    @JsonProperty("examScore") // Map JSON field to Java field
     @Column(name = "exam_score")
     public String examScore;
 
     // This is the date the exam is scheduled for
     @NotNull
-    @JsonProperty("examScheduledDate") // Map JSON field to Java field
     @Column(name = "exam_scheduled_date")
     private Date examScheduledDate;
 
     // This is the date the exam was taken
-    @JsonProperty("examTakenDate") // Map JSON field to Java field
     @Column(name = "exam_taken_date")
     public Date examTakenDate;
 
@@ -194,12 +174,12 @@ public class ExamResult {
     public String toString() {
         return "ExamResult{" +
                 "examResultId=" + Id +
-                ", student=" + student.toString() +
-                ", exam=" + exam.toString() +
+                ", student=" + (student != null ? student.toString() : "null") +
+                ", exam=" + (exam != null ? exam.toString() : "null") +
                 ", examVersion=" + examVersion +
                 ", examScore='" + examScore +
-                ", examScheduledDate=" + examScheduledDate.toString() +
-                ", examTakenDate=" + examTakenDate.toString() +
+                ", examScheduledDate=" + (examScheduledDate != null ? examScheduledDate.toString() : "null") +
+                ", examTakenDate=" + (examTakenDate != null ? examTakenDate.toString() : "null") +
                 '}';
     }
 }

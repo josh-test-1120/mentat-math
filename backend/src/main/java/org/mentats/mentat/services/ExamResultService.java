@@ -1,9 +1,16 @@
 package org.mentats.mentat.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.exceptions.ExamResultNotFoundException;
+import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
+import org.mentats.mentat.models.User;
+import org.mentats.mentat.payload.request.ExamResultRequest;
+import org.mentats.mentat.payload.response.ExamResultResponse;
+import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.components.ExamResultValidator;
+import org.mentats.mentat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,22 +23,57 @@ import java.util.List;
  */
 @Service
 public class ExamResultService {
-
+    // Repository services
     @Autowired
     private ExamResultRepository examResultRepository;
-
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ExamRepository examRepository;
+    // Validator Service
     @Autowired
     private ExamResultValidator validator;
 
+    private User student;
+    private Exam exam;
+
+    /**
+     * Utility to load Foreign Keys
+     */
+    private void GetForeignKeyObjects(ExamResultRequest examResultRequest) {
+        // Find related entities
+        student = userRepository.findById(examResultRequest.getExamStudentId())
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+
+        exam = examRepository.findById(examResultRequest.getExamId())
+                .orElseThrow(() -> new EntityNotFoundException("Exam not found"));
+    }
+
     /**
      * Create new ExamResult object
-     * @param examResult
+     * @param examResultRequest
      * @return ExamResult object
      */
     // Create exam result
-    public ExamResult createExamResult(ExamResult examResult) {
-        validator.validateForCreation(examResult);
-        return examResultRepository.save(examResult);
+    public ExamResultResponse createExamResult(ExamResultRequest examResultRequest) {
+        // Run Validations
+        validator.validateForCreation(examResultRequest);
+
+        // Get referenced objects (FKs)
+        GetForeignKeyObjects(examResultRequest);
+
+        // Create entity
+        ExamResult examResult = new ExamResult();
+        examResult.setStudent(student);
+        examResult.setExam(exam);
+        examResult.setExamVersion(examResultRequest.getExamVersion());
+        examResult.setExamScore(examResultRequest.getExamScore());
+        examResult.setExamScheduledDate(examResultRequest.getExamScheduledDate());
+        examResult.setExamTakenDate(examResultRequest.getExamTakenDate());
+
+        // Save and return response DTO
+        ExamResult saved = examResultRepository.save(examResult);
+        return new ExamResultResponse(saved);
     }
 
     /**
@@ -91,25 +133,35 @@ public class ExamResultService {
     }
 
     /**
-     * Update ExamResult object in the database
+     * Update ExamResult object in the database with all fields
      * @param id
-     * @param examResultUpdates
+     * @param examResultRequest
      * @return ExamResult object
      */
-    // Update exam result
-    public ExamResult updateExamResult(Long id, ExamResult examResultUpdates) {
+    public ExamResult updateExamResult(Long id, ExamResultRequest examResultRequest) {
+        // Validate the ID
         validator.validateExamResultId(id);
-        ExamResult existing = getExamResultById(id); // Reuse your read method
+        // Get the existing record
+        ExamResult existing = getExamResultById(id);
 
         // Validate the updates before applying
-        validator.validateForUpdate(existing, examResultUpdates);
+        validator.validateForUpdate(existing, examResultRequest);
 
-        // Update only not null fields (partial update)
-        if (examResultUpdates.getExamScore() != null) {
-            existing.setExamScore(examResultUpdates.getExamScore());
+        // Get referenced objects (FKs)
+        GetForeignKeyObjects(examResultRequest);
+
+        // Update all fields that are provided (partial update)
+        if (examResultRequest.getExamScore() != null) {
+            existing.setExamScore(examResultRequest.getExamScore());
         }
-        if (examResultUpdates.getExamTakenDate() != null) {
-            existing.setExamTakenDate(examResultUpdates.getExamTakenDate());
+        if (examResultRequest.getExamTakenDate() != null) {
+            existing.setExamTakenDate(examResultRequest.getExamTakenDate());
+        }
+        if (examResultRequest.getExamScheduledDate() != null) {
+            existing.setExamScheduledDate(examResultRequest.getExamScheduledDate());
+        }
+        if (examResultRequest.getExamVersion() != null) {
+            existing.setExamVersion(examResultRequest.getExamVersion());
         }
 
         return examResultRepository.save(existing);

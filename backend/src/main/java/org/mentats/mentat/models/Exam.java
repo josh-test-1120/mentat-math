@@ -1,19 +1,19 @@
 package org.mentats.mentat.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.stereotype.Repository;
 
 /**
  * This class represents the Exam entity that contains exam details
  * @author Joshua Summers
  */
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Repository
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Table(name = "exam")
 public class Exam {
     /**
      * Exam model class fields.
@@ -22,14 +22,16 @@ public class Exam {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("examId") // Map JSON field to Java field
-    @Column(name = "exam_id")
+    @Column(name = "exam_id", updatable = false, nullable = false)
     private Long Id;
 
     // The course id assigned to exam
     // Fix course relationship - should be ManyToOne to Course entity
-    @ManyToOne(fetch = FetchType.EAGER)  // ← EAGER instead of LAZY
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
     @JoinColumn(name = "exam_course_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore()
     private Course course;
 
 //    // The course id assigned to exam
@@ -186,7 +188,7 @@ public class Exam {
     public String toString() {
         return "Exam{" +
                 "Id=" + Id +
-                ", courseId=" + course.toString() +
+                ", courseId=" + (course != null ? course.toString() : "null") +
                 ", name='" + name + '\'' +
                 ", state=" + state +
                 ", required=" + required +

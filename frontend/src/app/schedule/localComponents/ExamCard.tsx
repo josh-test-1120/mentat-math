@@ -1,14 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { MouseEvent } from 'react';
 import { ExamOld, ExamProp, Course, ExamResultProper } from '@/components/types/exams';
 import Grade from "@/components/types/grade";
 import ExamResult from "@/components/types/exam_result";
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 import React, {useEffect, useRef, useState} from "react";
+import { apiHandler } from "@/utils/api";
+import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
 import {RingSpinner} from "@/components/UI/Spinners";
 import ScheduledExamDetailsComponent, {ExamAction} from "@/app/schedule/localComponents/ScheduledExamDetails";
+import {useSession} from "next-auth/react";
 
 export interface ExamMedium extends ExamResult {
     exam_name: string;
@@ -113,13 +117,17 @@ export const getExamPropStatus =
  */
 // Mid-size ExamCard Component
 export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardMediumProps ) {
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // Get the status of the exam
-    const status = getExamPropStatus(exam);
-    // exam.status = status;
+    const examStatus = getExamPropStatus(exam);
+    // Session Information
+    const {data: session, status} = useSession();
 
     const [isHovered, setIsHovered] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+    // Overlay for delete operations
+    const [activeOverlay, setActiveOverlay] = useState<number | null>(null);
 
     // Add a timeout ref to your component
     const closeTimeoutRef = useRef(null);
@@ -157,7 +165,8 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         );
     };
 
-    const openScheduledExamData = async (event) => {
+    const openScheduledExamData =
+        async (event: MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         // Show the event object:
         let actionBox = event.currentTarget.querySelector('#action-box');
@@ -167,7 +176,8 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         actionBox?.classList.replace('pointer-events-none', 'pointer-events-auto');
     }
 
-    const closeScheduledExamData = async (event) => {
+    const closeScheduledExamData =
+        async (event: MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         // Show the event object:
         let actionBox = event.currentTarget.querySelector('#action-box');
@@ -178,8 +188,43 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         current?.classList.remove('z-10');
     }
 
+    // Handle Delete
+    const handleDelete = async (id: number) => {
+        // Set overlay
+        setActiveOverlay(id);
+
+        // API Handler call
+        try {
+            console.log("Deleting Exam Result");
+            // API Handler
+            const res = await apiHandler(
+                undefined,
+                "DELETE",
+                `api/exam/result/${id}`,
+                `${BACKEND_API}`,
+                session?.user?.accessToken || undefined
+            );
+
+            // Handle errors properly
+            if (res instanceof Error || (res && res.error)) {
+                toast.error(res?.message || "Failed to delete the scheduled exam!");
+            } else {
+                toast.success("Successfully deleted the scheduled exam!");
+                // updateExam(undefined);
+                console.log("Exam Result Deletion Succeeded.");
+                console.log(res.toString());
+            }
+        } catch (e) {
+            toast.error("Exam Result Deletion Failed");
+        } finally {
+            setActiveOverlay(null);
+            // Run the cancel/close callback
+            if (updateAction) updateAction();
+        }
+    }
+
     return (
-        <div>
+        <div className="relative">
             <motion.div
                 className="relative rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md
             hover:shadow-crimson-700 transition-shadow"
@@ -198,7 +243,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                     </h3>
                     <div className="flex items-start">
                         <span className="text-xs rounded-full flex gap-1 whitespace-nowrap">
-                            <StatusBadge status={status}/>
+                            <StatusBadge status={examStatus}/>
                         </span>
                     </div>
                 </div>
@@ -285,7 +330,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                             onClick={(e) => {
                                 e.stopPropagation();
                                 console.log('Delete clicked');
-                                console.log('Needs implementation');
+                                handleDelete(exam.examResultId);
                             }}
                         >
                             Delete
@@ -318,6 +363,18 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                         }}
                     />)}
             </Modal>
+            {/* Overlay that appears when active */}
+            {activeOverlay === exam.examResultId && (
+                <div className="absolute inset-0 bg-mentat-black/10 backdrop-blur-sm rounded-xl
+                                    flex items-center justify-center z-20"
+                >
+                    <div className="flex flex-col items-center justify-center">
+                        <RingSpinner size={'xs'} color={'mentat-gold'} />
+                        <p className="mt-2 text-mentat-gold text-xs">Deleting scheduled exam...</p>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 };
