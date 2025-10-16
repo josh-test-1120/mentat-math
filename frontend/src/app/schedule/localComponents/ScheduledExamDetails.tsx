@@ -14,6 +14,7 @@ import {string} from "prop-types";
 import TestWindow from "@/components/types/test_window";
 import {RingSpinner} from "@/components/UI/Spinners";
 import {underline} from "next/dist/lib/picocolors";
+import TestWindowCard from "@/app/schedule/localComponents/TestWindowCard";
 
 export interface ExamAction extends ExamResult {
     examName: string;
@@ -574,108 +575,123 @@ export default function ScheduledExamDetailsComponent(
                         <div className="p-4 rounded-lg overflow-y-auto">
                             {/*These are the test windows*/}
                             { testWindows.map(testWindow => (
+                                <TestWindowCard
+                                    testWindow={testWindow}
+                                    updateAction={handleUpdate}
+                                    createAction={handleCreate}
+                                    cancelAction={() => {
+                                        setActiveOverlay(null);
+                                    }}
+                                    onClickAction={() => {
+                                        if (activeOverlay !== testWindow.testWindowId) {
+                                            navigateTestWindow(testWindow);
+                                        }
+                                    }}
+                                    activeOverlay={activeOverlay}
+                                    newScheduled={newScheduledExam}
+                                />
                                 // In your map function:
-                                <div className="relative" key={testWindow.testWindowId}>
-                                    {/* Your existing card */}
-                                    <div
-                                        className="border border-mentat-gold/20 mb-2
-                                rounded-xl bg-card-color p-2 hover:bg-card-color/10"
-                                        onClick={() => {
-                                            if (activeOverlay !== testWindow.testWindowId) {
-                                                navigateTestWindow(testWindow);
-                                            }
-                                        }}
-                                    >
-                                        <div>
-                                            <div className="flex font-semibold italic justify-between">
-                                                <span className="">
-                                                    Description:
-                                                </span>
-                                            </div>
-                                            <div className="rounded-lg text-sm">
-                                                <span className="text-mentat-gold-700">
-                                                    {testWindow.description}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="my-1">
-                                            <div className="flex font-semibold italic justify-between">
-                                                <span className="">
-                                                    Start Date/Time:
-                                                </span>
-                                            </div>
-                                            <div className="rounded-lg text-sm">
-                                                <span className="text-mentat-gold-700">
-                                                    {testWindow?.testWindowStartDate?.toLocaleString('en-US',
-                                                        { timeZone: 'America/Los_Angeles' })}: {testWindow?.testStartTime}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="my-1 overflow-y-auto">
-                                            <div className="flex font-semibold italic justify-between">
-                                                <span className="">
-                                                    End Date/Time:
-                                                </span>
-                                            </div>
-                                            <div className="rounded-lg text-sm">
-                                                <span className="text-mentat-gold-700">
-                                                    {testWindow?.testWindowEndDate?.toLocaleString('en-US',
-                                                        { timeZone: 'America/Los_Angeles' })}: {testWindow?.testEndTime}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="my-1">
-                                            <div className="flex font-semibold italic justify-between">
-                                                <span className="">
-                                                    Active:
-                                                </span>
-                                                <span className={`${ testWindow.isActive ?
-                                                    'text-green-700' : 'text-red-700'
-                                                }`}>
-                                            <span className="not-italic">
-                                                {testWindow.isActive.toString()}
-                                            </span>
-                                        </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Overlay that appears when active */}
-                                    {activeOverlay === testWindow.testWindowId && (
-                                        <div className="absolute inset-0 bg-mentat-black/10 backdrop-blur-sm rounded-xl
-                                    flex items-center justify-center z-20"
-                                        >
-                                            <div className="flex flex-col gap-3 items-center">
-                                                <button
-                                                    className="px-4 py-2 rounded-lg text-sm font-medium
-                                                    transition-colors shadow-sm shadow-mentat-gold-700
-                                                    bg-crimson text-mentat-gold hover:bg-crimson-700"
-                                                    // className="bg-crimson text-mentat-black px-6 py-3 rounded-lg
-                                                    //    font-semibold hover:bg-mentat-gold/80 transition-colors
-                                                    //    w-32"
-                                                    onClick={() => {
-                                                        if (!newScheduledExam)
-                                                            handleUpdate(testWindow);
-                                                        else
-                                                            handleCreate(testWindow);
-                                                    }}
-                                                >
-                                                    {newScheduledExam ? 'Schedule' : 'Reschedule'}
-                                                </button>
-                                                <button
-                                                    className="px-4 py-2 rounded-lg text-sm bg-mentat-gold
-                                                    transform-colors hover:bg-mentat-gold-700
-                                                    text-crimson font-bold shadow-sm shadow-crimson-700"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setActiveOverlay(null);
-                                                    }}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                                // <div className="relative" key={testWindow.testWindowId}>
+                                //     {/* Your existing card */}
+                                //     <div
+                                //         className="border border-mentat-gold/20 mb-2
+                                // rounded-xl bg-card-color p-2 hover:bg-card-color/10"
+                                //         onClick={() => {
+                                //             if (activeOverlay !== testWindow.testWindowId) {
+                                //                 navigateTestWindow(testWindow);
+                                //             }
+                                //         }}
+                                //     >
+                                //         <div>
+                                //             <div className="flex font-semibold italic justify-between">
+                                //                 <span className="">
+                                //                     Description:
+                                //                 </span>
+                                //             </div>
+                                //             <div className="rounded-lg text-sm">
+                                //                 <span className="text-mentat-gold-700">
+                                //                     {testWindow.description}
+                                //                 </span>
+                                //             </div>
+                                //         </div>
+                                //         <div className="my-1">
+                                //             <div className="flex font-semibold italic justify-between">
+                                //                 <span className="">
+                                //                     Start Date/Time:
+                                //                 </span>
+                                //             </div>
+                                //             <div className="rounded-lg text-sm">
+                                //                 <span className="text-mentat-gold-700">
+                                //                     {testWindow?.testWindowStartDate?.toLocaleString('en-US',
+                                //                         { timeZone: 'America/Los_Angeles' })}: {testWindow?.testStartTime}
+                                //                 </span>
+                                //             </div>
+                                //         </div>
+                                //         <div className="my-1 overflow-y-auto">
+                                //             <div className="flex font-semibold italic justify-between">
+                                //                 <span className="">
+                                //                     End Date/Time:
+                                //                 </span>
+                                //             </div>
+                                //             <div className="rounded-lg text-sm">
+                                //                 <span className="text-mentat-gold-700">
+                                //                     {testWindow?.testWindowEndDate?.toLocaleString('en-US',
+                                //                         { timeZone: 'America/Los_Angeles' })}: {testWindow?.testEndTime}
+                                //                 </span>
+                                //             </div>
+                                //         </div>
+                                //         <div className="my-1">
+                                //             <div className="flex font-semibold italic justify-between">
+                                //                 <span className="">
+                                //                     Active:
+                                //                 </span>
+                                //                 <span className={`${ testWindow.isActive ?
+                                //                     'text-green-700' : 'text-red-700'
+                                //                 }`}>
+                                //             <span className="not-italic">
+                                //                 {testWindow.isActive.toString()}
+                                //             </span>
+                                //         </span>
+                                //             </div>
+                                //         </div>
+                                //     </div>
+                                //     {/* Overlay that appears when active */}
+                                //     {activeOverlay === testWindow.testWindowId && (
+                                //         <div className="absolute inset-0 bg-mentat-black/10 backdrop-blur-sm rounded-xl
+                                //     flex items-center justify-center z-20"
+                                //         >
+                                //             <div className="flex flex-col gap-3 items-center">
+                                //                 <button
+                                //                     className="px-4 py-2 rounded-lg text-sm font-medium
+                                //                     transition-colors shadow-sm shadow-mentat-gold-700
+                                //                     bg-crimson text-mentat-gold hover:bg-crimson-700"
+                                //                     // className="bg-crimson text-mentat-black px-6 py-3 rounded-lg
+                                //                     //    font-semibold hover:bg-mentat-gold/80 transition-colors
+                                //                     //    w-32"
+                                //                     onClick={() => {
+                                //                         if (!newScheduledExam)
+                                //                             handleUpdate(testWindow);
+                                //                         else
+                                //                             handleCreate(testWindow);
+                                //                     }}
+                                //                 >
+                                //                     {newScheduledExam ? 'Schedule' : 'Reschedule'}
+                                //                 </button>
+                                //                 <button
+                                //                     className="px-4 py-2 rounded-lg text-sm bg-mentat-gold
+                                //                     transform-colors hover:bg-mentat-gold-700
+                                //                     text-crimson font-bold shadow-sm shadow-crimson-700"
+                                //                     onClick={(e) => {
+                                //                         e.stopPropagation();
+                                //                         setActiveOverlay(null);
+                                //                     }}
+                                //                 >
+                                //                     Cancel
+                                //                 </button>
+                                //             </div>
+                                //         </div>
+                                //     )}
+                                // </div>
                             ))}
                         </div>
                     </div>
