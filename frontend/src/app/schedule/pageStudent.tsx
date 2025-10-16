@@ -15,6 +15,7 @@ import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledE
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamCardMedium, ExamMedium } from "@/app/schedule/localComponents/ExamCard";
 import {Report} from "@/app/reports/types/shared";
+import { CourseSelector, allCourse } from "@/app/schedule/localComponents/CourseSelector";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -50,10 +51,11 @@ export default function StudentSchedule() {
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     const [selectedCourse, setSelectedCourse] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330' | string>('all');
+
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     // Fetch exams
     useEffect(() => {
@@ -253,23 +255,12 @@ export default function StudentSchedule() {
     // Load Exam Actions Modal
     const loadScheduledExamData = async (exam: Grade, e: any) => {
         e.preventDefault();
-
-        // // Set basic data and open modal immediately
-        // const examData: Exam = {
-        //     exam_id: exam.exam_id,
-        //     exam_name: exam.exam_name,
-        //     exam_course_id: exam.exam_course_id,
-        //     exam_difficulty: exam.exam_difficulty,
-        //     exam_required: exam.exam_required,
-        //     exam_duration: exam.exam_duration || "1",
-        //     exam_state: exam.exam_state,
-        //     exam_online: exam.exam_online
-        // }
-
+        // Set the exams
         setExam(exam);
+        // Adjust modal states
         setIsExamModalOpen(true); // Open modal immediately
         setIsModalLoading(true); // Show spinner inside modal
-
+        // Let's try and fetch the course
         try {
             // Load course data while modal is open
             await fetchCourse(exam.courseId);
@@ -280,15 +271,31 @@ export default function StudentSchedule() {
         }
     }
 
-    //
-    // if (status !== 'authenticated')
-    //     return <div className="p-6 text-mentat-gold-700">Please sign in.</div>;
-    // if (loading)
-    //     return <div className="p-6 text-mentat-gold-700">Loading...</div>;
+    // Handle Course Updates from Course Selector Components
+    const updateCourseHandle = async (courseId: string) => {
+        // Turn the string into an integer
+        let courseIdInt = parseInt(courseId);
+        // First case is the default All course
+        if (courseIdInt === -1) {
+            setFilter('all')
+            setCourse(allCourse);
+        }
+        // This is the
+        else {
+            let reduced = courses.find(course =>
+                course.courseId === courseIdInt);
+            console.log(reduced);
+            if (reduced) {
+                setFilter(reduced.courseName);
+                setCourse(reduced);
+            }
+        }
+    }
 
     return (
         <div className="w-full max-w-screen-2xl px-4 pt-8 pb-2">
             <div className="max-w-5xl mx-auto overflow-y-auto scrollbar-hide">
+                {/*Create Scheduled Exam Component*/}
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Manage Scheduled Exams</h1>
@@ -304,46 +311,21 @@ export default function StudentSchedule() {
                         ): ( <React.Fragment /> )}
 
                     </div>
-                    {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
-                    {/*<p>Manage and view your scheduled exams</p>*/}
                 </header>
-
+                {/*This is the course selector component*/}
                 <div className="rounded-xl shadow-sm p-6 pb-2">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-semibold">Your Scheduled Exams</h2>
-                        <div className="flex gap-2">
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                                 shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'all'
-                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'
-                                }`}
-                                onClick={() => setFilter('all')}
-                            >
-                                All Exams
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                                 shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'MATH260'
-                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                onClick={() => setFilter('MATH260')}
-                            >
-                                MATH260
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                                 shadow-sm shadow-mentat-gold-700 ${
-                                    filter === 'MATH330'
-                                        ? `bg-crimson text-mentat-gold-700 focus-mentat`
-                                        : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}`}
-                                onClick={() => setFilter('MATH330')}
-                            >
-                                MATH330
-                            </button>
-                        </div>
+                        { courses && courses.length > 0 && (
+                            <CourseSelector
+                                courses={courses}
+                                selectedCourseId={course?.courseId}
+                                onCourseChange={(e) => {
+                                    updateCourseHandle(e.target.value);
+                                    console.log(filter);
+                                }}
+                                />
+                        )}
                     </div>
                 </div>
                 {/* Line Divider */}
@@ -420,28 +402,6 @@ export default function StudentSchedule() {
                     {/*</div>*/}
                 </div>
             </div>
-            {/*/!* Exam Action Modal *!/*/}
-            {/*<Modal*/}
-            {/*    isOpen={isExamModalOpen}*/}
-            {/*    onClose={() => setIsExamModalOpen(false)}*/}
-            {/*    title="Reschedule Exam Options"*/}
-            {/*>*/}
-            {/*    {isModalLoading ? (*/}
-            {/*        <div className="flex flex-col items-center justify-center min-h-[200px]">*/}
-            {/*            <RingSpinner size={'sm'} color={'mentat-gold'} />*/}
-            {/*            <p className="mt-4 text-mentat-gold">Loading scheduled exam windows...</p>*/}
-            {/*        </div>*/}
-            {/*    ) : (*/}
-            {/*        <ScheduledExamDetailsComponent*/}
-            {/*            exam={exam as ExamAction}*/}
-            {/*            course={course}*/}
-            {/*            cancelAction={() => {*/}
-            {/*                setIsExamModalOpen(false);*/}
-            {/*                // Trigger refresh when modal closes*/}
-            {/*                setRefreshTrigger(prev => prev + 1);*/}
-            {/*            }}*/}
-            {/*        />)}*/}
-            {/*</Modal>*/}
         </div>
     );
 };
