@@ -1,13 +1,18 @@
 package org.mentats.mentat.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.exceptions.DataAccessException;
 import org.mentats.mentat.exceptions.ExamResultDeletionException;
 import org.mentats.mentat.exceptions.ExamResultNotFoundException;
 import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
+import org.mentats.mentat.payload.request.ExamResultRequest;
+import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.services.Database;
+import org.mentats.mentat.services.ExamResultService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +35,22 @@ import java.util.Map;
 @RequestMapping("/api/exam/result")
 public class ExamResultController {
     // Repository services
+    @Autowired
     private final ExamResultRepository examResultRepository;
+
+    // Service component
+    @Autowired
+    private final ExamResultService examResultService;
 
     /**
      * Dependency Injection Constructor
      * @param examResultRepository
+     * @param examResultService
      */
-    public ExamResultController(ExamResultRepository examResultRepository) {
+    public ExamResultController(ExamResultRepository examResultRepository,
+                                ExamResultService examResultService) {
         this.examResultRepository = examResultRepository;
+        this.examResultService = examResultService;
     }
 
     /**
@@ -51,6 +64,8 @@ public class ExamResultController {
         try {
             // Use the repository to find exam results by exam ID
             List<ExamResult> examResults = examResultRepository.findByExam_Id(eid);
+//            // Use the service to find the exam results by exam ID
+//            List<ExamResult> examResults = examResultService.getExamResultsByExamId(eid);
 
             // Check if any exam results were found
             if (examResults != null && !examResults.isEmpty()) {
@@ -110,6 +125,25 @@ public class ExamResultController {
     }
 
     /**
+     * This will create a new entry in exam result table
+     * @param examResultRequest The new examResult to create (request format)
+     * @return ResponseEntity
+     */
+    @PostMapping("/create")
+    public ResponseEntity<?> insertExamResult(@RequestBody ExamResultRequest examResultRequest) {
+        try {
+            // Save the new exam result to database
+            ExamResultResponse savedExam = examResultService.createExamResult(examResultRequest);
+
+            // Return 201 Created status with the new resource
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedExam);
+        }
+        catch (DataAccessException e) {
+            throw new DataAccessException("Database error while creating exam: " + e.getMessage());
+        }
+    }
+
+    /**
      * Patch the exam result in the database
      * based on the exam result ID supplied in the URI
      * @param examUpdates JSON object of data
@@ -117,36 +151,22 @@ public class ExamResultController {
      * @return ResponseEntity
      */
     @PatchMapping("/{examResultID}")
-    public ResponseEntity<?> updateExamResult(@RequestBody ExamResult examUpdates, @PathVariable("examResultID") Long eid) {
+    public ResponseEntity<?> updateExamResult(@RequestBody ExamResultRequest examUpdates,
+                                              @PathVariable("examResultID") Long eid) {
+        System.out.println(examUpdates.toString());
         try {
-            // Find the existing exam
-            ExamResult existingExamResult = examResultRepository.findById(eid)
-                    .orElseThrow(() -> new ExamResultNotFoundException("Exam not found with id: " + eid));
+            // Use the service layer to handle the update
+            ExamResult updatedExamResult = examResultService.updateExamResult(eid, examUpdates);
 
-            // Update fields directly
-            updateExamFields(existingExamResult, examUpdates);
-
-            // Save the updated exam to database
-            ExamResult savedExam = examResultRepository.save(existingExamResult);
-
-            // The @Transactional annotation will automatically save changes when method completes
-            return ResponseEntity.ok(savedExam);
+            // Convert to DTO/Response object for proper response (object-less)
+            ExamResultResponse response = new ExamResultResponse(updatedExamResult);
+            return ResponseEntity.ok(response);
 
         } catch (DataAccessException e) {
             throw new DataAccessException("Database error while updating exam: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            throw new ExamResultNotFoundException("Exam not found with id: " + eid);
         }
-    }
-
-    // Helper method to update fields
-    private void updateExamFields(ExamResult existing, ExamResult updates) {
-        if (updates.getExamScheduledDate() != null)
-            existing.setExamScheduledDate(updates.getExamScheduledDate());
-        if (updates.getExamTakenDate() != null)
-            existing.setExamTakenDate(updates.getExamTakenDate());
-        if (updates.getExamScore() != null) existing.setExamScore(updates.getExamScore());
-        if (updates.getExamVersion() != null) existing.setExamVersion(updates.getExamVersion());
-//        if (updates.getExam() != null) existing.setExam(updates.getExam());
-//        if (updates.getStudent() != null) existing.setStudent(updates.getStudent());
     }
 
     /**
@@ -154,34 +174,59 @@ public class ExamResultController {
      * based on the exam result ID supplied in the URI
      * @return JSON encoded ok
      */
+//    @DeleteMapping("/{examResultID}")
+//    public void deleteExamResult(@PathVariable("examResultID") Long erid) {
+//        // SQL query to select from the 'exam' table where the student ID is present
+//        String sql = "DELETE FROM exam_result \n" +
+//                "WHERE exam_result_id = ?;\n";
+//
+//        try (Connection conn = Database.getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(sql)) {
+//
+//            // Update the Query with the variables
+//            stmt.setLong(1, erid);  // Set the exam ID
+//
+//            // Update the database
+//            int affectedRows = stmt.executeUpdate();
+//
+//            if (affectedRows == 0) {
+//                throw new ExamResultNotFoundException("Exam result not found with id: " + erid);
+//            }
+//
+//        } catch (SQLException e) {
+//            // Handle database errors
+//            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
+//                throw new ExamResultDeletionException(
+//                        "Cannot delete exam result: It is referenced by other records"
+//                );
+//            } else {
+//                throw new DataAccessException("Database error while deleting exam result: " + e.getMessage());
+//            }
+//        }
+//    }
+
+    /**
+     * Delete the exam result from the database
+     * based on the exam result ID supplied in the URI
+     * @return ResponseEntity with appropriate status
+     */
     @DeleteMapping("/{examResultID}")
-    public void deleteExamResult(@PathVariable("examResultID") Long erid) {
-        // SQL query to select from the 'exam' table where the student ID is present
-        String sql = "DELETE FROM exam_result \n" +
-                "WHERE exam_result_id = ?;\n";
+    public ResponseEntity<?> deleteExamResult(@PathVariable("examResultID") Long erid) {
+        try {
+            // Use the service layer to handle the deletion
+            examResultService.deleteExamResult(erid);
 
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            return ResponseEntity.ok().build();
 
-            // Update the Query with the variables
-            stmt.setLong(1, erid);  // Set the exam ID
+        } catch (ExamResultNotFoundException e) {
+            // Handle case where exam result is not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Exam result not found with id: " + erid);
 
-            // Update the database
-            int affectedRows = stmt.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new ExamResultNotFoundException("Exam result not found with id: " + erid);
-            }
-
-        } catch (SQLException e) {
-            // Handle database errors
-            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
-                throw new ExamResultDeletionException(
-                        "Cannot delete exam result: It is referenced by other records"
-                );
-            } else {
-                throw new DataAccessException("Database error while deleting exam result: " + e.getMessage());
-            }
+        } catch (Exception e) {
+            // Handle other exceptions (constraint violations, etc.)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting exam result: " + e.getMessage());
         }
     }
 

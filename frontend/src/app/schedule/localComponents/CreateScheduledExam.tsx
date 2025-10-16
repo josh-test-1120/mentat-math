@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
+import { ChangeEvent, MouseEvent } from 'react';
 import { apiHandler } from "@/utils/api";
 import {SessionProvider, useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
@@ -19,13 +20,15 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 interface CreateScheduledExamProps {
     studentId: string | undefined;
     courses: Course[] | undefined;
+    updateAction: () => void;
 }
 
 /**
  * Student Schedule Page
  * @constructor
  */
-export default function CreateScheduledExam({ studentId, courses }:CreateScheduledExamProps ) {
+export default function CreateScheduledExam({ studentId, courses, updateAction }
+                                            :CreateScheduledExamProps ) {
 
     // State information
     const [course, setCourse] = useState<Course>();
@@ -123,7 +126,8 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
         }
     }
 
-    const handleCourseChange = (event) => {
+    const handleCourseChange =
+        (event: ChangeEvent<HTMLSelectElement>) => {
         // Get the data option for the Id
         const selectedOption = event.target.options[event.target.selectedIndex];
         const courseId = selectedOption.getAttribute('data-key');
@@ -138,7 +142,7 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
             setCourseName(currentCourse[0].courseName);
 
             // Get the exams that are available for that course
-            fetchExamsByCourse(courseId);
+            if (courseId) fetchExamsByCourse(courseId);
 
             // Your callback logic here
             console.log('Selected course ID:', courseId);
@@ -147,7 +151,8 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
         // onCourseSelect?.(selectedValue); // Optional callback prop
     };
 
-    const handleExamChange = (event) => {
+    const handleExamChange =
+        (event: ChangeEvent<HTMLSelectElement>) => {
         // Get the data option for the Id
         const selectedOption = event.target.options[event.target.selectedIndex];
         const examId = selectedOption.getAttribute('data-key');
@@ -165,8 +170,10 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
         // onCourseSelect?.(selectedValue); // Optional callback prop
     };
 
-    const handLoadTestWindows = (event) => {
-        const selectedValue = event.target.value;
+    const handLoadTestWindows =
+        (event: MouseEvent<HTMLButtonElement>) => {
+        // const selectedValue = event.target.value;
+        const selectedValue = event.currentTarget.value;
         console.log('Loading test windows');
         console.log(course);
         setIsScheduleModalOpen(true);
@@ -181,7 +188,7 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                 <button
                     className="bg-crimson hover:bg-crimson-700 text-mentat-gold
                         font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline
-                        inline-flex"
+                        inline-flex shadow-sm shadow-mentat-gold-700"
                     onClick={() => setIsModalOpen(true)}
                 >
                     <span className="inline-flex items-center mr-1">
@@ -288,13 +295,14 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                                 setIsModalOpen(false)
                             }}
                             className="bg-crimson hover:bg-crimson-700 text-mentat-gold
-                            font-semibold py-2 px-4 rounded-md border border-mentat-gold/20"
+                            font-semibold py-2 px-4 rounded-md border border-mentat-gold/20
+                            shadow-sm shadow-mentat-gold-700"
                         >
                             Cancel
                         </button>
                         <button
                             className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
-                            font-bold py-2 px-4 rounded-md"
+                            font-bold py-2 px-4 rounded-md shadow-sm shadow-crimson-700"
                             type="button"
                             onClick={handLoadTestWindows}
                         >
@@ -323,9 +331,8 @@ export default function CreateScheduledExam({ studentId, courses }:CreateSchedul
                             updateAction={() => {
                                 setIsScheduleModalOpen(false);
                                 setIsModalOpen(false);
-                                // Handle parent updates
-                                // setCurrentExam(undefined)
-                                // if (updateAction) updateAction();
+                                // Parent update actions
+                                if (updateAction) updateAction();
                             }}
                         />)}
                 </Modal>

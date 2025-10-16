@@ -1,5 +1,6 @@
 package org.mentats.mentat.components;
 
+import org.mentats.mentat.payload.request.ExamResultRequest;
 import org.springframework.stereotype.Component;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.mentats.mentat.models.ExamResult;
@@ -13,7 +14,7 @@ import java.util.Date;
 @Component
 public class ExamResultValidator {
     // Exam Result Validator functions
-    public void validateForCreation(ExamResult examResult) {
+    public void validateForCreation(ExamResultRequest examResult) {
         validateNotNull(examResult, "Exam result");
         validateRequiredFields(examResult);
         validateFieldFormats(examResult);
@@ -46,7 +47,7 @@ public class ExamResultValidator {
     }
 
     // NEW METHOD: Validate update operation
-    public void validateForUpdate(ExamResult existing, ExamResult updates) {
+    public void validateForUpdate(ExamResult existing, ExamResultRequest updates) {
         if (updates.getExamTakenDate() != null &&
                 updates.getExamTakenDate().before(existing.getExamScheduledDate())) {
             throw new ValidationException("Exam cannot be taken before scheduled date");
@@ -58,24 +59,25 @@ public class ExamResultValidator {
 
     // NEW METHOD: Validate delete operation
     public void validateDeleteOperation(ExamResult examResult) {
+        System.out.println(examResult.toString());
         if (examResult.getExamTakenDate() != null) {
             throw new ValidationException("Cannot delete exam result after exam has been taken");
         }
     }
 
     // PRIVATE VALIDATION METHODS (keep existing ones)
-    private void validateRequiredFields(ExamResult examResult) {
-        validateStudentId(examResult.getStudentId());
+    private void validateRequiredFields(ExamResultRequest examResult) {
+        validateStudentId(examResult.getExamStudentId());
         validateExamId(examResult.getExamId());
         validateExamVersion(examResult.getExamVersion());
         validateScheduledDate(examResult.getExamScheduledDate());
     }
 
-    private void validateFieldFormats(ExamResult examResult) {
+    private void validateFieldFormats(ExamResultRequest examResult) {
         validateScoreFormat(examResult.getExamScore());
     }
 
-    private void validateBusinessRules(ExamResult examResult) {
+    private void validateBusinessRules(ExamResultRequest examResult) {
         if (examResult.getExamTakenDate() != null &&
                 examResult.getExamTakenDate().before(examResult.getExamScheduledDate())) {
             throw new ValidationException("Exam cannot be taken before scheduled date");

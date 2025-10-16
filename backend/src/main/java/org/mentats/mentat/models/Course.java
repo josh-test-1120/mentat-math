@@ -14,8 +14,7 @@ import org.springframework.stereotype.Repository;
  * @author Joshua Summers
  */
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Repository
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "course",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "course_id"),
@@ -31,14 +30,14 @@ public class Course {
     // Report.Report.Course ID for this course
     private Long courseId;
 
-    // The course name
+    // Course name
     @NotBlank
     @Size(max = 50)
     @JsonProperty("courseName") // Map JSON field to Java field
     @Column(name = "course_name")
     protected String courseName;
 
-    //Report.Report.Course's instructor ID
+    // Course instructor ID
     @JsonProperty("courseProfessorId") // Map JSON field to Java field
     @Column(name = "course_professor_id")
     private Long courseProfessorId;
@@ -49,23 +48,24 @@ public class Course {
     @Column(name = "course_section")
     public String courseSection;
 
+    // Couse Year
     @Min(2000)
     @JsonProperty("courseYear") // Map JSON field to Java field
     @Column(name = "course_year")
     private int courseYear;
 
+    // Course Quarter
     @NotBlank
     @Size(max = 20)
     @JsonProperty("courseQuarter") // Map JSON field to Java field
     @Column(name = "course_quarter")
-    //Report.Report.Course term (i.e. Winter 2024)
     public String courseQuarter;
 
+    // Course Grade Strategy
     @NotBlank
     @Size(max = 255)
     @JsonProperty("gradeStrategy") // Map JSON field to Java field
     @Column(name = "course_grade_strategy", columnDefinition = "JSON")
-    //Report.Report.Course term (i.e. Winter 2024)
     public String gradeStrategy;
 
     /**
@@ -175,5 +175,22 @@ public class Course {
 
     public void setGradeStrategy(String gradeStrategy) {
         this.gradeStrategy = gradeStrategy;
+    }
+
+    /**
+     * This is the toString override for String result responses
+     * @return String output of keys and values
+     */
+    @Override
+    public String toString() {
+        return "Course{" +
+                "courseId=" + courseId +
+                ", courseName='" + courseName + '\'' +
+                ", courseProfessorId=" + courseProfessorId +
+                ", courseSection='" + courseSection + '\'' +
+                ", courseYear=" + courseYear +
+                ", courseQuarter='" + courseQuarter + '\'' +
+                ", gradeStrategy='" + gradeStrategy + '\'' +
+                '}';
     }
 }
