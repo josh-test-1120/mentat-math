@@ -18,6 +18,7 @@ import GradeDashboard from "@/app/reports/localComponents/GradeDashboard";
 import { TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
 import { RingSpinner } from "@/components/UI/Spinners";
 import GradeDetermination from "@/app/reports/utils/GradeDetermination";
+import { CourseSelector, allCourse } from "@/components/services/CourseSelector";
 
 export function StudentReport() {
     // Session states
@@ -34,6 +35,7 @@ export function StudentReport() {
     const [grades, setGrades] = useState<Report[]>([]);
     const [courseGrades, setCourseGrades] = useState<Report[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
+    const [course, setCourse] = useState<Course>();
     const [exams, setExams] = useState<Exam[]>([]);
     const [gradeStrategy, setGradeStrategy] = useState<GradeStrategy>();
     const [currentGrade, setCurrentGrade] = useState<String>('A');
@@ -446,6 +448,28 @@ export function StudentReport() {
         // setIsExamModalOpen(true)
     }
 
+    // Handle Course Updates from Course Selector Components
+    const updateCourseHandle = async (courseId: string) => {
+        // Turn the string into an integer
+        let courseIdInt = parseInt(courseId);
+        // First case is the default All course
+        if (courseIdInt === -1) {
+            setCourseFilter('all')
+            setCourse(allCourse);
+        }
+        // This is the
+        else {
+            let reduced = courses.find(course =>
+                course.courseId === courseIdInt);
+            console.log(reduced);
+            if (reduced) {
+                setCourseFilter(reduced.courseName);
+                setCourse(reduced);
+            }
+        }
+    }
+
+
     return (
         <div>
             {/*This is the course header*/}
@@ -455,33 +479,49 @@ export function StudentReport() {
                     (
                         <React.Fragment>
                             <h2 className="text-xl font-semibold">{session?.user?.name}'s Report</h2>
-                            <div className="flex gap-2">
-                                {loading ? (<React.Fragment/>) : filteredCourses.length === 0
-                                    ? (
-                                        <div>
-                                            <p>Student has no courses</p>
-                                        </div>
-                                    )
-                                    : (
-                                        <React.Fragment>
-                                            {courses.map((course) => (
-                                                <button
-                                                    key={course.courseId}
-                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                                                     shadow-sm shadow-mentat-gold-700 ${
-                                                        courseFilter === course.courseName
-                                                            ? 'bg-crimson text-mentat-gold-700 focus-mentat'
-                                                            : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}
-                                                        `}
-                                                    onClick={() => setCourseFilter(course.courseName)}
-                                                >
-                                                    {course.courseName}
-                                                </button>
-                                            ))}
-                                        </React.Fragment>
-                                    )
-                                }
-                            </div>
+                            {loading ? (<React.Fragment/>) : filteredCourses.length === 0
+                                ? (
+                                    <div>
+                                        <p>Student has no courses</p>
+                                    </div>
+                                )
+                                : courses && courses.length > 0 && (
+                                    <CourseSelector
+                                        courses={courses}
+                                        selectedCourseId={course?.courseId}
+                                        onCourseChange={(e) => {
+                                            updateCourseHandle(e.target.value);
+                                            console.log(filter);
+                                        }}
+                                    />
+                            )}
+                            {/*<div className="flex gap-2">*/}
+                            {/*    {loading ? (<React.Fragment/>) : filteredCourses.length === 0*/}
+                            {/*        ? (*/}
+                            {/*            <div>*/}
+                            {/*                <p>Student has no courses</p>*/}
+                            {/*            </div>*/}
+                            {/*        )*/}
+                            {/*        : (*/}
+                            {/*            <React.Fragment>*/}
+                            {/*                {courses.map((course) => (*/}
+                            {/*                    <button*/}
+                            {/*                        key={course.courseId}*/}
+                            {/*                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors*/}
+                            {/*                         shadow-sm shadow-mentat-gold-700 ${*/}
+                            {/*                            courseFilter === course.courseName*/}
+                            {/*                                ? 'bg-crimson text-mentat-gold-700 focus-mentat'*/}
+                            {/*                                : 'bg-crimson text-mentat-gold hover:bg-crimson-700'}*/}
+                            {/*                            `}*/}
+                            {/*                        onClick={() => setCourseFilter(course.courseName)}*/}
+                            {/*                    >*/}
+                            {/*                        {course.courseName}*/}
+                            {/*                    </button>*/}
+                            {/*                ))}*/}
+                            {/*            </React.Fragment>*/}
+                            {/*        )*/}
+                            {/*    }*/}
+                            {/*</div>*/}
                         </React.Fragment>
                     ) : (<React.Fragment/>)
                 }
@@ -532,13 +572,6 @@ export function StudentReport() {
                                                 <RingSpinner size={'sm'} color={'mentat-gold'} />
                                                 <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
                                             </div>
-                                            // <motion.div
-                                            //     initial={{opacity: 0}}
-                                            //     animate={{opacity: 1}}
-                                            //     className="text-center py-12"
-                                            // >
-                                            //     Generating...
-                                            // </motion.div>
                                         ) :
                                         (
                                             <motion.div

@@ -6,16 +6,14 @@ import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { Exam, ExamProp } from "@/components/types/exams";
+import { ExamProp } from "@/components/types/exams";
 import Course from "@/components/types/course";
 import Grade from "@/components/types/grade";
-import { getExamStatus, ExamExtended } from "@/components/UI/cards/ExamCards";
 import { getExamPropCourse } from "@/app/schedule/localComponents/ExamCard";
 import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledExam";
 import { RingSpinner } from "@/components/UI/Spinners";
-import { ExamCardMedium, ExamMedium } from "@/app/schedule/localComponents/ExamCard";
-import {Report} from "@/app/reports/types/shared";
-import { CourseSelector, allCourse } from "@/app/schedule/localComponents/CourseSelector";
+import { ExamCardMedium } from "@/app/schedule/localComponents/ExamCard";
+import { CourseSelector, allCourse } from "@/components/services/CourseSelector";
 
 // Status Counter
 const statusScore = (exam: ExamProp) => {
@@ -324,6 +322,7 @@ export default function StudentSchedule() {
                                     updateCourseHandle(e.target.value);
                                     console.log(filter);
                                 }}
+                                allDefault={true}
                                 />
                         )}
                     </div>
