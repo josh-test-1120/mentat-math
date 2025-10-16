@@ -1,7 +1,12 @@
 package org.mentats.mentat.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.exceptions.ValidationException;
+import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.Exam;
+import org.mentats.mentat.payload.request.ExamRequest;
+import org.mentats.mentat.payload.response.ExamResponse;
+import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.components.ExamValidator;
 import org.mentats.mentat.exceptions.ExamNotFoundException;
@@ -15,22 +20,52 @@ import java.util.List;
  */
 @Service
 public class ExamService {
-
+    // Repository services
     @Autowired
     private ExamRepository examRepository;
-
+    @Autowired
+    private CourseRepository courseRepository;
+    // Validator Service
     @Autowired
     private ExamValidator validator;
+    // Entity Foreign Keys
+    private Course course;
+
+    /**
+     * Utility to load Foreign Keys
+     */
+    private void GetForeignKeyObjects(ExamRequest examRequest) {
+        // Find related entities
+        course = courseRepository.findById(examRequest.getExamId())
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+    }
 
     /**
      * Create new Exam object
-     * @param exam
-     * @return Exam object
+     * @param examRequest
+     * @return ExamResponse object
      */
-    // Create exam
-    public Exam createExam(Exam exam) {
-        validator.validateForCreation(exam);
-        return examRepository.save(exam);
+    // Create exam result
+    public ExamResponse createExam(ExamRequest examRequest) {
+        // Run Validations
+        validator.validateForCreation(examRequest);
+
+        // Get referenced objects (FKs)
+        GetForeignKeyObjects(examRequest);
+
+        // Create entity
+        Exam exam = new Exam();
+        exam.setCourse(course);
+        exam.setDifficulty(examRequest.getExamDifficulty());
+        exam.setState(examRequest.getExamState());
+        exam.setRequired(examRequest.getExamRequired());
+        exam.setName(examRequest.getExamName());
+        exam.setDuration(examRequest.getExamDuration());
+        exam.setOnline(examRequest.getExamOnline());
+
+        // Save and return response DTO
+        Exam saved = examRepository.save(exam);
+        return new ExamResponse(saved);
     }
 
     /**
@@ -126,30 +161,39 @@ public class ExamService {
      * @return Exam object
      */
     // Update exam
-    public Exam updateExam(Long id, Exam examUpdates) {
+    public Exam updateExam(Long id, ExamRequest examUpdates) {
         validator.validateExamId(id);
         Exam existing = getExamById(id);
 
         validator.validateForUpdate(existing, examUpdates);
 
-        // Update only provided fields (partial update)
-        if (examUpdates.getCourseId() != null) {
-            existing.setCourse(examUpdates.getCourse());
+        // Get referenced objects (FKs)
+        GetForeignKeyObjects(examUpdates);
+
+        // Handle FK updates and cascades (if appropriate) *** TBD ***
+        // Object Reference updates
+        if (examUpdates.getExamCourseId() != null) {
+            existing.setCourse(course);
         }
-        if (examUpdates.getName() != null) {
-            existing.setName(examUpdates.getName());
+
+        // Non object updates
+        if (examUpdates.getExamName() != null) {
+            existing.setName(examUpdates.getExamName());
         }
-        if (examUpdates.getState() != null) {
-            existing.setState(examUpdates.getState());
+        if (examUpdates.getExamState() != null) {
+            existing.setState(examUpdates.getExamState());
         }
-        if (examUpdates.getRequired() != null) {
-            existing.setRequired(examUpdates.getRequired());
+        if (examUpdates.getExamRequired() != null) {
+            existing.setRequired(examUpdates.getExamRequired());
         }
-        if (examUpdates.getDuration() != null) {
-            existing.setDuration(examUpdates.getDuration());
+        if (examUpdates.getExamDuration() != null) {
+            existing.setDuration(examUpdates.getExamDuration());
         }
-        if (examUpdates.getOnline() != null) {
-            existing.setOnline(examUpdates.getOnline());
+        if (examUpdates.getExamOnline() != null) {
+            existing.setOnline(examUpdates.getExamOnline());
+        }
+        if (examUpdates.getExamDifficulty() != null) {
+            existing.setOnline(examUpdates.getExamDifficulty());
         }
 
         return examRepository.save(existing);

@@ -14,7 +14,6 @@ import org.mentats.mentat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class ExamResultService {
     // Validator Service
     @Autowired
     private ExamResultValidator validator;
-
+    // Entity Foreign Keys
     private User student;
     private Exam exam;
 
@@ -149,6 +148,8 @@ public class ExamResultService {
 
         // Get referenced objects (FKs)
         GetForeignKeyObjects(examResultRequest);
+
+        // Handle FK updates and cascades (if appropriate) *** TBD ***
 
         // Update all fields that are provided (partial update)
         if (examResultRequest.getExamScore() != null) {

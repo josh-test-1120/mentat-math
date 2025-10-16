@@ -3,6 +3,12 @@ package org.mentats.mentat.payload.response;
 import org.mentats.mentat.models.ExamResult;
 import java.sql.Date;
 
+/**
+ * Form response validation serializer
+ * Exam result response objects
+ * serialize Exam result responses
+ * @author Joshua Summers
+ */
 public class ExamResultResponse {
     private Long examResultId;
     private Long examStudentId;    // Only ID, not full entity

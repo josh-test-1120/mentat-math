@@ -1,149 +1,177 @@
 package org.mentats.mentat.payload.request;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 /**
  * Form request validation serializer
  * Exam request objects
- * new Exam creation
+ * serialize Exam posts
  * @author Joshua Summers
  */
 public class ExamRequest {
+    @NotNull
+    private Long examId;
+
     @NotBlank
     @Size(min = 3, max = 20)
-    @JsonProperty("exam_name")
-    private String exam_name;
+    private String examName;
 
     @NotBlank
-    @JsonProperty("exam_state")
-    private Boolean exam_state;
+    private Integer examState;
 
     @NotBlank
-    @JsonProperty("exam_required")
-    private Boolean exam_required;
+    private Integer examRequired;
 
-    @NotBlank
-    @JsonProperty("exam_difficulty")
-    private Integer exam_difficulty;
+    @NotNull
+    private Integer examDifficulty;
 
-    @NotBlank
-    @JsonProperty("exam_course_id")
-    private Integer exam_course_id;
+    @NotNull
+    private Long examCourseId;
 
-    @NotBlank
-    @JsonProperty("exam_duration")
-    private Double exam_duration;
+    @NotNull
+    private Double examDuration;
 
-    @NotBlank
-    @JsonProperty("exam_online")
-    private Boolean exam_online;
+    @NotNull
+    private Integer examOnline;
+
+    /**
+     * Getter for Exam Id
+     * @return Long of examId
+     */
+    public Long getExamId() {
+        return examId;
+    }
+
+    /**
+     * Setter for Exam Id
+     * @param examId Long of examId
+     */
+    public void setExamId (Long examId) {
+        this.examId = examId;
+    }
 
     /**
      * Getter for Exam name
-     * @return string of exam name
+     * @return string of examName
      */
-    public String getExam_name() {
-        return exam_name;
+    public String getExamName() {
+        return examName;
     }
 
     /**
      * Setter for Exam name
-     * @param exam_name string of exam name
+     * @param examName string of examName
      */
-    public void setExam_name (String exam_name) {
-        this.exam_name = exam_name;
+    public void setExamName (String examName) {
+        this.examName = examName;
     }
 
     /**
-     * Getter for Is Published
-     * @return boolean of is published
+     * Getter for Exam state
+     * @return Integer of examState
      */
-    public Boolean getIs_published() { return exam_state; }
+    public Integer getExamState() { return examState; }
 
     /**
-     * Setter for Is Published
-     * @param exam_state boolean of is published
+     * Setter for Exam state
+     * @param examState Integer of examState
      */
-    public void setIs_published(Boolean exam_state) {
-        this.exam_state = exam_state;
+    public void setExamState(Integer examState) {
+        this.examState = examState;
     }
 
     /**
-     * Getter for Is Required
-     * @return boolean of is required
+     * Getter for Exam required state
+     * @return Integer of examRequired
      */
-    public Boolean getIs_required() { return exam_required; }
+    public Integer getExamRequired() { return examRequired; }
 
     /**
-     * Setter for Is Required
-     * @param exam_required boolean of is required
+     * Setter for Exam required state
+     * @param examRequired Integer of examRequired
      */
-    public void setIs_required(Boolean exam_required) {
-        this.exam_required = exam_required;
+    public void setExamRequired(Integer examRequired) {
+        this.examRequired = examRequired;
     }
 
     /**
      * Getter for Exam difficulty
-     * @return int of exam difficulty
+     * @return Integer of examDifficulty
      */
-    public Integer getExam_difficulty() {
-        return exam_difficulty;
+    public Integer getExamDifficulty() {
+        return examDifficulty;
     }
 
     /**
      * Setter for Exam difficulty
-     * @param exam_difficulty int of exam difficulty
+     * @param examDifficulty Integer of examDifficulty
      */
-    public void setExam_difficulty(Integer exam_difficulty) {
-        this.exam_difficulty = exam_difficulty;
+    public void setExamDifficulty(Integer examDifficulty) {
+        this.examDifficulty = examDifficulty;
     }
 
     /**
      * Getter for Exam Course ID
-     * @return int of exam course ID
+     * @return Long of examCourseId
      */
-    public Integer getExam_course_id() {
-        return exam_course_id;
+    public Long getExamCourseId() {
+        return examCourseId;
     }
 
     /**
      * Setter for Exam Course ID
-     * @param exam_course_id int of exam course ID
+     * @param examCourseId Long of examCourseId
      */
-    public void setExam_course_id(Integer exam_course_id) {
-        this.exam_course_id = exam_course_id;
+    public void setExamCourseId(Long examCourseId) {
+        this.examCourseId = examCourseId;
+    }
+
+    /**
+     * Getter for Exam Online
+     * @return Integer of examOnline
+     */
+    public Integer getExamOnline() {
+        return examOnline;
+    }
+
+    /**
+     * Setter for Exam Online
+     * @param examOnline Integer of examOnline
+     */
+    public void setExamOnline(Integer examOnline) {
+        this.examOnline = examOnline;
     }
 
     /**
      * Getter for Exam Duration
-     * @return string of exam duration
+     * @return Double of examDuration
      */
-    public Boolean getExam_online() {
-        return exam_online;
+    public Double getExamDuration() {
+        return examDuration;
     }
 
     /**
-     * Setter for Exam Course ID
-     * @param exam_online int of exam course ID
+     * Setter for Exam Duration
+     * @param examDuration Double of examDuration
      */
-    public void setExam_online(Boolean exam_online) {
-        this.exam_online = exam_online;
+    public void setExamDuration(Double examDuration) {
+        this.examDuration = examDuration;
     }
 
     /**
-     * Getter for Exam Duration
-     * @return string of exam duration
+     * String override for output response
+     * @return
      */
-    public Double getExam_duration() {
-        return exam_duration;
-    }
-
-    /**
-     * Setter for Exam Course ID
-     * @param exam_duration int of exam course ID
-     */
-    public void setExam_duration(Double exam_duration) {
-        this.exam_duration = exam_duration;
+    @Override
+    public String toString() {
+        return "ExamRequest{" +
+                "examId=" + examId +
+                ", examName='" + examName + '\'' +
+                ", examState=" + examState +
+                ", examRequired=" + examRequired +
+                ", examDifficulty=" + examDifficulty +
+                ", examCourseId=" + examCourseId +
+                ", examDuration=" + examDuration +
+                ", examOnline=" + examOnline +
+                '}';
     }
 }

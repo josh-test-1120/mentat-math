@@ -172,42 +172,6 @@ public class ExamResultController {
     /**
      * Delete the exam result from the database
      * based on the exam result ID supplied in the URI
-     * @return JSON encoded ok
-     */
-//    @DeleteMapping("/{examResultID}")
-//    public void deleteExamResult(@PathVariable("examResultID") Long erid) {
-//        // SQL query to select from the 'exam' table where the student ID is present
-//        String sql = "DELETE FROM exam_result \n" +
-//                "WHERE exam_result_id = ?;\n";
-//
-//        try (Connection conn = Database.getConnection();
-//             PreparedStatement stmt = conn.prepareStatement(sql)) {
-//
-//            // Update the Query with the variables
-//            stmt.setLong(1, erid);  // Set the exam ID
-//
-//            // Update the database
-//            int affectedRows = stmt.executeUpdate();
-//
-//            if (affectedRows == 0) {
-//                throw new ExamResultNotFoundException("Exam result not found with id: " + erid);
-//            }
-//
-//        } catch (SQLException e) {
-//            // Handle database errors
-//            if (e.getSQLState().startsWith("23")) { // Foreign key constraint violation
-//                throw new ExamResultDeletionException(
-//                        "Cannot delete exam result: It is referenced by other records"
-//                );
-//            } else {
-//                throw new DataAccessException("Database error while deleting exam result: " + e.getMessage());
-//            }
-//        }
-//    }
-
-    /**
-     * Delete the exam result from the database
-     * based on the exam result ID supplied in the URI
      * @return ResponseEntity with appropriate status
      */
     @DeleteMapping("/{examResultID}")
