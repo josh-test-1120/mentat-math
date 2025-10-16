@@ -30,6 +30,8 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
         exam_difficulty: "",
         is_published: "",
         is_required: "",
+        has_expiration: false,
+        exam_expiration_date: "",
     });
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -48,7 +50,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
     const { data: session } = useSession()
 
     // Form Mapping
-    const {exam_course_id, exam_name, exam_difficulty, is_published, is_required} = formData;
+    const {exam_course_id, exam_name, exam_difficulty, is_published, is_required, has_expiration, exam_expiration_date} = formData;
 
     /**
      * Fetch courses from the backend
@@ -139,14 +141,19 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             console.log(`This is the session info: ${userSession}`)
             let index = 1;
             console.log(`This is the exam course id: ${exam_course_id}`)
+            const payload: any = {
+                exam_name,
+                is_published: is_published ? 1 : 0,
+                is_required: is_required ? 1 : 0,
+                exam_difficulty: parseInt(exam_difficulty),
+                exam_course_id: parseInt(exam_course_id),
+            };
+            if (has_expiration && exam_expiration_date) {
+                payload.exam_expiration_date = exam_expiration_date; // ISO date (yyyy-mm-dd)
+            }
+
             const response = await apiHandler(
-                {
-                    exam_name,
-                    is_published: is_published ? 1 : 0,
-                    is_required: is_required ? 1 : 0,
-                    exam_difficulty: parseInt(exam_difficulty),
-                    exam_course_id: parseInt(exam_course_id),
-                },
+                payload,
                 'POST',
                 'api/createExam',
                 `${BACKEND_API}`,
@@ -166,6 +173,8 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                     exam_difficulty: "",
                     is_published: "",
                     is_required: "",
+                    has_expiration: false,
+                    exam_expiration_date: "",
                 });
                 // Trigger refresh of exam list
                 onExamCreated?.();
@@ -311,19 +320,51 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                         </div>
                     </div>
 
+                    {/* Full-width section outside the grid */}
+                    <div className="w-full">
+                        <div className="mt-2 p-3 rounded-lg border border-mentat-gold/20 bg-white/5">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    id="has_expiration"
+                                    type="checkbox"
+                                    name="has_expiration"
+                                    checked={Boolean(has_expiration)}
+                                    onChange={data}
+                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                />
+                                <label htmlFor="has_expiration" className="select-none">Set booking expiration</label>
+                            </div>
+                            <div className="mt-3">
+                                <div className="flex flex-col gap-2">
+                                    <label htmlFor="exam_expiration_date" className="text-sm">Expiration Date</label>
+                                    <input
+                                        id="exam_expiration_date"
+                                        type="date"
+                                        name="exam_expiration_date"
+                                        value={exam_expiration_date}
+                                        onChange={data}
+                                        disabled={!has_expiration}
+                                        className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+                            <p className="mt-2 text-xs text-mentat-gold/70">If unchecked, the exam can be booked at any time.</p>
+                        </div>
+                    </div>
+
                     <div className="flex justify-end gap-3">
                         <button
                             type="button"
                             onClick={() => setIsModalOpen(false)}
                             className="bg-crimson hover:bg-crimson-700 text-mentat-gold
-                             font-semibold py-2 px-4 rounded-md border border-mentat-gold/20
-                             shadow-sm shadow-mentat-gold-700"
+                                font-semibold py-2 px-4 rounded-md border border-mentat-gold/20
+                                shadow-sm shadow-mentat-gold-700"
                         >
                             Cancel
                         </button>
                         <button
                             className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
-                             font-bold py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
+                                font-bold py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
                             type="submit"
                         >
                             Create Exam

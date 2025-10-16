@@ -23,14 +23,14 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
     // Session Information
     const {data: session, status} = useSession();
     const [examData, setExamData] = useState({
-        examId: exam.examId,
-        examName: exam.examName,
-        courseId: exam.courseId.toString(),
-        examDifficulty: exam.examDifficulty.toString(),
-        examRequired: exam.examRequired.toString(),
-        examDuration: exam.examDuration.toString(),
-        examState: exam.examState.toString(),
-        examOnline: exam.examOnline.toString()
+        examId: exam?.examId,
+        examName: exam?.examName ?? '',
+        courseId: `${exam?.courseId ?? ''}`,
+        examDifficulty: `${exam?.examDifficulty ?? ''}`,
+        examRequired: `${exam?.examRequired ?? 0}`,
+        examDuration: `${exam?.examDuration ?? ''}`,
+        examState: `${exam?.examState ?? 0}`,
+        examOnline: `${exam?.examOnline ?? 0}`
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
