@@ -42,7 +42,7 @@ export default async function RootLayout({
                 </div>
                 <div
                   id="mainbar-box"
-                  className="flex-1 min-h-0 overflow-auto"
+                  className="flex-1 min-h-0 overflow-auto scrollbar-hide"
                 >
                   {children}
                 </div>

@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { MouseEvent } from 'react';
-import { ExamOld, ExamProp, Course, ExamResultProper } from '@/components/types/exams';
 import Grade from "@/components/types/grade";
 import ExamResult from "@/components/types/exam_result";
 import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
@@ -10,9 +9,9 @@ import React, {useEffect, useRef, useState} from "react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Modal from "@/components/services/Modal";
-import {RingSpinner} from "@/components/UI/Spinners";
-import ScheduledExamDetailsComponent, {ExamAction} from "@/app/schedule/localComponents/ScheduledExamDetails";
-import {useSession} from "next-auth/react";
+import { RingSpinner } from "@/components/UI/Spinners";
+import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
+import { useSession } from "next-auth/react";
 
 export interface ExamMedium extends ExamResult {
     exam_name: string;
@@ -23,12 +22,6 @@ export interface ExamMedium extends ExamResult {
     status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
 }
 
-interface ExamCardExtendedProps {
-    exam: ExamProp;
-    index: number;
-    onclick?: (e: any) => void;
-}
-
 interface ExamCardMediumProps {
     exam: Grade;
     index: number;
@@ -36,81 +29,14 @@ interface ExamCardMediumProps {
     updateAction?: () => void;
 }
 
-interface ExamCardCompactProps {
-    exam: ExamMedium;
-    index: number;
-    onclick?: (e: any) => void;
-}
-
 /**
  * Global Exam Card functions
  */
-// Status Badge Component
-const StatusBadge = ({ status }: { status: string }) => {
-    const statusConfig = {
-        upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-3 h-3" /> },
-        completed: { color: 'bg-green-100 text-green-800', icon: <Award className="w-3 h-3" /> },
-        canceled: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-3 h-3" /> },
-        missing: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-3 h-3" /> }
-    };
-
-    const config =
-        statusConfig[status as keyof typeof statusConfig]
-        || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
-
-    return (
-        <span className={`inline-flex items-center px-1 py-0.5 rounded-full
-            text-[10px] font-medium ${config.color}`}>
-          <span className="mr-1">{config.icon}</span>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-        </span>
-    );
-};
-
-// Score Display Component
-const ScoreDisplay = ({ score }: { score: string }) => {
-    let scoreColor = 'text-red-600';
-
-    if (score == 'A') scoreColor = 'text-green-600';
-    else if (score == 'B') scoreColor = 'text-green-500';
-    else if (score == 'C') scoreColor = 'text-yellow-600';
-
-    return (
-        <div className="flex items-center">
-            <span className="text-sm mr-1">Score:</span>
-            <span className={`text-sm font-bold ${scoreColor}`}>
-                {score}
-            </span>
-        </div>
-    );
-};
 
 // Determine course name for an exam
 export const getExamPropCourse = (exam: Grade): string => {
     return exam.courseName;
 };
-
-// Determine exam status based on date and grade
-export const getExamPropStatus =
-    (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
-        // Get the proper exam scheduled date, with timezone
-        const examDate = new Date(exam.examScheduledDate);
-        const examPstDate = new Date(examDate.toLocaleString('en-US',
-            { timeZone: 'America/Los_Angeles' }));
-        // Get the today's date, with timezone
-        const today = new Date();
-        const todayPstDate = new Date(today.toLocaleString('en-US',
-            { timeZone: 'America/Los_Angeles' }));
-        // If exam date is in the future, it's upcoming
-        if (examPstDate > todayPstDate) return 'upcoming';
-        // If exam date is in the past and has a score, it's completed
-        else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
-        // If no exam date and no score
-        else if ((exam.examScheduledDate == undefined)
-            && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
-        // If the exam date is in the past but no score, it's pending
-        else return 'pending';
-    };
 
 /**
  * These are the card components
@@ -118,8 +44,6 @@ export const getExamPropStatus =
 // Mid-size ExamCard Component
 export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardMediumProps ) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-    // Get the status of the exam
-    const examStatus = getExamPropStatus(exam);
     // Session Information
     const {data: session, status} = useSession();
 
@@ -148,22 +72,53 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         zIndex: 0,
     };
 
-    // Exam Status Badge details
-    const getStatusBadge = ({ status }: { status: string}) => {
+    // Status Badge Component
+    const StatusBadge = ({ status }: { status: string }) => {
         const statusConfig = {
-            active: { color: 'bg-green-100 text-green-800', icon: <LucideCircleCheck className="w-4 h-4" /> },
-            inactive: { color: 'bg-red-100 text-red-800', icon: <CircleX className="w-4 h-4" /> }
+            upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-3 h-3" /> },
+            completed: { color: 'bg-green-100 text-green-800', icon: <Award className="w-3 h-3" /> },
+            canceled: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-3 h-3" /> },
+            missing: { color: 'bg-red-100 text-red-800', icon: <AlertCircle className="w-3 h-3" /> }
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
+        const config =
+            statusConfig[status as keyof typeof statusConfig]
+            || { color: 'bg-gray-100 text-gray-800', icon: '📝' };
 
         return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium ${config.color}`}>
-                <span className="">{config.icon}</span>
+            <span className={`inline-flex items-center px-1 py-0.5 rounded-full
+            text-[10px] font-medium ${config.color}`}>
+                <span className="mr-1">{config.icon}</span>
                 {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
         );
     };
+
+    // Determine exam status based on date and grade
+    const getExamPropStatus =
+        (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+            // Get the proper exam scheduled date, with timezone
+            const examDate = new Date(exam.examScheduledDate);
+            const examPstDate = new Date(examDate.toLocaleString('en-US',
+                { timeZone: 'America/Los_Angeles' }));
+            // Get the today's date, with timezone
+            const today = new Date();
+            const todayPstDate = new Date(today.toLocaleString('en-US',
+                { timeZone: 'America/Los_Angeles' }));
+            // If exam date is in the future, it's upcoming
+            if (examPstDate > todayPstDate) return 'upcoming';
+            // If exam date is in the past and has a score, it's completed
+            else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
+            // If no exam date and no score
+            else if ((exam.examScheduledDate == undefined)
+                && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
+            // If the exam date is in the past but no score, it's pending
+            else return 'pending';
+    };
+
+    // Get the status of the exam
+    const examStatus = getExamPropStatus(exam);
+
 
     const openScheduledExamData =
         async (event: MouseEvent<HTMLDivElement>) => {
@@ -310,19 +265,21 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                     <div className="flex justify-between items-center border border-white/20
                        rounded-b-lg bg-card-color/10 p-2
                        backdrop-blur-lg backdrop-saturate-150">
-                        <button
-                            className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
+                        { examStatus === 'pending' || examStatus === 'upcoming' && (
+                            <button
+                                className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
                              bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
                              backdrop-blur-sm`}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                console.log('Reschedule clicked');
-                                setIsScheduleModalOpen(true);
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('Reschedule clicked');
+                                    setIsScheduleModalOpen(true);
 
-                            }}
-                        >
-                            Reschedule
-                        </button>
+                                }}
+                            >
+                                Reschedule
+                            </button>
+                        )}
                         <button
                             className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
                              bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
@@ -363,7 +320,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                         }}
                     />)}
             </Modal>
-            {/* Overlay that appears when active */}
+            {/* Overlay that appears when delete is active */}
             {activeOverlay === exam.examResultId && (
                 <div className="absolute inset-0 bg-mentat-black/10 backdrop-blur-sm rounded-xl
                                     flex items-center justify-center z-20"
