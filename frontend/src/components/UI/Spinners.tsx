@@ -8,18 +8,20 @@
 // );
 
 interface RingSpinnerProps {
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     color?: string;
 }
 
 export const RingSpinner = ({ size = 'md', color = 'blue-500' }: RingSpinnerProps) => {
     const sizeClasses = {
+        xs: 'w-4 h-4',
         sm: 'w-8 h-8',
         md: 'w-16 h-16',
         lg: 'w-24 h-24',
         xl: 'w-32 h-32'
     };
     const borderClasses = {
+        xs: 'border-2',
         sm: 'border-4',
         md: 'border-4',
         lg: 'border-6',

@@ -1,7 +1,6 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import { Card, CardContent, Button } from "@/components/UI/calendar/ui"
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
@@ -28,6 +27,15 @@ export interface ExamAction extends ExamResult {
     status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
 }
 
+interface ExamResultRequest {
+    examStudentId: number,
+    examId: number,
+    examVersion: number,
+    examScore?: string,
+    examScheduledDate: Date,
+    examTakenDate?: Date
+}
+
 interface ScheduledExamDetailsComponentProps {
     exam: Grade;
     course?: Course;
@@ -46,7 +54,7 @@ export default function ScheduledExamDetailsComponent(
     const {data: session, status} = useSession();
     const [testWindows, setTestWindows] = useState<TestWindow[]>([]);
     const [testWindowsLoading, setTestWindowsLoading] = useState<boolean>(true);
-    const [examData, setExamData] = useState<ExamResult>();
+    const [examData, setExamData] = useState<ExamResultRequest>();
     const [examResultData, setExamResultData] = useState<Grade>({
         examResultId: exam?.examResultId,
         examId: exam.examId,
@@ -135,17 +143,19 @@ export default function ScheduledExamDetailsComponent(
         console.log(window);
         // If the window exists
         if (window) {
-            // Update data map
-            const updatedData: ExamResult = {
-                examResultId: examResultData.examResultId,
-                examStudentId: examResultData.examStudentId,
+            // Create data package
+            const updatedData: ExamResultRequest = {
+                // examStudentId: examResultData.examStudentId,
+                examStudentId: parseInt(session?.user?.id || '0'),
                 examId: examResultData.examId,
                 examVersion: examResultData.examVersion || 1,
-                examScore: examResultData?.examScore?.toString() || '',
+                examScore: examResultData?.examScore,
                 examScheduledDate: selectedDate ||
                     examResultData.examScheduledDate,
                 examTakenDate: examResultData?.examTakenDate
-            };
+            }
+            console.log('updatedData', updatedData);
+
             setExamData(updatedData);
 
             // Update the state directly, to update UI
@@ -181,7 +191,7 @@ export default function ScheduledExamDetailsComponent(
                 // Run the cancel/close callback
                 setActiveOverlay(null);
                 setHandlerRunning(false);
-                updateAction()
+                if (updateAction) updateAction();
                 // cancelAction();
             }
         }
@@ -192,21 +202,25 @@ export default function ScheduledExamDetailsComponent(
         console.log("Schedule Exam");
         setHandlerRunning(true);
         console.log(exam);
+        console.log(examResultData);
         console.log(window);
+        console.log(session);
         // If the window exists
         if (window) {
-            // Update data map
-            const newData: ExamResult = {
-                examResultId: examResultData.examResultId,
-                examStudentId: examResultData.examStudentId,
+
+            // Create data package
+            const insertData: ExamResultRequest = {
+                examStudentId: parseInt(session?.user?.id || '0'),
                 examId: examResultData.examId,
                 examVersion: examResultData.examVersion || 1,
-                examScore: examResultData?.examScore?.toString() || '',
+                examScore: examResultData?.examScore,
                 examScheduledDate: selectedDate ||
                     examResultData.examScheduledDate,
                 examTakenDate: examResultData?.examTakenDate
-            };
-            setExamData(newData);
+            }
+            console.log('New Data');
+            console.log(insertData);
+            setExamData(insertData);
 
             // Update the state directly, to update UI
             setExamResultData(prev => ({
@@ -214,70 +228,36 @@ export default function ScheduledExamDetailsComponent(
                 examScheduledDate: selectedDate || examResultData.examScheduledDate
             }));
 
-            // // API Handler call
-            // try {
-            //     console.log("Updating Exam Result");
-            //     // API Handler
-            //     const res = await apiHandler(
-            //         newData,
-            //         "POST",
-            //         `api/exam/result/${exam?.examResultId}`,
-            //         `${BACKEND_API}`,
-            //         session?.user?.accessToken || undefined
-            //     );
-            //
-            //     // Handle errors properly
-            //     if (res instanceof Error || (res && res.error)) {
-            //         toast.error(res?.message || "Failed to update the exam result");
-            //     } else {
-            //         toast.success("Successfully rescheduled the Exam!");
-            //         // updateExam(undefined);
-            //         console.log("Exam Result Update Succeeded.");
-            //         console.log(res.toString());
-            //     }
-            // } catch (e) {
-            //     toast.error("Exam Result Update Failed");
-            // } finally {
-            //     // Run the cancel/close callback
-            //     setActiveOverlay(null);
-            //     setHandlerRunning(false);
-            //     if (updateAction) updateAction()
-            //     // cancelAction();
-            // }
-        }
-    }
+            // API Handler call
+            try {
+                console.log("Creating Exam Result");
+                // API Handler
+                const res = await apiHandler(
+                    insertData,
+                    "POST",
+                    `api/exam/result/create`,
+                    `${BACKEND_API}`,
+                    session?.user?.accessToken || undefined
+                );
 
-    // Handle Delete
-    const handleDelete = async (event: React.FormEvent) => {
-        // Prevent default events
-        event.preventDefault();
-        // API Handler call
-        try {
-            console.log("Deleting Exam");
-            console.log(session);
-            // API Handler
-            const res = await apiHandler(
-                undefined,
-                "DELETE",
-                `api/exam/${exam?.examId}`,
-                `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
-            );
-
-            // Handle errors properly
-            if (res instanceof Error || (res && res.error)) {
-                toast.error(res?.message || "Failed to delete the exam version");
-            } else {
-                toast.success("Successfully deleted the exam version!");
-                // updateExam(undefined);
-                console.log("Exam Deletion Succeeded.");
-                console.log(res.toString());
+                // Handle errors properly
+                if (res instanceof Error || (res && res.error)) {
+                    toast.error(res?.message || "Failed to create the exam result");
+                } else {
+                    toast.success("Successfully scheduled the Exam!");
+                    // updateExam(undefined);
+                    console.log("Exam Result Create Succeeded.");
+                    console.log(res.toString());
+                }
+            } catch (e) {
+                toast.error("Exam Result Create Failed");
+            } finally {
+                // Run the cancel/close callback
+                setActiveOverlay(null);
+                setHandlerRunning(false);
+                if (updateAction) updateAction();
+                // cancelAction();
             }
-        } catch (e) {
-            toast.error("Exam Deletion Failed");
-        } finally {
-            // Run the cancel/close callback
-            cancelAction();
         }
     }
 

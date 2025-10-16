@@ -66,7 +66,7 @@ export default function StudentSchedule() {
 
         // Fetch Exams
         fetchExams(id);
-        fetchCourses(id)
+        fetchCourses();
 
     }, [status, session, BACKEND_API, refreshTrigger]);
 
@@ -296,6 +296,10 @@ export default function StudentSchedule() {
                             < CreateScheduledExam
                                 studentId={session?.user?.id}
                                 courses={filteredCourses}
+                                updateAction={() => {
+                                    // Trigger refresh when modal closes
+                                    setRefreshTrigger(prev => prev + 1);
+                                }}
                             />
                         ): ( <React.Fragment /> )}
 
