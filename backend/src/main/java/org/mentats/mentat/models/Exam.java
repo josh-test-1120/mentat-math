@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
 
 /**
  * This class represents the Exam entity that contains exam details
@@ -75,6 +77,11 @@ public class Exam {
     @JsonProperty("examOnline") // Map JSON field to Java field
     @Column(name = "exam_online")
     private Integer online;
+
+    // Optional booking expiration date. NULL => no expiration
+    @JsonProperty("examExpirationDate")
+    @Column(name = "exam_expiration_date", nullable = true)
+    private LocalDate expirationDate;
 
     /**
      * This is the constructor for the Exam entity
@@ -167,6 +174,14 @@ public class Exam {
         this.online = online;
     }
 
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
     public Integer getDifficulty() {
         return difficulty;
     }
@@ -195,6 +210,7 @@ public class Exam {
                 ", difficulty=" + difficulty +
                 ", duration=" + duration +
                 ", online=" + online +
+                ", expirationDate=" + expirationDate +
                 '}';
     }
 }
