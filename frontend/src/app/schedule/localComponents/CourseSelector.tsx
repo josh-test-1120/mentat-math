@@ -10,6 +10,18 @@ interface CourseSelectorProps {
 }
 
 /**
+ * Default course for listing all
+ */
+export const allCourse: Course = {
+    courseId: -1,
+    courseName: 'All Courses',
+    courseProfessorId: -1,
+    courseQuarter: 'Default',
+    courseSection: '',
+    courseYear: -1
+}
+
+/**
  * Course selection component
  */
 export const CourseSelector: React.FC<CourseSelectorProps> = ({
@@ -19,17 +31,7 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
     testWindowsCount
 }) => {
 
-    /**
-     * Default course for listing all
-     */
-    const allCourse: Course = {
-        courseId: -1,
-        courseName: 'All Courses',
-        courseProfessorId: -1,
-        courseQuarter: 'Default',
-        courseSection: '',
-        courseYear: -1
-    }
+
 
     return (
         <div className="flex items-center gap-3">
