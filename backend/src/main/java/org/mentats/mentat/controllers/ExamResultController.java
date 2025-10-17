@@ -2,29 +2,19 @@ package org.mentats.mentat.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.exceptions.DataAccessException;
-import org.mentats.mentat.exceptions.ExamResultDeletionException;
 import org.mentats.mentat.exceptions.ExamResultNotFoundException;
-import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.payload.request.ExamResultRequest;
 import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamResultRepository;
-import org.mentats.mentat.services.Database;
 import org.mentats.mentat.services.ExamResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -54,33 +44,42 @@ public class ExamResultController {
         this.examResultService = examResultService;
     }
 
+//    /**
+//     * Get results from the exam results table
+//     * based on exam Id
+//     * @param eid Exam Id
+//     * @return ResponseEntities of ExamResult
+//     */
+//    @GetMapping("/exam/{examID}")
+//    public ResponseEntity<List<ExamResult>> getExamResultsByExamId(@PathVariable("examID") Long eid) {
+//        // Use the repository to find exam results by exam ID
+//        List<ExamResult> examResults = examResultRepository.findByExam_Id(eid);
     /**
      * Get results from the exam results table
      * based on exam Id
      * @param eid Exam Id
-     * @return ResponseEntities of ExamResult
+     * @return ResponseEntity of ExamResultResponse DTOs
      */
     @GetMapping("/exam/{examID}")
-    public ResponseEntity<List<ExamResult>> getExamResultsByExamId(@PathVariable("examID") Long eid) {
-        try {
-            // Use the repository to find exam results by exam ID
-            List<ExamResult> examResults = examResultRepository.findByExam_Id(eid);
-//            // Use the service to find the exam results by exam ID
-//            List<ExamResult> examResults = examResultService.getExamResultsByExamId(eid);
-
-            // Check if any exam results were found
-            if (examResults != null && !examResults.isEmpty()) {
-                return ResponseEntity.ok(examResults);
-            } else {
-                // Return 404 if no exam results found for this exam id
-                return ResponseEntity.notFound().build();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<List<ExamResultResponse>> getExamResultsByExamId(@PathVariable("examID") Long eid) {
+        // Use the ExamResultService to get the exam result based on the Exam Id
+        List<ExamResultResponse> response = examResultService.getExamResultsByExamId(eid);
+        // Convert to Response DTO
+        return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
+
+
+////            // Use the service to find the exam results by exam ID
+////            List<ExamResult> examResults = examResultService.getExamResultsByExamId(eid);
+//
+//        // Check if any exam results were found
+//        if (examResults != null && !examResults.isEmpty()) {
+//            return ResponseEntity.ok(examResults);
+//        } else {
+//            // Return 404 if no exam results found for this exam id
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
     /**
      * Get the exam result from the database
@@ -237,19 +236,10 @@ public class ExamResultController {
       */
      @GetMapping("/user/{studentId}")
      public ResponseEntity<List<ExamResultResponse>> getExamResultByUserId(@PathVariable("studentId") Long sid) {
-         // Use the service to find exam results by student ID
-         List<ExamResult> examResults = examResultService.getExamResultsByStudent(sid);
-         // Check if any exam results were found
-         if (!examResults.isEmpty()) {
-             List<ExamResultResponse> response = new ArrayList<>();
-             for (ExamResult examResult : examResults) {
-                 response.add(new ExamResultResponse(examResult));
-             }
-             return ResponseEntity.ok(response);
-         } else {
-             // Return 404 if no exam results found for this student
-             return ResponseEntity.notFound().build();
-         }
+         // Use the ExamResultService to get the exam result based on the Exam Id
+         List<ExamResultResponse> response = examResultService.getExamResultsByStudent(sid);
+         // Convert to Response DTO
+         return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
      }
 
 //    /**
