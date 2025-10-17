@@ -4,8 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.Exam;
+import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.payload.request.ExamRequest;
 import org.mentats.mentat.payload.response.ExamResponse;
+import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.components.ExamValidator;
@@ -13,6 +15,7 @@ import org.mentats.mentat.exceptions.ExamNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for handling exam repository logic
@@ -85,8 +88,21 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read all exams
-    public List<Exam> getAllExams() {
-        return examRepository.findAll();
+    public List<ExamResponse> getAllExams() {
+        List<Exam> exams = examRepository.findAll();
+
+        return exams.stream()
+                .map(proj -> new ExamResponse(
+                        proj.getId(),
+                        proj.getCourseId(),
+                        proj.getName(),
+                        proj.getDifficulty(),
+                        proj.getState(),
+                        proj.getRequired(),
+                        proj.getDuration(),
+                        proj.getOnline()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -95,9 +111,25 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by course ID
-    public List<Exam> getExamsByCourseId(Long courseId) {
+    public List<ExamResponse> getExamsByCourseId(Long courseId) {
         validator.validateCourseId(courseId);
-        return examRepository.findByCourse_CourseId(courseId);
+
+        List<Exam> projections = examRepository.findByCourse_CourseId(courseId);
+
+        return projections.stream()
+                .map(proj -> new ExamResponse(
+                        proj.getId(),
+                        proj.getCourseId(),
+                        proj.getName(),
+                        proj.getDifficulty(),
+                        proj.getState(),
+                        proj.getRequired(),
+                        proj.getDuration(),
+                        proj.getOnline()
+                ))
+                .collect(Collectors.toList());
+
+//        return examRepository.findByCourse_CourseId(courseId);
     }
 
     /**
@@ -106,11 +138,25 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by state
-    public List<Exam> getExamsByState(Integer state) {
+    public List<ExamResponse> getExamsByState(Integer state) {
         if (state == null) {
             throw new ValidationException("Exam state cannot be null");
         }
-        return examRepository.findByState(state);
+
+        List<Exam> exams = examRepository.findByState(state);
+
+        return exams.stream()
+                .map(proj -> new ExamResponse(
+                        proj.getId(),
+                        proj.getCourseId(),
+                        proj.getName(),
+                        proj.getDifficulty(),
+                        proj.getState(),
+                        proj.getRequired(),
+                        proj.getDuration(),
+                        proj.getOnline()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -119,11 +165,25 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by required status
-    public List<Exam> getExamsByRequired(Integer required) {
+    public List<ExamResponse> getExamsByRequired(Integer required) {
         if (required == null) {
             throw new ValidationException("Required status cannot be null");
         }
-        return examRepository.findByRequired(required);
+
+        List<Exam> exams = examRepository.findByRequired(required);
+
+        return exams.stream()
+                .map(proj -> new ExamResponse(
+                        proj.getId(),
+                        proj.getCourseId(),
+                        proj.getName(),
+                        proj.getDifficulty(),
+                        proj.getState(),
+                        proj.getRequired(),
+                        proj.getDuration(),
+                        proj.getOnline()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -132,11 +192,25 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by online status
-    public List<Exam> getExamsByOnline(Integer online) {
+    public List<ExamResponse> getExamsByOnline(Integer online) {
         if (online == null) {
             throw new ValidationException("Online status cannot be null");
         }
-        return examRepository.findByOnline(online);
+
+        List<Exam> exams = examRepository.findByOnline(online);
+
+        return exams.stream()
+                .map(proj -> new ExamResponse(
+                        proj.getId(),
+                        proj.getCourseId(),
+                        proj.getName(),
+                        proj.getDifficulty(),
+                        proj.getState(),
+                        proj.getRequired(),
+                        proj.getDuration(),
+                        proj.getOnline()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -146,12 +220,26 @@ public class ExamService {
      * @return List of Exam objects
      */
     // Read exams by course ID and state
-    public List<Exam> getExamsByCourseIdAndState(Long courseId, Integer state) {
+    public List<ExamResponse> getExamsByCourseIdAndState(Long courseId, Integer state) {
         validator.validateCourseId(courseId);
         if (state == null) {
             throw new ValidationException("Exam state cannot be null");
         }
-        return examRepository.findByCourse_CourseIdAndState(courseId, state);
+
+        List<Exam> exams = examRepository.findByCourse_CourseIdAndState(courseId, state);
+
+        return exams.stream()
+                .map(proj -> new ExamResponse(
+                        proj.getId(),
+                        proj.getCourseId(),
+                        proj.getName(),
+                        proj.getDifficulty(),
+                        proj.getState(),
+                        proj.getRequired(),
+                        proj.getDuration(),
+                        proj.getOnline()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -162,6 +250,9 @@ public class ExamService {
      */
     // Update exam
     public Exam updateExam(Long id, ExamRequest examUpdates) {
+        if (examUpdates == null) {
+            throw new ValidationException("Post data for exam cannot be null");
+        }
         validator.validateExamId(id);
         Exam existing = getExamById(id);
 
