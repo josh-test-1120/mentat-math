@@ -1,7 +1,6 @@
 package org.mentats.mentat.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +11,6 @@ import jakarta.validation.constraints.NotNull;
  * @author Joshua Summers
  */
 @Entity
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "exam")
 public class Exam {
     /**
@@ -30,15 +28,8 @@ public class Exam {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
     @JoinColumn(name = "exam_course_id")
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore()
     private Course course;
-
-//    // The course id assigned to exam
-//    @NotNull
-//    @JsonProperty("courseId") // Map JSON field to Java field
-//    @Column(name = "exam_course_id")
-//    private Long courseId;
 
     // The name assigned to exam
     @NotBlank

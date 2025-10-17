@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
  * Authorization Service for interacting with the
  * Various repositories needed for authenticating
  * users
+ * @author Joshua Summers
  */
 @Service
 public class AuthService {

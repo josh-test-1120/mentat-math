@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * Authorization Controller
  * Methods that drive and control auth mappings
  * base URI is /api/auth
+ * @author Joshua Summers
  */
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)

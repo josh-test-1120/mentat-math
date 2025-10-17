@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * Rest API Controller
+ * Exam Rest API Controller
  * Methods that drive and control api mappings
- * base URI is /api/
+ * base URI is /api/exam
+ * @author Joshua Summers
  */
 @RestController
 @RequestMapping("/api/exam")
