@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Service created for handling User Details Implementation methods
  * Implements the Spring Security Service framework
+ * @author Joshua Summers
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

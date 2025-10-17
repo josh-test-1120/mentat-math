@@ -1,20 +1,17 @@
 package org.mentats.mentat.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.stereotype.Repository;
 
 /**
  * This class represents the Course entity that contains course details
  * @author Joshua Summers
  */
 @Entity
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "course",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "course_id"),

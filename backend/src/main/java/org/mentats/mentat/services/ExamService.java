@@ -4,10 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.Exam;
-import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.payload.request.ExamRequest;
 import org.mentats.mentat.payload.response.ExamResponse;
-import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.components.ExamValidator;
@@ -128,8 +126,6 @@ public class ExamService {
                         proj.getOnline()
                 ))
                 .collect(Collectors.toList());
-
-//        return examRepository.findByCourse_CourseId(courseId);
     }
 
     /**

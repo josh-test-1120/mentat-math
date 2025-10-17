@@ -6,6 +6,7 @@ import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.ExamResultRequest;
+import org.mentats.mentat.payload.response.ExamResponse;
 import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamRepository;
@@ -94,8 +95,20 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read all exam results
-    public List<ExamResult> getAllExamResults() {
-        return examResultRepository.findAll();
+    public List<ExamResultResponse> getAllExamResults() {
+        List<ExamResult> examResults = examResultRepository.findAll();
+
+        return examResults.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -138,11 +151,6 @@ public class ExamResultService {
      * @param examId
      * @return List of ExamResult objects
      */
-//    // Read multiple exam results by Exam ID
-//    public List<ExamResultResponse> getExamResultsByExamId(Long examId) {
-//        validator.validateExamId(examId);
-//        return examResultRepository.findByExam_Id(examId);
-//    }
     // Read multiple exam results by Exam ID
     // Service converts projections to DTOs
     public List<ExamResultResponse> getExamResultsByExamId(Long examId) {
@@ -187,8 +195,6 @@ public class ExamResultService {
                         proj.getExamTakenDate()
                 ))
                 .collect(Collectors.toList());
-
-//        return examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
     }
 
     /**

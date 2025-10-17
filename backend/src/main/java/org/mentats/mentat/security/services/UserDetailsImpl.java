@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * User Details Implementation of User Details from
  * Spring Security
+ * @author Joshua Summers
  */
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
