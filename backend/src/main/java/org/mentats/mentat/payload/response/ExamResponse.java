@@ -9,7 +9,7 @@ import org.mentats.mentat.models.Exam;
  */
 public class ExamResponse {
     private Long examId;
-    private Long examCourseId;    // Only ID, not full entity
+    private Long courseId;    // Only ID, not full entity
     private String examName;
     private Integer examRequired;
     private Integer examState;
@@ -20,7 +20,7 @@ public class ExamResponse {
     // Constructor from Entity
     public ExamResponse(Exam exam) {
         this.examId = exam.getId();
-        this.examCourseId = exam.getCourse() != null ? exam.getCourse().getCourseId() : null;
+        this.courseId = exam.getCourse() != null ? exam.getCourse().getCourseId() : null;
         this.examName = exam.getName();
         this.examRequired = exam.getRequired();
         this.examState = exam.getState();
@@ -29,9 +29,23 @@ public class ExamResponse {
         this.examOnline = exam.getOnline();
     }
 
+    // Constructor for Projection injection (manual)
+    public ExamResponse(Long examId, Long courseId, String examName, Integer examRequired,
+                        Integer examState, Integer examDifficulty, Double examDuration,
+                        Integer examOnline) {
+        this.examId = examId;
+        this.courseId = courseId;
+        this.examName = examName;
+        this.examRequired = examRequired;
+        this.examState = examState;
+        this.examDifficulty = examDifficulty;
+        this.examDuration = examDuration;
+        this.examOnline = examOnline;
+    }
+
     // Getters only (response is read-only)
     public Long getExamId() { return examId; }
-    public Long getExamCourseId() { return examCourseId; }
+    public Long getCourseId() { return courseId; }
     public String getExamName() { return examName; }
     public Integer getExamRequired() { return examRequired; }
     public Integer getExamState() { return examState; }
@@ -47,7 +61,7 @@ public class ExamResponse {
     public String toString() {
         return "ExamResponse{" +
                 "examId=" + examId +
-                ", examCourseId=" + examCourseId +
+                ", courseId=" + courseId +
                 ", examName='" + examName + '\'' +
                 ", examRequired=" + examRequired +
                 ", examState=" + examState +

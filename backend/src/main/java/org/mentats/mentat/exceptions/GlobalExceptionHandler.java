@@ -1,3 +1,12 @@
+/**
+ * This is the Global Exception Handler class
+ * for all Rest Controllers. This will capture
+ * any exceptions from the controller and handle
+ * them here according to the Exception you want
+ * to handle
+ * @author Joshua Summers
+ */
+
 package org.mentats.mentat.exceptions;
 
 import org.springframework.dao.DataIntegrityViolationException;

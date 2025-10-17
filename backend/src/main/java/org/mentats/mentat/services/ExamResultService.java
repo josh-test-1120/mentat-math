@@ -7,6 +7,7 @@ import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.ExamResultRequest;
 import org.mentats.mentat.payload.response.ExamResultResponse;
+import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.components.ExamResultValidator;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for handling exam result repository logic
@@ -102,9 +104,33 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Student ID
-    public List<ExamResult> getExamResultsByStudent(Long studentId) {
+    public List<ExamResultResponse> getExamResultsByStudent(Long studentId) {
         validator.validateStudentId(studentId);
-        return examResultRepository.findByStudent_Id(studentId);
+
+        List<ExamResult> projections = examResultRepository.findByStudent_Id(studentId);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
+    }
+    /**
+     * Fetch all ExamResult objects based on Student Id
+     * @param studentId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by Student ID, along with exam and course table
+    // Read multiple tables by complex JPQL repository call
+    public List<ExamResultDetailsProjection> getExamResultsAndExamCourseByStudent(Long studentId) {
+        validator.validateStudentId(studentId);
+        return examResultRepository.findResultDetailsByStudentId(studentId);
     }
 
     /**
@@ -112,10 +138,28 @@ public class ExamResultService {
      * @param examId
      * @return List of ExamResult objects
      */
+//    // Read multiple exam results by Exam ID
+//    public List<ExamResultResponse> getExamResultsByExamId(Long examId) {
+//        validator.validateExamId(examId);
+//        return examResultRepository.findByExam_Id(examId);
+//    }
     // Read multiple exam results by Exam ID
-    public List<ExamResult> getExamResultsByExamId(Long examId) {
+    // Service converts projections to DTOs
+    public List<ExamResultResponse> getExamResultsByExamId(Long examId) {
         validator.validateExamId(examId);
-        return examResultRepository.findByExam_Id(examId);
+        List<ExamResult> projections = examResultRepository.findByExam_Id(examId);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -125,10 +169,37 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Exam ID and Version
-    public List<ExamResult> getExamResultsByExamIdAndVersion(Long examId, Integer examVersion) {
+    public List<ExamResultResponse> getExamResultsByExamIdAndVersion(Long examId, Integer examVersion) {
         validator.validateExamId(examId);
         validator.validateExamVersion(examVersion);
-        return examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
+
+        List<ExamResult> projections =
+                examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
+
+//        return examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Course Id
+     * @param courseId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by complex JPQL repository call
+    public List<ExamResultDetailsProjection> getExamResultsByCourseId(Long courseId) {
+        validator.validateCourseId(courseId);
+        return examResultRepository.findResultDetailsByCourseId(courseId);
     }
 
     /**
