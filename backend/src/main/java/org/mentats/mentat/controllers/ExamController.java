@@ -82,6 +82,27 @@ public class ExamController {
     }
 
     /**
+     * Create a new exam using JPA (refactored from legacy SQL)
+     * @param examRequest an exam request object that reflects the exam attributes
+     * @return ResponseEntity with the created exam
+     */
+    @PostMapping("/createExam")
+    public ResponseEntity<?> createExam(@RequestBody ExamRequest examRequest) {
+        try {
+            // Save using JPA repository (auto-increment handled automatically)
+            ExamResponse savedExam = examService.createExam(examRequest);
+            
+            // Return the created exam with 201 status
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedExam);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating exam: " + e.getMessage());
+        }
+    }
+
+    /**
      * Patch the exam in the database
      * based on the exam ID supplied in the URI
      * @param examUpdates JSON object of data
