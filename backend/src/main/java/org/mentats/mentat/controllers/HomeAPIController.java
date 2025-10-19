@@ -53,40 +53,6 @@ public class HomeAPIController {
         }
         return -1; // return a sentinel value if no result is found or an error occurs
     }
-    /**
-     * Create a new exam
-     * @param exam an exam object that reflects the exam attributes
-     * @return String of the exam results
-     */
-    @PostMapping("/createExam")
-    public String createExam(
-            @RequestBody ExamRequest exam) {
-
-        int examID = findExam() +1;
-        String sql = "INSERT INTO exam (exam_id, exam_name, exam_state, exam_required, exam_difficulty, exam_course_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-
-        // Assuming exam_id is auto-incremented by the database
-        try (Connection connection = Database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setInt(1, examID);  // Set to 0 if auto-incremented
-            statement.setString(2, exam.getExam_name());
-            statement.setBoolean(3, exam.getIs_published());
-            statement.setBoolean(4, exam.getIs_required());
-            statement.setInt(5, exam.getExam_difficulty());
-            statement.setInt(6, exam.getExam_course_id());
-
-            int rows = statement.executeUpdate();
-
-            if (rows > 0) { return "Exam created successfully"; }
-            else { return "Exam could not be created"; }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return "Database error: " + e.getMessage();
-        }
-    }
 
     /**
      * Get the courses from the database
