@@ -11,12 +11,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { ExamResult } from "@/components/types/exams";
 import Course from "@/components/types/course";
 import { GradeRequirements, GradeStrategy, CourseStrategy, ExamAttempt} from "../types/shared";
 import { Report } from "@/app/reports/types/shared";
 import { emptyStrategy } from "../types/defaults";
 import { updateRecord, reduceRecords } from "../utils/GradeDetermination";
+import ToolTip from "@/app/reports/localComponents/ToolTip";
 
 /**
  * Define some types and interfaces for the chart
@@ -184,6 +184,23 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
             'A': '#10b981'  // green
         };
 
+        // Get the tooltip
+        const toolTip = ToolTip();
+
+        // // Create tooltip element
+        // const tooltip = d3.select("body")
+        //     .append("div")
+        //     .attr("class", "chart-tooltip")
+        //     .style("position", "absolute")
+        //     .style("background", "rgba(0, 0, 0, 0.8)")
+        //     .style("color", "#dab05a")
+        //     .style("padding", "8px 12px")
+        //     .style("border-radius", "4px")
+        //     .style("font-size", "12px")
+        //     .style("pointer-events", "none")
+        //     .style("opacity", 0)
+        //     .style("z-index", 1000);
+
         // Calculate current grade based on passed total exams and total As
         const passedExams = bestExams.filter(exam =>
             exam.status === 'passed').length;
@@ -219,7 +236,23 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
             const requirements = gradeStrategy[grade];
             const barGroup = chartGroup.append('g');
 
-            // Background bar (full requirement)
+            const gradeData = {
+                passedExams: passedExams,
+                passedAExams: passedAExams,
+                reqs: requirements
+            };
+
+            const previousGrade = grade.toString() === 'F'
+                ? 'F'
+                : getPreviousGrade(grade.toString()) as keyof GradeRequirements;
+
+            const currentGrade = (passedExams <= requirements.total
+                && passedAExams <= requirements.requiredA
+                && passedExams >= (
+                    gradeStrategy[previousGrade]?.total || 0
+                ))
+
+            // Background bar (full course requirements)
             barGroup.append('rect')
                 .attr('x', xScale(grade)!)
                 .attr('y', yScale(requirements.total))
@@ -228,7 +261,32 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                 .attr('fill', gradeColors[grade])
                 .attr('opacity', 0.2)
                 .attr('rx', 3)
-                .attr('ry', 3);
+                .attr('ry', 3)
+                .data([gradeData])
+                .on("mouseover", function(event, d) {
+                    console.log(`This is the data: ${d}`);
+                    // Setup the tooltip box
+                    const content = `
+                        <div>
+                            <div><strong>Total Required: ${d.reqs.total || 'No reqs'}</strong></div>
+                            <div>Passed: ${d.passedExams || '0'}</div>
+                            <div>A's: ${d.passedAExams || '0'}</div>
+                            <div>Required A's: ${d.reqs.requiredA || '0'}</div>
+                            <div>Req Optional: ${d.reqs.optional.length !== 0
+                            ? d.reqs.optional.join(', ') : 'None'}</div>
+                        </div>
+                    `;
+                    // Render the tooltip box
+                    toolTip
+                        .html(content)
+                        .style("opacity", 1)
+                        .style("left", (event.pageX + 15) + "px")
+                        .style("top", (event.pageY - 15) + "px");
+                })
+                .on("mouseout", function() {
+                    // d3.select(this).attr("opacity", 0.2);
+                    toolTip.style("opacity", 0);
+                });
 
             // Required threshold line
             barGroup.append('line')
@@ -240,16 +298,8 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                 .attr('stroke-width', 2)
                 .attr('stroke-dasharray', '3,2');
 
-            const previousGrade = grade.toString() === 'F'
-                ? 'F'
-                : getPreviousGrade(grade.toString()) as keyof GradeRequirements;
-
             // Current progress (if applicable for this grade level)
-            if (passedExams <= requirements.total
-                && passedAExams <= requirements.requiredA
-                && passedExams >= (
-                gradeStrategy[previousGrade]?.total || 0
-            )) {
+            if (currentGrade) {
                 barGroup.append('rect')
                     .attr('x', xScale(grade)!)
                     .attr('y', yScale(passedExams))
@@ -258,7 +308,32 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                     .attr('fill', gradeColors[grade])
                     .attr('opacity', 0.8)
                     .attr('rx', 3)
-                    .attr('ry', 3);
+                    .attr('ry', 3)
+                    .data([gradeData])
+                    .on("mouseover", function(event, d) {
+                        console.log(`This is the data: ${d}`);
+                        // Setup the tooltip box
+                        const content = `
+                            <div>
+                                <div><strong>Total Required: ${d.reqs.total || 'No reqs'}</strong></div>
+                                <div>Passed: ${d.passedExams || '0'}</div>
+                                <div>A's: ${d.passedAExams || '0'}</div>
+                                <div>Required A's: ${d.reqs.requiredA || '0'}</div>
+                                <div>Req Optional: ${d.reqs.optional.length !== 0
+                                    ? d.reqs.optional.join(', ') : 'None'}</div>
+                            </div>
+                        `;
+                        // Render the tooltip box
+                        toolTip
+                            .html(content)
+                            .style("opacity", 1)
+                            .style("left", (event.pageX + 15) + "px")
+                            .style("top", (event.pageY - 15) + "px");
+                    })
+                    .on("mouseout", function() {
+                        // d3.select(this).attr("opacity", 0.2);
+                        toolTip.style("opacity", 0);
+                    });
             }
 
             // Grade label

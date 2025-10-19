@@ -4,6 +4,7 @@
 import {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import { Report } from "@/app/reports/types/shared";
+import ToolTip from "@/app/reports/localComponents/ToolTip";
 
 interface StatusChartProps {
     data: Report[];
@@ -12,6 +13,7 @@ interface StatusChartProps {
 interface GradeStatus {
     name: string;
     value: number;
+    details: string[];
 }
 
 export const StatusChart = ({ data } : StatusChartProps) => {
@@ -52,10 +54,12 @@ export const StatusChart = ({ data } : StatusChartProps) => {
                 if (existingGrade) {
                     // Increment the existing grade's value
                     existingGrade.value++;
+                    existingGrade.details.push(grade.examName.toString());
                 } else {
                     statusMap.push({
                         name: grade.status,
                         value: 1,
+                        details: [grade.examName.toString()],
                     });
                 }
             }
@@ -73,6 +77,9 @@ export const StatusChart = ({ data } : StatusChartProps) => {
             'failed': '#DC143C',        // orange
             'pending': '#1E90FF',       // dodgerblue
         };
+
+        // Get the tooltip
+        const toolTip = ToolTip();
 
         console.log('This is the transformed chart data');
         console.log(chartData);
@@ -148,11 +155,30 @@ export const StatusChart = ({ data } : StatusChartProps) => {
             .attr("fill", d => color(d.data.name))
             .attr("d", arc)
             .style("cursor", "pointer")
-            .on("mouseover", function() {
-                d3.select(this).attr("stroke-width", 3);
+            // Use .datum() to ensure data is preserved
+            .each(function(d) {
+                d3.select(this).datum(d);
             })
-            .on("mouseout", function() {
+            .on("mouseover", function(event, d) {
+                d3.select(this).attr("stroke-width", 3);
+                console.log(`This is the data name: ${d.data.name}`);
+                console.log(`This is the data: ${d.data.details.toString()}`);
+                // Setup the tooltip box
+                const content = `
+                    <div>
+                        <div><strong>Exams: ${d.data.details.join(', ') || 'None'}</strong></div>
+                    </div>
+                `;
+                // Render the tooltip box
+                toolTip
+                    .html(content)
+                    .style("opacity", 1)
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px");
+            })
+            .on("mouseout", function(event, d) {
                 d3.select(this).attr("stroke-width", 1);
+                toolTip.style("opacity", 0);
             });
 
         // Add labels only if there's enough space
