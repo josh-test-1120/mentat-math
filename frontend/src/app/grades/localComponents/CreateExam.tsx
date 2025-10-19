@@ -25,13 +25,13 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
-        exam_course_id: "",
-        exam_name: "",
-        exam_difficulty: "",
-        is_published: "",
-        is_required: "",
-        has_expiration: false,
-        exam_expiration_date: "",
+        examCourseId: "",
+        examName: "",
+        examDifficulty: "",
+        isPublished: "",
+        isRequired: "",
+        hasExpiration: false,
+        examExpirationDate: "",
     });
 
     const [sessionReady, setSessionReady] = useState(false);
@@ -50,7 +50,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
     const { data: session } = useSession()
 
     // Form Mapping
-    const {exam_course_id, exam_name, exam_difficulty, is_published, is_required, has_expiration, exam_expiration_date} = formData;
+    const {examCourseId, examName, examDifficulty, isPublished, isRequired, hasExpiration, examExpirationDate} = formData;
 
     /**
      * Fetch courses from the backend
@@ -80,10 +80,10 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             setCourses(coursesData);
             
             // Set the first course as default if available
-            if (coursesData.length > 0 && !exam_course_id) {
+            if (coursesData.length > 0 && !examCourseId) {
                 setFormData(prev => ({
                     ...prev,
-                    exam_course_id: coursesData[0].courseId?.toString() || ""
+                    examCourseId: coursesData[0].courseId?.toString() || ""
                 }));
             }
         } catch (error) {
@@ -140,22 +140,24 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
         try {
             console.log(`This is the session info: ${userSession}`)
             let index = 1;
-            console.log(`This is the exam course id: ${exam_course_id}`)
+            console.log(`This is the exam course id: ${examCourseId}`)
             const payload: any = {
-                exam_name,
-                is_published: is_published ? 1 : 0,
-                is_required: is_required ? 1 : 0,
-                exam_difficulty: parseInt(exam_difficulty),
-                exam_course_id: parseInt(exam_course_id),
+                examName: examName,
+                examState: isPublished ? 1 : 0,
+                examRequired: isRequired ? 1 : 0,
+                examDifficulty: parseInt(examDifficulty),
+                examCourseId: parseInt(examCourseId),
+                examDuration: 1.0, // Default value, as it's not in the form yet
+                examOnline: 0, // Default value, as it's not in the form yet
             };
-            if (has_expiration && exam_expiration_date) {
-                payload.exam_expiration_date = exam_expiration_date; // ISO date (yyyy-mm-dd)
+            if (hasExpiration && examExpirationDate) {
+                payload.examExpirationDate = examExpirationDate; // ISO date (yyyy-mm-dd)
             }
 
             const response = await apiHandler(
                 payload,
                 'POST',
-                'api/createExam',
+                'api/exam/createExam',
                 `${BACKEND_API}`,
                 session?.user?.accessToken ?? undefined
             );
@@ -168,13 +170,13 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                 toast.success("Exam created successfully");
                 setIsModalOpen(false);
                 setFormData({
-                    exam_course_id: courses.length > 0 ? courses[0].courseId?.toString() || "" : "",
-                    exam_name: "",
-                    exam_difficulty: "",
-                    is_published: "",
-                    is_required: "",
-                    has_expiration: false,
-                    exam_expiration_date: "",
+                    examCourseId: courses.length > 0 ? courses[0].courseId?.toString() || "" : "",
+                    examName: "",
+                    examDifficulty: "",
+                    isPublished: "",
+                    isRequired: "",
+                    hasExpiration: false,
+                    examExpirationDate: "",
                 });
                 // Trigger refresh of exam list
                 onExamCreated?.();
@@ -204,12 +206,12 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
+                            <label htmlFor="examName" className="text-sm">Exam Name</label>
                             <input
                                 type="text"
-                                id="exam_name"
-                                name="exam_name"
-                                value={exam_name}
+                                id="examName"
+                                name="examName"
+                                value={examName}
                                 onChange={data}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
@@ -217,12 +219,12 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
+                            <label htmlFor="examCourseId" className="text-sm">Exam Course</label>
                             <div className="relative">
                                 <select
-                                    id="exam_course_id"
-                                    name="exam_course_id"
-                                    value={exam_course_id}
+                                    id="examCourseId"
+                                    name="examCourseId"
+                                    value={examCourseId}
                                     onChange={data}
                                     required={true}
                                     disabled={coursesLoading}
@@ -278,11 +280,11 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
+                            <label htmlFor="examDifficulty" className="text-sm">Exam Difficulty</label>
                             <select
-                                id="exam_difficulty"
-                                name="exam_difficulty"
-                                value={exam_difficulty}
+                                id="examDifficulty"
+                                name="examDifficulty"
+                                value={examDifficulty}
                                 onChange={data}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
@@ -295,59 +297,59 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                             </select>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_required"
-                                    type="checkbox"
-                                    name="is_required"
-                                    checked={Boolean(is_required)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                />
-                                <label htmlFor="is_required" className="select-none">Make Exam Required</label>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_published"
-                                    type="checkbox"
-                                    name="is_published"
-                                    checked={Boolean(is_published)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                />
-                                <label htmlFor="is_published" className="select-none">Publish Exam</label>
-                            </div>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            id="isRequired"
+                                            type="checkbox"
+                                            name="isRequired"
+                                            checked={Boolean(isRequired)}
+                                            onChange={data}
+                                            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                        />
+                                        <label htmlFor="isRequired" className="select-none">Make Exam Required</label>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            id="isPublished"
+                                            type="checkbox"
+                                            name="isPublished"
+                                            checked={Boolean(isPublished)}
+                                            onChange={data}
+                                            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                        />
+                                        <label htmlFor="isPublished" className="select-none">Publish Exam</label>
+                                    </div>
                         </div>
                     </div>
 
                     {/* Full-width section outside the grid */}
                     <div className="w-full">
                         <div className="mt-2 p-3 rounded-lg border border-mentat-gold/20 bg-white/5">
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="has_expiration"
-                                    type="checkbox"
-                                    name="has_expiration"
-                                    checked={Boolean(has_expiration)}
-                                    onChange={data}
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                />
-                                <label htmlFor="has_expiration" className="select-none">Set booking expiration</label>
-                            </div>
-                            <div className="mt-3">
-                                <div className="flex flex-col gap-2">
-                                    <label htmlFor="exam_expiration_date" className="text-sm">Expiration Date</label>
-                                    <input
-                                        id="exam_expiration_date"
-                                        type="date"
-                                        name="exam_expiration_date"
-                                        value={exam_expiration_date}
-                                        onChange={data}
-                                        disabled={!has_expiration}
-                                        className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    />
-                                </div>
-                            </div>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            id="hasExpiration"
+                                            type="checkbox"
+                                            name="hasExpiration"
+                                            checked={Boolean(hasExpiration)}
+                                            onChange={data}
+                                            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                                        />
+                                        <label htmlFor="hasExpiration" className="select-none">Set booking expiration</label>
+                                    </div>
+                                    <div className="mt-3">
+                                        <div className="flex flex-col gap-2">
+                                            <label htmlFor="examExpirationDate" className="text-sm">Expiration Date</label>
+                                            <input
+                                                id="examExpirationDate"
+                                                type="date"
+                                                name="examExpirationDate"
+                                                value={examExpirationDate}
+                                                onChange={data}
+                                                disabled={!hasExpiration}
+                                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            />
+                                        </div>
+                                    </div>
                             <p className="mt-2 text-xs text-mentat-gold/70">If unchecked, the exam can be booked at any time.</p>
                         </div>
                     </div>
