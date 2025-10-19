@@ -13,6 +13,7 @@ import org.mentats.mentat.exceptions.ExamNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for handling exam repository logic
@@ -33,19 +34,32 @@ public class ExamService {
 
     /**
      * Utility to load Foreign Keys
+     * @param examRequest The exam request containing foreign key IDs
      */
     private void GetForeignKeyObjects(ExamRequest examRequest) {
-        // Find related entities
-        course = courseRepository.findById(examRequest.getExamId())
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+        // Extract the course ID from the exam request
+        Long courseId = examRequest.getExamCourseId();
+        
+        // Find the Course entity by ID
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        
+        // If the Course entity is found, set the course object
+        if (courseOpt.isPresent()) {
+            course = courseOpt.get();
+        } 
+        // If the Course entity is not found, throw an exception
+        else {
+            throw new EntityNotFoundException("Course not found with ID: " + courseId);
+        }
     }
 
     /**
      * Create new Exam object
-     * @param examRequest
-     * @return ExamResponse object
+     * @param examRequest The exam request containing exam details
+     * @return ExamResponse object with the created exam data
+     * @throws EntityNotFoundException if the referenced Course is not found
+     * @throws ValidationException if the exam request validation fails
      */
-    // Create exam result
     public ExamResponse createExam(ExamRequest examRequest) {
         // Run Validations
         validator.validateForCreation(examRequest);
@@ -62,6 +76,7 @@ public class ExamService {
         exam.setName(examRequest.getExamName());
         exam.setDuration(examRequest.getExamDuration());
         exam.setOnline(examRequest.getExamOnline());
+        exam.setExpirationDate(examRequest.getExamExpirationDate());
 
         // Save and return response DTO
         Exam saved = examRepository.save(exam);
