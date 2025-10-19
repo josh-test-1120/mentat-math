@@ -6,7 +6,6 @@ import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.ExamResultRequest;
-import org.mentats.mentat.payload.response.ExamResponse;
 import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamRepository;
@@ -15,6 +14,7 @@ import org.mentats.mentat.components.ExamResultValidator;
 import org.mentats.mentat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +57,7 @@ public class ExamResultService {
      * @return ExamResult object
      */
     // Create exam result
+    @Transactional
     public ExamResultResponse createExamResult(ExamResultRequest examResultRequest) {
         // Run Validations
         validator.validateForCreation(examResultRequest);
@@ -211,35 +212,36 @@ public class ExamResultService {
     /**
      * Update ExamResult object in the database with all fields
      * @param id
-     * @param examResultRequest
+     * @param examResultUpdates
      * @return ExamResult object
      */
-    public ExamResult updateExamResult(Long id, ExamResultRequest examResultRequest) {
+    @Transactional
+    public ExamResult updateExamResult(Long id, ExamResultRequest examResultUpdates) {
         // Validate the ID
         validator.validateExamResultId(id);
         // Get the existing record
         ExamResult existing = getExamResultById(id);
 
         // Validate the updates before applying
-        validator.validateForUpdate(existing, examResultRequest);
+        validator.validateForUpdate(existing, examResultUpdates);
 
         // Get referenced objects (FKs)
-        GetForeignKeyObjects(examResultRequest);
+        GetForeignKeyObjects(examResultUpdates);
 
-        // Handle FK updates and cascades (if appropriate) *** TBD ***
+        // Handle FK updates and cascades (if appropriate) *** Likely not needed ***
 
         // Update all fields that are provided (partial update)
-        if (examResultRequest.getExamScore() != null) {
-            existing.setExamScore(examResultRequest.getExamScore());
+        if (examResultUpdates.getExamScore() != null) {
+            existing.setExamScore(examResultUpdates.getExamScore());
         }
-        if (examResultRequest.getExamTakenDate() != null) {
-            existing.setExamTakenDate(examResultRequest.getExamTakenDate());
+        if (examResultUpdates.getExamTakenDate() != null) {
+            existing.setExamTakenDate(examResultUpdates.getExamTakenDate());
         }
-        if (examResultRequest.getExamScheduledDate() != null) {
-            existing.setExamScheduledDate(examResultRequest.getExamScheduledDate());
+        if (examResultUpdates.getExamScheduledDate() != null) {
+            existing.setExamScheduledDate(examResultUpdates.getExamScheduledDate());
         }
-        if (examResultRequest.getExamVersion() != null) {
-            existing.setExamVersion(examResultRequest.getExamVersion());
+        if (examResultUpdates.getExamVersion() != null) {
+            existing.setExamVersion(examResultUpdates.getExamVersion());
         }
 
         return examResultRepository.save(existing);

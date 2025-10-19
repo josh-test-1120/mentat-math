@@ -12,6 +12,8 @@ import org.mentats.mentat.components.ExamValidator;
 import org.mentats.mentat.exceptions.ExamNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,7 @@ public class ExamService {
      * @return ExamResponse object
      */
     // Create exam result
+    @Transactional
     public ExamResponse createExam(ExamRequest examRequest) {
         // Run Validations
         validator.validateForCreation(examRequest);
@@ -245,6 +248,7 @@ public class ExamService {
      * @return Exam object
      */
     // Update exam
+    @Transactional
     public Exam updateExam(Long id, ExamRequest examUpdates) {
         if (examUpdates == null) {
             throw new ValidationException("Post data for exam cannot be null");
