@@ -8,7 +8,7 @@ export type Course = {
     courseSection: string;
     courseYear: number;
     courseQuarter: string;
-    courseProfessorId: string;
+    courseProfessorId: number;
 };
 
 /**
