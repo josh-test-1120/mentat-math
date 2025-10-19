@@ -9,9 +9,9 @@ export default function TestWindowExample() {
 
   // Mock data - in real app, this would come from your API
   const mockCourses = [
-    { courseID: 1, courseName: "Mathematics 101", courseSection: "A", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: "1" },
-    { courseID: 2, courseName: "Physics 201", courseSection: "B", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: "1" },
-    { courseID: 3, courseName: "Chemistry 301", courseSection: "C", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: "1" }
+    { courseID: 1, courseName: "Mathematics 101", courseSection: "A", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 },
+    { courseID: 2, courseName: "Physics 201", courseSection: "B", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 },
+    { courseID: 3, courseName: "Chemistry 301", courseSection: "C", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 }
   ];
 
   const mockExams = [

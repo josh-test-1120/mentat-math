@@ -8,7 +8,7 @@ export type Course = {
     courseSection: string;
     courseYear: number;
     courseQuarter: string;
-    courseProfessorId: number;
+    courseProfessorId: number;  // Changed from string to number to match backend
 };
 
 /**
