@@ -233,9 +233,9 @@ export default function ExamDashboard() {
             }
         }
         setExams(examsData);
+        if (examsData.length === 0) { setExamResultsLoading(false); }
         setLoading(false);
         // setExamsLoading(false);
-
     }
 
     // Fetch exams
