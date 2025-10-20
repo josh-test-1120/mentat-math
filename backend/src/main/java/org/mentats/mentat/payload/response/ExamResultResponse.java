@@ -29,6 +29,19 @@ public class ExamResultResponse {
         this.examTakenDate = examResult.getExamTakenDate();
     }
 
+    // Constructor for Projection injection (manual)
+    public ExamResultResponse(Long examResultId, Long studentId, Long examId,
+                              Integer examVersion, String examScore,
+                              Date examScheduledDate, Date examTakenDate) {
+        this.examResultId = examResultId;
+        this.examStudentId = studentId;
+        this.examId = examId;
+        this.examVersion = examVersion;
+        this.examScore = examScore;
+        this.examScheduledDate = examScheduledDate;
+        this.examTakenDate = examTakenDate;
+    }
+
     // Getters only (response is read-only)
     public Long getExamResultId() { return examResultId; }
     public Long getExamStudentId() { return examStudentId; }
