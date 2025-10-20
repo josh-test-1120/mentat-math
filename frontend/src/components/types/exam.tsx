@@ -7,4 +7,5 @@ export default interface Exam {
     examOnline: number;
     examRequired: number;
     examState: number;
+    examExpirationDate?: string;
 }
