@@ -1,5 +1,6 @@
 package org.mentats.mentat.payload.request;
 import jakarta.validation.constraints.*;
+import java.time.LocalDate;
 
 /**
  * Form request validation serializer
@@ -32,6 +33,9 @@ public class ExamRequest {
 
     @NotNull
     private Integer examOnline;
+
+    // Optional expiration date for booking restrictions
+    private LocalDate examExpirationDate;
 
     /**
      * Getter for Exam Id
@@ -158,6 +162,22 @@ public class ExamRequest {
     }
 
     /**
+     * Getter for Exam Expiration Date
+     * @return LocalDate of examExpirationDate
+     */
+    public LocalDate getExamExpirationDate() {
+        return examExpirationDate;
+    }
+
+    /**
+     * Setter for Exam Expiration Date
+     * @param examExpirationDate LocalDate of examExpirationDate
+     */
+    public void setExamExpirationDate(LocalDate examExpirationDate) {
+        this.examExpirationDate = examExpirationDate;
+    }
+
+    /**
      * String override for output response
      * @return
      */
@@ -172,6 +192,7 @@ public class ExamRequest {
                 ", examCourseId=" + examCourseId +
                 ", examDuration=" + examDuration +
                 ", examOnline=" + examOnline +
+                ", examExpirationDate=" + examExpirationDate +
                 '}';
     }
 }

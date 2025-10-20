@@ -34,12 +34,6 @@ public class ExamResultValidator {
         }
     }
 
-    public void validateCourseId(Long courseId) {
-        if (courseId == null || courseId <= 0) {
-            throw new ValidationException("Course ID must be a positive number");
-        }
-    }
-
     public void validateStudentId(Long studentId) {
         if (studentId == null || studentId <= 0) {
             throw new ValidationException("Student ID must be a positive number");

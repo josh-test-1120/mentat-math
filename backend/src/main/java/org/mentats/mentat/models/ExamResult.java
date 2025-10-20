@@ -98,6 +98,14 @@ public class ExamResult {
 
     public Exam getExam() { return exam; }
 
+//    public Long getStudentId() {
+//        return studentId;
+//    }
+//
+//    public Long getExamId() {
+//        return examId;
+//    }
+
     public Integer getExamVersion() {
         return examVersion;
     }
@@ -122,6 +130,14 @@ public class ExamResult {
     public void setStudent(User student) { this.student = student; }
 
     public void setExam(Exam exam) { this.exam = exam; }
+
+//    public void setStudentId(Long studentId) {
+//        this.studentId = studentId;
+//    }
+//
+//    public void setExamId(Long examId) {
+//        this.examId = examId;
+//    }
 
     public void setExamVersion(Integer examVersion) {
         this.examVersion = examVersion;

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Service class for handling exam repository logic
@@ -45,8 +46,10 @@ public class ExamService {
 
     /**
      * Create new Exam object
-     * @param examRequest
-     * @return ExamResponse object
+     * @param examRequest The exam request containing exam details
+     * @return ExamResponse object with the created exam data
+     * @throws EntityNotFoundException if the referenced Course is not found
+     * @throws ValidationException if the exam request validation fails
      */
     // Create exam result
     @Transactional
@@ -66,6 +69,7 @@ public class ExamService {
         exam.setName(examRequest.getExamName());
         exam.setDuration(examRequest.getExamDuration());
         exam.setOnline(examRequest.getExamOnline());
+        exam.setExpirationDate(examRequest.getExamExpirationDate());
 
         // Save and return response DTO
         Exam saved = examRepository.save(exam);
@@ -285,6 +289,9 @@ public class ExamService {
         }
         if (examUpdates.getExamDifficulty() != null) {
             existing.setOnline(examUpdates.getExamDifficulty());
+        }
+        if (examUpdates.getExamExpirationDate() != null) {
+            existing.setExpirationDate(examUpdates.getExamExpirationDate());
         }
 
         return examRepository.save(existing);

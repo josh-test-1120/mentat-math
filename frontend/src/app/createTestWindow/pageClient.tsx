@@ -14,7 +14,7 @@ type Course = {
     courseSection: string;
     courseYear: number;
     courseQuarter: string;
-    courseProfessorId: string;
+    courseProfessorId: number;  // Changed from string to number to match backend
 };
 
 // Form data type

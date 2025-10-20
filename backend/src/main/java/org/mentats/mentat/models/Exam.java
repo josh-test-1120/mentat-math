@@ -1,16 +1,20 @@
 package org.mentats.mentat.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
 
 /**
  * This class represents the Exam entity that contains exam details
  * @author Joshua Summers
  */
 @Entity
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "exam")
 public class Exam {
     /**
@@ -28,8 +32,15 @@ public class Exam {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
     @JoinColumn(name = "exam_course_id")
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore()
     private Course course;
+
+//    // The course id assigned to exam
+//    @NotNull
+//    @JsonProperty("courseId") // Map JSON field to Java field
+//    @Column(name = "exam_course_id")
+//    private Long courseId;
 
     // The name assigned to exam
     @NotBlank
@@ -66,6 +77,11 @@ public class Exam {
     @JsonProperty("examOnline") // Map JSON field to Java field
     @Column(name = "exam_online")
     private Integer online;
+
+    // Optional booking expiration date. NULL => no expiration
+    @JsonProperty("examExpirationDate")
+    @Column(name = "exam_expiration_date", nullable = true)
+    private LocalDate expirationDate;
 
     /**
      * This is the constructor for the Exam entity
@@ -158,6 +174,14 @@ public class Exam {
         this.online = online;
     }
 
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
     public Integer getDifficulty() {
         return difficulty;
     }
@@ -186,6 +210,7 @@ public class Exam {
                 ", difficulty=" + difficulty +
                 ", duration=" + duration +
                 ", online=" + online +
+                ", expirationDate=" + expirationDate +
                 '}';
     }
 }

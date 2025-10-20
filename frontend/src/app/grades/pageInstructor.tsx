@@ -104,7 +104,10 @@ export default function ExamDashboard() {
     }, [filter, exams]);
 
     useEffect(() => {
-        if (!filteredExams || filteredExams.length === 0) return;
+        if (!filteredExams || filteredExams.length === 0) {
+            setExamResultsLoading(false);
+            return;
+        }
         else if (filteredExams && filteredExams.length > 0) {
             setExamResultsLoading(true);
             fetchExamResults();
@@ -469,7 +472,7 @@ export default function ExamDashboard() {
                         <RingSpinner size={'sm'} color={'mentat-gold'} />
                         <p className="ml-3 text-md text-mentat-gold">Generating Exam Statistics...</p>
                     </div>
-                ) : examResults && (
+                ) : examResults && examResults.length > 0 ? (
                     <div className="rounded-xl shadow-sm px-4 mb-1">
                         <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -506,6 +509,16 @@ export default function ExamDashboard() {
                                 {/*        exams.filter(e => e.status === 'completed' && e.score !== undefined).length)*/}
                                 {/*    : 0}%*/}
                             </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="rounded-xl shadow-sm px-4 mb-1">
+                        <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
+                        <div className="text-center py-12">
+                            <p className="text-mentat-gold/80 text-lg">No exam results available</p>
+                            <p className="text-mentat-gold/60 text-sm mt-2">
+                                Exam statistics will appear here once students start taking exams
+                            </p>
                         </div>
                     </div>
                 )}

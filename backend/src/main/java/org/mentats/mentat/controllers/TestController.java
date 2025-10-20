@@ -11,7 +11,6 @@ import java.util.List;
 
 /**
  * Test Controller to run tests on various mappings
- * @author Joshua Summers
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

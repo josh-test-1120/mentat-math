@@ -11,9 +11,6 @@ import java.util.List;
 
 /**
  * Exam Result Repository Interface that interacts with the Database through JPA.
- *
- * @see org.springframework.data.jpa.repository.JpaRepository
- * @see https://spring.io/guides/gs/accessing-data-jpa
  * @author Joshua Summers
  */
 @Repository

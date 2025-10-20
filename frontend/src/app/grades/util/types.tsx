@@ -8,6 +8,7 @@ export interface ExamStatus extends Exam {
 
 export interface ExamExtended extends ExamStatus {
     courseName?: string;
+    examExpirationDate?: string;
 }
 
 export interface Grade extends Exam, Course, ExamResult {

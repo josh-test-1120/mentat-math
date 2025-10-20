@@ -1,6 +1,5 @@
 import React from 'react';
-// import { Course } from '../hooks/useTestWindowData';
-import Course from "@/components/types/course"
+import { Course } from '../hooks/useTestWindowData';
 
 interface CourseSelectorProps {
     courses: Course[];
