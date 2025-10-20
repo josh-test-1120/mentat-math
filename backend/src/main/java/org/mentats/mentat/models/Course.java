@@ -1,20 +1,17 @@
 package org.mentats.mentat.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.stereotype.Repository;
 
 /**
  * This class represents the Course entity that contains course details
  * @author Joshua Summers
  */
 @Entity
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "course",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "course_id"),
@@ -22,10 +19,12 @@ import org.springframework.stereotype.Repository;
         })
 public class Course {
     /**
-     * Report.Report.Course class fields.
+     * Course model class fields.
      */
+    // Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("courseId") // Map JSON field to Java field
     @Column(name = "course_id")
     // Report.Report.Course ID for this course
     private Long courseId;
@@ -52,7 +51,7 @@ public class Course {
     @Min(2000)
     @JsonProperty("courseYear") // Map JSON field to Java field
     @Column(name = "course_year")
-    private int courseYear;
+    private Integer courseYear;
 
     // Course Quarter
     @NotBlank
@@ -79,7 +78,7 @@ public class Course {
      * @param gradeStrategy
      */
     public Course(Long courseId, String courseName, Long courseProfessorId,
-                  String courseQuarter, String courseSection, int courseYear,
+                  String courseQuarter, String courseSection, Integer courseYear,
                   String gradeStrategy) {
         this.courseId          = courseId;
         this.courseName        = courseName;
@@ -165,7 +164,7 @@ public class Course {
         this.courseSection = courseSection;
     }
 
-    public void setCourseYear(int courseYear) {
+    public void setCourseYear(Integer courseYear) {
         this.courseYear = courseYear;
     }
 

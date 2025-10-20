@@ -1,5 +1,6 @@
 package org.mentats.mentat.payload.request;
 import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 
 /**
@@ -34,7 +35,6 @@ public class ExamRequest {
     @NotNull
     private Integer examOnline;
 
-    // Optional expiration date for booking restrictions
     private LocalDate examExpirationDate;
 
     /**

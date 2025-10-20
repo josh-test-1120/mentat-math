@@ -4,10 +4,7 @@ package org.mentats.mentat.models;
  * New stuff for Authentication
  */
 
-import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,7 +19,6 @@ import jakarta.validation.constraints.Size;
  * @author Joshua Summers
  */
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
@@ -70,7 +66,7 @@ public class User {
     @Size(max = 20)
     public String userType;
 
-//    // @Telmen Unnecessary code for now. Will revive later.
+    //    // @Telmen Unnecessary code for now. Will revive later.
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(  name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

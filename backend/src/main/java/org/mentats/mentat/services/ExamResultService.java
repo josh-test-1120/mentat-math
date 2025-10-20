@@ -7,14 +7,17 @@ import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.ExamResultRequest;
 import org.mentats.mentat.payload.response.ExamResultResponse;
+import org.mentats.mentat.projections.ExamResultDetailsProjection;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.components.ExamResultValidator;
 import org.mentats.mentat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for handling exam result repository logic
@@ -54,6 +57,7 @@ public class ExamResultService {
      * @return ExamResult object
      */
     // Create exam result
+    @Transactional
     public ExamResultResponse createExamResult(ExamResultRequest examResultRequest) {
         // Run Validations
         validator.validateForCreation(examResultRequest);
@@ -92,8 +96,20 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read all exam results
-    public List<ExamResult> getAllExamResults() {
-        return examResultRepository.findAll();
+    public List<ExamResultResponse> getAllExamResults() {
+        List<ExamResult> examResults = examResultRepository.findAll();
+
+        return examResults.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -102,9 +118,33 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Student ID
-    public List<ExamResult> getExamResultsByStudent(Long studentId) {
+    public List<ExamResultResponse> getExamResultsByStudent(Long studentId) {
         validator.validateStudentId(studentId);
-        return examResultRepository.findByStudent_Id(studentId);
+
+        List<ExamResult> projections = examResultRepository.findByStudent_Id(studentId);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
+    }
+    /**
+     * Fetch all ExamResult objects based on Student Id
+     * @param studentId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by Student ID, along with exam and course table
+    // Read multiple tables by complex JPQL repository call
+    public List<ExamResultDetailsProjection> getExamResultsAndExamCourseByStudent(Long studentId) {
+        validator.validateStudentId(studentId);
+        return examResultRepository.findResultDetailsByStudentId(studentId);
     }
 
     /**
@@ -113,9 +153,22 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Exam ID
-    public List<ExamResult> getExamResultsByExamId(Long examId) {
+    // Service converts projections to DTOs
+    public List<ExamResultResponse> getExamResultsByExamId(Long examId) {
         validator.validateExamId(examId);
-        return examResultRepository.findByExam_Id(examId);
+        List<ExamResult> projections = examResultRepository.findByExam_Id(examId);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -125,44 +178,70 @@ public class ExamResultService {
      * @return List of ExamResult objects
      */
     // Read multiple exam results by Exam ID and Version
-    public List<ExamResult> getExamResultsByExamIdAndVersion(Long examId, Integer examVersion) {
+    public List<ExamResultResponse> getExamResultsByExamIdAndVersion(Long examId, Integer examVersion) {
         validator.validateExamId(examId);
         validator.validateExamVersion(examVersion);
-        return examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
+
+        List<ExamResult> projections =
+                examResultRepository.findByExam_IdAndExamVersion(examId, examVersion);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Course Id
+     * @param courseId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by complex JPQL repository call
+    public List<ExamResultDetailsProjection> getExamResultsByCourseId(Long courseId) {
+        validator.validateCourseId(courseId);
+        return examResultRepository.findResultDetailsByCourseId(courseId);
     }
 
     /**
      * Update ExamResult object in the database with all fields
      * @param id
-     * @param examResultRequest
+     * @param examResultUpdates
      * @return ExamResult object
      */
-    public ExamResult updateExamResult(Long id, ExamResultRequest examResultRequest) {
+    @Transactional
+    public ExamResult updateExamResult(Long id, ExamResultRequest examResultUpdates) {
         // Validate the ID
         validator.validateExamResultId(id);
         // Get the existing record
         ExamResult existing = getExamResultById(id);
 
         // Validate the updates before applying
-        validator.validateForUpdate(existing, examResultRequest);
+        validator.validateForUpdate(existing, examResultUpdates);
 
         // Get referenced objects (FKs)
-        GetForeignKeyObjects(examResultRequest);
+        GetForeignKeyObjects(examResultUpdates);
 
-        // Handle FK updates and cascades (if appropriate) *** TBD ***
+        // Handle FK updates and cascades (if appropriate) *** Likely not needed ***
 
         // Update all fields that are provided (partial update)
-        if (examResultRequest.getExamScore() != null) {
-            existing.setExamScore(examResultRequest.getExamScore());
+        if (examResultUpdates.getExamScore() != null) {
+            existing.setExamScore(examResultUpdates.getExamScore());
         }
-        if (examResultRequest.getExamTakenDate() != null) {
-            existing.setExamTakenDate(examResultRequest.getExamTakenDate());
+        if (examResultUpdates.getExamTakenDate() != null) {
+            existing.setExamTakenDate(examResultUpdates.getExamTakenDate());
         }
-        if (examResultRequest.getExamScheduledDate() != null) {
-            existing.setExamScheduledDate(examResultRequest.getExamScheduledDate());
+        if (examResultUpdates.getExamScheduledDate() != null) {
+            existing.setExamScheduledDate(examResultUpdates.getExamScheduledDate());
         }
-        if (examResultRequest.getExamVersion() != null) {
-            existing.setExamVersion(examResultRequest.getExamVersion());
+        if (examResultUpdates.getExamVersion() != null) {
+            existing.setExamVersion(examResultUpdates.getExamVersion());
         }
 
         return examResultRepository.save(existing);

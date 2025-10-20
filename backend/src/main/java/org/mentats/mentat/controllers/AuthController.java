@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * Authorization Controller
  * Methods that drive and control auth mappings
  * base URI is /api/auth
+ * @author Joshua Summers
  */
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -75,7 +76,7 @@ public class AuthController {
     @PostMapping("/signin")
     //public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     public ResponseEntity<JwtResponse> authenticateUser( @RequestBody LoginRequest loginRequest) {
-        
+
 //        System.out.println("Login request: " + loginRequest);
 //        System.out.println("Login request username: " + loginRequest.getUsername());
 //        System.out.println("Login request password: " + loginRequest.getPassword());
