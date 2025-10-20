@@ -1,33 +1,45 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import { Card, CardContent, Button } from "@/components/UI/calendar/ui"
-import {useSession} from "next-auth/react";
-import {apiHandler} from "@/utils/api";
-import {toast} from "react-toastify";
+import { Card, CardContent } from "@/components/UI/calendar/ui"
+import { useSession } from "next-auth/react";
+import { apiHandler } from "@/utils/api";
+import { toast } from "react-toastify";
 
 interface JoinCourseComponentProps {
   onJoinSuccess?: () => void;
 }
 
+/**
+ * This is the Join Course component
+ * that will join a student to a course
+ * based on the course ID
+ * @param onJoinSuccess
+ * @constructor
+ * @author Telmen Enkhtuvshin
+ */
 export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseComponentProps) {
+    // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     const [courseId, setCourseId] = useState("");
 
-    // Session Information
+    // These are the session state variables
     const { data: session, status } = useSession();
-
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
     // Joining State
     const [isJoining, setIsJoining] = useState(false);
 
-    // Session Hydration
+    /**
+     * This is the useEffect for initial Hydration
+     */
     useEffect(() => {
         if (status !== "authenticated") return;
     
@@ -35,19 +47,20 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || ''
             };
             
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
-            
-            console.log("User session NAME: " + session.user.username);
-            console.log("User session ID: " + newUserSession.id);
         }
     }, [session, status]); // Added status to dependencies
 
 
-    // Handle Submit
+    /**
+     * This is the submit form handler
+     * @param event
+     */
     const handleSubmit = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
@@ -70,17 +83,13 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
 
         // Try wrapper to handle async exceptions
         try {
-            console.log("USER SESSION ID IS:", userSession.id);
-            console.log("USER SESSION ID IS TYPE:", typeof userSession.id);
-            console.log("COURSE ID IS TYPEOF:", typeof courseId);
-            console.log("COURSE ID IS:", courseId);
             // API Handler
             const res = await apiHandler(
                 { studentId: userSession.id, courseId },
                 "POST",
                 "api/course/joinCourse",
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
     
             // Handle errors properly
@@ -89,8 +98,6 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
             } else {
                 toast.success("Successfully joined the course!");
                 setCourseId("");
-                console.log("LOGGING COURSE SUCCESS.");
-                console.log(res.toString());
                 
                 // Call the success callback to close modal and refresh courses
                 if (onJoinSuccess) {

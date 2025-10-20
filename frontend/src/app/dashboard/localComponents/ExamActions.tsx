@@ -1,18 +1,10 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import { Card, CardContent, Button } from "@/components/UI/calendar/ui"
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
-import Modal from "@/components/services/Modal";
-import { ExamProp } from "@/components/types/exams";
-import { ExamResultExtended} from "@/app/dashboard/util/types";
-import ErrorToast from "@/components/services/error";
-
-// interface JoinCourseComponentProps {
-//   onJoinSuccess?: () => void;
-// }
+import { ExamResultExtended} from "@/app/dashboard/types/shared";
 
 interface ExamActionsComponentProps {
     examResult: ExamResultExtended | undefined
@@ -20,48 +12,64 @@ interface ExamActionsComponentProps {
     updateAction: () => void
 }
 
+/**
+ * This is the Exam action view, which will show the
+ * Exam Result details, and give some actions that can be
+ * taken to adjust the Exam Result entry
+ * @param examResult
+ * @param cancelAction
+ * @param updateAction
+ * @constructor
+ * @author Joshua Summers
+ */
 export default function ExamActionsComponent({ examResult,
                                                  cancelAction, updateAction } : ExamActionsComponentProps) {
+    // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-    // const [exam, updateExam] = useState<ExamProp>();
 
-    // Session Information
-    const {data: session, status} = useSession();
-
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
     // Page and Session Hydration
     useEffect(() => {
         if (status !== "authenticated") return;
-
         if (session) {
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || ''
             };
 
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
-
-            console.log("User session NAME: " + session.user.username);
-            console.log("User session ID: " + newUserSession.id);
-            console.log("This is the exam result:");
-            console.log(examResult);
         }
     }, [session, status]); // Added status to dependencies
 
+    /**
+     * This is the rescheduling exam result action handler
+     * @param event
+     */
     const handleReschedule = async (event: React.FormEvent) => {
         event.preventDefault();
         console.log("Rescheduling Exam");
     }
 
-    // Handle Delete
+    /**
+     * This is the delete exam result action handler
+     * @param event
+     */
     const handleDelete = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
@@ -75,7 +83,7 @@ export default function ExamActionsComponent({ examResult,
                 "DELETE",
                 `api/exam/result/${examResult?.examResultId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             // Handle errors properly
@@ -83,7 +91,6 @@ export default function ExamActionsComponent({ examResult,
                 toast.error(res?.message || "Failed to delete the scheduled exam");
             } else {
                 toast.success("Successfully deleted the scheduled exam!");
-                // updateExam(undefined);
                 console.log("Exam Result Succeeded.");
                 console.log(res.toString());
             }
@@ -163,7 +170,8 @@ export default function ExamActionsComponent({ examResult,
                             id="exam_date_scheduled"
                             type="text"
                             name="exam_date_scheduled"
-                            value={examResult?.examScheduledDate}
+                            value={examResult?.examScheduledDate.toLocaleString('en-US',
+                                { timeZone: 'America/Los_Angeles' })}
                             // onChange={data}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3

@@ -1,55 +1,131 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp, Class } from '@/components/types/exams';
 import Course from '@/components/types/course';
-import ExamResult from "@/components/types/exam_result";
 import { useSession } from "next-auth/react";
 import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/app/dashboard/localComponents/ExamActions";
 import JoinCourseComponent from "@/app/dashboard/localComponents/JoinCourse";
 import { RingSpinner } from "@/components/UI/Spinners";
-import Exam from "@/components/types/exam";
-import { ExamResultExtended } from "@/app/dashboard/util/types";
+import { ExamResultExtended } from "@/app/dashboard/types/shared";
 import { GradeCardExtended, getExamPropStatus } from "@/app/dashboard/localComponents/GradeCard";
 
+/**
+ * This is the Dashboard page for the Students
+ * This will include snapshots of upcoming exams
+ * and which courses the student has joined
+ * @author Joshua Summers
+ */
 export default function ExamsPage() {
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // These are the state variables used in the page
     const [exams, setExams] = useState<ExamResultExtended[]>([]);
-    const [examResults, setExamResults] = useState<ExamResult[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
     const [examResult, setExamResult] = useState<ExamResultExtended>();
+    // Loaders
     const [loading, setLoading] = useState(true);
     const [coursesLoading, setCoursesLoading] = useState(true);
+    // Modal state checks
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+    // Refresh trigger (to re-render page)
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-    const [selectedClass, setSelectedClass] = useState<string>('all');
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
+    // These are the filter states
     const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed' | 'pending'>('all');
-
+    // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
+    /**
+     * This is the filtered Exams memo
+     * we use this to cache the state of the array
+     * This has a dependecy list that affects
+     * when this is recalculated and run
+     */
     const filteredExams = useMemo(() => {
         // Wait until exams data is loaded and available
         if (!exams || exams.length === 0) {
             return [];
         }
-        // First filter by class
-        let result = selectedClass === 'all'
+        // First filter by status
+        let result = filter === 'all'
             ? exams
-            : exams.filter(exam => exam.courseName === selectedClass);
-
-        // Then filter by status
-        if (filter !== 'all') {
-            result = result.filter(exam => getExamPropStatus(exam) === filter);
-        }
-
+            : exams.filter(exam => exam.status === filter);
+        // Return current reduced array
         return result;
-    }, [exams, selectedClass, filter]);
+    }, [exams, filter]);
 
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
+    useEffect(() => {
+        let id = '';
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Hydrate session information
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
+
+    // Data load effect: Initial data hydration (after session hydration)
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Otherwise, hydration the data
+        const fetchData = async () => {
+            hasFetched.current = true;
+            setLoading(true);
+            // Try - Catch handler
+            try {
+                // Fetch the grades for the student
+                fetchGrades(userSession.id);
+                // Fetch the enrolled courses for the student
+                fetchCourseEnrollments(userSession.id);
+            } catch (error) {
+                console.error('Error fetching grade and course data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        // Run the async handler to fetch data
+        fetchData();
+    }, [userSession, refreshTrigger]);
+
+    // Data change effect: Update exams and reload state fields when this state changes
+    useEffect(() => {
+        if (!exams) return;
+        else if (exams && exams.length !== 0) {
+            console.log('grades use effects')
+            console.log(`use effects: ${exams}`);
+        }
+    }, [exams]);
+
+    /**
+     * These are the variants and settings
+     * for the motion feature
+     * predominately used in divs for animations
+     */
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -60,51 +136,13 @@ export default function ExamsPage() {
         }
     };
 
-    // Fetch exam results and enrolled courses
-    useEffect(() => {
-        // If not authenticated, return
-        if (status !== 'authenticated') return;
-        // Get student ID
-        const id = session?.user?.id?.toString();
-        // If no student ID, return
-        if (!id) return;
-
-        console.log('This is the status:', status);
-
-        // // Run first time only (initial hydration)
-        // console.log(exams);
-        // if (exams.length === 0)
-        //     if (examResults.length === 0) {
-        //         fetchExamResults(id);
-        //         fetchCourseEnrollments(id);
-        //     }
-        // For refreshes
-
-        fetchGrades(id);
-        fetchCourseEnrollments(id);
-
-        // console.log('Refresh trigger:', refreshTrigger);
-        // setExamResultsLoading(true);
-        // setExamsLoading(true);
-        // setCoursesExamLoading(true);
-        // // Hydrate the data
-        // fetchExamResults(id);
-        // fetchCourseEnrollments(id);
-    }, [status, session, refreshTrigger, BACKEND_API]);
-
-    // Effects for getting exams after exam results
-    useEffect(() => {
-        if (!exams) return;
-        else if (exams && exams.length !== 0) {
-            console.log('grades use effects')
-            console.log(`use effects: ${exams}`);
-        }
-    }, [exams]);
-
-    // Fetch exams All
+    /**
+     * This will fetch all the Grades (Exam Results) from the database
+     * @param id
+     */
     const fetchGrades = async (id: string) => {
-        // Convert object to array
-        let gradesData = [];
+        // Initialize data repository
+        let gradesData: ExamResultExtended[] = [];
         // Try wrapper to handle async exceptions
         try {
             // API Handler
@@ -113,7 +151,7 @@ export default function ExamsPage() {
                 'GET',
                 `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             // Handle errors
@@ -121,22 +159,16 @@ export default function ExamsPage() {
                 console.error('Error fetching grades:', res.error);
                 setExams([]);
             } else {
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    gradesData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    gradesData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    gradesData = [];
-                }
-
-                // Filter out invalid entries
-                gradesData = gradesData.filter(c => c && typeof c === 'object');
+                // Get the response data
+                gradesData = res?.grades || res || [];
+                // Ensure it's an array
+                gradesData = Array.isArray(gradesData) ? gradesData : [gradesData];
+                // Add the status to each record
+                gradesData = gradesData
+                    .map(grade => ({
+                        ...grade,
+                        status: getExamPropStatus(grade)
+                    }));
 
                 console.log('Processed grades data:', gradesData);
                 // Set courses to coursesData
@@ -149,14 +181,17 @@ export default function ExamsPage() {
             setExams([]);
         } finally {
             // Set loading to false
-            // setExamsLoading(false);
             setLoading(false);
-            // return coursesData;
         }
     };
 
-    // Fetch course enrollments
+    /**
+     * This will fetch all the Course enrollments for the student
+     * @param id
+     */
     const fetchCourseEnrollments = async (id: string) => {
+        // Initialize data repository
+        let coursesData: Course[] = [];
         // Try wrapper to handle async exceptions
         try {
             // API Handler
@@ -165,7 +200,7 @@ export default function ExamsPage() {
                 'GET',
                 `api/course/enrollments?studentId=${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             // Handle errors
@@ -173,26 +208,10 @@ export default function ExamsPage() {
                 console.error('Error fetching courses:', res.error);
                 setCourses([]);
             } else {
-                // Convert object to array
-                let coursesData = [];
-
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    coursesData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    coursesData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    coursesData = [];
-                }
-
-                // Filter out invalid entries
-                coursesData = coursesData.filter(c => c && typeof c === 'object');
-
+                // Get the response data
+                coursesData = res?.grades || res || [];
+                // Ensure it's an array
+                coursesData = Array.isArray(coursesData) ? coursesData : [coursesData];
                 console.log('Processed courses data:', coursesData);
                 // Set courses to coursesData
                 setCourses(coursesData);
@@ -205,17 +224,21 @@ export default function ExamsPage() {
         } finally {
             // Set loading to false
             setCoursesLoading(false);
-            // setLoading(false);
         }
     };
 
-    // Load Exam Actions Modal
+    /**
+     * Load the Exam Results for the Modal
+     * @param exam
+     * @param e
+     */
     const loadExamResultDetails =
             async (exam: ExamResultExtended, e : any) => {
+        // Prevent default event propogation
         e.preventDefault();
-        console.log('Exam event click:', e);
-        console.log(exam);
+        // Set the current Exam result state
         setExamResult(exam);
+        // Now we can open the modal since we set the current Exam
         setIsExamModalOpen(true)
     }
 
@@ -357,7 +380,7 @@ export default function ExamsPage() {
                         <AnimatePresence mode="wait">
                             {!loading && filteredExams.length > 0 ? (
                                 <motion.div
-                                    key={`${selectedClass}-${filter}`}
+                                    key={`${filter}`}
                                     variants={containerVariants}
                                     initial="hidden"
                                     animate="visible"
