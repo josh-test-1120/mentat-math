@@ -8,7 +8,11 @@ import java.util.Optional;
 
 /**
  * Course Repository Interface that interacts with the Database through JPA.
+ *
+ * @see org.springframework.data.jpa.repository.JpaRepository
+ * @see https://spring.io/guides/gs/accessing-data-jpa
  * @author Joshua Summers
+ *
  */
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
