@@ -1,39 +1,41 @@
 'use client';
 
-// Dashboard page for displaying courses for the instructor who created them or create new courses.
-
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import Modal from '@/components/services/Modal';
+import Course from "@/components/types/course"
 import CreateCourseClient from '@/app/dashboard/localComponents/CreateCourse';
 import { toast } from 'react-toastify';
 import { Plus } from "lucide-react";
 import { RingSpinner } from "@/components/UI/Spinners";
 
-type Course = {
-    courseId: number;
-    courseName: string;
-    courseSection: string;
-    courseYear: number;
-    courseQuarter: string;
-    courseProfessorId: string;
-};
-
+/**
+ * This is the Dashboard page for the Students
+ * This will include snapshots of upcoming exams
+ * and which courses the student has joined
+ * @author Telmen Enkhtuvshin
+ */
 export default function InstructorCoursesClient() {
+    // These are the state variables used in the page
     const { data: session, status } = useSession();
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    // Refresh trigger (to re-render page)
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
+    // Modal state checks
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    // Move fetchInstructorCourses outside useEffect
-    const fetchInstructorCourses = useCallback(async () => {
-        if (status !== 'authenticated') return;
-        const id = session?.user?.id?.toString();
-        if (!id) return;
-
+    /**
+     * Fetch the courses for the Instructor
+     */
+    const fetchInstructorCourses = useCallback(async (id: string) => {
+        // Try - Catch Handler
         try {
             setLoading(true);
             setError(null);
@@ -60,17 +62,12 @@ export default function InstructorCoursesClient() {
                 setCourses([]);
             } else {
                 // Handle different response formats
-                let coursesData = [];
+                let coursesData : Course[] = [];
 
-                if (Array.isArray(res)) {
-                    coursesData = res;
-                } else if (res && Array.isArray(res.data)) {
-                    coursesData = res.data;
-                } else if (res && Array.isArray(res.result)) {
-                    coursesData = res.result;
-                } else if (res && typeof res === 'object') {
-                    coursesData = Object.values(res).filter(c => c && typeof c === 'object');
-                }
+                // Get the response data
+                coursesData = res?.courses || res || [];
+                // Ensure it's an array
+                coursesData = Array.isArray(coursesData) ? coursesData : [coursesData];
 
                 console.log('Processed instructor courses:', coursesData);
                 setCourses(coursesData);
@@ -84,10 +81,32 @@ export default function InstructorCoursesClient() {
         }
     }, [status, session, BACKEND_API]);
 
-    // Use useEffect to call fetchInstructorCourses on mount
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
     useEffect(() => {
-        fetchInstructorCourses();
-    }, [fetchInstructorCourses]);
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Get student ID
+        const id = session?.user?.id;
+        // If no student ID, return
+        if (!id) return;
+
+        const fetchData = async () => {
+            hasFetched.current = true;
+            setLoading(true);
+            // Try - Catch handler
+            try {
+                // Fetch the courses assigned to the Instructor
+                fetchInstructorCourses(id);
+            } catch (error) {
+                console.error('Error fetching grade and course data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        // Run the async handler to fetch data
+        fetchData();
+    }, [session, status, refreshTrigger]);
 
     const handleCreateCourse = () => {
         setIsCreateModalOpen(true);
@@ -100,8 +119,10 @@ export default function InstructorCoursesClient() {
     const handleCourseCreated = () => {
         // Refresh the courses list when a new course is created
         // Now this will work because fetchInstructorCourses is accessible
-        fetchInstructorCourses();
-        setIsCreateModalOpen(false);
+        if (session?.user?.id) {
+            fetchInstructorCourses(session?.user?.id);
+            setIsCreateModalOpen(false);
+        }
     };
 
     return (
@@ -122,18 +143,17 @@ export default function InstructorCoursesClient() {
                         </button>
                     </div>
                 </div>
-                {/*<h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>*/}
                 <p className="mt-2">
                     Manage and view all courses you have created as an instructor.
                 </p>
             </div>
 
-            {courses.length === 0 ? loading ? (
+            {loading ? (
                 <div className="flex justify-center items-center pt-6">
                     <RingSpinner size={'sm'} color={'mentat-gold'} />
                     <p className="ml-3 text-md text-mentat-gold">Loading courses...</p>
                 </div>
-                ) : (
+                ) : !courses ? (
                 <div className="text-center py-12">
                     <div className="text-lg mb-4">No courses found</div>
                     <p>
@@ -143,7 +163,7 @@ export default function InstructorCoursesClient() {
                         </a>
                     </p>
                 </div>
-            ) : (
+            ) : courses && courses.length > 0 && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
                     {courses.map((course, index) => (
                         <div key={`${course?.courseId ?? 'no-id'}-${index}`} className="bg-white/5 border border-mentat-gold/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
