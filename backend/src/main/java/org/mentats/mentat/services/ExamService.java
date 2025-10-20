@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 /**
  * Service class for handling exam repository logic
@@ -41,7 +40,7 @@ public class ExamService {
     private void GetForeignKeyObjects(ExamRequest examRequest) {
         // Find related entities
         course = courseRepository.findById(examRequest.getExamId())
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
     }
 
     /**
@@ -85,7 +84,7 @@ public class ExamService {
     public Exam getExamById(Long id) {
         validator.validateExamId(id);
         return examRepository.findById(id)
-                .orElseThrow(() -> new ExamNotFoundException(id.toString()));
+                .orElseThrow(() -> new ExamNotFoundException("Course Id not found: " + id.toString()));
     }
 
     /**
