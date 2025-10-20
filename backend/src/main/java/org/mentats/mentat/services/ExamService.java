@@ -104,7 +104,8 @@ public class ExamService {
                         proj.getState(),
                         proj.getRequired(),
                         proj.getDuration(),
-                        proj.getOnline()
+                        proj.getOnline(),
+                        proj.getExpirationDate()
                 ))
                 .collect(Collectors.toList());
     }
@@ -129,7 +130,8 @@ public class ExamService {
                         proj.getState(),
                         proj.getRequired(),
                         proj.getDuration(),
-                        proj.getOnline()
+                        proj.getOnline(),
+                        proj.getExpirationDate()
                 ))
                 .collect(Collectors.toList());
     }
@@ -156,7 +158,8 @@ public class ExamService {
                         proj.getState(),
                         proj.getRequired(),
                         proj.getDuration(),
-                        proj.getOnline()
+                        proj.getOnline(),
+                        proj.getExpirationDate()
                 ))
                 .collect(Collectors.toList());
     }
@@ -183,7 +186,8 @@ public class ExamService {
                         proj.getState(),
                         proj.getRequired(),
                         proj.getDuration(),
-                        proj.getOnline()
+                        proj.getOnline(),
+                        proj.getExpirationDate()
                 ))
                 .collect(Collectors.toList());
     }
@@ -210,7 +214,8 @@ public class ExamService {
                         proj.getState(),
                         proj.getRequired(),
                         proj.getDuration(),
-                        proj.getOnline()
+                        proj.getOnline(),
+                        proj.getExpirationDate()
                 ))
                 .collect(Collectors.toList());
     }
@@ -239,7 +244,8 @@ public class ExamService {
                         proj.getState(),
                         proj.getRequired(),
                         proj.getDuration(),
-                        proj.getOnline()
+                        proj.getOnline(),
+                        proj.getExpirationDate()
                 ))
                 .collect(Collectors.toList());
     }

@@ -1,7 +1,5 @@
 package org.mentats.mentat.services;
 
-import org.mentats.mentat.models.ERole;
-import org.mentats.mentat.models.Role;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.LoginRequest;
 import org.mentats.mentat.payload.request.SignupRequest;
@@ -18,16 +16,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import javax.management.relation.RoleNotFoundException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Authorization Service for interacting with the
  * Various repositories needed for authenticating
  * users
+ * @author Joshua Summers
  */
 @Service
 public class AuthService {
@@ -123,6 +118,7 @@ public class AuthService {
      * @param signUpRequest SignupRequest
      * @return User object
      */
+    @Transactional
     public User createNewUser(SignupRequest signUpRequest) {
         // Validate input data (example)
         if (isBlank(signUpRequest.getUsername())) {

@@ -31,6 +31,7 @@ import java.util.Arrays;
  * Global security method configurer
  * Handles JWT requires and what routes
  * require authorization and which do not
+ * @author Joshua Summers
  */
 @Configuration
 @EnableGlobalMethodSecurity(
