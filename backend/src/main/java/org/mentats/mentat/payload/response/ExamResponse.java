@@ -1,6 +1,8 @@
 package org.mentats.mentat.payload.response;
 import org.mentats.mentat.models.Exam;
 
+import java.time.LocalDate;
+
 /**
  * Form response validation serializer
  * Exam response objects
@@ -16,6 +18,7 @@ public class ExamResponse {
     private Integer examDifficulty;
     private Double examDuration;
     private Integer examOnline;
+    private LocalDate expirationDate;
 
     // Constructor from Entity
     public ExamResponse(Exam exam) {
@@ -27,12 +30,13 @@ public class ExamResponse {
         this.examDifficulty = exam.getDifficulty();
         this.examDuration = exam.getDuration();
         this.examOnline = exam.getOnline();
+        this.expirationDate = exam.getExpirationDate();
     }
 
     // Constructor for Projection injection (manual)
     public ExamResponse(Long examId, Long courseId, String examName, Integer examRequired,
                         Integer examState, Integer examDifficulty, Double examDuration,
-                        Integer examOnline) {
+                        Integer examOnline, LocalDate expirationDate) {
         this.examId = examId;
         this.courseId = courseId;
         this.examName = examName;
@@ -41,6 +45,7 @@ public class ExamResponse {
         this.examDifficulty = examDifficulty;
         this.examDuration = examDuration;
         this.examOnline = examOnline;
+        this.expirationDate = expirationDate;
     }
 
     // Getters only (response is read-only)
@@ -52,6 +57,7 @@ public class ExamResponse {
     public Integer getExamDifficulty() { return examDifficulty; }
     public Integer getExamOnline() { return examOnline; }
     public Double getExamDuration() { return examDuration; }
+    public LocalDate getExpirationDate() { return expirationDate; }
 
     /**
      * String override for output response
@@ -68,6 +74,7 @@ public class ExamResponse {
                 ", examDifficulty=" + examDifficulty +
                 ", examDuration=" + examDuration +
                 ", examOnline=" + examOnline +
+                ", expirationDate=" + expirationDate +
                 '}';
     }
 }

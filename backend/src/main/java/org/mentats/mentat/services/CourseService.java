@@ -6,6 +6,8 @@ import org.mentats.mentat.components.CourseValidator;
 import org.mentats.mentat.exceptions.CourseNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,7 @@ public class CourseService {
      * @return Course object
      */
     // Create course
+    @Transactional
     public Course createCourse(Course course) {
         validator.validateForCreation(course);
         return courseRepository.save(course);
@@ -42,7 +45,7 @@ public class CourseService {
     public Course getCourseById(Long id) {
         validator.validateCourseId(id);
         return courseRepository.findById(id)
-                .orElseThrow(() -> new CourseNotFoundException(id.toString()));
+                .orElseThrow(() -> new CourseNotFoundException("Course Id not found: " + id.toString()));
     }
 
     /**
@@ -113,6 +116,7 @@ public class CourseService {
      * @return Course object
      */
     // Update course
+    @Transactional
     public Course updateCourse(Long id, Course courseUpdates) {
         validator.validateCourseId(id);
         Course existing = getCourseById(id);

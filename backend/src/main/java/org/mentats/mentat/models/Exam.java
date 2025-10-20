@@ -14,7 +14,6 @@ import java.time.LocalDate;
  * @author Joshua Summers
  */
 @Entity
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "exam")
 public class Exam {
     /**
@@ -30,17 +29,10 @@ public class Exam {
     // The course id assigned to exam
     // Fix course relationship - should be ManyToOne to Course entity
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exam_course_id")
-//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JsonIgnore()
     private Course course;
-
-//    // The course id assigned to exam
-//    @NotNull
-//    @JsonProperty("courseId") // Map JSON field to Java field
-//    @Column(name = "exam_course_id")
-//    private Long courseId;
 
     // The name assigned to exam
     @NotBlank

@@ -88,7 +88,8 @@ public class ExamResultService {
     public ExamResult getExamResultById(Long id) {
         validator.validateExamResultId(id);
         return examResultRepository.findById(id)
-                .orElseThrow(() -> new ExamResultNotFoundException(id.toString()));
+                .orElseThrow(() ->
+                        new ExamResultNotFoundException("Exam Result Id not found: " + id.toString()));
     }
 
     /**
