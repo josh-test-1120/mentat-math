@@ -30,7 +30,9 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
         examRequired: `${exam?.examRequired ?? 0}`,
         examDuration: `${exam?.examDuration ?? ''}`,
         examState: `${exam?.examState ?? 0}`,
-        examOnline: `${exam?.examOnline ?? 0}`
+        examOnline: `${exam?.examOnline ?? 0}`,
+        hasExpiration: Boolean(exam?.examExpirationDate),
+        examExpirationDate: exam?.examExpirationDate ?? ''
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
@@ -68,13 +70,35 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
         console.log("Modify Exam");
         console.log(exam);
         console.log(examData);
+        
+        // Prepare the payload for the PATCH request
+        const updatePayload: any = {
+            examName: examData.examName,
+            examDifficulty: parseInt(examData.examDifficulty),
+            examRequired: parseInt(examData.examRequired),
+            examDuration: parseFloat(examData.examDuration),
+            examState: parseInt(examData.examState),
+            examOnline: parseInt(examData.examOnline),
+            examCourseId: parseInt(examData.courseId)
+        };
+
+        // Include expiration date if it's set
+        if (examData.hasExpiration && examData.examExpirationDate) {
+            updatePayload.examExpirationDate = examData.examExpirationDate;
+        } else if (!examData.hasExpiration) {
+            // If expiration is disabled, send null to clear the expiration date
+            updatePayload.examExpirationDate = null;
+        }
+
         // API Handler call
         try {
             console.log("Updating Exam");
+            console.log("Update payload:", updatePayload);
             console.log(session);
+            
             // API Handler
             const res = await apiHandler(
-                examData,
+                updatePayload,
                 "PATCH",
                 `api/exam/${exam?.examId}`,
                 `${BACKEND_API}`,
@@ -86,7 +110,6 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
                 toast.error(res?.message || "Failed to update the exam");
             } else {
                 toast.success("Successfully updated the exam!");
-                // updateExam(undefined);
                 console.log("Exam Update Succeeded.");
                 console.log(res.toString());
             }
@@ -237,6 +260,49 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
                                 <label htmlFor="is_online" className="select-none">Is Exam Online</label>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Booking Expiration Section */}
+                <div className="w-full">
+                    <div className="mt-2 p-3 rounded-lg border border-mentat-gold/20 bg-white/5">
+                        <div className="flex items-center gap-3">
+                            <input
+                                id="hasExpiration"
+                                type="checkbox"
+                                name="hasExpiration"
+                                checked={examData.hasExpiration}
+                                onChange={(e) =>
+                                    setExamData({ 
+                                        ...examData, 
+                                        hasExpiration: e.target.checked,
+                                        // Clear expiration date if unchecked
+                                        examExpirationDate: e.target.checked ? examData.examExpirationDate : ''
+                                    })}
+                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
+                            />
+                            <label htmlFor="hasExpiration" className="select-none">Set booking expiration</label>
+                        </div>
+                        <div className="mt-3">
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="examExpirationDate" className="text-sm">Expiration Date</label>
+                                <input
+                                    id="examExpirationDate"
+                                    type="date"
+                                    name="examExpirationDate"
+                                    value={examData.examExpirationDate}
+                                    onChange={(e) =>
+                                        setExamData({ ...examData, examExpirationDate: e.target.value })}
+                                    disabled={!examData.hasExpiration}
+                                    className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                />
+                            </div>
+                        </div>
+                        <p className="mt-2 text-xs text-mentat-gold/70">
+                            {examData.hasExpiration 
+                                ? "Students cannot book this exam after the expiration date." 
+                                : "If unchecked, the exam can be booked at any time."}
+                        </p>
                     </div>
                 </div>
 
