@@ -153,11 +153,11 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             if (hasExpiration && examExpirationDate) {
                 payload.examExpirationDate = examExpirationDate; // ISO date (yyyy-mm-dd)
             }
-
+            
             const response = await apiHandler(
                 payload,
                 'POST',
-                'api/exam/createExam',
+                'api/exam/create',
                 `${BACKEND_API}`,
                 session?.user?.accessToken ?? undefined
             );
