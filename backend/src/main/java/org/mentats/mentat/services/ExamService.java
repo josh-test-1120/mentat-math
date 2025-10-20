@@ -210,6 +210,9 @@ public class ExamService {
         if (examUpdates.getExamDifficulty() != null) {
             existing.setOnline(examUpdates.getExamDifficulty());
         }
+        if (examUpdates.getExamExpirationDate() != null) {
+            existing.setExpirationDate(examUpdates.getExamExpirationDate());
+        }
 
         return examRepository.save(existing);
     }
