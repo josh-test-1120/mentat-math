@@ -7,8 +7,7 @@ import { Grade } from '@/app/grades/util/types';
 import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import { RingSpinner } from "@/components/UI/Spinners";
-import {ExamResultExtended} from "@/app/dashboard/util/types";
-import Exam from "@/components/types/exam";
+import { ExamResultExtended } from "@/app/dashboard/types/shared";
 import ExamResult from "@/components/types/exam_result";
 import Course from "@/components/types/course";
 

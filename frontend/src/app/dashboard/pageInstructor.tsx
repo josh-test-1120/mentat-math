@@ -17,8 +17,17 @@ import { RingSpinner } from "@/components/UI/Spinners";
  * @author Telmen Enkhtuvshin
  */
 export default function InstructorCoursesClient() {
-    // These are the state variables used in the page
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // These are the state variables used in the page
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -45,7 +54,7 @@ export default function InstructorCoursesClient() {
                 'GET',
                 `api/course/listCourses?id=${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             if (res?.error) {
@@ -79,25 +88,40 @@ export default function InstructorCoursesClient() {
         } finally {
             setLoading(false);
         }
-    }, [status, session, BACKEND_API]);
+    }, [userSession, BACKEND_API]);
 
     /**
      * useAffects that bind the page to refreshes and updates
      */
+    // General effect: Initial session hydration
     useEffect(() => {
+        let id = '';
         if (status !== 'authenticated' || !session || hasFetched.current) return;
-        // Get student ID
-        const id = session?.user?.id;
-        // If no student ID, return
-        if (!id) return;
+        // Hydrate session information
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
 
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
+
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Otherwise, hydration the data
         const fetchData = async () => {
             hasFetched.current = true;
             setLoading(true);
             // Try - Catch handler
             try {
                 // Fetch the courses assigned to the Instructor
-                fetchInstructorCourses(id);
+                fetchInstructorCourses(userSession.id);
             } catch (error) {
                 console.error('Error fetching grade and course data:', error);
             } finally {
@@ -106,7 +130,7 @@ export default function InstructorCoursesClient() {
         };
         // Run the async handler to fetch data
         fetchData();
-    }, [session, status, refreshTrigger]);
+    }, [userSession, refreshTrigger]);
 
     const handleCreateCourse = () => {
         setIsCreateModalOpen(true);

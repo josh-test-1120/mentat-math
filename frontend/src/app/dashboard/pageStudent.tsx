@@ -9,7 +9,7 @@ import Modal from "@/components/services/Modal";
 import ExamActionsComponent from "@/app/dashboard/localComponents/ExamActions";
 import JoinCourseComponent from "@/app/dashboard/localComponents/JoinCourse";
 import { RingSpinner } from "@/components/UI/Spinners";
-import { ExamResultExtended } from "@/app/dashboard/util/types";
+import { ExamResultExtended } from "@/app/dashboard/types/shared";
 import { GradeCardExtended, getExamPropStatus } from "@/app/dashboard/localComponents/GradeCard";
 
 /**
@@ -19,8 +19,17 @@ import { GradeCardExtended, getExamPropStatus } from "@/app/dashboard/localCompo
  * @author Joshua Summers
  */
 export default function ExamsPage() {
-    // These are the state variables used in the page
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // These are the state variables used in the page
     const [exams, setExams] = useState<ExamResultExtended[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
     const [examResult, setExamResult] = useState<ExamResultExtended>();
@@ -61,23 +70,38 @@ export default function ExamsPage() {
     /**
      * useAffects that bind the page to refreshes and updates
      */
-    // General effect: Initial data loading (IMPROVED)
+    // General effect: Initial session hydration
     useEffect(() => {
+        let id = '';
         if (status !== 'authenticated' || !session || hasFetched.current) return;
-        // Get student ID
-        const id = session?.user?.id?.toString();
-        // If no student ID, return
-        if (!id) return;
+        // Hydrate session information
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
 
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
+
+    // Data load effect: Initial data hydration (after session hydration)
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Otherwise, hydration the data
         const fetchData = async () => {
             hasFetched.current = true;
             setLoading(true);
             // Try - Catch handler
             try {
                 // Fetch the grades for the student
-                fetchGrades(id);
+                fetchGrades(userSession.id);
                 // Fetch the enrolled courses for the student
-                fetchCourseEnrollments(id);
+                fetchCourseEnrollments(userSession.id);
             } catch (error) {
                 console.error('Error fetching grade and course data:', error);
             } finally {
@@ -86,9 +110,9 @@ export default function ExamsPage() {
         };
         // Run the async handler to fetch data
         fetchData();
-    }, [session, status, refreshTrigger]);
+    }, [userSession, refreshTrigger]);
 
-    // Effects for getting exams after exam results
+    // Data change effect: Update exams and reload state fields when this state changes
     useEffect(() => {
         if (!exams) return;
         else if (exams && exams.length !== 0) {
@@ -127,7 +151,7 @@ export default function ExamsPage() {
                 'GET',
                 `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             // Handle errors
@@ -176,7 +200,7 @@ export default function ExamsPage() {
                 'GET',
                 `api/course/enrollments?studentId=${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             // Handle errors
