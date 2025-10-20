@@ -111,6 +111,7 @@ export default function ExamDashboard() {
 
     const fetchCourses = async (id: string) => {
         // Try wrapper to handle async exceptions
+        setCoursesLoading(true);
         try {
             // API Handler
             const res = await apiHandler(
@@ -167,6 +168,7 @@ export default function ExamDashboard() {
 
     // Fetch exams
     const fetchExams = async () => {
+        setLoading(true);
         // Full exam list
         let examsData: ExamExtended[] = [];
         // Iterate through the courses
@@ -231,13 +233,14 @@ export default function ExamDashboard() {
             }
         }
         setExams(examsData);
+        if (examsData.length === 0) { setExamResultsLoading(false); }
         setLoading(false);
         // setExamsLoading(false);
-
     }
 
     // Fetch exams
     const fetchExamResults = async () => {
+        setExamResultsLoading(true);
         // Full exam list
         let examResults: ExamResult[] = [];
         // Iterate through the courses
@@ -387,11 +390,12 @@ export default function ExamDashboard() {
                 <div className="shadow-sm p-4 pt-2 max-h-[36vh] min-h-[200px]
                     overflow-y-auto scrollbar-hide"
                 >
-                    {filteredExams.length === 0 ? (
-                        <div className="text-center py-12">
-                            No exams found for the selected filter.
+                    {loading ? (
+                        <div className="flex justify-center items-center pt-10">
+                            <RingSpinner size={'sm'} color={'mentat-gold'} />
+                            <p className="ml-3 text-md text-mentat-gold">Loading Exams...</p>
                         </div>
-                    ) : (
+                        ) : filteredExams && filteredExams.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             <AnimatePresence>
                                 {filteredExams.map((examInst) => (
@@ -402,6 +406,10 @@ export default function ExamDashboard() {
                                     />
                                 ))}
                             </AnimatePresence>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            No exams exist for this instructor
                         </div>
                     )}
 

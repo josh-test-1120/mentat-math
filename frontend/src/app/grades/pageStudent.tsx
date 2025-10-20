@@ -172,185 +172,9 @@ export default function GradesPage() {
         // Return the average letter grade for all grades
         return finalGrade;
     }
-
-    /**
-     * Fetch Exams
-     * Implementation for general API handler
+    /*
+    This will gather the exams from the backend API
      */
-    // // Fetch exams
-    // const fetchExamResults = async () => {
-    //         // Convert object to array
-    //         let examResults = [];
-    //         // Try wrapper to handle async exceptions
-    //         try {
-    //             // API Handler
-    //             const res = await apiHandler(
-    //                 undefined, // No body for GET request
-    //                 'GET',
-    //                 `api/exam/result/user/${session?.user?.id}`,
-    //                 `${BACKEND_API}`,
-    //                 session?.user?.accessToken || undefined
-    //             );
-    //
-    //             // Handle errors
-    //             if (res instanceof Error || (res && res.error)) {
-    //                 console.error('Error fetching exam results:', res.error);
-    //                 setExamResults([]);
-    //             } else {
-    //                 // If res is an array, set coursesData to res
-    //                 if (Array.isArray(res)) {
-    //                     examResults = res;
-    //                     // If res is an object, set coursesData to the values of the object
-    //                 } else if (res && typeof res === 'object') {
-    //                     // Use Object.entries() to get key-value pairs, then map to values
-    //                     examResults = Object.entries(res)
-    //                         .filter(([key, value]) => value !== undefined && value !== null)
-    //                         .map(([key, value]) => value);
-    //                     // If res is not an array or object, set coursesData to an empty array
-    //                 } else {
-    //                     examResults = [];
-    //                 }
-    //
-    //                 // Filter out invalid entries
-    //                 examResults = examResults.filter(c => c && typeof c === 'object');
-    //
-    //                 console.log('Processed exam results data:', examResults);
-    //                 // Set courses to coursesData
-    //                 setExamResults(examResults);
-    //             }
-    //         } catch (e) {
-    //             // Error fetching courses
-    //             console.error('Error fetching exam results:', e);
-    //             // Set courses to empty array
-    //             setExamResults([]);
-    //         } finally {
-    //             // Set loading to false
-    //             setExamResultsLoading(false);
-    //             // setLoading(false);
-    //             // return coursesData;
-    //         }
-    //     }
-
-    // // Fetch exams
-    // const fetchExams = async () => {
-    //     let examsData: ExamResultExtended[] = [];
-    //
-    //     for (const result of examResults) {
-    //         // let examDataLocal = [];
-    //         // Try wrapper to handle async exceptions
-    //         try {
-    //             // API Handler
-    //             const res = await apiHandler(
-    //                 undefined, // No body for GET request
-    //                 'GET',
-    //                 `api/exam/${result.examId}`,
-    //                 `${BACKEND_API}`,
-    //                 session?.user?.accessToken || undefined
-    //             );
-    //
-    //             // Handle errors
-    //             if (res instanceof Error || (res && res.error)) {
-    //                 console.error('Error fetching exams:', res.error);
-    //                 // setExams([]);
-    //             } else {
-    //
-    //                 // Convert response to Exam interface object
-    //                 const examData: Exam = {
-    //                     examId: res.examId,
-    //                     examName: res.examName,
-    //                     courseId: res.courseId,
-    //                     examDifficulty: res.examDifficulty,
-    //                     examRequired: res.examRequired,
-    //                     examState: res.examState,
-    //                     examDuration: res.examDuration,
-    //                     examOnline: res.examOnline
-    //                 };
-    //
-    //                 // Now combine them into a unique type
-    //                 let examDataLocal = [{
-    //                     ...result,
-    //                     ...examData
-    //                 }];
-    //                 // Push the types to list
-    //                 examsData.push(...examDataLocal);
-    //
-    //                 console.log('Processed exam data:', examDataLocal);
-    //                 // Set courses to coursesData
-    //                 // setExams(examDataLocal);
-    //             }
-    //         } catch (e) {
-    //             // Error fetching courses
-    //             console.error('Error fetching exam:', e);
-    //             // Set courses to empty array
-    //             setGrades([]);
-    //         } finally {
-    //             // Set loading to false
-    //             // setExams(examsData)
-    //             // setExamsLoading(false);
-    //             // setLoading(false);
-    //             // return coursesData;
-    //         }
-    //     }
-    //     setGrades(examsData as Grade[])
-    //     setExamsLoading(false);
-    // }
-
-    // // Fetch courses
-    // const fetchCourses = async () => {
-    //     let coursesData: ExamResultExtended[] = [];
-    //
-    //     for (const result of grades as ExamResultExtended[]) {
-    //         // Try wrapper to handle async exceptions
-    //         try {
-    //             // API Handler
-    //             const res = await apiHandler(
-    //                 undefined, // No body for GET request
-    //                 'GET',
-    //                 `api/course/${result.courseId}`,
-    //                 `${BACKEND_API}`,
-    //                 session?.user?.accessToken || undefined
-    //             );
-    //
-    //             // Handle errors
-    //             if (res instanceof Error || (res && res.error)) {
-    //                 console.error('Error fetching exams:', res.error);
-    //                 // setExams([]);
-    //             } else {
-    //
-    //                 // Convert response to Exam interface object
-    //                 const courseData = {
-    //                     courseName: res.courseName
-    //                 };
-    //
-    //                 // Now combine them into a unique type
-    //                 let courseDataLocal = [{
-    //                     ...result,
-    //                     ...courseData
-    //                 }];
-    //                 // Push the types to list
-    //                 coursesData.push(...courseDataLocal);
-    //
-    //                 console.log('Processed courses data:', courseDataLocal);
-    //                 // Set courses to coursesData
-    //                 // setExams(examDataLocal);
-    //             }
-    //         } catch (e) {
-    //             // Error fetching courses
-    //             console.error('Error fetching courses:', e);
-    //             // Set courses to empty array
-    //             // setExams([]);
-    //         } finally {
-    //             // Set loading to false
-    //             // setExamsLoading(false);
-    //             // setLoading(false);
-    //             // return coursesData;
-    //         }
-    //     }
-    //     setGrades(coursesData as Grade[]);
-    //     setCoursesExamLoading(false);
-    // }
-
-
     async function fetchExams() {
         console.log('Fetching data for student grades page');
         setLoading(true);
@@ -482,7 +306,18 @@ export default function GradesPage() {
 
                         <div className="pt-1">
                             <AnimatePresence mode="wait">
-                                {!loading && filteredGrades.length > 0 ? (
+                                { loading ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-12"
+                                >
+                                    <div className="flex justify-center items-center">
+                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                        <p className="ml-3 text-md text-mentat-gold">Loading grades...</p>
+                                    </div>
+                                </motion.div>
+                                ) : filteredGrades && filteredGrades.length > 0 ? (
                                     <motion.div
                                         key={`${selectedClass}-${filter}`}
                                         variants={containerVariants}
@@ -498,17 +333,6 @@ export default function GradesPage() {
                                                 onclick={(e) => loadGradeDetails(grade, e)}
                                             />
                                         ))}
-                                    </motion.div>
-                                ) : loading ? (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="text-center py-12"
-                                    >
-                                        <div className="flex justify-center items-center">
-                                            <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                            <p className="ml-3 text-md text-mentat-gold">Loading grades...</p>
-                                        </div>
                                     </motion.div>
                                 ) : (
                                     <motion.div
