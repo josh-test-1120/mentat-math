@@ -15,7 +15,7 @@ import { ExamTable } from "@/app/reports/localComponents/GradeStrategyTable";
 import { Grade } from "@/app/grades/util/types";
 import { StrategyProgressBar } from "./localComponents/StrategyProgressBar";
 import GradeDashboard from "@/app/reports/localComponents/GradeDashboard";
-import { TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
+// import { TopicBreakdown} from "@/app/reports/localComponents/TopicBreakdown";
 import { RingSpinner } from "@/components/UI/Spinners";
 import GradeDetermination from "@/app/reports/utils/GradeDetermination";
 import { CourseSelector, allCourse } from "@/components/services/CourseSelector";
@@ -654,13 +654,13 @@ export function StudentReport() {
                         }
 
                         {/*This is the revision progress bars*/}
-                        { !loading && filteredGrades && (
+                        {/* { !loading && filteredGrades && (
                             <div className="justify-between items-center mb-6">
                                 <TopicBreakdown
                                     grades={filteredGrades}
                                 />
                             </div>)
-                        }
+                        } */}
 
                         {/*This is the Exam Table*/}
                         {loading ? (
