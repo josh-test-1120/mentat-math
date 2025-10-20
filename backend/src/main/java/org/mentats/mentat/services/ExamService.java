@@ -39,7 +39,7 @@ public class ExamService {
      */
     private void GetForeignKeyObjects(ExamRequest examRequest) {
         // Find related entities
-        course = courseRepository.findById(examRequest.getExamId())
+        course = courseRepository.findById(examRequest.getExamCourseId())
                 .orElseThrow(() -> new EntityNotFoundException("Course not found"));
     }
 
@@ -293,7 +293,7 @@ public class ExamService {
             existing.setOnline(examUpdates.getExamOnline());
         }
         if (examUpdates.getExamDifficulty() != null) {
-            existing.setOnline(examUpdates.getExamDifficulty());
+            existing.setDifficulty(examUpdates.getExamDifficulty());
         }
         if (examUpdates.getExamExpirationDate() != null) {
             existing.setExpirationDate(examUpdates.getExamExpirationDate());
