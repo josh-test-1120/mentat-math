@@ -11,7 +11,7 @@ import CreateTestWindow from "@/app/createTestWindow/pageClient";
 import { useCalendarState } from './hooks/useCalendarState';
 import { useInstructorCourses, useTestWindows } from './hooks/useTestWindowData';
 import { useDeleteActions } from './hooks/useDeleteActions';
-import { CourseSelector } from '@/app/schedule/localComponents/CourseSelector';
+import { CourseSelector } from '@/components/services/CourseSelector';
 import { DeleteModal } from '@/app/schedule/localComponents/DeleteModal';
 import { TestWindowPopover } from '@/app/schedule/localComponents/TestWindowPopover';
 import { convertTestWindowsToEvents, processEventCreateData } from './utils/calendarHelpers';
