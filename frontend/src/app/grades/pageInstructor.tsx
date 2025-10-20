@@ -5,8 +5,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp } from "@/components/types/exams";
-import Exam from "@/components/types/exam";
 import Course from "@/components/types/course";
 import { ExamCardSmall } from "@/app/grades/localComponents/ExamCards";
 import CreateExam from "./localComponents/CreateExam";
@@ -15,7 +13,7 @@ import ExamDetailsComponent from "@/app/grades/localComponents/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamExtended } from "@/app/grades/util/types";
 import ExamResult from "@/components/types/exam_result";
-import {allCourse, CourseSelector} from "@/components/services/CourseSelector";
+import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
 
 // Status Counter
 const statusScore = (exam: ExamResult) => {
@@ -104,10 +102,7 @@ export default function ExamDashboard() {
     }, [filter, exams]);
 
     useEffect(() => {
-        if (!filteredExams || filteredExams.length === 0) {
-            setExamResultsLoading(false);
-            return;
-        }
+        if (!filteredExams || filteredExams.length === 0) return;
         else if (filteredExams && filteredExams.length > 0) {
             setExamResultsLoading(true);
             fetchExamResults();
@@ -316,59 +311,6 @@ export default function ExamDashboard() {
         // setExamsLoading(false);
 
     }
-
-    // // Fetch Course
-    // const fetchCourse = async (courseId: number) => {
-    //     // API Handler call
-    //     try {
-    //         console.log(`Fetching course details for course: ${courseId}...`);
-    //         // API Handler
-    //         const res = await apiHandler(
-    //             undefined,
-    //             "GET",
-    //             `api/course/${courseId}`,
-    //             `${BACKEND_API}`,
-    //             session?.user?.accessToken || undefined
-    //         );
-    //
-    //         // Handle errors properly
-    //         if (res instanceof Error || (res && res.error)) {
-    //             // toast.error(res?.message || "Failed to fetch the course");
-    //             console.error(res?.message || "Failed to fetch the course");
-    //             setCourse(undefined);
-    //         } else {
-    //             // toast.success("Successfully fetched the course details!");
-    //             console.log("Successfully fetched the course details!");
-    //             // updateExam(undefined);
-    //             console.log("Course fetch succeeded");
-    //             console.log(res.toString());
-    //
-    //             // Convert response to Exam interface object
-    //             const courseData: Course = {
-    //                 courseName: res.course_name,
-    //                 courseId: res.course_id,
-    //                 courseProfessorId: res.course_professor_id,
-    //                 courseYear: res.course_year,
-    //                 courseQuarter: res.course_year,
-    //                 courseSection: res.course_section,
-    //             };
-    //
-    //             console.log('Processed course data:', courseData);
-    //             console.log(courseData);
-    //             // Set courses to coursesData
-    //             setCourse(courseData);
-    //             console.log('This is the course variable');
-    //             console.log(course);
-    //
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching course data', error as string);
-    //         // toast.error("Course fetch failed");
-    //     } finally {
-    //         // Run the cancel/close callback
-    //         // cancelAction();
-    //     }
-    // }
 
     // Load Exam Actions Modal
     const loadModalData = async (exam: ExamExtended, e: any) => {
