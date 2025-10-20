@@ -85,17 +85,6 @@ export const TestWindowPopover: React.FC<TestWindowPopoverProps> = ({
                 </div>
             </Popover>
 
-            {/* Exam Selection Modal */}
-            {activeTestWindow && courseId && (
-                <ExamSelectionModal
-                    isOpen={isExamSelectionOpen}
-                    onClose={() => setIsExamSelectionOpen(false)}
-                    testWindowId={activeTestWindow.id}
-                    testWindowTitle={activeTestWindow.title}
-                    courseId={courseId}
-                    onExamsSelected={handleExamsSelected}
-                />
-            )}
 
             {/* Modify Pattern Modal */}
             {activeTestWindow && (
