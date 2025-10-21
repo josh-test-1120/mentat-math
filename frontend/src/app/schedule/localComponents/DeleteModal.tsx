@@ -2,6 +2,9 @@ import React from 'react';
 import Modal from '@/components/services/Modal';
 import { DeleteScope } from '../hooks/useDeleteActions';
 
+/**
+ * Props for the Delete Exam Modal
+ */
 interface DeleteModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -11,7 +14,14 @@ interface DeleteModalProps {
 }
 
 /**
- * Delete confirmation modal component
+ * This will delete an exam result from the table
+ * @param isOpen
+ * @param onClose
+ * @param deleteScope
+ * @param onDeleteScopeChange
+ * @param onConfirmDelete
+ * @constructor
+ * @author Telmen Enkhtuvshin
  */
 export const DeleteModal: React.FC<DeleteModalProps> = ({
     isOpen,

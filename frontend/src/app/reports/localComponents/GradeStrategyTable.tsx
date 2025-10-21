@@ -141,12 +141,12 @@ export const ExamTable: React.FC<ReportTableProps> =
             //     ${exam.exam_score === undefined ? 'opacity-75' : ''}
             // `}
             className={`
-                flex items-center min-h-16 border-b border-gray-200
+                flex items-center min-h-16 border-b border-mentat-gold/50
                 hover:bg-crimson-700/30 transition-colors duration-200
             `}
         >
             {/* Exam Name Column */}
-            <div className="w-1/4 px-4 py-3 border-r border-gray-300 font-medium">
+            <div className="w-1/4 px-4 py-3 border-r border-mentat-gold/70 font-medium">
                 {grade.examName}
                 {grade.examScore === undefined && !grade.examScore && (
                     <span className="ml-2 text-xs italic text-mentat-gold-700">
@@ -158,7 +158,7 @@ export const ExamTable: React.FC<ReportTableProps> =
             {/* Exam Details - Individual bordered sections */}
             <div className="flex-1 flex items-stretch">
                 {/* Required Status */}
-                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex
+                <div className="flex-1 px-4 py-3 border-r border-mentat-gold/70 flex
                     items-center justify-center">
                     <div className="text-sm">
                         {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
@@ -172,7 +172,7 @@ export const ExamTable: React.FC<ReportTableProps> =
                 </div>
 
                 {/* Duration */}
-                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex
+                <div className="flex-1 px-4 py-3 border-r border-mentat-gold/70 flex
                     items-center justify-center">
                     <div className="text-sm">
                         {/*<span className="font-medium block text-2xs uppercase tracking-wide*/}
@@ -182,7 +182,7 @@ export const ExamTable: React.FC<ReportTableProps> =
                 </div>
 
                 {/* Difficulty */}
-                <div className="flex-1 px-4 py-3 border-r border-gray-300 flex
+                <div className="flex-1 px-4 py-3 border-r border-mentat-gold/70 flex
                     items-center justify-center">
                     <div className="text-sm">
                         {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
@@ -229,7 +229,7 @@ export const ExamTable: React.FC<ReportTableProps> =
             </div>
 
             {/* Exam Score */}
-            <div className="w-32 px-4 py-3 border-l border-gray-300 text-right">
+            <div className="w-32 px-4 py-3 border-l border-mentat-gold/70 text-right">
                 <div className="text-sm">
                     {/*<span className="font-medium block text-xs uppercase tracking-wide*/}
                     {/*    text-mentat-gold-700 mb-1">Score</span>*/}
@@ -264,7 +264,7 @@ export const ExamTable: React.FC<ReportTableProps> =
 
     // Spacer row above required exams
     const RequiredRowHeader: React.FC = () => (
-        <div className="flex items-center min-h-8 border-b border-gray-200
+        <div className="flex items-center min-h-8 border-b border-mentat-gold/90
             bg-mentat-gold-700 text-crimson-700">
 
             <div className="flex-1 flex items-stretch">
@@ -279,7 +279,7 @@ export const ExamTable: React.FC<ReportTableProps> =
 
     // Spacer row above optional exams
     const OptionalRowHeader: React.FC = () => (
-        <div className="flex items-center min-h-8 border-b border-gray-200
+        <div className="flex items-center min-h-8 border-b border-mentat-gold/90
             bg-mentat-gold-700 text-crimson-700">
             <div className="flex-1 flex items-stretch">
                 <div className="flex-1 px-4 py-2 "></div>
@@ -298,18 +298,18 @@ export const ExamTable: React.FC<ReportTableProps> =
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
             >
-                <div className="rounded-lg border border-gray-300 overflow-hidden shadow-sm">
+                <div className="rounded-lg border border-mentat-gold/70 overflow-hidden">
                     {/* Table Header */}
-                    <div className="flex items-center border-b border-gray-300
+                    <div className="flex items-center border-b border-mentat-gold/70
                         font-semibold italic bg-crimson-700/30">
-                        <div className="w-1/4 px-4 py-4 border-r border-gray-300 text-lg">Exam Name</div>
+                        <div className="w-1/4 px-4 py-4 border-r border-mentat-gold/70 text-lg">Exam Name</div>
                         <div className="flex-1 flex items-stretch">
-                            <div className="flex-1 px-4 py-4 border-r border-gray-300 text-center">Required</div>
-                            <div className="flex-1 px-4 py-4 border-r border-gray-300 text-center">Duration</div>
-                            <div className="flex-1 px-4 py-4 border-r border-gray-300 text-center">Difficulty</div>
+                            <div className="flex-1 px-4 py-4 border-r border-mentat-gold/70 text-center">Required</div>
+                            <div className="flex-1 px-4 py-4 border-r border-mentat-gold/70 text-center">Duration</div>
+                            <div className="flex-1 px-4 py-4 border-r border-mentat-gold/70 text-center">Difficulty</div>
                             <div className="flex-1 px-4 py-4 text-center">Status</div>
                         </div>
-                        <div className="w-32 px-4 py-4 border-l border-gray-300 text-center">Score</div>
+                        <div className="w-32 px-4 py-4 border-l border-mentat-gold/70 text-center">Score</div>
                     </div>
 
                     {/* Header before required exams */}

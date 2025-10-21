@@ -64,8 +64,8 @@ export default function GradeDashboard({ grades, score, isStrategy=false }: Grad
             {/*These are the dashboard cards*/}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 {/* Average Score */}
-                <div className="bg-card-color p-4 rounded-lg shadow-md border
-                    shadow-crimson-700">
+                <div className="bg-card-color p-4 rounded-lg shadow-sm border
+                     border-mentat-gold/40 shadow-crimson-700">
                     <h3 className="text-sm font-medium text-mentat-gold/80">Average Score</h3>
                     <p className={`text-2xl font-bold ${
                         score === 'A' ? 'text-green-500'
@@ -79,8 +79,8 @@ export default function GradeDashboard({ grades, score, isStrategy=false }: Grad
                 </div>
 
                 {/* Highest Score */}
-                <div className="bg-card-color p-4 rounded-lg shadow-md border
-                    shadow-crimson-700">
+                <div className="bg-card-color p-4 rounded-lg shadow-sm border
+                    border-mentat-gold/40 shadow-crimson-700">
                     <h3 className="text-sm font-medium text-mentat-gold/80">Highest Score</h3>
                     <p className={`text-2xl font-bold ${
                         highestScore === 'A' ? 'text-green-500'
@@ -94,15 +94,15 @@ export default function GradeDashboard({ grades, score, isStrategy=false }: Grad
                 </div>
 
                 {/* Exams Taken */}
-                <div className="bg-card-color p-4 rounded-lg shadow-md border
-                    shadow-crimson-700">
+                <div className="bg-card-color p-4 rounded-lg shadow-sm border
+                    border-mentat-gold/40 shadow-crimson-700">
                     <h3 className="text-sm font-medium text-mentat-gold/80">Exams Taken</h3>
                     <p className="text-2xl font-bold">{grades.length}</p>
                 </div>
 
                 {/* Success Rate */}
-                <div className="bg-card-color p-4 rounded-lg shadow-md border
-                    shadow-crimson-700">
+                <div className="bg-card-color p-4 rounded-lg shadow-sm border
+                    border-mentat-gold/40 shadow-crimson-700">
                     <h3 className="text-sm font-medium text-mentat-gold/80">Pass Rate</h3>
                     <p className="text-2xl font-bold">{calculatePassRate}%</p>
                 </div>

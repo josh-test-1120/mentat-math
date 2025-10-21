@@ -279,8 +279,8 @@ export default function ExamsPage() {
                             }
 
                             return (
-                                <div key={c.courseId || index} className="border rounded-xl p-4 shadow-md
-                                 shadow-crimson-700 bg-card-color">
+                                <div key={c.courseId || index} className="border border-mentat-gold/20
+                                rounded-xl p-4 shadow-sm shadow-crimson-700 bg-card-color">
                                     <div className="text-lg font-bold">
                                         {c.courseName || 'Unknown Course'}
                                     </div>
@@ -309,7 +309,7 @@ export default function ExamsPage() {
                     <h1 className="text-3xl font-bold mb-2">Exam Schedule</h1>
                     {/*<p>Manage and view your exam information</p>*/}
                 </motion.div>
-
+                {/*Filter buttons*/}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold"></h2>
                     <div className="flex gap-2">
@@ -360,12 +360,12 @@ export default function ExamsPage() {
                         </button>
                     </div>
                 </div>
-
+                {/*Exam Results View*/}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="rounded-xl shadow-sm border p-6"
+                    className="rounded-xl shadow-sm border border-mentat-gold/40 p-6"
                 >
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold">

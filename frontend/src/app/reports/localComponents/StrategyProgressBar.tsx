@@ -73,11 +73,12 @@ export function StrategyProgressBar({grades, strategy, required, optional}: Stra
     const combinedCompletionPercentage = Math.round((overallCompletionPercentage + aGradePercentage) / 2);
 
     return (
-        <div className="max-w-5xl mx-auto mb-6 shadow-md shadow-crimson-700">
+        <div className="max-w-5xl mx-auto mb-6">
             {!strategy && !grades ? <React.Fragment/> : (
                 <React.Fragment>
                     <h2 className="text-xl font-semibold mb-4 text-center">Grade Progress</h2>
-                    <div className="bg-card-color p-4 rounded-lg shadow-sm border">
+                    <div className="bg-card-color p-4 rounded-lg border border-mentat-gold/40
+                    shadow-sm shadow-crimson-700">
 
                         {/* Combined Completion Bar */}
                         <div className="mb-6">
@@ -200,7 +201,8 @@ export function StrategyProgressBar({grades, strategy, required, optional}: Stra
                         </div>
 
                         {/* Compact Legend */}
-                        <div className="flex flex-wrap gap-4 text-xs pt-3 border-t justify-center">
+                        <div className="flex flex-wrap gap-4 text-xs pt-3 border-t
+                        border-mentat-gold/50 justify-center">
                             <div className="flex items-center gap-1">
                                 <div className="w-3 h-3 bg-green-500 rounded"></div>
                                 <span>Required Exams ({required.length})</span>

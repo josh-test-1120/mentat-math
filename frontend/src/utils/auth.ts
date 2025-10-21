@@ -5,7 +5,7 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import apiAuthSignIn from "./api";
 import { JWT } from "next-auth/jwt";
-import {getSession} from "next-auth/react";
+import { getSession } from "next-auth/react";
 
 /**
  * Declare the authentication interfaces for the objects
@@ -37,7 +37,7 @@ declare module "next-auth" {
 /**
  * NextJS Authentication Options custom provider handlers
  */
-export const authOptions:NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
     providers: [
         /**
          * Future Function for handling CWU federated api login
@@ -60,7 +60,8 @@ export const authOptions:NextAuthOptions = {
             async profile(profile, tokens) {
                 // You can use the tokens, in case you want to fetch more profile information
                 // For example several OAuth providers do not return email by default.
-                // Depending on your provider, will have tokens like `access_token`, `id_token` and or `refresh_token`
+                // Depending on your provider, will have tokens like `access_token`, `id_token`
+                // and or `refresh_token`
                 return {
                     id: profile.id,
                     name: profile.name,
@@ -104,13 +105,13 @@ export const authOptions:NextAuthOptions = {
          * @param user this is the user object
          */
         async jwt({ token, account, user, trigger, isNewUser,session }) {
-            console.log("JWT callback - trigger:", trigger);
-            console.log("JWT callback - user data:", user);
-            console.log("JWT callback - existing token:", token);
+            // console.log("JWT callback - trigger:", trigger);
+            // console.log("JWT callback - user data:", user);
+            // console.log("JWT callback - existing token:", token);
             
             // Persist the OAuth access_token to the token right after signin
             if (user) {
-                console.log("JWT callback - user data:", user);
+                // console.log("JWT callback - user data:", user);
                 
                 // Persist the access token
                 token.accessToken = user?.accessToken;
@@ -125,7 +126,7 @@ export const authOptions:NextAuthOptions = {
                 // Store login timestamp for session management
                 token.loginTime = Date.now();
                 
-                console.log("JWT callback - token after update:", token);
+                // console.log("JWT callback - token after update:", token);
             }
             
             // Check if token is expired and refresh it automatically
@@ -142,31 +143,31 @@ export const authOptions:NextAuthOptions = {
                         const maxSessionAge = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
                         
                         if (sessionAge < maxSessionAge) {
-                            console.log("JWT callback - session is still valid, but token expired. User needs to re-authenticate.");
+                            // console.log("JWT callback - session is still valid, but token expired. User needs to re-authenticate.");
                             // For now, we'll clear the token to force re-authentication
                             // In production, we might want to implement a refresh token mechanism
                             token.accessToken = null;
                         } else {
-                            console.log("JWT callback - session expired, clearing all data");
+                            // console.log("JWT callback - session expired, clearing all data");
                             token.accessToken = null;
                             token.loginTime = null;
                         }
                     } else {
-                        console.log("JWT callback - token is still valid");
+                        // console.log("JWT callback - token is still valid");
                     }
                 } catch (e) {
-                    console.error("JWT callback - error parsing token:", e);
+                    // console.error("JWT callback - error parsing token:", e);
                     token.accessToken = null;
                 }
             }
             
             // Ensure accessToken is preserved during session refreshes
             if (trigger === "update" && session?.accessToken) {
-                console.log("JWT callback - preserving accessToken during update");
+                // console.log("JWT callback - preserving accessToken during update");
                 token.accessToken = session.accessToken;
             }
             
-            console.log("JWT callback - final token:", token);
+            // console.log("JWT callback - final token:", token);
             return token;
         },
         /**
@@ -177,8 +178,8 @@ export const authOptions:NextAuthOptions = {
          * @param user this is the user object
          */
         async session({ session, token, user }) {
-            console.log("Session callback - token data:", token);
-            console.log("Session callback - initial session:", session);
+            // console.log("Session callback - token data:", token);
+            // console.log("Session callback - initial session:", session);
             
             // Send properties to the client, like an access_token from a provider.
             // Add the token ID to the session
@@ -202,7 +203,7 @@ export const authOptions:NextAuthOptions = {
             // Add the userType to session
             session.user.userType = typeof token.userType === 'string' ? token.userType : null;
 
-            console.log("Session callback - final session:", session);
+            // console.log("Session callback - final session:", session);
             return session;
         },
     },
@@ -217,6 +218,8 @@ export const authOptions:NextAuthOptions = {
      * pages that are assigned to the provider
      */
     pages: {
+        signOut: '/auth/signout',
+        error: '/not-found',
         // signIn: "/auth/signin",
     },
     /**

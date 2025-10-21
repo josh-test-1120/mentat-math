@@ -61,7 +61,7 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
 
     return (
         <motion.div
-            className="rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md
+            className="rounded-lg bg-card-color border border-mentat-gold/20 p-3 flex flex-col hover:shadow-sm
                 hover:shadow-crimson-700 transition-shadow"
             whileHover={{ y: -2 }}
             initial={{ opacity: 0, y: 10 }}

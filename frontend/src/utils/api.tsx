@@ -1,6 +1,6 @@
 import { BACKEND_API } from "./constants";
-import {getServerSession} from "next-auth";
-import {authOptions} from "@/utils/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/utils/auth";
 const getServerAuthSession = () => getServerSession(authOptions);
 
 /**

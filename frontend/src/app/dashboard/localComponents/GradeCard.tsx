@@ -111,47 +111,50 @@ export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProp
 
     return (
         <motion.div
-            className="rounded-lg border border-gray-200 bg-card-color p-2 hover:shadow-md transition-shadow"
-            style={{ position: 'relative', overflow: 'hidden',
-                boxShadow: `1px 1px 6px 1px ${accentColor}` }}
+            className={`rounded-xl shadow-sm shadow-crimson-700 hover:shadow-md
+            hover:shadow-crimson-700`}
             whileHover={{ y: -2 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onclick}
         >
-            {/* Add card accent coloring */}
-            <div style={accentStyle}/>
-            {/* Draw the cards */}
-            <div style={{ position: 'relative', zIndex: 1 }}>
-                <div className="flex items-center justify-between">
-                    {/* Left section: Title and subject */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-3">
-                            <h3 className="text-lg font-semibold truncate">{exam.examName}</h3>
+            <div
+                className="rounded-lg border border-mentat-gold/20 bg-card-color p-2 transition-shadow"
+                style={{ position: 'relative', overflow: 'hidden'}}
+            >
+                {/* Add card accent coloring */}
+                <div style={accentStyle}/>
+                {/* Draw the cards */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div className="flex items-center justify-between">
+                        {/* Left section: Title and subject */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-3">
+                                <h3 className="text-lg font-semibold truncate">{exam.examName}</h3>
+                            </div>
+                            <p className="text-sm mt-1">{exam.courseName}</p>
                         </div>
-                        <p className="text-sm mt-1">{exam.courseName}</p>
-                    </div>
 
-                    {/* Middle section: Date and time */}
-                    <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
+                        {/* Middle section: Date and time */}
+                        <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-mentat-gold/40">
                             <span className="text-md font-semibold italic">
                                 Date: { exam.examTakenDate ? (
-                                    <React.Fragment>
+                                <React.Fragment>
                                         <span className="text-sm font-medium not-italic">
                                             {new Date(exam.examTakenDate).toLocaleDateString('en-US',
-                                            { weekday: 'short', month: 'short', day: 'numeric'})}
+                                                { weekday: 'short', month: 'short', day: 'numeric'})}
                                         </span>
-                                    </React.Fragment>
-                                ) : (
-                                    <React.Fragment>
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment>
                                         <span className="text-sm font-medium not-italic">
                                             {new Date(exam.examScheduledDate).toLocaleDateString('en-US',
-                                            { weekday: 'short', month: 'short', day: 'numeric'})}
+                                                { weekday: 'short', month: 'short', day: 'numeric'})}
                                         </span>
 
-                                    </React.Fragment>
-                                )}
+                                </React.Fragment>
+                            )}
                             </span>
                             <p className="text-sm font-semibold">
                                 <span className="text-xs mt-1 italic">
@@ -160,23 +163,25 @@ export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProp
                                     </span>
                                 </span>
                             </p>
-                    </div>
+                        </div>
 
-                    {/* Right section: Location and score */}
-                    <div className="flex-1 flex flex-col items-end">
-                        <StatusBadge status={status}/>
-                        {status === 'completed' && exam.examScore !== undefined
+                        {/* Right section: Location and score */}
+                        <div className="flex-1 flex flex-col items-end">
+                            <StatusBadge status={status}/>
+                            {status === 'completed' && exam.examScore !== undefined
                             && exam.examScore !== null ? (
-                            <ScoreDisplay score={exam.examScore} />
-                        ) : (
-                            <div className="mt-1 text-xs font-medium">
-                                {new Date(exam.examScheduledDate) > new Date() ? 'Upcoming'
-                                    : 'Pending grade'}
-                            </div>
-                        )}
+                                <ScoreDisplay score={exam.examScore} />
+                            ) : (
+                                <div className="mt-1 text-xs font-medium">
+                                    {new Date(exam.examScheduledDate) > new Date() ? 'Upcoming'
+                                        : 'Pending grade'}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
         </motion.div>
+
     );
 }

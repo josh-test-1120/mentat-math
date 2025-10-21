@@ -85,22 +85,20 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
 
     return (
         <motion.div
-            className="rounded-md border border-gray-200 bg-card-color px-2 py-1 hover:shadow-md transition-shadow"
-            style={{ position: 'relative', overflow: 'hidden',
-                boxShadow: `1px 1px 1px 1px ${accentColor}` }}
+            className="rounded-md border border-mentat-gold/20 bg-card-color px-2 py-1
+            shadow-sm shadow-crimson-700 transition-shadow"
+            style={{ position: 'relative', overflow: 'hidden'}}
             whileHover={{ y: -1, backgroundColor: darkCimson, opacity: 1 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onclick}
         >
-            {/* Add card accent coloring */}
-            {/*<div style={accentStyle}/>*/}
             {/* Draw the cards */}
             <div style={{ position: 'relative', zIndex: 1 }}>
                 <div className="flex items-center justify-between">
                     {/* Left section: Title and subject */}
-                    <div className="flex-1 min-w-0 pr-6 border-r border-gray-100">
+                    <div className="flex-1 min-w-0 pr-6 border-r border-mentat-gold/40">
                         <div className="flex items-center space-x-3 ">
                             <h3 className="text-md font-semibold truncate">{grade.examName}</h3>
                             {/*<span className="text-sm mt-1">{grade.course_name}</span>*/}
@@ -108,7 +106,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
 
                     </div>
 
-                    <div className="flex-1 min-w-0 px-6 border-r border-gray-100">
+                    <div className="flex-1 min-w-0 px-6 border-r border-mentat-gold/40">
                         <div className="flex items-center justify-center space-x-3">
                             <span className="text-sm font-semibold truncate">{grade.courseName}</span>
                             {/*<span className="text-sm mt-1">{grade.course_name}</span>*/}
@@ -117,7 +115,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
                     </div>
 
                     {/* Middle section: Date and time */}
-                    <div className="flex flex-col items-center px-6 border-r border-gray-100">
+                    <div className="flex flex-col items-center px-6 border-r border-mentat-gold/40">
                         <span className="text-sm font-medium">
                             { examTaken && grade?.examTakenDate ?
                             new Date(grade?.examTakenDate).toLocaleDateString('en-US',
@@ -137,7 +135,7 @@ export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedPr
                     {/*    </span>*/}
                     {/*</div>*/}
 
-                    <div className="flex-1 flex flex-col items-center px-6 border-r border-gray-100">
+                    <div className="flex-1 flex flex-col items-center px-6 border-r border-mentat-gold/40">
                         {/*<StatusBadge status={grade.status !== undefined ? grade.status : ''} />*/}
                         {/*<span className="text-sm">{grade.location}</span>*/}
                         {grade.status !== 'pending' && grade.examScore !== undefined ? (
