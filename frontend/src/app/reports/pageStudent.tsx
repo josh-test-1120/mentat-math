@@ -669,7 +669,8 @@ export function StudentReport() {
                             </div>
                         ) : !filteredGradeStrategy ? (
                             <div className="text-center py-6
-                                        rounded-xl shadow-sm border p-6"
+                                        rounded-xl shadow-sm shadow-crimson-700 border
+                                        border-mentat-gold/40 p-6"
                             >
                                 Course has no grade strategy
                             </div>
@@ -678,7 +679,7 @@ export function StudentReport() {
                                 variants={containerVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="rounded-xl shadow-sm border p-6 pb-3"
+                                className="rounded-xl border border-mentat-gold/40 p-6 pb-3"
                             >
                                 <div className="flex items-center justify-between text-right">
                                     <h2 className="text-xl font-semibold">
@@ -688,13 +689,13 @@ export function StudentReport() {
                                         <React.Fragment/>
                                     ) : (
                                         <span className="text-sm text-mentat-gold/80 italic">
-                                              {filteredGradeStrategy.strategy.total} exams required with score greater than C <br/>
+                                            {filteredGradeStrategy.strategy.total} exams required with score greater than C <br/>
                                             {filteredGradeStrategy.strategy.requiredA} exams with an A score required
-                                            </span>
+                                        </span>
                                     )}
                                 </div>
                                 {/*New Grade Strategy Chart*/}
-                                <div className="pt-1 mt-2 bg-card-color shadow-md shadow-crimson-700">
+                                <div className="pt-1 mt-2 bg-card-color shadow-sm shadow-crimson-700">
                                     {!filteredGradeStrategy && !filteredCourses
                                     && !exams && !courseGrades ? (
                                         <React.Fragment/>

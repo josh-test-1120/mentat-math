@@ -235,7 +235,7 @@ export default function GradesPage() {
                 >
                     <h1 className="text-3xl font-bold mb-2">Grade Summary</h1>
                 </motion.div>
-
+                {/*Filter Buttons*/}
                 <div className="flex justify-between items-center mb-2">
                     <h2 className="text-xl font-semibold">Your Grades</h2>
                     <div className="flex gap-2">
@@ -292,7 +292,7 @@ export default function GradesPage() {
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className="rounded-xl shadow-sm border p-6 pb-1"
+                        className="rounded-xl shadow-sm border border-mentat-gold/40 p-6 pb-1"
                     >
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-semibold">
@@ -366,23 +366,23 @@ export default function GradesPage() {
                             <div className="text-center">No grades available</div> :
                             (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="p-4 rounded-lg border border-blue-100
-                                bg-card-color shadow-md shadow-crimson-700">
+                                    <div className="p-4 rounded-lg border border-mentat-gold/20
+                                bg-card-color shadow-sm shadow-crimson-700">
                                         <h3 className="text-lg font-medium mb-2">Passed Exams</h3>
                                         <p className="text-3xl font-bold">
                                             {grades.filter(grade => grade.status === 'passed').length}
                                         </p>
                                     </div>
-                                    <div className="p-4 rounded-lg border border-blue-100
-                                bg-card-color shadow-md shadow-crimson-700">
+                                    <div className="p-4 rounded-lg border border-mentat-gold/20
+                                bg-card-color shadow-sm shadow-crimson-700">
                                         <h3 className="text-lg font-medium mb-2">Failed Exams</h3>
                                         <p className="text-3xl font-bold">
                                             {grades.filter(grade => grade.status === 'failed').length}
                                         </p>
                                     </div>
 
-                                    <div className="p-4 rounded-lg border border-blue-100
-                                bg-card-color shadow-md shadow-crimson-700">
+                                    <div className="p-4 rounded-lg border border-mentat-gold/20
+                                bg-card-color shadow-sm shadow-crimson-700">
                                         <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
                                         <p className={`text-3xl font-bold ${
                                             avgScore(grades) === 'A' || avgScore(grades) === 'B'

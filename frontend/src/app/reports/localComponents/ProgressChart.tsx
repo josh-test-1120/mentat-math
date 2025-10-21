@@ -459,7 +459,8 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
     };
 
     return (
-        <div className="bg-card-color rounded-lg border w-full h-full min-h-[300px] flex flex-col shadow-md shadow-crimson-700">
+        <div className="bg-card-color rounded-lg border border-mentat-gold/20 w-full h-full
+        min-h-[300px] flex flex-col shadow-sm shadow-crimson-700">
             <div
                 ref={containerRef}
                 className="w-full flex flex-1 relative rounded-lg overflow-hidden text-mentat-gold"

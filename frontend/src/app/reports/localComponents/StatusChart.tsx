@@ -252,7 +252,8 @@ export const StatusChart = ({ data } : StatusChartProps) => {
     }, [data, dimensions]); // Re-run effect if data or dimensions change
 
     return (
-        <div className="rounded-lg border w-full h-full min-h-[300px] bg-card-color shadow-md shadow-crimson-700 relative">
+        <div className="rounded-lg border border-mentat-gold/20 w-full h-full min-h-[300px]
+        bg-card-color shadow-sm shadow-crimson-700 relative">
             {data.length === 0 ? (
                 <div className="absolute inset-0 flex items-center justify-center">
                     No grades assigned for course
