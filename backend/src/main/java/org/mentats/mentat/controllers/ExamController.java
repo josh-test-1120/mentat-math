@@ -83,6 +83,15 @@ public class ExamController {
         catch (DataAccessException e) {
             throw new DataAccessException("Database error while creating exam: " + e.getMessage());
         }
+        catch (EntityNotFoundException e) {
+            throw new EntityNotFoundException("Course not found: " + e.getMessage());
+        }
+        catch (ValidationException e) {
+            throw new ValidationException("Validation error: " + e.getMessage());
+        }
+        catch (Exception e) {
+            throw new DataAccessException("Unexpected error while creating exam: " + e.getMessage());
+        }
     }
 
     /**
