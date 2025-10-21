@@ -313,7 +313,8 @@ export default function ExamDashboard() {
                                         key={examInst.examId}
                                         exam={{...examInst, exam_duration: "1"} as ExamExtended}
                                         index={0}
-                                        onclick={(e) => loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
+                                        onclick={(e) =>
+                                            loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -347,10 +348,15 @@ export default function ExamDashboard() {
                 ) : exam && (
                 <ExamDetailsComponent
                     exam={exam}
-                    cancelAction={() => {
+                    updateAction={() => {
                         setIsExamModalOpen(false);
                         // Trigger refresh when modal closes
                         setRefreshTrigger(prev => prev + 1);
+                    }}
+                    cancelAction={() => {
+                        setIsExamModalOpen(false);
+                        // Trigger refresh when modal closes
+                        // setRefreshTrigger(prev => prev + 1);
                     }}
                 />)}
             </Modal>

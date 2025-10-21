@@ -13,10 +13,11 @@ import ErrorToast from "@/components/services/error";
 
 interface ExamDetailsComponentProps {
     exam: ExamExtended;
-    cancelAction: () => void
+    updateAction: () => void;
+    cancelAction: () => void;
 }
 
-export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetailsComponentProps) {
+export default function ExamDetailsComponent({ exam, updateAction, cancelAction } : ExamDetailsComponentProps) {
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
     // const [exam, updateExam] = useState<ExamProp>();
 
@@ -117,7 +118,7 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
             toast.error("Exam Update Failed");
         } finally {
             // Run the cancel/close callback
-            cancelAction();
+            updateAction();
         }
     }
 
@@ -151,7 +152,7 @@ export default function ExamDetailsComponent({ exam, cancelAction } : ExamDetail
             toast.error("Exam Deletion Failed");
         } finally {
             // Run the cancel/close callback
-            cancelAction();
+            updateAction();
         }
     }
 
