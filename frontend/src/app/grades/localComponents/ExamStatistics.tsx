@@ -168,7 +168,7 @@ export function ExamStatistics({ exams, index, onclick }: ExamStatisticsProps ) 
         // Exit if session not ready
         if (!sessionReady) return;
         // Drop out until exams are ready
-        if (exams.length ===0) return;
+        if (exams.length === 0) return;
         // Otherwise, hydration the data
         const fetchData = async () => {
             hasFetched.current = true;
