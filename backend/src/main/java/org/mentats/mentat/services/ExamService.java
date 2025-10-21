@@ -40,7 +40,7 @@ public class ExamService {
     private void GetForeignKeyObjects(ExamRequest examRequest) {
         // Find related entities
         course = courseRepository.findById(examRequest.getExamCourseId())
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with ID: " + examRequest.getExamCourseId()));
     }
 
     /**
