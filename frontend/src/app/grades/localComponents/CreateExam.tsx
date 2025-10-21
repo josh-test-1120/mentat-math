@@ -52,6 +52,10 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
     // Form Mapping
     const {examCourseId, examName, examDifficulty, isPublished, isRequired, hasExpiration, examExpirationDate} = formData;
 
+    // Form validation - only exam name and course are required
+    const isFormValid = examName && examName.trim() !== '' && 
+                       examCourseId && examCourseId !== '';
+
     /**
      * Fetch courses from the backend
      */
@@ -141,18 +145,53 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             console.log(`This is the session info: ${userSession}`)
             let index = 1;
             console.log(`This is the exam course id: ${examCourseId}`)
+            
+            // Validate required fields
+            if (!examName || examName.trim() === '') {
+                toast.error("Exam name is required");
+                return;
+            }
+            
+            if (!examCourseId || examCourseId === '') {
+                toast.error("Please select a course");
+                return;
+            }
+            
+            // Parse examDifficulty with validation (optional field)
+            let parsedDifficulty = null;
+            if (examDifficulty && examDifficulty !== '') {
+                parsedDifficulty = parseInt(examDifficulty);
+                if (isNaN(parsedDifficulty) || parsedDifficulty < 1 || parsedDifficulty > 5) {
+                    toast.error("Please select a valid exam difficulty (1-5)");
+                    return;
+                }
+            }
+            
+            // Parse examCourseId with validation
+            const parsedCourseId = parseInt(examCourseId);
+            if (isNaN(parsedCourseId)) {
+                toast.error("Invalid course selection");
+                return;
+            }
+            
             const payload: any = {
-                examName: examName,
+                examName: examName.trim(),
                 examState: isPublished ? 1 : 0,
                 examRequired: isRequired ? 1 : 0,
-                examDifficulty: parseInt(examDifficulty),
-                examCourseId: parseInt(examCourseId),
+                examDifficulty: parsedDifficulty,
+                examCourseId: parsedCourseId,
                 examDuration: 1.0, // Default value, as it's not in the form yet
                 examOnline: 0, // Default value, as it's not in the form yet
             };
             if (hasExpiration && examExpirationDate) {
                 payload.examExpirationDate = examExpirationDate; // ISO date (yyyy-mm-dd)
             }
+            
+            // Debug logs
+            console.log('Session:', session);
+            console.log('Access Token:', session?.user?.accessToken);
+            console.log('Payload:', payload);
+            console.log('Backend API:', BACKEND_API);
             
             const response = await apiHandler(
                 payload,
@@ -206,7 +245,9 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="examName" className="text-sm">Exam Name</label>
+                            <label htmlFor="examName" className="text-sm">
+                                Exam Name <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 id="examName"
@@ -219,7 +260,9 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="examCourseId" className="text-sm">Exam Course</label>
+                            <label htmlFor="examCourseId" className="text-sm">
+                                Exam Course <span className="text-red-500">*</span>
+                            </label>
                             <div className="relative">
                                 <select
                                     id="examCourseId"
@@ -286,14 +329,14 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                                 name="examDifficulty"
                                 value={examDifficulty}
                                 onChange={data}
-                                required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             >
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
+                                <option value="">Select difficulty</option>
+                                <option value="1">1 - Very Easy</option>
+                                <option value="2">2 - Easy</option>
+                                <option value="3">3 - Medium</option>
+                                <option value="4">4 - Hard</option>
+                                <option value="5">5 - Very Hard</option>
                             </select>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
@@ -365,9 +408,13 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                             Cancel
                         </button>
                         <button
-                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
-                                font-bold py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
+                            className={`font-bold py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700 ${
+                                isFormValid 
+                                    ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson' 
+                                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            }`}
                             type="submit"
+                            disabled={!isFormValid}
                         >
                             Create Exam
                         </button>
