@@ -137,7 +137,7 @@ export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProp
                         </div>
 
                         {/* Middle section: Date and time */}
-                        <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-gray-100">
+                        <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-mentat-gold/40">
                             <span className="text-md font-semibold italic">
                                 Date: { exam.examTakenDate ? (
                                 <React.Fragment>
