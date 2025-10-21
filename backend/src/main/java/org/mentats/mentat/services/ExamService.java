@@ -126,9 +126,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
@@ -240,9 +240,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
