@@ -1,17 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ExamOld, ExamProp, Course } from '@/components/types/exams';
-import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
-import { useState } from "react";
-import { ExamResultExtended} from "@/app/dashboard/util/types";
+import { Calendar, Award, AlertCircle } from 'lucide-react';
 import React from "react";
-
-export interface ExamExtended extends ExamOld {
-    exam_course_name: string;
-    // exam_duration: string;
-    exam_online: number;
-}
+import { ExamResultExtended } from "@/app/dashboard/types/shared";
 
 interface ExamCardExtendedProps {
     exam: ExamResultExtended;
@@ -20,9 +12,12 @@ interface ExamCardExtendedProps {
 }
 
 /**
- * Dashboard Grade Card functions
+ * Status Badge layout
+ * This will create a status badge based on
+ * exam status
+ * @param status
+ * @constructor
  */
-// Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
     const statusConfig = {
         upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-4 h-4" /> },
@@ -41,7 +36,12 @@ const StatusBadge = ({ status }: { status: string }) => {
     );
 };
 
-// Score Display Component
+/**
+ * This will display the current score for the exam
+ * This will style the response accodingly
+ * @param score
+ * @constructor
+ */
 const ScoreDisplay = ({ score }: { score: string }) => {
     let scoreColor = 'text-red-600';
 
@@ -59,28 +59,6 @@ const ScoreDisplay = ({ score }: { score: string }) => {
     );
 };
 
-// Total Score Display Component
-const TotalScoreDisplay =
-    ({ score, totalScore }: { score: number; totalScore: number }) => {
-        const percentage = (score / totalScore) * 100;
-        let scoreColor = 'text-red-600';
-
-        if (percentage >= 90) scoreColor = 'text-green-600';
-        else if (percentage >= 80) scoreColor = 'text-green-500';
-        else if (percentage >= 70) scoreColor = 'text-yellow-600';
-        else if (percentage >= 60) scoreColor = 'text-yellow-500';
-
-        return (
-            <div className="flex items-center">
-                <span className="text-sm text-gray-600 mr-1">Score:</span>
-                <span className={`text-sm font-bold ${scoreColor}`}>
-        {score}/{totalScore}
-      </span>
-                <span className="text-xs text-gray-500 ml-1">({percentage.toFixed(0)}%)</span>
-            </div>
-        );
-    };
-
 // Determine exam status based on date and grade
 export const getExamPropStatus =
     (exam: ExamResultExtended): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
@@ -97,34 +75,22 @@ export const getExamPropStatus =
         // If exam date is in the past and has a score, it's completed
         else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
         // If no exam date and no score
-        else if (((exam.examScheduledDate == undefined) || (exam.examScheduledDate == ''))
+        else if ((exam.examScheduledDate == undefined)
             && (exam.examScore == undefined)|| (exam.examScore == '')) return 'missing';
         // If the exam date is in the past but no score, it's pending
         else return 'pending';
     };
 
-// Determine exam status based on date and grade
-export const getExamStatus = (exam: ExamExtended): 'active' | 'inactive' => {
-    // Check for active states
-    if (exam.exam_state == 1) return 'active';
-    // Check for inactive states
-    else if (exam.exam_state == 0) return 'inactive';
-    // Default state is inactive
-    else return 'inactive';
-};
-
-// Determine course name for an exam
-export const getExamCourse = (exam: ExamOld): string => {
-    // TODO: Fix this exam type safety, this is technical debt
-    return (exam as any).course;
-};
-
-// Determine course name for an exam
-export const getExamPropCourse = (exam: ExamProp): string => {
-    return exam.exam_course_name;
-};
-
-// Extended GradeCard Component
+/**
+ * This is the grade card that will contain the details
+ * of an exam result. This will render the details
+ * in an Extended card, that will fill the row
+ * @param exam
+ * @param index
+ * @param onclick
+ * @constructor
+ * @author Joshua Summers
+ */
 export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProps) {
     // Get the status of the exam
     const status = getExamPropStatus(exam);
@@ -199,7 +165,6 @@ export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProp
                     {/* Right section: Location and score */}
                     <div className="flex-1 flex flex-col items-end">
                         <StatusBadge status={status}/>
-                        {/*<span className="text-sm">{exam.location}</span>*/}
                         {status === 'completed' && exam.examScore !== undefined
                             && exam.examScore !== null ? (
                             <ScoreDisplay score={exam.examScore} />
