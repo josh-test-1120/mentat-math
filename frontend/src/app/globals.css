@@ -75,3 +75,12 @@ body {
 /*    -webkit-clip-path: polygon(0 0, 100% 0%, 100% 10%, 90% 85%, 10% 100%, 0 100%);*/
 /*    clip-path: polygon(0 0, 100% 0%, 100% 10%, 90% 85%, 10% 100%, 0 100%);*/
 /*}*/
+/* Style the default NextAuth pages */
+form[action*="/api/auth/signout"] {
+    @apply bg-mentat-black p-8 rounded-lg shadow-md max-w-md mx-auto mt-20;
+}
+
+form[action*="/api/auth/signout"] button {
+    @apply w-full bg-crimson text-mentat-gold py-2 px-4 rounded
+    hover:bg-crimson-700 transition-colors shadow-sm shadow-mentat-gold-700;
+}
