@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Check, X, AlertCircle, Clock, Award, BookOpen } from 'lucide-react';
+import { Search, Check, X, AlertCircle, Clock, Award, BookOpen } from 'lucide-react';
 import { Exam } from '@/components/types/exams';
 import { apiHandler } from '@/utils/api';
 import { useSession } from 'next-auth/react';
@@ -23,6 +23,18 @@ interface ExamWithSelection extends Exam {
     status?: 'active' | 'inactive';
 }
 
+/**
+ * This the the exam selection Modal component
+ * @param isOpen
+ * @param onClose
+ * @param testWindowId
+ * @param testWindowTitle
+ * @param courseId
+ * @param onExamsSelected
+ * @param initiallySelectedExams
+ * @constructor
+ * @author Telmen Enkhtuvshin
+ */
 const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
     isOpen,
     onClose,
@@ -32,18 +44,30 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
     onExamsSelected,
     initiallySelectedExams = []
 }) => {
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // These are the state variables used in the page
     const [exams, setExams] = useState<ExamWithSelection[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    // These are the filter states
     const [difficultyFilter, setDifficultyFilter] = useState<'all' | 1 | 2 | 3 | 4 | 5>('all');
     const [requiredFilter, setRequiredFilter] = useState<'all' | 'required' | 'optional'>('all');
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+    // Reference to control React rendering
     const hasFetched = useRef(false);
-    
+
     // Memoize access token to prevent unnecessary re-renders
     const accessToken = useMemo(() => session?.user?.accessToken, [session?.user?.accessToken]);
 
@@ -62,7 +86,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                     'GET',
                     `api/exams/course/${courseId}`,
                     `${BACKEND_API}`,
-                    accessToken
+                    userSession.accessToken
                 ),
                 apiHandler(
                     undefined,
@@ -70,7 +94,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                     // Fetch RESTRICTED exams (is_allowed = 0)
                     `api/test-window-exam-restrictions/test-window/${testWindowId}/restricted`,
                     `${BACKEND_API}`,
-                    accessToken
+                    userSession.accessToken
                 )
             ]);
 
@@ -115,15 +139,34 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
         } finally {
             setLoading(false);
         }
-    }, [courseId, testWindowId, BACKEND_API, accessToken, initiallySelectedExams]);
+    }, [courseId, testWindowId, BACKEND_API, userSession, initiallySelectedExams]);
+
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    useEffect(() => {
+        if (status !== "authenticated") return;
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
 
     // Fetch exams for the course and existing restrictions
     useEffect(() => {
+        if (!sessionReady) return;
         if (!isOpen || !courseId || !testWindowId || hasFetched.current) return;
 
         hasFetched.current = true;
         fetchExamsAndRestrictions();
-    }, [isOpen, courseId, testWindowId, fetchExamsAndRestrictions]);
+    }, [isOpen, courseId, testWindowId, userSession]);
 
     // Reset fetch flag when modal closes
     useEffect(() => {
@@ -183,7 +226,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 'GET',
                 `api/test-window-exam-restrictions/test-window/${testWindowId}/restricted`,
                 `${BACKEND_API}`,
-                accessToken ?? undefined
+                userSession.accessToken || undefined
             );
 
             let currentRestrictedIds: number[] = [];
@@ -204,7 +247,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 'POST',
                 `api/test-window-exam-restrictions/test-window/${testWindowId}/exam/${id}?isAllowed=false`,
                 `${BACKEND_API}`,
-                accessToken ?? undefined
+                userSession.accessToken || undefined
             ));
 
             const removePromises = toRemove.map(id => apiHandler(
@@ -212,7 +255,7 @@ const ExamSelectionModal: React.FC<ExamSelectionModalProps> = ({
                 'DELETE',
                 `api/test-window-exam-restrictions/test-window/${testWindowId}/exam/${id}`,
                 `${BACKEND_API}`,
-                accessToken ?? undefined
+                userSession.accessToken || undefined
             ));
 
             await Promise.all([...addPromises, ...removePromises]);

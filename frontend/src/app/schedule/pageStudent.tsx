@@ -1,12 +1,11 @@
 'use client';
 
-import React, {useState, useEffect, useMemo} from "react";
+import React, {useState, useEffect, useMemo, useRef} from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExamProp } from "@/components/types/exams";
 import Course from "@/components/types/course";
 import Grade from "@/components/types/grade";
 import { getExamPropCourse } from "@/app/schedule/localComponents/ExamCard";
@@ -15,88 +14,117 @@ import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamCardMedium } from "@/app/schedule/localComponents/ExamCard";
 import { CourseSelector, allCourse } from "@/components/services/CourseSelector";
 
-// Status Counter
-const statusScore = (exam: ExamProp) => {
-    if (exam.exam_score == 'A') return 5;
-    else if (exam.exam_score == 'B') return 4;
-    else if (exam.exam_score == 'C') return 3;
-    else if (exam.exam_score == 'D') return 2;
-    else if (exam.exam_score == 'F') return 1;
-    else return 0;
-}
-
-const avgScore = (exams: ExamProp[]) => {
-    let counter = 0;
-    exams.forEach((exam: ExamProp) => {
-        if (exam.exam_score == 'A') counter += 5;
-        else if (exam.exam_score == 'B') counter += 4;
-        else if (exam.exam_score == 'C') counter += 3;
-        else if (exam.exam_score == 'D') counter += 2;
-        else if (exam.exam_score == 'F') counter += 1;
-    });
-    // Return the average
-    return Math.round(counter / exams.length);
-}
-
-// Main Component
+/**
+ * This component will render a page that shows all
+ * exams that a student has attempted. This will include
+ * any existing exams taken, and any upcoming exams
+ * @constructor
+ * @author Joshua Summers
+ */
 export default function StudentSchedule() {
-    const {data: session, status} = useSession();
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // These are the state variables used in the page
     const [exams, setExams] = useState<Grade[]>([]);
     const [exam, setExam] = useState<Grade>();
     const [course, setCourse] = useState<Course>();
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
+    // Modal state checks
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
+    // Refresh trigger (to re-render page)
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-    const [selectedCourse, setSelectedCourse] = useState<string>('all');
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
+    // These are the filter states
     const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330' | string>('all');
-
+    // This is the Backend API data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    // Fetch exams
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
     useEffect(() => {
-        // If not authenticated, return
-        if (status !== 'authenticated') return;
-        // Get instructor ID
-        const id = session?.user?.id?.toString();
-        // If no instructor ID, return
-        if (!id) return;
+        if (status !== "authenticated") return;
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
 
-        // Fetch Exams
-        fetchExams(id);
-        fetchCourses();
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
 
-    }, [status, session, BACKEND_API, refreshTrigger]);
+    // Data load effect: Initial data hydration (after session hydration)
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Otherwise, hydration the data
+        const fetchData = async () => {
+            hasFetched.current = true;
+            setLoading(true);
+            // Try - Catch handler
+            try {
+                // Fetch Exams
+                fetchExams(userSession.id);
+                // Fetch the courses
+                fetchCourses();
+            } catch (error) {
+                console.error('Error fetching exams and course data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        // Run the async handler to fetch data
+        fetchData();
+    }, [userSession, refreshTrigger]);
 
+    /**
+     * This is the Memoized list of exams
+     * that are filtered based on the filter state and exams
+     */
     const filteredExams = useMemo(() => {
         // First filter by class
         let result = filter === 'all'
             ? exams
             : exams.filter(exam => getExamPropCourse(exam) === filter);
-        console.log('result of filter:', result);
-        console.log('length of exams:', exams.length);
 
         return result;
     }, [filter, exams]);
 
+    /**
+     * These is the Memoized list of courses
+     * that are filtered based on the filer state and courses
+     */
     const filteredCourses = useMemo(() => {
         if (!courses) return;
-        console.log('Courses', courses);
 
         let result = filter === 'all'
             ? courses
             : courses.filter(course => course.courseName === filter);
 
-        console.log('result of course filter:', result);
-        console.log('length of courses:', courses.length);
-
         return result;
 
     }, [filter, courses]);
 
-    // Fetch exams
+    /**
+     * This will fetch all the exams that can be scheduled
+     * @param id
+     */
     const fetchExams = async (id: string) => {
         // Try wrapper to handle async exceptions
         try {
@@ -106,7 +134,7 @@ export default function StudentSchedule() {
                 'GET',
                 `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
 
             // Handle errors
@@ -115,30 +143,15 @@ export default function StudentSchedule() {
                 setExams([]);
             } else {
                 // Convert object to array
-                let examsData = [];
-
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    examsData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    examsData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    examsData = [];
-                }
-
-                // Filter out invalid entries
-                examsData = examsData.filter(c => c && typeof c === 'object');
-
-                console.log('Processed exams data:', examsData);
+                let examsData: Grade[] = [];
+                // Get the response data
+                examsData = res?.grades || res || [];
+                // Ensure it's an array
+                examsData = Array.isArray(examsData) ? examsData : [examsData];
                 // Set courses to coursesData
                 setExams(examsData);
+                // Reset the filter to all
                 setFilter('all');
-                console.log('Length of filter:', filteredExams.length);
             }
         } catch (e) {
             // Error fetching courses
@@ -164,12 +177,10 @@ export default function StudentSchedule() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/course/enrollments?studentId=${session?.user.id}`,
+                `api/course/enrollments?studentId=${userSession.id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken || undefined
             );
-            console.log('Course API response');
-            console.log(res);
 
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching courses:', res.error);
@@ -178,13 +189,8 @@ export default function StudentSchedule() {
                     ...res
                     ]
             }
-
-            console.log('This is the courses data:', coursesData);
-            console.log(coursesData);
-
         } catch (error) {
             console.error('Error fetching instructor courses:', error as string);
-            // setCourses([]);
         } finally {
             if (coursesData.length !== 0) {
                 setCourses(coursesData);
@@ -192,12 +198,16 @@ export default function StudentSchedule() {
                 setCourses([]);
             }
             // Now we are done loading data
-            // setLoading(false);
+            // return the data for immediate use
             return coursesData;
         }
     }
 
-    // Fetch Course
+    /**
+     * Fetch Course
+     * Implementation for course API handler
+     * @param courseId
+     */
     const fetchCourse = async (courseId: number) => {
         // API Handler call
         try {
@@ -208,16 +218,14 @@ export default function StudentSchedule() {
                 "GET",
                 `api/course/${courseId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession?.accessToken || undefined
             );
 
             // Handle errors properly
             if (res instanceof Error || (res && res.error)) {
-                // toast.error(res?.message || "Failed to fetch the course");
                 console.error(res?.message || "Failed to fetch the course");
                 setCourse(undefined);
             } else {
-                // toast.success("Successfully fetched the course details!");
                 console.log("Successfully fetched the course details!");
                 // updateExam(undefined);
                 console.log("Course fetch succeeded");
@@ -232,25 +240,21 @@ export default function StudentSchedule() {
                     courseQuarter: res.courseQuarter,
                     courseSection: res.courseSection
                 };
-
-                console.log('Processed course data:', courseData);
-                console.log(courseData);
                 // Set courses to coursesData
                 setCourse(courseData);
-                console.log('This is the course variable');
-                console.log(course);
-
             }
         } catch (error) {
             console.error('Error fetching course data', error as string);
-            // toast.error("Course fetch failed");
         } finally {
-            // Run the cancel/close callback
-            // cancelAction();
+            // Run the cancel/close callback (if any)
         }
     }
 
-    // Load Exam Actions Modal
+    /**
+     * This is the handler to load Scheduled Exam Data
+     * @param exam
+     * @param e
+     */
     const loadScheduledExamData = async (exam: Grade, e: any) => {
         e.preventDefault();
         // Set the exams
@@ -269,7 +273,10 @@ export default function StudentSchedule() {
         }
     }
 
-    // Handle Course Updates from Course Selector Components
+    /**
+     * This is the handler to update the active course
+     * @param courseId
+     */
     const updateCourseHandle = async (courseId: string) => {
         // Turn the string into an integer
         let courseIdInt = parseInt(courseId);
@@ -338,31 +345,27 @@ export default function StudentSchedule() {
                             <RingSpinner size={'sm'} color={'mentat-gold'} />
                             <p className="ml-3 text-md text-mentat-gold">Loading scheduled exams...</p>
                         </div>
-                    ) : (
-                        <React.Fragment>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                                <AnimatePresence>
-                                    {filteredExams.map((examInst) => (
-                                        <ExamCardMedium
-                                            key={examInst.examId}
-                                            exam={examInst}
-                                            index={0}
-                                            onclick={(e) => loadScheduledExamData(examInst, e)}
-                                            updateAction={() => {
-                                                // Trigger refresh when modal closes
-                                                setRefreshTrigger(prev => prev + 1);
-                                            }}
-                                        />
-                                    ))}
-                                </AnimatePresence>
+                    ) : !filteredExams ? (
+                            <div className="text-center py-12">
+                                No exams found for the selected filter.
                             </div>
-
-                            {filteredExams.length === 0 && (
-                                <div className="text-center py-12">
-                                    No exams found for the selected filter.
-                                </div>
-                            )}
-                        </React.Fragment>
+                    ) : filteredExams && filteredExams.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            <AnimatePresence>
+                                {filteredExams.map((examInst) => (
+                                    <ExamCardMedium
+                                        key={examInst.examId}
+                                        exam={examInst}
+                                        index={0}
+                                        onclick={(e) => loadScheduledExamData(examInst, e)}
+                                        updateAction={() => {
+                                            // Trigger refresh when modal closes
+                                            setRefreshTrigger(prev => prev + 1);
+                                        }}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                        </div>
                     )}
 
                     {/*<div className="rounded-xl shadow-sm pt-6 mb-1">*/}

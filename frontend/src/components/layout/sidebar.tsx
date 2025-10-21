@@ -493,10 +493,6 @@ export default function Sidebar() {
         requestAnimationFrame(() => {
             // Adjust the outer sidebar container width so main content expands/contracts
             const sidebarBox = document.getElementById('sidebar-box');
-            // if (sidebarBox) {
-            //     sidebarBox.classList.remove('w-64', 'w-16');
-            //     sidebarBox.classList.add(newIsOpen ? 'w-64' : 'w-16');
-            // }
 
             // Check if all refs are available
             if (!sidebarRef.current || !middleRef.current || !bottomRef.current ||
@@ -554,16 +550,6 @@ export default function Sidebar() {
 
         setIsOpen(newIsOpen);
     };
-
-    // // Ensure the outer sidebar container width matches the initial open state
-    // useEffect(() => {
-    //     const sidebarBox = document.getElementById('sidebar-box');
-    //     if (sidebarBox) {
-    //         sidebarBox.classList.remove('w-64', 'w-16');
-    //         sidebarBox.classList.add(isOpen ? 'w-64' : 'w-16');
-    //     }
-    //     // Only run on mount and when isOpen changes
-    // }, [isOpen]);
 
     return (
         <aside
