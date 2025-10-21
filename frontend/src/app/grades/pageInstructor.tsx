@@ -14,6 +14,7 @@ import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamExtended } from "@/app/grades/util/types";
 import ExamResult from "@/components/types/exam_result";
 import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
+import {ExamStatistics} from "@/app/grades/localComponents/ExamStatistics";
 
 // Status Counter
 const statusScore = (exam: ExamResult) => {
@@ -53,13 +54,11 @@ const avgScore = (exams: ExamResult[]) => {
 export default function ExamDashboard() {
     const {data: session, status} = useSession();
     const [exams, setExams] = useState<ExamExtended[]>([]);
-    const [examResults, setExamResults] = useState<ExamResult[]>();
     const [courses, setCourses] = useState<Course[]>([]);
     const [exam, setExam] = useState<ExamExtended>();
     const [course, setCourse] = useState<Course>();
     const [loading, setLoading] = useState(true);
     const [coursesLoading, setCoursesLoading] = useState(true);
-    const [examResultsLoading, setExamResultsLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -80,9 +79,6 @@ export default function ExamDashboard() {
         // Fetch Courses for instructor
         fetchCourses(id);
 
-        // // Fetch Exams
-        // fetchExams(id);
-
     }, [status, session, BACKEND_API, refreshTrigger]);
 
     useEffect(() => {
@@ -100,14 +96,6 @@ export default function ExamDashboard() {
 
         return result;
     }, [filter, exams]);
-
-    useEffect(() => {
-        if (!filteredExams || filteredExams.length === 0) return;
-        else if (filteredExams && filteredExams.length > 0) {
-            setExamResultsLoading(true);
-            fetchExamResults();
-        }
-    }, [filteredExams]);
 
     const fetchCourses = async (id: string) => {
         // Try wrapper to handle async exceptions
@@ -233,86 +221,8 @@ export default function ExamDashboard() {
             }
         }
         setExams(examsData);
-        if (examsData.length === 0) { setExamResultsLoading(false); }
         setLoading(false);
         // setExamsLoading(false);
-    }
-
-    // Fetch exams
-    const fetchExamResults = async () => {
-        setExamResultsLoading(true);
-        // Full exam list
-        let examResults: ExamResult[] = [];
-        // Iterate through the courses
-        for (const exam of filteredExams) {
-            // Try wrapper to handle async exceptions
-            try {
-                // API Handler
-                const res = await apiHandler(
-                    undefined, // No body for GET request
-                    'GET',
-                    `api/exam/result/exam/${exam.examId}`,
-                    `${BACKEND_API}`,
-                    session?.user?.accessToken || undefined
-                );
-
-                // Handle errors
-                if (res instanceof Error || (res && res.error)) {
-                    console.error('Error fetching exams:', res.error);
-                    // setExams([]);
-                } else {
-                    // Convert object to array
-                    let examResultsData = [];
-
-                    // If res is an array, set coursesData to res
-                    if (Array.isArray(res)) {
-                        examResultsData = res;
-                        // If res is an object, set coursesData to the values of the object
-                    } else if (res && typeof res === 'object') {
-                        // Use Object.entries() to get key-value pairs, then map to values
-                        examResultsData = Object.entries(res)
-                            .filter(([key, value]) =>
-                                value !== undefined && value !== null)
-                            .map(([key, value]) => value);
-                        // If res is not an array or object, set coursesData to an empty array
-                    } else {
-                        examResultsData = [];
-                    }
-
-                    // Filter out invalid entries
-                    examResultsData = examResultsData.filter(c => c && typeof c === 'object');
-
-                    // examResultsData = examResultsData.map((grade: ExamExtended) => ({
-                    //     ...grade,
-                    //     courseName: courses.filter(course =>
-                    //         course.courseId === grade.courseId)[0].courseName,
-                    // }));
-                    examResults.push(...examResultsData);
-                    // console.log(`Processed exams data for course ${course.courseName}:`, examResultsData);
-                    // Set courses to coursesData
-                    // setExams(examsData);
-                    // setFilter('all');
-                    // console.log('Length of filter:', filteredExams.length);
-                }
-            } catch (e) {
-                // Error fetching courses
-                console.error('Error fetching exams:', e);
-                // Set courses to empty array
-                // setExams([]);
-            } finally {
-                // Set loading to false
-                // setLoading(false);
-                // setExamResults(examResults);
-            }
-        }
-        console.log('Exam Result fetched');
-        console.log(examResults);
-
-        setExamResults(examResults);
-        setExamResultsLoading(false);
-
-        // setExamsLoading(false);
-
     }
 
     // Load Exam Actions Modal
@@ -401,7 +311,8 @@ export default function ExamDashboard() {
                                 {filteredExams.map((examInst) => (
                                     <ExamCardSmall
                                         key={examInst.examId}
-                                        exam={{...examInst, exam_duration: "1"} as ExamExtended} index={0}
+                                        exam={{...examInst, exam_duration: "1"} as ExamExtended}
+                                        index={0}
                                         onclick={(e) => loadModalData({...examInst, exam_duration: "1"} as ExamExtended, e)}
                                     />
                                 ))}
@@ -417,61 +328,10 @@ export default function ExamDashboard() {
                 {/*Exam Analysis Dashboard Component*/}
                 {/* Line Divider */}
                 <hr className="border-crimson border-2 my-2"></hr>
-                { examResultsLoading ? (
-                    <div className="flex justify-center items-center pt-10">
-                        <RingSpinner size={'sm'} color={'mentat-gold'} />
-                        <p className="ml-3 text-md text-mentat-gold">Generating Exam Statistics...</p>
-                    </div>
-                ) : examResults && examResults.length > 0 ? (
-                    <div className="rounded-xl shadow-sm px-4 mb-1">
-                        <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 rounded-lg border bg-card-color
-                                shadow-md shadow-crimson-700">
-                                <h3 className="text-lg font-medium mb-2">Passed Student Exams</h3>
-                                <p className="text-3xl font-bold">
-                                    {examResults.filter(exam => exam.examScore === 'A'
-                                        || exam.examScore === 'B'
-                                        || exam.examScore === 'C').length}
-                                </p>
-                            </div>
-                            <div className="p-4 rounded-lg border bg-card-color
-                                shadow-md shadow-crimson-700">
-                                <h3 className="text-lg font-medium mb-2">Failed Student Exams</h3>
-                                <p className="text-3xl font-bold">
-                                    {examResults.filter(exam => exam.examScore === 'D'
-                                        || exam.examScore === 'F').length}
-                                </p>
-                            </div>
-                            <div className="p-4 rounded-lg border bg-card-color
-                                shadow-md shadow-crimson-700">
-                                <h3 className="text-lg font-medium mb-2">Average Student Score</h3>
-                                <p className="text-3xl font-bold">
-                                    {examResults && examResults.filter(exam =>
-                                        exam.examScore !== undefined).length > 0
-                                        ? avgScore(examResults.filter(exam =>
-                                            exam.examScore !== undefined)) : 0}
-                                </p>
-
-                                {/*{exams.filter(e => e.status === 'completed' && e.exam_score !== undefined).length > 0*/}
-                                {/*    ? Math.round(exams.filter(e => e.status === 'completed' && e.score !== undefined)*/}
-                                {/*            .reduce((acc, e) => acc + (e.score!/e.totalScore * 100), 0) /*/}
-                                {/*        exams.filter(e => e.status === 'completed' && e.score !== undefined).length)*/}
-                                {/*    : 0}%*/}
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="rounded-xl shadow-sm px-4 mb-1">
-                        <h2 className="text-xl font-semibold mb-4">Exam Performance Summary</h2>
-                        <div className="text-center py-12">
-                            <p className="text-mentat-gold/80 text-lg">No exam results available</p>
-                            <p className="text-mentat-gold/60 text-sm mt-2">
-                                Exam statistics will appear here once students start taking exams
-                            </p>
-                        </div>
-                    </div>
-                )}
+                <ExamStatistics
+                    exams={filteredExams}
+                    index={0}
+                />
             </div>
             {/* Exam Action Modal */}
             <Modal
