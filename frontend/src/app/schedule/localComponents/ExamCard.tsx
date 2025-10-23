@@ -125,6 +125,20 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         );
     };
 
+    // Helper function to determine expiration status
+    const getExpirationStatus = (exam: Grade): 'expired' | 'expiring-soon' | 'valid' => {
+        if (!exam.examExpirationDate) return 'valid';
+
+        const expirationDate = new Date(exam.examExpirationDate);
+        const currentDate = new Date();
+        const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        if (expirationDate < currentDate) return 'expired';
+        if (expirationDate < sevenDaysFromNow) return 'expiring-soon';
+        return 'valid';
+    };
+
+    // Determine exam status based on date and grade
     /**
      * Determine grade status based on exam score, and exam date
      * @param exam
@@ -152,6 +166,19 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
 
     // Get the status of the exam
     const examStatus = getExamPropStatus(exam);
+    const expirationStatus = getExpirationStatus(exam);
+
+    // Determine card styling based on expiration status
+    const getCardStyling = () => {
+        switch (expirationStatus) {
+            case 'expired':
+                return 'border-red-500 bg-red-50/10';
+            case 'expiring-soon':
+                return 'border-orange-500 bg-orange-50/10';
+            default:
+                return 'border-crimson bg-card-color';
+        }
+    };
 
     /**
      * This is the handler for opening a scheduled exam
@@ -250,10 +277,25 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                         hover:whitespace-normal hover:overflow-visible hover:z-10">
                         {exam.examName}
                     </h3>
-                    <div className="flex items-start">
+                    <div className="flex items-start gap-1">
                         <span className="text-xs rounded-full flex gap-1 whitespace-nowrap">
                             <StatusBadge status={examStatus}/>
                         </span>
+                        {/* Expiration Warning Badge */}
+                        {expirationStatus === 'expired' && (
+                            <span className="inline-flex items-center px-1 py-0.5 rounded-full
+                                text-[10px] font-medium bg-red-100 text-red-800">
+                                <span className="mr-1">⚠️</span>
+                                Expired
+                            </span>
+                        )}
+                        {expirationStatus === 'expiring-soon' && (
+                            <span className="inline-flex items-center px-1 py-0.5 rounded-full
+                                text-[10px] font-medium bg-orange-100 text-orange-800">
+                                <span className="mr-1">⏰</span>
+                                Expires Soon
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -308,6 +350,29 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                     </span>
                 </div>
 
+                {/* Expiration Date Display */}
+                {exam.examExpirationDate && (
+                    <div className="flex justify-start mt-1">
+                        <span className="text-[11px] font-medium text-mentat-gold pb-0.5 rounded">
+                            <span className="italic">Expires</span>
+                            : {' '}
+                            <span className={`${
+                                new Date(exam.examExpirationDate) < new Date() 
+                                    ? 'text-red-500' 
+                                    : new Date(exam.examExpirationDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                                        ? 'text-orange-500'
+                                        : 'text-green-500'
+                            }`}>
+                                {new Date(exam.examExpirationDate).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                })}
+                            </span>
+                        </span>
+                    </div>
+                )}
+
                 {/* Schedule Action Box */}
                 <div
                     ref={actionBoxRef}
@@ -320,7 +385,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                     <div className="flex justify-between items-center border border-white/20
                        rounded-b-lg bg-card-color/10 p-2
                        backdrop-blur-lg backdrop-saturate-150">
-                        { examStatus === 'pending' || examStatus === 'upcoming' && (
+                        { (examStatus === 'pending' || examStatus === 'upcoming') && expirationStatus !== 'expired' && (
                             <button
                                 className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
                              bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
@@ -333,6 +398,16 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                                 }}
                             >
                                 Reschedule
+                            </button>
+                        )}
+                        {expirationStatus === 'expired' && (
+                            <button
+                                className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
+                             bg-gray-400 cursor-not-allowed shadow-sm shadow-gray-500
+                             backdrop-blur-sm`}
+                                disabled
+                            >
+                                Expired
                             </button>
                         )}
                         <button
