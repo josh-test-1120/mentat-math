@@ -110,7 +110,7 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                 examsData = examsData.filter(c => c && typeof c === 'object');
 
                 console.log('Processed exams data:', examsData);
-                // Set courses to coursesData
+                // Set all exams (including expired ones)
                 setExams(examsData);
                 // setFilter('all');
                 // console.log('Length of filter:', filteredExams.length);
@@ -156,15 +156,24 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
         // Get the data option for the Id
         const selectedOption = event.target.options[event.target.selectedIndex];
         const examId = selectedOption.getAttribute('data-key');
+        
         if (exams && exams.length > 0) {
             let current = exams.filter(exam => exam.examId.toString() === examId);
+            
             console.log(examId);
             console.log(current);
-            setCurrentExam(current[0]);
-            setExamName(current[0].examName);
-
-            // Your callback logic here
-            console.log('Selected exam ID:', examId);
+            
+            // Check if exam was found
+            if (current && current.length > 0) {
+                setCurrentExam(current[0]);
+                setExamName(current[0].examName);
+                console.log('Selected exam ID:', examId);
+            } else {
+                // No exam found or empty selection
+                setCurrentExam(undefined);
+                setExamName(undefined);
+                console.log('No exam selected');
+            }
         }
 
         // onCourseSelect?.(selectedValue); // Optional callback prop
@@ -199,10 +208,16 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
-                   title="Create Exam">
+                   title="Schedule Exam">
                 <form id="createExamForm" className="w-full space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/*Course Selection and logic*/}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Left Column - Interactive Fields */}
+                        <div className="space-y-4 flex flex-col justify-center">
+                            <h3 className="text-lg font-semibold text-mentat-gold border-b border-mentat-gold/20 pb-2">
+                                Exam Selection
+                            </h3>
+                            
+                            {/*Course Selection and logic*/}
                         <div className="flex flex-col gap-2">
                             <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
                             <select
@@ -246,43 +261,99 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                                 ))}
                             </select>
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
-                            <input
-                                type="text"
-                                id="exam_difficulty"
-                                name="exam_difficulty"
-                                value={currentExam?.examDifficulty}
-                                readOnly
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border
-                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2
-                                  cursor-not-allowed opacity-70"
-                            />
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_required"
-                                    type="checkbox"
-                                    name="is_required"
-                                    checked={Boolean(currentExam?.examRequired === 1)}
-                                    readOnly
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
-                                    text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"
-                                />
-                                <label htmlFor="is_required" className="select-none">Make Exam Required</label>
+
+                        {/* Right Column - Display Fields */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold text-mentat-gold border-b border-mentat-gold/20 pb-2">
+                                Exam Details
+                            </h3>
+                            
+                            {/* Exam Difficulty */}
+                            <div className="bg-white/5 border border-mentat-gold/20 rounded-lg p-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-medium text-mentat-gold/80">Exam Difficulty</span>
+                                    <span className="text-sm font-semibold text-mentat-gold bg-crimson/20 px-3 py-1 rounded-full min-w-0 flex-shrink-0">
+                                        {currentExam?.examDifficulty ?? '--'}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_published"
-                                    type="checkbox"
-                                    name="is_published"
-                                    checked={Boolean(currentExam?.examState === 1)}
-                                    readOnly
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
-                                    text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"
-                                />
-                                <label htmlFor="is_published" className="select-none">Publish Exam</label>
+                            
+                            {/* Exam Required */}
+                            <div className="bg-white/5 border border-mentat-gold/20 rounded-lg p-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-medium text-mentat-gold/80">Exam Required</span>
+                                    <span className={`text-sm font-semibold px-3 py-1 rounded-full min-w-0 flex-shrink-0 ${
+                                        currentExam?.examRequired === 1 
+                                            ? 'text-green-400 bg-green-500/20' 
+                                            : currentExam?.examRequired === 0
+                                                ? 'text-red-400 bg-red-500/20'
+                                                : 'text-mentat-gold/60 bg-mentat-gold/10'
+                                    }`}>
+                                        {currentExam?.examRequired === 1 ? 'Required' : 
+                                         currentExam?.examRequired === 0 ? 'Optional' : '--'}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {/* Exam Status */}
+                            <div className="bg-white/5 border border-mentat-gold/20 rounded-lg p-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-medium text-mentat-gold/80">Exam Status</span>
+                                    <span className={`text-sm font-semibold px-3 py-1 rounded-full min-w-0 flex-shrink-0 ${
+                                        currentExam?.examState === 1 
+                                            ? 'text-green-400 bg-green-500/20' 
+                                            : currentExam?.examState === 0
+                                                ? 'text-orange-400 bg-orange-500/20'
+                                                : 'text-mentat-gold/60 bg-mentat-gold/10'
+                                    }`}>
+                                        {currentExam?.examState === 1 ? 'Published' : 
+                                         currentExam?.examState === 0 ? 'Unpublished' : '--'}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {/* Exam Expiration Date */}
+                            <div className="bg-white/5 border border-mentat-gold/20 rounded-lg p-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm font-medium text-mentat-gold/80">Expiration Date</span>
+                                    <span className={`text-sm font-semibold px-3 py-1 rounded-full min-w-0 flex-shrink-0 ${
+                                        currentExam?.expirationDate 
+                                            ? (() => {
+                                                const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+                                                const now = new Date();
+                                                const isExpired = expirationDate < now;
+                                                const isExpiringSoon = expirationDate < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) && !isExpired;
+                                                
+                                                if (isExpired) return 'text-red-400 bg-red-500/20';
+                                                if (isExpiringSoon) return 'text-orange-400 bg-orange-500/20';
+                                                return 'text-green-400 bg-green-500/20';
+                                            })()
+                                            : 'text-mentat-gold/60 bg-mentat-gold/10'
+                                    }`}>
+                                        {(() => {
+                                            if (currentExam?.expirationDate) {
+                                                // Parse as local date (not UTC) to avoid timezone issues
+                                                const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+                                                const now = new Date();
+                                                const isExpired = expirationDate < now;
+                                                const isExpiringSoon = expirationDate < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) && !isExpired;
+                                                
+                                                if (isExpired) {
+                                                    return 'EXPIRED';
+                                                }
+                                                
+                                                const dateStr = expirationDate.toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                });
+                                                return dateStr;
+                                            }
+                                            return '--';
+                                        })()}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -301,10 +372,22 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                             Cancel
                         </button>
                         <button
-                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
-                            font-bold py-2 px-4 rounded-md shadow-sm shadow-crimson-700"
+                            className={`font-bold py-2 px-4 rounded-md shadow-sm ${
+                                currentExam?.expirationDate && (() => {
+                                    const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+                                    const now = new Date();
+                                    return expirationDate < now;
+                                })()
+                                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                    : 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson shadow-crimson-700'
+                            }`}
                             type="button"
                             onClick={handLoadTestWindows}
+                            disabled={!!(currentExam?.expirationDate && (() => {
+                                const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+                                const now = new Date();
+                                return expirationDate < now;
+                            })())}
                         >
                             Load Test Windows
                         </button>
