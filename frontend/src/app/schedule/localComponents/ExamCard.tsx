@@ -267,8 +267,8 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         <div className="relative">
             <motion.div
                 ref={examContainerRef}
-                className={`relative rounded-lg border p-3 flex flex-col hover:shadow-md
-                hover:shadow-crimson-700 transition-shadow ${getCardStyling()}`}
+                className={`relative rounded-lg border border-mentat-gold/20 p-3 flex flex-col
+                hover:shadow-md hover:shadow-crimson-700 transition-shadow ${getCardStyling()}`}
                 whileHover={{ y: -2 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
