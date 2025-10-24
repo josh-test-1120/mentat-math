@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { MouseEvent } from 'react';
 import Grade from "@/components/types/grade";
 import ExamResult from "@/components/types/exam_result";
-import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
+import { Calendar, Award, AlertCircle } from 'lucide-react';
 import React, {useEffect, useRef, useState} from "react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
@@ -13,15 +13,9 @@ import { RingSpinner } from "@/components/UI/Spinners";
 import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
 import { useSession } from "next-auth/react";
 
-export interface ExamMedium extends ExamResult {
-    exam_name: string;
-    exam_course_name: string;
-    exam_duration: string;
-    exam_required: number;
-    exam_online: number;
-    status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
-}
-
+/**
+ * Props for the Component
+ */
 interface ExamCardMediumProps {
     exam: Grade;
     index: number;
@@ -32,31 +26,43 @@ interface ExamCardMediumProps {
 /**
  * Global Exam Card functions
  */
-
 // Determine course name for an exam
 export const getExamPropCourse = (exam: Grade): string => {
     return exam.courseName;
 };
 
 /**
- * These are the card components
+ * This is the card component that will render a
+ * medium size card with the exam result information
+ * available
+ * @param exam
+ * @param index
+ * @param onclick
+ * @param updateAction
+ * @constructor
+ * @author Joshua Summers
  */
-// Mid-size ExamCard Component
 export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardMediumProps ) {
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-    // Session Information
-    const {data: session, status} = useSession();
-
-    const [isHovered, setIsHovered] = useState(false);
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // Modal state checks
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
     // Overlay for delete operations
     const [activeOverlay, setActiveOverlay] = useState<number | null>(null);
-
-    // Add a timeout ref to your component
-    const closeTimeoutRef = useRef(null);
-
-    const actionBox = document.getElementById('action-box');
+    // Refs for the elements we need to manipulate
+    const examContainerRef = useRef<HTMLDivElement>(null);
+    const actionBoxRef = useRef<HTMLDivElement>(null);
+    // This is the Backend API data
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     // Accent color for cards
     const accentColor = 'rgba(163, 15, 50, 1.0)';
@@ -72,7 +78,32 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         zIndex: 0,
     };
 
-    // Status Badge Component
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
+    useEffect(() => {
+        if (status !== "authenticated") return;
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
+
+    /**
+     * Status Badge Component
+     * This will render a status badge into the layout
+     * based on exam information
+     * @param status
+     * @constructor
+     */
     const StatusBadge = ({ status }: { status: string }) => {
         const statusConfig = {
             upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-3 h-3" /> },
@@ -94,20 +125,10 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         );
     };
 
-    // Helper function to determine expiration status
-    const getExpirationStatus = (exam: Grade): 'expired' | 'expiring-soon' | 'valid' => {
-        if (!exam.expirationDate) return 'valid';
-        
-        const expirationDate = new Date(exam.expirationDate);
-        const currentDate = new Date();
-        const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        
-        if (expirationDate < currentDate) return 'expired';
-        if (expirationDate < sevenDaysFromNow) return 'expiring-soon';
-        return 'valid';
-    };
-
-    // Determine exam status based on date and grade
+    /**
+     * Determine grade status based on exam score, and exam date
+     * @param exam
+     */
     const getExamPropStatus =
         (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
             // Get the proper exam scheduled date, with timezone
@@ -127,11 +148,30 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                 && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
             // If the exam date is in the past but no score, it's pending
             else return 'pending';
-    };
+        };
 
     // Get the status of the exam
     const examStatus = getExamPropStatus(exam);
+
+
+    // Helper function to determine expiration status
+    const getExpirationStatus = (exam: Grade): 'expired' | 'expiring-soon' | 'valid' => {
+        if (!exam.expirationDate) return 'valid';
+
+        const expirationDate = new Date(exam.expirationDate);
+        const currentDate = new Date();
+        const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        if (expirationDate < currentDate) return 'expired';
+        if (expirationDate < sevenDaysFromNow) return 'expiring-soon';
+        return 'valid';
+    };
+
+    // Get the expiration Status of the exam
     const expirationStatus = getExpirationStatus(exam);
+    // Compound Exam Status
+    const examStatusValid = (examStatus === 'pending' || examStatus === 'upcoming')
+        && expirationStatus !== 'expired';
 
     // Determine card styling based on expiration status
     const getCardStyling = () => {
@@ -145,30 +185,50 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         }
     };
 
+    /**
+     * This is the handler for opening a scheduled exam
+     * @param event
+     */
     const openScheduledExamData =
         async (event: MouseEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        // Show the event object:
-        let actionBox = event.currentTarget.querySelector('#action-box');
-        let current = event.currentTarget;
-        current?.classList.add('z-10');
-        actionBox?.classList.replace('opacity-0', 'opacity-100');
-        actionBox?.classList.replace('pointer-events-none', 'pointer-events-auto');
-    }
+            event.preventDefault();
+            // Process animation affect
+            requestAnimationFrame(() => {
+                // Check if refs are available - JUST LIKE YOUR SIDEBAR
+                if (!examContainerRef.current || !actionBoxRef.current) {
+                    return;
+                }
+                // Use the refs directly - JUST LIKE YOUR SIDEBAR
+                examContainerRef.current.classList.add('z-10');
+                actionBoxRef.current.classList.replace('opacity-0', 'opacity-100');
+                actionBoxRef.current.classList.replace('pointer-events-none', 'pointer-events-auto');
+            });
+        }
 
+    /**
+     * This is the handler for closing a scheduled exam
+     * @param event
+     */
     const closeScheduledExamData =
         async (event: MouseEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        // Show the event object:
-        let actionBox = event.currentTarget.querySelector('#action-box');
-        let current = event.currentTarget
+            event.preventDefault();
+            // Process animation affect
+            requestAnimationFrame(() => {
+                // Check if refs are available - JUST LIKE YOUR SIDEBAR
+                if (!examContainerRef.current || !actionBoxRef.current) {
+                    return;
+                }
+                // Use the refs directly - JUST LIKE YOUR SIDEBAR
+                examContainerRef.current.classList.remove('z-10');
+                actionBoxRef.current.classList.replace('opacity-100', 'opacity-0');
+                actionBoxRef.current.classList.replace('pointer-events-auto', 'pointer-events-none');
+            });
+        }
 
-        actionBox?.classList.replace('opacity-100', 'opacity-0');
-        actionBox?.classList.replace('pointer-events-auto', 'pointer-events-none');
-        current?.classList.remove('z-10');
-    }
-
-    // Handle Delete
+    /**
+     * Delete handler for deleteing scheduled exam
+     * @param id
+     */
     const handleDelete = async (id: number) => {
         // Set overlay
         setActiveOverlay(id);
@@ -206,21 +266,30 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
     return (
         <div className="relative">
             <motion.div
+                ref={examContainerRef}
                 className={`relative rounded-lg border p-3 flex flex-col hover:shadow-md
-            hover:shadow-crimson-700 transition-shadow ${getCardStyling()}`}
+                hover:shadow-crimson-700 transition-shadow ${getCardStyling()}`}
                 whileHover={{ y: -2 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 onClick={onclick}
-                onMouseEnter={(e) => openScheduledExamData(e)}
-                onMouseLeave={(e) => closeScheduledExamData(e)}
+                onMouseEnter={(e) =>
+                    openScheduledExamData(e)}
+                onMouseLeave={(e) =>
+                    closeScheduledExamData(e)}
             >
                 <div className="flex justify-between items-start pb-0.5 mb-1">
                     <h3 className="font-semibold text-mentat-gold text-sm truncate
                         hover:whitespace-normal hover:overflow-visible hover:z-10">
                         {exam.examName}
                     </h3>
+                    {/*Always leave original code when making merge updates*/}
+                    {/*<div className="flex items-start">*/}
+                    {/*    <span className="text-xs rounded-full flex gap-1 whitespace-nowrap">*/}
+                    {/*        <StatusBadge status={examStatus}/>*/}
+                    {/*    </span>*/}
+                    {/*</div>*/}
                     <div className="flex items-start gap-1">
                         <span className="text-xs rounded-full flex gap-1 whitespace-nowrap">
                             <StatusBadge status={examStatus}/>
@@ -261,18 +330,18 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                     <span className="italic">Duration</span>
                         : <span className="text-mentat-gold/80">
                             {exam.examDuration || 1} hour(s)
-                        </span>
+                          </span>
                     </span>
                     <span className="text-[11px] font-medium text-mentat-gold pb-0.5 text-end rounded">
                       <span className="italic">Online</span>
                         : {exam.examOnline ? (
-                            <span className="text-[#2e8b57]">
-                                True
-                            </span>) : (
-                                <span className="text-slate-500">
-                                    False
-                                </span>
-                        )}
+                        <span className="text-[#2e8b57]">
+                            True
+                        </span>) : (
+                        <span className="text-slate-500">
+                            False
+                        </span>
+                    )}
                     </span>
                 </div>
 
@@ -288,9 +357,9 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                           <span className="text-[#2e8b57]">
                               Required
                           </span>) : (
-                              <span className="text-slate-500">
-                                  Not Required
-                              </span>)}
+                          <span className="text-slate-500">
+                              Not Required
+                          </span>)}
                     </span>
                 </div>
 
@@ -301,8 +370,8 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                             <span className="italic">Expires</span>
                             : {' '}
                             <span className={`${
-                                new Date(exam.expirationDate) < new Date() 
-                                    ? 'text-red-500' 
+                                new Date(exam.expirationDate) < new Date()
+                                    ? 'text-red-500'
                                     : new Date(exam.expirationDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                                         ? 'text-orange-500'
                                         : 'text-green-500'
@@ -319,6 +388,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
 
                 {/* Schedule Action Box */}
                 <div
+                    ref={actionBoxRef}
                     id="action-box"
                     className="absolute left-0 right-0 bottom-0 transform translate-y-full
                        flex flex-col justify-end mt-0
@@ -328,7 +398,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                     <div className="flex justify-between items-center border border-white/20
                        rounded-b-lg bg-card-color/10 p-2
                        backdrop-blur-lg backdrop-saturate-150">
-                        { (examStatus === 'pending' || examStatus === 'upcoming') && expirationStatus !== 'expired' && (
+                        { examStatusValid && (
                             <button
                                 className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
                              bg-crimson hover:bg-crimson shadow-sm shadow-mentat-gold-700
@@ -341,16 +411,6 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                                 }}
                             >
                                 Reschedule
-                            </button>
-                        )}
-                        {expirationStatus === 'expired' && (
-                            <button
-                                className={`px-1 py-1 rounded text-xs font-medium transition-colors flex-1 mx-1
-                             bg-gray-400 cursor-not-allowed shadow-sm shadow-gray-500
-                             backdrop-blur-sm`}
-                                disabled
-                            >
-                                Expired
                             </button>
                         )}
                         <button
