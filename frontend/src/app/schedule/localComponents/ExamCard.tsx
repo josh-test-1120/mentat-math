@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { MouseEvent } from 'react';
 import Grade from "@/components/types/grade";
 import ExamResult from "@/components/types/exam_result";
-import { Calendar, Award, AlertCircle } from 'lucide-react';
+import { Calendar, Award, AlertCircle, LucideCircleCheck, CircleX } from 'lucide-react';
 import React, {useEffect, useRef, useState} from "react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
@@ -13,9 +13,15 @@ import { RingSpinner } from "@/components/UI/Spinners";
 import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
 import { useSession } from "next-auth/react";
 
-/**
- * Props for the Component
- */
+export interface ExamMedium extends ExamResult {
+    exam_name: string;
+    exam_course_name: string;
+    exam_duration: string;
+    exam_required: number;
+    exam_online: number;
+    status: 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending';
+}
+
 interface ExamCardMediumProps {
     exam: Grade;
     index: number;
@@ -26,43 +32,31 @@ interface ExamCardMediumProps {
 /**
  * Global Exam Card functions
  */
+
 // Determine course name for an exam
 export const getExamPropCourse = (exam: Grade): string => {
     return exam.courseName;
 };
 
 /**
- * This is the card component that will render a
- * medium size card with the exam result information
- * available
- * @param exam
- * @param index
- * @param onclick
- * @param updateAction
- * @constructor
- * @author Joshua Summers
+ * These are the card components
  */
+// Mid-size ExamCard Component
 export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardMediumProps ) {
-    // These are the session state variables
-    const { data: session, status } = useSession();
-    // Session user information
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: '',
-        accessToken: '',
-    });
-    // Modal state checks
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+    // Session Information
+    const {data: session, status} = useSession();
+
+    const [isHovered, setIsHovered] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
     // Overlay for delete operations
     const [activeOverlay, setActiveOverlay] = useState<number | null>(null);
-    // Refs for the elements we need to manipulate
-    const examContainerRef = useRef<HTMLDivElement>(null);
-    const actionBoxRef = useRef<HTMLDivElement>(null);
-    // This is the Backend API data
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+
+    // Add a timeout ref to your component
+    const closeTimeoutRef = useRef(null);
+
+    const actionBox = document.getElementById('action-box');
 
     // Accent color for cards
     const accentColor = 'rgba(163, 15, 50, 1.0)';
@@ -78,32 +72,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         zIndex: 0,
     };
 
-    /**
-     * useAffects that bind the page to refreshes and updates
-     */
-    // General effect: Initial session hydration
-    useEffect(() => {
-        if (status !== "authenticated") return;
-        if (session) {
-            const newUserSession = {
-                id: session?.user.id?.toString() || '',
-                username: session?.user.username || '',
-                email: session?.user.email || '',
-                accessToken: session?.user.accessToken || '',
-            };
-
-            setSession(newUserSession);
-            setSessionReady(newUserSession.id !== "");
-        }
-    }, [session, status]);
-
-    /**
-     * Status Badge Component
-     * This will render a status badge into the layout
-     * based on exam information
-     * @param status
-     * @constructor
-     */
+    // Status Badge Component
     const StatusBadge = ({ status }: { status: string }) => {
         const statusConfig = {
             upcoming: { color: 'bg-blue-100 text-blue-800', icon: <Calendar className="w-3 h-3" /> },
@@ -128,21 +97,17 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
     // Helper function to determine expiration status
     const getExpirationStatus = (exam: Grade): 'expired' | 'expiring-soon' | 'valid' => {
         if (!exam.examExpirationDate) return 'valid';
-
+        
         const expirationDate = new Date(exam.examExpirationDate);
         const currentDate = new Date();
         const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
+        
         if (expirationDate < currentDate) return 'expired';
         if (expirationDate < sevenDaysFromNow) return 'expiring-soon';
         return 'valid';
     };
 
     // Determine exam status based on date and grade
-    /**
-     * Determine grade status based on exam score, and exam date
-     * @param exam
-     */
     const getExamPropStatus =
         (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
             // Get the proper exam scheduled date, with timezone
@@ -180,50 +145,30 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         }
     };
 
-    /**
-     * This is the handler for opening a scheduled exam
-     * @param event
-     */
     const openScheduledExamData =
         async (event: MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
-        // Process animation affect
-        requestAnimationFrame(() => {
-            // Check if refs are available - JUST LIKE YOUR SIDEBAR
-            if (!examContainerRef.current || !actionBoxRef.current) {
-                return;
-            }
-            // Use the refs directly - JUST LIKE YOUR SIDEBAR
-            examContainerRef.current.classList.add('z-10');
-            actionBoxRef.current.classList.replace('opacity-0', 'opacity-100');
-            actionBoxRef.current.classList.replace('pointer-events-none', 'pointer-events-auto');
-        });
+        // Show the event object:
+        let actionBox = event.currentTarget.querySelector('#action-box');
+        let current = event.currentTarget;
+        current?.classList.add('z-10');
+        actionBox?.classList.replace('opacity-0', 'opacity-100');
+        actionBox?.classList.replace('pointer-events-none', 'pointer-events-auto');
     }
 
-    /**
-     * This is the handler for closing a scheduled exam
-     * @param event
-     */
     const closeScheduledExamData =
         async (event: MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
-        // Process animation affect
-        requestAnimationFrame(() => {
-            // Check if refs are available - JUST LIKE YOUR SIDEBAR
-            if (!examContainerRef.current || !actionBoxRef.current) {
-                return;
-            }
-            // Use the refs directly - JUST LIKE YOUR SIDEBAR
-            examContainerRef.current.classList.remove('z-10');
-            actionBoxRef.current.classList.replace('opacity-100', 'opacity-0');
-            actionBoxRef.current.classList.replace('pointer-events-auto', 'pointer-events-none');
-        });
+        // Show the event object:
+        let actionBox = event.currentTarget.querySelector('#action-box');
+        let current = event.currentTarget
+
+        actionBox?.classList.replace('opacity-100', 'opacity-0');
+        actionBox?.classList.replace('pointer-events-auto', 'pointer-events-none');
+        current?.classList.remove('z-10');
     }
 
-    /**
-     * Delete handler for deleteing scheduled exam
-     * @param id
-     */
+    // Handle Delete
     const handleDelete = async (id: number) => {
         // Set overlay
         setActiveOverlay(id);
@@ -261,9 +206,8 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
     return (
         <div className="relative">
             <motion.div
-                ref={examContainerRef}
-                className="relative rounded-lg bg-card-color border p-3 flex flex-col hover:shadow-md
-            hover:shadow-crimson-700 transition-shadow"
+                className={`relative rounded-lg border p-3 flex flex-col hover:shadow-md
+            hover:shadow-crimson-700 transition-shadow ${getCardStyling()}`}
                 whileHover={{ y: -2 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -375,7 +319,6 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
 
                 {/* Schedule Action Box */}
                 <div
-                    ref={actionBoxRef}
                     id="action-box"
                     className="absolute left-0 right-0 bottom-0 transform translate-y-full
                        flex flex-col justify-end mt-0
