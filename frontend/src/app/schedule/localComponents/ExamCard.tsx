@@ -96,9 +96,9 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
 
     // Helper function to determine expiration status
     const getExpirationStatus = (exam: Grade): 'expired' | 'expiring-soon' | 'valid' => {
-        if (!exam.examExpirationDate) return 'valid';
+        if (!exam.expirationDate) return 'valid';
         
-        const expirationDate = new Date(exam.examExpirationDate);
+        const expirationDate = new Date(exam.expirationDate);
         const currentDate = new Date();
         const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         
@@ -295,19 +295,19 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                 </div>
 
                 {/* Expiration Date Display */}
-                {exam.examExpirationDate && (
+                {exam.expirationDate && (
                     <div className="flex justify-start mt-1">
                         <span className="text-[11px] font-medium text-mentat-gold pb-0.5 rounded">
                             <span className="italic">Expires</span>
                             : {' '}
                             <span className={`${
-                                new Date(exam.examExpirationDate) < new Date() 
+                                new Date(exam.expirationDate) < new Date() 
                                     ? 'text-red-500' 
-                                    : new Date(exam.examExpirationDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                                    : new Date(exam.expirationDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                                         ? 'text-orange-500'
                                         : 'text-green-500'
                             }`}>
-                                {new Date(exam.examExpirationDate).toLocaleDateString('en-US', {
+                                {new Date(exam.expirationDate).toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric',
                                     year: 'numeric'
