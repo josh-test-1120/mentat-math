@@ -39,8 +39,8 @@ public class ExamService {
      */
     private void GetForeignKeyObjects(ExamRequest examRequest) {
         // Find related entities
-        course = courseRepository.findById(examRequest.getExamId())
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        course = courseRepository.findById(examRequest.getExamCourseId())
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with ID: " + examRequest.getExamCourseId()));
     }
 
     /**
@@ -126,9 +126,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
@@ -240,9 +240,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
@@ -293,7 +293,7 @@ public class ExamService {
             existing.setOnline(examUpdates.getExamOnline());
         }
         if (examUpdates.getExamDifficulty() != null) {
-            existing.setOnline(examUpdates.getExamDifficulty());
+            existing.setDifficulty(examUpdates.getExamDifficulty());
         }
         if (examUpdates.getExamExpirationDate() != null) {
             existing.setExpirationDate(examUpdates.getExamExpirationDate());

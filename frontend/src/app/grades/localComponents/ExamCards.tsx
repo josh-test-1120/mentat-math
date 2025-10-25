@@ -99,7 +99,7 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
                   {exam.courseName}
                 </span>
                 <span className="text-xs text-mentat-gold py-1 text-end rounded">
-                  Difficulty Level: {exam.examDifficulty}
+                  Difficulty Level: {exam.examDifficulty ?? 'N/A'}
                 </span>
             </div>
 

@@ -53,9 +53,8 @@ public class Exam {
     private Integer required;
 
     // The required state of the exam
-    @NotNull
     @JsonProperty("examDifficulty") // Map JSON field to Java field
-    @Column(name = "exam_difficulty")
+    @Column(name = "exam_difficulty", nullable = true)
     private Integer difficulty;
 
     // The duration of the exam

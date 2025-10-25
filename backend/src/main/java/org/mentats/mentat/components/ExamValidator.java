@@ -53,6 +53,12 @@ public class ExamValidator {
         }
     }
 
+    public void validateDifficulty(Integer difficulty) {
+        if (difficulty != null && (difficulty < 1 || difficulty > 5)) {
+            throw new ValidationException("Exam difficulty must be between 1 and 5");
+        }
+    }
+
     public void validateForUpdate(Exam existing, ExamRequest updates) {
         if (updates.getExamName() != null) {
             validateExamName(updates.getExamName());
@@ -62,6 +68,9 @@ public class ExamValidator {
         }
         if (updates.getExamCourseId() != null) {
             validateCourseId(updates.getExamCourseId());
+        }
+        if (updates.getExamDifficulty() != null) {
+            validateDifficulty(updates.getExamDifficulty());
         }
     }
 
@@ -93,6 +102,8 @@ public class ExamValidator {
         if (examRequest.getExamName() != null && examRequest.getExamName().contains("<script>")) {
             throw new ValidationException("Exam name contains invalid characters");
         }
+        // Validate difficulty if provided
+        validateDifficulty(examRequest.getExamDifficulty());
     }
 
     private void validateBusinessRules(ExamRequest examRequest) {
