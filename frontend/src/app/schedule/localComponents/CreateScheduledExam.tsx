@@ -128,56 +128,65 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
 
     const handleCourseChange =
         (event: ChangeEvent<HTMLSelectElement>) => {
-        // Get the data option for the Id
-        const selectedOption = event.target.options[event.target.selectedIndex];
-        const courseId = selectedOption.getAttribute('data-key');
-        console.log(`Course ID: ${courseId}`);
+            // Get the data option for the Id
+            const selectedOption = event.target.options[event.target.selectedIndex];
+            const courseId = selectedOption.getAttribute('data-key');
+            console.log(`Course ID: ${courseId}`);
 
-        if (courses && courses.length > 0) {
-            let currentCourse = courses.filter(course =>
-                course.courseId.toString() === courseId);
-            console.log(courseId);
-            console.log(currentCourse);
-            setCourse(currentCourse[0]);
-            setCourseName(currentCourse[0].courseName);
+            if (courses && courses.length > 0) {
+                let currentCourse = courses.filter(course =>
+                    course.courseId.toString() === courseId);
+                console.log(courseId);
+                console.log(currentCourse);
+                setCourse(currentCourse[0]);
+                setCourseName(currentCourse[0].courseName);
 
-            // Get the exams that are available for that course
-            if (courseId) fetchExamsByCourse(courseId);
+                // Get the exams that are available for that course
+                if (courseId) fetchExamsByCourse(courseId);
 
-            // Your callback logic here
-            console.log('Selected course ID:', courseId);
-        }
+                // Your callback logic here
+                console.log('Selected course ID:', courseId);
+            }
 
-        // onCourseSelect?.(selectedValue); // Optional callback prop
-    };
+            // onCourseSelect?.(selectedValue); // Optional callback prop
+        };
 
     const handleExamChange =
         (event: ChangeEvent<HTMLSelectElement>) => {
-        // Get the data option for the Id
-        const selectedOption = event.target.options[event.target.selectedIndex];
-        const examId = selectedOption.getAttribute('data-key');
-        if (exams && exams.length > 0) {
-            let current = exams.filter(exam => exam.examId.toString() === examId);
-            console.log(examId);
-            console.log(current);
-            setCurrentExam(current[0]);
-            setExamName(current[0].examName);
+            // Get the data option for the Id
+            const selectedOption = event.target.options[event.target.selectedIndex];
+            const examId = selectedOption.getAttribute('data-key');
 
-            // Your callback logic here
-            console.log('Selected exam ID:', examId);
-        }
+            if (exams && exams.length > 0) {
+                let current = exams.filter(exam => exam.examId.toString() === examId);
 
-        // onCourseSelect?.(selectedValue); // Optional callback prop
-    };
+                console.log(examId);
+                console.log(current);
+
+                // Check if exam was found
+                if (current && current.length > 0) {
+                    setCurrentExam(current[0]);
+                    setExamName(current[0].examName);
+                    console.log('Selected exam ID:', examId);
+                } else {
+                    // No exam found or empty selection
+                    setCurrentExam(undefined);
+                    setExamName(undefined);
+                    console.log('No exam selected');
+                }
+            }
+
+            // onCourseSelect?.(selectedValue); // Optional callback prop
+        };
 
     const handLoadTestWindows =
         (event: MouseEvent<HTMLButtonElement>) => {
-        // const selectedValue = event.target.value;
-        const selectedValue = event.currentTarget.value;
-        console.log('Loading test windows');
-        console.log(course);
-        setIsScheduleModalOpen(true);
-    }
+            // const selectedValue = event.target.value;
+            const selectedValue = event.currentTarget.value;
+            console.log('Loading test windows');
+            console.log(course);
+            setIsScheduleModalOpen(true);
+        }
 
     console.log(courses);
     console.log(studentId);
@@ -200,7 +209,8 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
                    title="Create Exam">
-                <form id="createExamForm" className="w-full space-y-6">
+                <form id="createExamForm" className="w-full space-y-4">
+                    {/*First Grid Box*/}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/*Course Selection and logic*/}
                         <div className="flex flex-col gap-2">
@@ -211,7 +221,8 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                                 onChange={handleCourseChange}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border
-                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0
+                                px-3 py-2"
                             >
                                 <option value="">Select a course</option>
                                 {courses && courses.map(course => (
@@ -246,45 +257,156 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                                 ))}
                             </select>
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
-                            <input
-                                type="text"
-                                id="exam_difficulty"
-                                name="exam_difficulty"
-                                value={currentExam?.examDifficulty}
-                                readOnly
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border
-                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2
-                                  cursor-not-allowed opacity-70"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_required"
-                                    type="checkbox"
-                                    name="is_required"
-                                    checked={Boolean(currentExam?.examRequired === 1)}
-                                    readOnly
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
-                                    text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"
-                                />
-                                <label htmlFor="is_required" className="select-none">Make Exam Required</label>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    id="is_published"
-                                    type="checkbox"
-                                    name="is_published"
-                                    checked={Boolean(currentExam?.examState === 1)}
-                                    readOnly
-                                    className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
-                                    text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"
-                                />
-                                <label htmlFor="is_published" className="select-none">Publish Exam</label>
+                    </div>
+                    <div className="text-center mx-auto">
+                        <span className="text-sm italic text-mentat-gold/80">Exam Details</span>
+                    </div>
+                    {/*Line Divider*/}
+                    <hr className="flex flex-1 border-s mx-4 border-mentat-gold/30" />
+                    {/*Second Grid Box*/}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/*Exam Difficulty and Required States*/}
+                        {/* Exam Difficulty */}
+                        <div className="flex flex-col gap-2 bg-white/5 border
+                        border-mentat-gold/20 rounded-lg p-4 justify-center">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-mentat-gold/80">
+                                    Exam Difficulty
+                                </span>
+                                <span className="text-sm font-semibold text-mentat-gold
+                                bg-crimson/20 px-3 py-1 rounded-full">
+                                    {currentExam?.examDifficulty ?? '--'}
+                                </span>
                             </div>
                         </div>
+
+                        {/* Exam Required */}
+                        <div className="flex flex-col gap-2 bg-white/5 border
+                        border-mentat-gold/20 rounded-lg p-4 justify-center">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-mentat-gold/80">
+                                    Exam Required
+                                </span>
+                                <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                                    currentExam?.examRequired === 1
+                                        ? 'text-green-400 bg-green-500/20'
+                                        : currentExam?.examRequired === 0
+                                            ? 'text-red-400 bg-red-500/20'
+                                            : 'text-mentat-gold/60 bg-mentat-gold/10'
+                                }`}>
+                                    {currentExam?.examRequired === 1 ? 'Required' :
+                                    currentExam?.examRequired === 0 ? 'Optional' : '--'}
+                                </span>
+                            </div>
+                        </div>
+                        {/* Exam Status */}
+                        <div className="flex flex-col gap-2 bg-white/5 border
+                        border-mentat-gold/20 rounded-lg p-4 justify-center">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-mentat-gold/80">
+                                    Exam Status
+                                </span>
+                                <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                                    currentExam?.examState === 1
+                                        ? 'text-green-400 bg-green-500/20'
+                                        : currentExam?.examState === 0
+                                            ? 'text-orange-400 bg-orange-500/20'
+                                            : 'text-mentat-gold/60 bg-mentat-gold/10'
+                                }`}>
+                                    {currentExam?.examState === 1 ? 'Published' :
+                                    currentExam?.examState === 0 ? 'Unpublished' : '--'}
+                                </span>
+                            </div>
+                        </div>
+                        {/* Exam Expiration Date */}
+                        <div className="flex flex-col gap-2 bg-white/5 border
+                        border-mentat-gold/20 rounded-lg p-4 justify-center">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-mentat-gold/80">
+                                    Expiration Date
+                                </span>
+                                <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                                    currentExam?.expirationDate
+                                        ? (() => {
+                                            const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+                                            const now = new Date();
+                                            const isExpired = expirationDate < now;
+                                            const isExpiringSoon =
+                                                expirationDate < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) 
+                                                && !isExpired;
+
+                                            if (isExpired) return 'text-red-400 bg-red-500/20';
+                                            if (isExpiringSoon) return 'text-orange-400 bg-orange-500/20';
+                                            return 'text-green-400 bg-green-500/20';
+                                        })()
+                                        : 'text-mentat-gold/60 bg-mentat-gold/10'
+                                }`}>
+                                        {(() => {
+                                            if (currentExam?.expirationDate) {
+                                                // Parse as local date (not UTC) to avoid timezone issues
+                                                const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+                                                const now = new Date();
+                                                const isExpired = expirationDate < now;
+                                                const isExpiringSoon =
+                                                    expirationDate < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+                                                    && !isExpired;
+
+                                                if (isExpired) {
+                                                    return 'EXPIRED';
+                                                }
+
+                                                const dateStr = expirationDate.toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                });
+                                                return dateStr;
+                                            }
+                                            return '--';
+                                        })()}
+                                    </span>
+                            </div>
+                        </div>
+
+                        {/*<div className="flex flex-col gap-2">*/}
+                        {/*    <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>*/}
+                        {/*    <input*/}
+                        {/*        type="text"*/}
+                        {/*        id="exam_difficulty"*/}
+                        {/*        name="exam_difficulty"*/}
+                        {/*        value={currentExam?.examDifficulty}*/}
+                        {/*        readOnly*/}
+                        {/*        className="w-full rounded-md bg-white/5 text-mentat-gold border*/}
+                        {/*         border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2*/}
+                        {/*          cursor-not-allowed opacity-70"*/}
+                        {/*    />*/}
+                        {/*</div>*/}
+                        {/*<div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">*/}
+                        {/*    <div className="flex items-center gap-3">*/}
+                        {/*        <input*/}
+                        {/*            id="is_required"*/}
+                        {/*            type="checkbox"*/}
+                        {/*            name="is_required"*/}
+                        {/*            checked={Boolean(currentExam?.examRequired === 1)}*/}
+                        {/*            readOnly*/}
+                        {/*            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5*/}
+                        {/*            text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"*/}
+                        {/*        />*/}
+                        {/*        <label htmlFor="is_required" className="select-none">Make Exam Required</label>*/}
+                        {/*    </div>*/}
+                        {/*    <div className="flex items-center gap-3">*/}
+                        {/*        <input*/}
+                        {/*            id="is_published"*/}
+                        {/*            type="checkbox"*/}
+                        {/*            name="is_published"*/}
+                        {/*            checked={Boolean(currentExam?.examState === 1)}*/}
+                        {/*            readOnly*/}
+                        {/*            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5*/}
+                        {/*            text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"*/}
+                        {/*        />*/}
+                        {/*        <label htmlFor="is_published" className="select-none">Publish Exam</label>*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
                     </div>
 
                     <div className="flex justify-end gap-3">

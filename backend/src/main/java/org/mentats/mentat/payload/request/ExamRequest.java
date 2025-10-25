@@ -10,20 +10,18 @@ import java.time.LocalDate;
  * @author Joshua Summers
  */
 public class ExamRequest {
-    @NotNull
     private Long examId;
 
     @NotBlank
     @Size(min = 3, max = 20)
     private String examName;
 
-    @NotBlank
+    @NotNull
     private Integer examState;
 
-    @NotBlank
+    @NotNull
     private Integer examRequired;
 
-    @NotNull
     private Integer examDifficulty;
 
     @NotNull
