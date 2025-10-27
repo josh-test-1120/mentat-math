@@ -1,10 +1,12 @@
 package org.mentats.mentat.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -36,10 +38,17 @@ public class Course {
     @Column(name = "course_name")
     protected String courseName;
 
-    // Course instructor ID
-    @JsonProperty("courseProfessorId") // Map JSON field to Java field
-    @Column(name = "course_professor_id")
-    private Long courseProfessorId;
+//    // Course instructor ID
+//    @JsonProperty("courseProfessorId") // Map JSON field to Java field
+//    @Column(name = "course_professor_id")
+//    private Long courseProfessorId;
+
+    // Fix the professor relationship - should be ManyToOne to User entity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_professor_id")
+    @NotNull
+    @JsonIgnore()
+    private User instructor;
 
     // Course section
     @Size (max = 20)
@@ -61,7 +70,6 @@ public class Course {
     public String courseQuarter;
 
     // Course Grade Strategy
-    @NotBlank
     @Size(max = 255)
     @JsonProperty("gradeStrategy") // Map JSON field to Java field
     @Column(name = "course_grade_strategy", columnDefinition = "JSON")
@@ -71,18 +79,18 @@ public class Course {
      * This is the constructor for the course Entity
      * @param courseId
      * @param courseName
-     * @param courseProfessorId
+     * @param instructor
      * @param courseQuarter
      * @param courseSection
      * @param courseYear
      * @param gradeStrategy
      */
-    public Course(Long courseId, String courseName, Long courseProfessorId,
+    public Course(Long courseId, String courseName, User instructor,
                   String courseQuarter, String courseSection, Integer courseYear,
                   String gradeStrategy) {
         this.courseId          = courseId;
         this.courseName        = courseName;
-        this.courseProfessorId = courseProfessorId;
+        this.instructor        = instructor;
         this.courseQuarter     = courseQuarter;
         this.courseSection     = courseSection;
         this.courseYear        = courseYear;
@@ -108,9 +116,7 @@ public class Course {
      * A getter method that returns the instructor ID
      * @return String instructor ID
      */
-    public Long getCourseProfessorId() {
-        return courseProfessorId;
-    }
+    public User getInstructor() { return instructor; }
 
     /**
      * A getter method that returns the Course name
@@ -156,8 +162,8 @@ public class Course {
         this.courseName = courseName;
     }
 
-    public void setCourseProfessorId(Long courseProfessorId) {
-        this.courseProfessorId = courseProfessorId;
+    public void setInstructor(User instructor) {
+        this.instructor = instructor;
     }
 
     public void setCourseSection(String courseSection) {
@@ -176,6 +182,12 @@ public class Course {
         this.gradeStrategy = gradeStrategy;
     }
 
+    // JSON properties for API responses
+    @JsonProperty("courseProfessorId")
+    public Long getCourseProfessorId() {
+        return instructor != null ? instructor.getId() : null;
+    }
+
     /**
      * This is the toString override for String result responses
      * @return String output of keys and values
@@ -185,7 +197,7 @@ public class Course {
         return "Course{" +
                 "courseId=" + courseId +
                 ", courseName='" + courseName + '\'' +
-                ", courseProfessorId=" + courseProfessorId +
+                ", instructor=" + (instructor != null ? instructor.toString() : "null") +
                 ", courseSection='" + courseSection + '\'' +
                 ", courseYear=" + courseYear +
                 ", courseQuarter='" + courseQuarter + '\'' +

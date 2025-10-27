@@ -1,13 +1,17 @@
 package org.mentats.mentat.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.mentats.mentat.exceptions.CourseNotFoundException;
+import org.mentats.mentat.exceptions.DataAccessException;
+import org.mentats.mentat.exceptions.ExamResultNotFoundException;
 import org.mentats.mentat.models.Course;
-import org.mentats.mentat.models.CourseJoin;
-import org.mentats.mentat.models.StudentCourse;
-import org.mentats.mentat.payload.request.CourseJoinRequest;
-import org.mentats.mentat.payload.request.JoinCourseRequest;
+import org.mentats.mentat.payload.request.*;
+import org.mentats.mentat.payload.response.CourseResponse;
 import org.mentats.mentat.payload.response.MessageResponse;
+import org.mentats.mentat.payload.response.StudentCourseResponse;
 import org.mentats.mentat.repositories.CourseRepository;
-import org.mentats.mentat.services.CourseJoinService;
+import org.mentats.mentat.services.CourseService;
+import org.mentats.mentat.services.StudentCourseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
+
+import static java.lang.Long.parseLong;
 
 
 /**
@@ -30,13 +35,16 @@ public class CourseController {
     /**
      * CourseController Fields
      */
+    // Services
     @Autowired
-    private CourseJoinService courseJoinService;
-
+    private CourseService courseService;
+    @Autowired
+    private StudentCourseService studentCourseService;
     // Repository services
     private final CourseRepository courseRepository;
-
+    // Logger
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+
 
     /**
      * Dependency Injection Constructor
@@ -48,20 +56,20 @@ public class CourseController {
 
     /**
      * A method to creates a course and writes into the database.
-     * @param courseJoinRequest CourseRequest type object that masks request info
+     * @param courseRequest CourseRequest type object that masks request info
      * @return Returns message response.
      */
     @PostMapping("/createCourse")
-    public ResponseEntity<?> createCourse(@RequestBody CourseJoinRequest courseJoinRequest) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseRequest courseRequest) {
         try {
-            System.out.println("Creating course: " + courseJoinRequest.getCourseName());
-            System.out.println("Course section: " + courseJoinRequest.getCourseSection());
-            System.out.println("Course quarter: " + courseJoinRequest.getCourseQuarter());
-            System.out.println("Course year: " + courseJoinRequest.getCourseYear());
-            System.out.println("User ID: " + courseJoinRequest.getUserId());
+            System.out.println("Creating course: " + courseRequest.getCourseName());
+            System.out.println("Course section: " + courseRequest.getCourseSection());
+            System.out.println("Course quarter: " + courseRequest.getCourseQuarter());
+            System.out.println("Course year: " + courseRequest.getCourseYear());
+            System.out.println("User ID: " + courseRequest.getCourseProfessorId());
 
-            CourseJoin courseJoin = courseJoinService.createCourse(courseJoinRequest);
-            System.out.println("Course successfully created: " + courseJoin.getCourseName());
+            CourseResponse course = courseService.createCourse(courseRequest);
+            System.out.println("Course successfully created: " + course.getCourseName());
             return ResponseEntity.ok(new MessageResponse("Course created successfully"));
         } catch (Exception e) {
             logger.error("Error creating course: " + e.getMessage(), e);
@@ -79,7 +87,7 @@ public class CourseController {
     public ResponseEntity<?> listCourses(@RequestParam String id) {
         try {
             // Get courses by their creator Professor ID
-            List<CourseJoin> courses = courseJoinService.getCoursesByProfessorId(id);
+            List<CourseResponse> courses = courseService.getCoursesByProfessorId(parseLong(id));
 
             // Empty check
             if (courses.isEmpty()) {
@@ -97,21 +105,16 @@ public class CourseController {
 
     /**
      * API method for students to join a course
-     * @param req Join course request containing course ID and user ID
+     * @param studentCourseRequest StudentCourseRequest
      * @return Response indicating success or failure
      */
     @PostMapping("/joinCourse")
-    public ResponseEntity<?> joinCourse(@RequestBody JoinCourseRequest req) {
+    public ResponseEntity<?> joinCourse(@RequestBody StudentCourseRequest studentCourseRequest) {
         try {
-            courseJoinService.joinCourse(req);
-            return ResponseEntity.ok(new MessageResponse("Course joined successfully!"));
-
-        } catch (NumberFormatException e) {
-            logger.error("Number format error: " + e.getMessage(), e);
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid course ID or user ID format"));
-        } catch (IllegalArgumentException e) {
-            logger.warn("Invalid request: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(e.getMessage()));
+            StudentCourseResponse course = studentCourseService.joinCourse(studentCourseRequest);
+            System.out.println("Course successfully joined: " + course.getCourseId() + " " +
+                    course.getStudentId());
+            return ResponseEntity.ok(new MessageResponse("Course joined successfully"));
         } catch (Exception e) {
             logger.error("Error joining course: " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -125,32 +128,36 @@ public class CourseController {
      */
     @GetMapping("/debug/enrollments")
     public ResponseEntity<?> getAllEnrollments() {
-        try {
-            List<StudentCourse> enrollments = courseJoinService.getAllEnrollments();
-            return ResponseEntity.ok(enrollments);
-        } catch (Exception e) {
-            logger.error("Error retrieving enrollments: " + e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse("Error retrieving enrollments: " + e.getMessage()));
-        }
+        // Use the service layer to get all the joined courses
+        List<StudentCourseResponse> response = studentCourseService.getAllEnrollments();
+        // Convert to Response DTO
+        return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
 
     /**
      * API method for getting all courses a student is enrolled in
-     * @param studentId Student ID
+     * This method is a duplicate method for getting courses
+     * as such, it defers to that function for processing
+     * @param sid Student ID
      * @return Response with list of courses
      */
-    @GetMapping("/enrollments")
-    public ResponseEntity<?> getEnrolledCourses(@RequestParam String studentId) {
+    @GetMapping("/enrollments/{studentID}")
+    public ResponseEntity<?> getEnrolledCourses(@PathVariable("studentID") Long sid) {
         try {
-            // Get all courses a student is enrolled in
-            List<CourseJoin> courses = courseJoinService.getEnrolledCourses(studentId);
+            // Get courses by the student Id they are joined to
+            List<CourseResponse> courses = studentCourseService.getEnrolledCourses(sid);
+
+            // Empty check
+            if (courses.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Return list of course by the Professor ID
             return ResponseEntity.ok(courses);
         } catch (Exception e) {
-            // Error fetching enrolled courses
-            logger.error("Error fetching enrolled courses: " + e.getMessage(), e);
+            logger.error("Error retrieving courses for professor " + sid + ": " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse("Error fetching enrolled courses"));
+                    .body(new MessageResponse("Error retrieving courses: " + e.getMessage()));
         }
     }
 
@@ -160,22 +167,61 @@ public class CourseController {
      * @return Map object that have {string, object} types
      */
     @GetMapping("/{courseID}")
-    public ResponseEntity<Course> getCourse(@PathVariable("courseID") Long id) {
+    public ResponseEntity<CourseResponse> getCourse(@PathVariable("courseID") Long cid) {
+        // Use the service layer to get the course based on the Course Id
+        Course course = courseService.getCourseById(cid);
+        CourseResponse response = new CourseResponse(course);
+        // Convert to Response DTO
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Patch the course in the database
+     * based on the course ID supplied in the URI
+     * @param courseUpdates JSON object of data
+     * @param cid course Id
+     * @return ResponseEntity
+     */
+    @PatchMapping("/{courseID}")
+    public ResponseEntity<?> updateCourse(@RequestBody CourseRequest courseUpdates,
+                                        @PathVariable("courseID") Long cid) {
         try {
-            // Use the repository to find the course by ID
-            Optional<Course> courseOptional = courseRepository.findById(id);
-            // Check to make sure record exists
-            if (courseOptional.isPresent()) {
-                Course course = courseOptional.get();
-                return ResponseEntity.ok(course);
-            } else {
-                // Return 404 if course not found
-                return ResponseEntity.notFound().build();
-            }
-            // Exception Handler
+            // Use the service layer to handle the update
+            Course updatedCourse = courseService.updateCourse(cid, courseUpdates);
+
+            // Convert to DTO/Response object for proper response (object-less)
+            CourseResponse response = new CourseResponse(updatedCourse);
+            return ResponseEntity.ok(response);
+
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Database error while updating course: " + e.getMessage());
+        } catch (EntityNotFoundException e) {
+            throw new ExamResultNotFoundException("Course not found with id: " + cid);
+        }
+    }
+
+    /**
+     * Delete a course from the course table
+     * @param cid Course Id
+     * @return ResponseEntity of operation
+     */
+    @DeleteMapping("/{courseID}")
+    public ResponseEntity<?> deleteCourse(@PathVariable("courseID") Long cid) {
+        try {
+            // Use the service layer to handle the deletion
+            courseService.deleteCourse(cid);
+
+            return ResponseEntity.ok().build();
+
+        } catch (CourseNotFoundException e) {
+            // Handle case where course is not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Course not found with id: " + cid);
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // Handle other exceptions (constraint violations, etc.)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting course: " + e.getMessage());
         }
     }
 
@@ -189,7 +235,7 @@ public class CourseController {
     public ResponseEntity<List<Course>> getCourseByInstructorId(@PathVariable("instructorID") Long iId) {
         try {
             // Use the repository to find courses by instructor ID
-            List<Course> courses = courseRepository.findByCourseProfessorId(iId);
+            List<Course> courses = courseRepository.findByInstructor_Id(iId);
 
             // Check if any courses were found
             if (courses != null && !courses.isEmpty()) {

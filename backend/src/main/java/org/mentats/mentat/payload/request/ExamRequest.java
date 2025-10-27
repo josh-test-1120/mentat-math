@@ -22,6 +22,7 @@ public class ExamRequest {
     @NotNull
     private Integer examRequired;
 
+    @NotNull
     private Integer examDifficulty;
 
     @NotNull
@@ -34,6 +35,12 @@ public class ExamRequest {
     private Integer examOnline;
 
     private LocalDate examExpirationDate;
+
+    /**
+     * Default constructor
+     */
+    public ExamRequest() {
+    }
 
     /**
      * Getter for Exam Id

@@ -1,15 +1,26 @@
 package org.mentats.mentat.services;
 
-import org.mentats.mentat.models.Course;
+import jakarta.persistence.EntityNotFoundException;
+import org.mentats.mentat.exceptions.DuplicateRecordException;
+import org.mentats.mentat.exceptions.ValidationException;
+import org.mentats.mentat.models.*;
+import org.mentats.mentat.payload.request.CourseRequest;
+import org.mentats.mentat.payload.response.CourseResponse;
+import org.mentats.mentat.repositories.StudentCourseRepository;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.components.CourseValidator;
 import org.mentats.mentat.exceptions.CourseNotFoundException;
+import org.mentats.mentat.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 
 /**
  * Service class for handling course repository logic
@@ -17,23 +28,64 @@ import java.util.Optional;
  */
 @Service
 public class CourseService {
-
+    // Repository services
     @Autowired
     private CourseRepository courseRepository;
-
+    @Autowired
+    private StudentCourseRepository studentCourseRepository;
+    @Autowired
+    private UserRepository userRepository;
+    // Validator Service
     @Autowired
     private CourseValidator validator;
+    // Entity Foreign Keys
+    private User instructor;
+
+    /**
+     * Utility to load Foreign Keys
+     */
+    private void GetForeignKeyObjects(CourseRequest courseRequest) {
+        // Find related entities
+        instructor = userRepository.findById(courseRequest.getCourseProfessorId())
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Course not found with ID: " +
+                                courseRequest.getCourseProfessorId()));
+    }
 
     /**
      * Create new Course object
-     * @param course
-     * @return Course object
+     * @param courseRequest The course request containing course details
+     * @return CourseResponse object with the created course data
+     * @throws EntityNotFoundException if the referenced Course is not found
+     * @throws ValidationException if the course request validation fails
      */
-    // Create course
+    // Create exam result
     @Transactional
-    public Course createCourse(Course course) {
-        validator.validateForCreation(course);
-        return courseRepository.save(course);
+    public CourseResponse createCourse(CourseRequest courseRequest) {
+        // Run Validations
+        validator.validateForCreation(courseRequest);
+
+        // Get referenced objects (FKs)
+        GetForeignKeyObjects(courseRequest);
+
+        // Check for existing course
+        boolean exists = courseRepository.existsById(courseRequest.getCourseId());
+        if (exists) {
+            throw new DuplicateRecordException("Course already exists");
+        }
+
+        // Create entity
+        Course course = new Course();
+        course.setInstructor(instructor);
+        course.setCourseName(courseRequest.getCourseName());
+        course.setCourseSection(courseRequest.getCourseSection());
+        course.setCourseQuarter(courseRequest.getCourseQuarter());
+        course.setCourseYear(courseRequest.getCourseYear());
+        course.setGradeStrategy(courseRequest.getGradeStrategy());
+
+        // Save and return response DTO
+        Course saved = courseRepository.save(course);
+        return new CourseResponse(saved);
     }
 
     /**
@@ -53,8 +105,20 @@ public class CourseService {
      * @return List of Course objects
      */
     // Read all courses
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+    public List<CourseResponse> getAllCourses() {
+        List<Course> courses = courseRepository.findAll();
+
+        return courses.stream()
+                .map(proj -> new CourseResponse(
+                        proj.getCourseId(),
+                        proj.getCourseName(),
+                        proj.getCourseProfessorId(),
+                        proj.getCourseSection(),
+                        proj.getCourseQuarter(),
+                        proj.getCourseYear(),
+                        proj.getGradeStrategy()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -63,9 +127,22 @@ public class CourseService {
      * @return List of Course objects
      */
     // Read courses by professor ID
-    public List<Course> getCoursesByProfessorId(Long courseProfessorId) {
+    public List<CourseResponse> getCoursesByProfessorId(Long courseProfessorId) {
         validator.validateProfessorId(courseProfessorId);
-        return courseRepository.findByCourseProfessorId(courseProfessorId);
+
+        List<Course> projections = courseRepository.findByInstructor_Id(courseProfessorId);
+
+        return projections.stream()
+                .map(proj -> new CourseResponse(
+                        proj.getCourseId(),
+                        proj.getCourseName(),
+                        proj.getCourseProfessorId(),
+                        proj.getCourseSection(),
+                        proj.getCourseQuarter(),
+                        proj.getCourseYear(),
+                        proj.getGradeStrategy()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -75,10 +152,23 @@ public class CourseService {
      * @return List of Course objects
      */
     // Read courses by year and quarter
-    public List<Course> getCoursesByYearAndQuarter(Integer courseYear, String courseQuarter) {
+    public List<CourseResponse> getCoursesByYearAndQuarter(Integer courseYear, String courseQuarter) {
         validator.validateYear(courseYear);
         validator.validateQuarter(courseQuarter);
-        return courseRepository.findByCourseYearAndCourseQuarter(courseYear, courseQuarter);
+
+        List<Course> courses = courseRepository.findByCourseYearAndCourseQuarter(courseYear, courseQuarter);
+
+        return courses.stream()
+                .map(proj -> new CourseResponse(
+                        proj.getCourseId(),
+                        proj.getCourseName(),
+                        proj.getCourseProfessorId(),
+                        proj.getCourseSection(),
+                        proj.getCourseQuarter(),
+                        proj.getCourseYear(),
+                        proj.getGradeStrategy()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -87,9 +177,22 @@ public class CourseService {
      * @return List of Course objects
      */
     // Read courses by name
-    public List<Course> getCoursesByName(String courseName) {
+    public List<CourseResponse> getCoursesByName(String courseName) {
         validator.validateCourseName(courseName);
-        return courseRepository.findByCourseNameContainingIgnoreCase(courseName);
+
+        List<Course> courses = courseRepository.findByCourseNameContainingIgnoreCase(courseName);
+
+        return courses.stream()
+                .map(proj -> new CourseResponse(
+                        proj.getCourseId(),
+                        proj.getCourseName(),
+                        proj.getCourseProfessorId(),
+                        proj.getCourseSection(),
+                        proj.getCourseQuarter(),
+                        proj.getCourseYear(),
+                        proj.getGradeStrategy()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -100,13 +203,15 @@ public class CourseService {
      * @return Course object
      */
     // Read course by section, year, and quarter
-    public Course getCourseBySectionYearQuarter(String courseSection, Integer courseYear, String courseQuarter) {
+    public CourseResponse getCourseBySectionYearQuarter(String courseSection, Integer courseYear, String courseQuarter) {
         validator.validateSection(courseSection);
         validator.validateYear(courseYear);
         validator.validateQuarter(courseQuarter);
-        return courseRepository.findByCourseSectionAndCourseYearAndCourseQuarter(courseSection, courseYear, courseQuarter)
+        Course existing = courseRepository.findByCourseSectionAndCourseYearAndCourseQuarter(courseSection, courseYear, courseQuarter)
                 .orElseThrow(() -> new CourseNotFoundException("Course not found with section: " + courseSection +
                         ", year: " + courseYear + ", quarter: " + courseQuarter));
+
+        return new CourseResponse(existing);
     }
 
     /**
@@ -117,18 +222,24 @@ public class CourseService {
      */
     // Update course
     @Transactional
-    public Course updateCourse(Long id, Course courseUpdates) {
+    public Course updateCourse(Long id, CourseRequest courseUpdates) {
         validator.validateCourseId(id);
         Course existing = getCourseById(id);
 
         validator.validateForUpdate(existing, courseUpdates);
 
+        // Get referenced objects (FKs)
+        GetForeignKeyObjects(courseUpdates);
+
+        // Handle FK updates and cascades (if appropriate) *** TBD ***
+        // Object Reference updates
+        if (instructor != null) {
+            existing.setInstructor(instructor);
+        }
+
         // Update only provided fields (partial update)
         if (courseUpdates.getCourseName() != null) {
             existing.setCourseName(courseUpdates.getCourseName());
-        }
-        if (courseUpdates.getCourseProfessorId() != null) {
-            existing.setCourseProfessorId(courseUpdates.getCourseProfessorId());
         }
         if (courseUpdates.getCourseSection() != null) {
             existing.setCourseSection(courseUpdates.getCourseSection());
@@ -139,7 +250,7 @@ public class CourseService {
         if (courseUpdates.getCourseQuarter() != null) {
             existing.setCourseQuarter(courseUpdates.getCourseQuarter());
         }
-        if (courseUpdates.getGradeStrategy() != null) {
+        if (courseUpdates.getGradeStrategy() != null && !courseUpdates.getGradeStrategy().isEmpty()) {
             existing.setGradeStrategy(courseUpdates.getGradeStrategy());
         }
 

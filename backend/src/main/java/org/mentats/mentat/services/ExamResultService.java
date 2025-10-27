@@ -1,6 +1,7 @@
 package org.mentats.mentat.services;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.mentats.mentat.exceptions.DuplicateRecordException;
 import org.mentats.mentat.exceptions.ExamResultNotFoundException;
 import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.ExamResult;
@@ -64,6 +65,13 @@ public class ExamResultService {
 
         // Get referenced objects (FKs)
         GetForeignKeyObjects(examResultRequest);
+
+        // Check for existing exam result (TBD as some duplication can exist)
+        boolean exists = examResultRepository.existsByExam_IdAndExamVersion(examResultRequest.getExamResultId(),
+                examResultRequest.getExamVersion());
+        if (exists) {
+            throw new DuplicateRecordException("Exam result already exists for this exam and specific version");
+        }
 
         // Create entity
         ExamResult examResult = new ExamResult();

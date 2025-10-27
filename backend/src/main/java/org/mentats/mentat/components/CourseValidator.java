@@ -1,6 +1,7 @@
 package org.mentats.mentat.components;
 
 import org.mentats.mentat.models.Course;
+import org.mentats.mentat.payload.request.CourseRequest;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ public class CourseValidator {
     @Autowired
     private CourseRepository courseRepository;
 
-    public void validateForCreation(Course course) {
+    public void validateForCreation(CourseRequest course) {
         validateNotNull(course, "Course");
         validateRequiredFields(course);
         validateFieldFormats(course);
@@ -80,15 +81,16 @@ public class CourseValidator {
     }
 
     public void validateGradeStrategy(String gradeStrategy) {
-        if (gradeStrategy == null || gradeStrategy.trim().isEmpty()) {
-            throw new ValidationException("Grade strategy is required");
-        }
+        // Grade Strategy can be null
+//        if (gradeStrategy == null || gradeStrategy.trim().isEmpty()) {
+//            throw new ValidationException("Grade strategy is required");
+//        }
         if (gradeStrategy.length() > 255) {
             throw new ValidationException("Grade strategy cannot exceed 255 characters");
         }
     }
 
-    public void validateForUpdate(Course existing, Course updates) {
+    public void validateForUpdate(Course existing, CourseRequest updates) {
         if (updates.getCourseName() != null) {
             validateCourseName(updates.getCourseName());
         }
@@ -134,7 +136,7 @@ public class CourseValidator {
     }
 
     // PRIVATE VALIDATION METHODS
-    private void validateRequiredFields(Course course) {
+    private void validateRequiredFields(CourseRequest course) {
         validateCourseName(course.getCourseName());
         validateProfessorId(course.getCourseProfessorId());
         validateSection(course.getCourseSection());
@@ -143,7 +145,7 @@ public class CourseValidator {
         validateGradeStrategy(course.getGradeStrategy());
     }
 
-    private void validateFieldFormats(Course course) {
+    private void validateFieldFormats(CourseRequest course) {
         // Additional format validations
         if (course.getCourseName() != null && course.getCourseName().contains("<script>")) {
             throw new ValidationException("Course name contains invalid characters");
@@ -153,13 +155,13 @@ public class CourseValidator {
         }
     }
 
-    private void validateBusinessRules(Course course) {
+    private void validateBusinessRules(CourseRequest course) {
         // Business logic validation
         // Example: Validate that the quarter and year combination is not in the future
         // You can add more business rules here
     }
 
-    private void validateUniqueness(Course course, Long excludeId) {
+    private void validateUniqueness(CourseRequest course, Long excludeId) {
         if (!isCourseUnique(course.getCourseSection(), course.getCourseYear(), course.getCourseQuarter(), excludeId)) {
             throw new ValidationException("A course with the same section, year, and quarter already exists");
         }
