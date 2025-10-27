@@ -18,7 +18,6 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course, Long> {
     // Find courses by professor ID
     List<Course> findByInstructor_Id(Long courseProfessorId);
-//    List<Course> findByCourseProfessorId(Long courseProfessorId);
     // Find courses by year and quarter
     List<Course> findByCourseYearAndCourseQuarter(Integer courseYear, String courseQuarter);
     // Find courses by name (case-insensitive)

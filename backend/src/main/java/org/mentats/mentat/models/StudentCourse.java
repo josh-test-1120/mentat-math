@@ -8,6 +8,10 @@ import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * This class represents the Student Course entity that contains courses students join
+ * @author Telmen Enkhtuvshin
+ */
 @Entity
 @Table(name = "StudentCourse",
         uniqueConstraints = @UniqueConstraint(columnNames = {"course_id","student_id"}))

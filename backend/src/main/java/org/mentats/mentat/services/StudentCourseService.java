@@ -2,15 +2,12 @@ package org.mentats.mentat.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.mentats.mentat.components.StudentCourseValidator;
-import org.mentats.mentat.exceptions.DuplicateRecordException;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.mentats.mentat.models.Course;
-import org.mentats.mentat.models.Exam;
 import org.mentats.mentat.models.StudentCourse;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.StudentCourseRequest;
 import org.mentats.mentat.payload.response.CourseResponse;
-import org.mentats.mentat.payload.response.ExamResponse;
 import org.mentats.mentat.payload.response.StudentCourseResponse;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.StudentCourseRepository;
@@ -19,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for handling student course repository logic
+ * @author Joshua Summers
+ */
 @Service
 public class StudentCourseService {
     // Repository services

@@ -1,9 +1,3 @@
-/**
- * @author Telmen Enkhtuvshin
- * This is the JPA composite ID class for StudentCourse JPA persistance object to
- * determine ID and primary keys of StudentCourse object.
- */
-
 package org.mentats.mentat.models;
 
 import jakarta.persistence.Embeddable;
@@ -11,6 +5,11 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * This is the JPA composite ID class for StudentCourse JPA persistance object to
+ * determine ID and primary keys of StudentCourse object.
+ * @author Telmen Enkhtuvshin
+ */
 @Embeddable
 public class StudentCourseId implements Serializable {
     private Long courseId;

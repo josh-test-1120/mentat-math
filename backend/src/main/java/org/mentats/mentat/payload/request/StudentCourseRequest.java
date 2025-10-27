@@ -5,6 +5,12 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+/**
+ * Form request validation serializer
+ * Student ourse request objects
+ * serialize Student Course posts
+ * @author Joshua Summers
+ */
 public class StudentCourseRequest {
 
     private Long courseId;

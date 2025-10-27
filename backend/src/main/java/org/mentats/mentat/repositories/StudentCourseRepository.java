@@ -1,10 +1,3 @@
-/**
- * @author Telmen Enkhtuvshin
- * JPA Repository interface for storing Student course enrollment DB entity and JPA object.
- * @see org.mentats.mentat.models.StudentCourse
- * The interface method names are directly derived from the entity names and functions by verb conjugation.
- */
-
 package org.mentats.mentat.repositories;
 
 import org.mentats.mentat.models.StudentCourse;
@@ -15,6 +8,15 @@ import java.util.Optional;
 
 import java.util.List;
 
+/**
+ * JPA Repository interface for storing Student course enrollment DB entity and JPA object.
+ *
+ * @see org.mentats.mentat.models.StudentCourse
+ * The interface method names are directly derived from the entity names and functions by verb conjugation.
+ * @see org.springframework.data.jpa.repository.JpaRepository
+ * @see https://spring.io/guides/gs/accessing-data-jpa
+ * @author Telmen Enkhtuvshin
+ */
 @Repository
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, StudentCourseId> {
 //    // Check if a student is enrolled in a course

@@ -1,8 +1,5 @@
 package org.mentats.mentat.payload.response;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.StudentCourse;
 
 import java.time.LocalDate;

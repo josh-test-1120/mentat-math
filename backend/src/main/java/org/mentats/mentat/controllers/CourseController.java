@@ -45,7 +45,6 @@ public class CourseController {
     // Logger
     private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
 
-
     /**
      * Dependency Injection Constructor
      * @param courseRepository
