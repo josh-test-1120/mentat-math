@@ -47,6 +47,8 @@ export default function StudentSchedule() {
     const hasFetched = useRef(false);
     // These are the filter states
     const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330' | string>('all');
+    // These are the valid statuses for showing scheduled exams
+    const validStatus = ['pending', 'upcoming', 'missing'];
     // This is the Backend API data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -356,8 +358,7 @@ export default function StudentSchedule() {
                                 {filteredExams
                                     .filter((exam) => {
                                         const status = getExamPropStatus(exam);
-                                        return status === 'pending'
-                                            || status === 'upcoming' || status === 'missing';
+                                        return validStatus.includes(status);
                                     })
                                     .map((examInst) => (
                                     <ExamCardMedium
