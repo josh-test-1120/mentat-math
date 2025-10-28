@@ -22,7 +22,6 @@ public class ExamRequest {
     @NotNull
     private Integer examRequired;
 
-    @NotNull
     private Integer examDifficulty;
 
     @NotNull
