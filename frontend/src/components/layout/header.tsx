@@ -14,7 +14,9 @@ export default async function Header() {
     const animateTextDelay = 0.1;
 
     return (
-        <header className="flex justify-between items-center bg-gradient-to-r from-crimson-700 via-mentat-black/50 to-mentat-black py-3 px-6 border-b-4 border-stone-400">
+        <header className="flex justify-between items-center bg-gradient-to-r from-crimson-700
+        via-mentat-black/50 to-mentat-black py-3 px-6 border-b-4 border-mentat-gold-700/90"
+        >
             {/* Logo Section */}
             <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 relative rounded-full overflow-hidden">

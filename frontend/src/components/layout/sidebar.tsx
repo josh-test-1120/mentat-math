@@ -503,7 +503,8 @@ export default function Sidebar() {
             if (!newIsOpen) {
                 // COLLAPSE sequence - order important for graceful transition
                 // 1. Adjust the sidebar colors
-                sidebarRef.current.classList.remove("bg-gradient-to-br", "from-crimson-700", "via-mentat-black/50", "to-mentat-black");
+                sidebarRef.current.classList.remove("bg-gradient-to-br",
+                    "from-crimson-700", "via-mentat-black/50", "to-mentat-black");
                 sidebarRef.current.classList.add("bg-mentat-black");
 
                 // 2. Hamburger block background
@@ -590,11 +591,13 @@ export default function Sidebar() {
                         <a
                             href="#"
                             onClick={sidebarHandler}
-                            className="group flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-crimson-700 group"
+                            className="group flex items-center p-2 text-base font-normal rounded-lg
+                            hover:bg-crimson-700 group"
                         >
                             <HamburgerSvgComponent
                                 className={`
-                                    w-4 h-4 text-white transition-all duration-150 group-hover:bg-crimson-700
+                                    w-4 h-4 text-mentat-gold/80 transition-all duration-150
+                                    group-hover:bg-crimson-700
                                     ${isOpen ? 'zinc-900 rotate-0' : 'bg-mentat-black rotate-180'}
                                   `}
                             />
@@ -627,15 +630,22 @@ export default function Sidebar() {
                             <PagesSvgComponent
                                 className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
                                     group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
-                            <span className="ml-3">{userType === 'Student' ? 'Grades' : 'Exams'}</span>
+                            <span className="ml-3">
+                                {userType === 'Student' ? 'Grades' : 'Exams'}
+                            </span>
                         </Link>
                     </li>
                     <li>
                         <Link href="/schedule"
-                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300
+                              rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                              dark:hover:bg-gray-700">
                             <SalesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
-                            <span className="ml-3">{userType === 'Student' ? 'Schedule Exam' : 'Create Test Window'}</span>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
+                                    "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                            <span className="ml-3">
+                                {userType === 'Student' ? 'Schedule Exam' : 'Create Test Window'}
+                            </span>
                         </Link>
                     </li>
                     {/*<li>*/}
@@ -648,9 +658,12 @@ export default function Sidebar() {
                     {/*</li>*/}
                     <li>
                         <Link href="/reports"
-                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300
+                              rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                              dark:hover:bg-gray-700">
                             <AuthenticationSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
+                                    "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
                             <span className="ml-3">Reports</span>
                         </Link>
                         {/*<ul id="dropdown-authentication" className="hidden py-2 space-y-2">*/}
@@ -672,34 +685,40 @@ export default function Sidebar() {
                         {/*</ul>*/}
                     </li>
                 </ul>
-                <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
+                <ul className="pt-5 mt-5 space-y-2 border-t border-mentat-gold/40 dark:border-gray-700">
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition
-                                duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group disabled">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                           transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
+                           group disabled">
                             <DocsSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
-                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            />
                             <span className="ml-3">Profile</span>
                         </a>
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition
-                                duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group disabled">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                           transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
+                           group disabled">
                             <ComponentsSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
-                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                               dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            />
                             <span className="ml-3">Administration</span>
                         </a>
                     </li>
                     <li>
                         <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg transition
-                                duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group disabled">
+                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                           transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
+                           group disabled">
                             <HelpSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
-                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
+                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            />
                             <span className="ml-3">Help</span>
                         </a>
                     </li>
@@ -707,7 +726,7 @@ export default function Sidebar() {
                 { session ? (
                     <div>
                         {/* Line Divider */}
-                        <hr className="border-white mt-5"></hr>
+                        <hr className="border-mentat-gold/40 mt-5"></hr>
                         {/* User Info & Actions */}
                         <div className="items-center px-4 mt-5 space-x-4">
                             <div className="text-mentat-gold text-sm">
@@ -719,7 +738,7 @@ export default function Sidebar() {
                     </div>
                 ) : null}
                 {/* Line Divider */}
-                <hr className="border-white mt-5"></hr>
+                <hr className="border-mentat-gold/40 mt-5"></hr>
                 {/* Date/Time Section */}
                 <div className="text-mentat-gold px-4 mt-5">
                     <div>Today's Date: <span id="date">{currDate}</span></div>
