@@ -307,7 +307,8 @@ export default function StudentSchedule() {
                         { session?.user?.id && filteredCourses ? (
                             < CreateScheduledExam
                                 studentId={session?.user?.id}
-                                courses={filteredCourses}
+                                courses={courses}
+                                filteredCourse={course}
                                 updateAction={() => {
                                     // Trigger refresh when modal closes
                                     setRefreshTrigger(prev => prev + 1);
