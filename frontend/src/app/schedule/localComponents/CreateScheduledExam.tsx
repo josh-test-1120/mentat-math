@@ -110,6 +110,9 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
         }
     }, [session]);
 
+    /**
+     * Exam refresh useEffect
+     */
     useEffect(() => {
         if (!currentExam) return;
         else {
@@ -240,14 +243,11 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
         // Local variables
         let reducedCourses: Course[] = [];
         let loadedCourse = false;
-        let initialDisplayText = '';
         // Set layout for course passed in (default selection)
         if (courses && courses.length > 0) {
             if (course) {
                 reducedCourses = courses.filter((item) => item.courseId !== course.courseId);
                 console.log(reducedCourses);
-                initialDisplayText = `${course.courseName} - ${course.courseSection} 
-                (${course.courseQuarter} ${course.courseYear})`;
                 loadedCourse = true;
             }
             // Otherwise we handle all courses
