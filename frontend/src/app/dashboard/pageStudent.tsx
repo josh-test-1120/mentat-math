@@ -45,6 +45,8 @@ export default function ExamsPage() {
     const hasFetched = useRef(false);
     // These are the filter states
     const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed' | 'pending'>('all');
+    // Valid statuses
+    const validStatus = ['pending', 'upcoming', 'missing'];
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -386,7 +388,12 @@ export default function ExamsPage() {
                                     animate="visible"
                                     className="space-y-4 mb-2"
                                 >
-                                    {filteredExams.map((exam) => (
+                                    {filteredExams
+                                        .filter((exam) => {
+                                            const status = getExamPropStatus(exam);
+                                            return validStatus.includes(status);
+                                        })
+                                        .map((exam) => (
                                         <GradeCardExtended
                                             key={exam.examId}
                                             exam={exam}
