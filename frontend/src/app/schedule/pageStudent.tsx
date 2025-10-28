@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
 import Course from "@/components/types/course";
 import Grade from "@/components/types/grade";
-import { getExamPropCourse } from "@/app/schedule/localComponents/ExamCard";
+import {getExamPropCourse, getExamPropStatus} from "@/app/schedule/localComponents/ExamCard";
 import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledExam";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamCardMedium } from "@/app/schedule/localComponents/ExamCard";
@@ -353,7 +353,13 @@ export default function StudentSchedule() {
                     ) : filteredExams && filteredExams.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             <AnimatePresence>
-                                {filteredExams.map((examInst) => (
+                                {filteredExams
+                                    .filter((exam) => {
+                                        const status = getExamPropStatus(exam);
+                                        return status === 'pending'
+                                            || status === 'upcoming' || status === 'missing';
+                                    })
+                                    .map((examInst) => (
                                     <ExamCardMedium
                                         key={examInst.examId}
                                         exam={examInst}
