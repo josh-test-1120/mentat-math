@@ -148,7 +148,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                 && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
             // If the exam date is in the past but no score, it's pending
             else return 'pending';
-        };
+    };
 
     // Get the status of the exam
     const examStatus = getExamPropStatus(exam);

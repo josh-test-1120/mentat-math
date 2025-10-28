@@ -271,7 +271,12 @@ export default function ExamDashboard() {
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
-                        < CreateExam onExamCreated={() => setRefreshTrigger(prev => prev + 1)} />
+                        < CreateExam
+                            course={course}
+                            onExamCreated={() =>
+                                setRefreshTrigger(prev => prev + 1)
+                            }
+                        />
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
                     <p>Manage and view your created exams</p>
@@ -326,9 +331,9 @@ export default function ExamDashboard() {
                     )}
 
                 </div>
-                {/*Exam Analysis Dashboard Component*/}
                 {/* Line Divider */}
                 <hr className="border-crimson border-2 my-2"></hr>
+                {/*Exam Analysis Dashboard Component*/}
                 <ExamStatistics
                     exams={filteredExams}
                     index={0}

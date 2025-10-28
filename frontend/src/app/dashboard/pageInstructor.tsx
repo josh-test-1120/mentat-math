@@ -6,6 +6,7 @@ import { apiHandler } from '@/utils/api';
 import Modal from '@/components/services/Modal';
 import Course from "@/components/types/course"
 import CreateCourseClient from '@/app/dashboard/localComponents/CreateCourse';
+import ModifyCourseComponent from "@/app/dashboard/localComponents/ModifyCourse";
 import { toast } from 'react-toastify';
 import { Plus } from "lucide-react";
 import { RingSpinner } from "@/components/UI/Spinners";
@@ -29,6 +30,7 @@ export default function InstructorCoursesClient() {
     });
     // These are the state variables used in the page
     const [courses, setCourses] = useState<Course[]>([]);
+    const [course, setCourse] = useState<Course>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     // Refresh trigger (to re-render page)
@@ -37,6 +39,7 @@ export default function InstructorCoursesClient() {
     const hasFetched = useRef(false);
     // Modal state checks
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -149,6 +152,15 @@ export default function InstructorCoursesClient() {
         }
     };
 
+    const handleModifyCourse = async (id: number, event : any) => {
+        event.preventDefault();
+        let currentCourse: Course | undefined = courses.find((course) => course.courseId === id);
+        if (currentCourse) {
+            setCourse(currentCourse);
+            setIsModifyModalOpen(true);
+        }
+    }
+
     return (
         <div className="max-w-6xl mx-auto">
             <div className="mb-6">
@@ -190,12 +202,16 @@ export default function InstructorCoursesClient() {
             ) : courses && courses.length > 0 && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
                     {courses.map((course, index) => (
-                        <div key={`${course?.courseId ?? 'no-id'}-${index}`} className="bg-white/5 border border-mentat-gold/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div key={`${course?.courseId ?? 'no-id'}-${index}`} className="bg-white/5 border
+                        border-mentat-gold/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+                        >
                             <div className="flex justify-between items-start mb-4">
                                 <h3 className="text-xl font-semibold text-mentat-gold line-clamp-2">
                                     {course.courseName || 'Untitled Course'}
                                 </h3>
-                                <span className="bg-mentat-gold/20 text-mentat-gold text-xs px-2 py-1 rounded-full border border-mentat-gold/30">
+                                <span className="bg-mentat-gold/20 text-mentat-gold text-xs px-2 py-1 rounded-full
+                                 border border-mentat-gold/30"
+                                >
                                     ID: {course.courseId}
                                 </span>
                             </div>
@@ -217,14 +233,17 @@ export default function InstructorCoursesClient() {
                                 </div>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t border-gray-100">
+                            <div className="mt-4 pt-4 border-t border-mentat-gold/40">
                                 <div className="flex space-x-2">
                                     <button className="flex-1 px-3 py-2 bg-[#A30F32] text-sm rounded-lg
                                         hover:bg-crimson-700 transition-colors">
                                         View Details
                                     </button>
-                                    <button className="flex-1 px-3 py-2 bg-mentat-gold text-crimson
-                                        text-sm rounded-lg hover:bg-mentat-gold-700 transition-colors">
+                                    <button
+                                        className="flex-1 px-3 py-2 bg-mentat-gold text-crimson
+                                        text-sm rounded-lg hover:bg-mentat-gold-700 transition-colors"
+                                        onClick={(e)=> handleModifyCourse(course.courseId, e)}
+                                    >
                                         Edit Course
                                     </button>
                                 </div>
@@ -233,7 +252,6 @@ export default function InstructorCoursesClient() {
                     ))}
                 </div>
             )}
-
             {/* Create Course Modal */}
             <Modal
                 isOpen={isCreateModalOpen}
@@ -241,6 +259,22 @@ export default function InstructorCoursesClient() {
                 title="Create New Course"
             >
                 <CreateCourseClient onCourseCreated={handleCourseCreated} onCancel={handleCloseModal} />
+            </Modal>
+            {/* Modify Course Modal */}
+            <Modal
+                isOpen={isModifyModalOpen}
+                onClose={() => setIsModifyModalOpen(false)}
+                title="Modify Course"
+            >
+                <ModifyCourseComponent
+                    course={course}
+                    cancelAction={()=> setIsModifyModalOpen(false)}
+                    updateAction={() => {
+                        setIsModifyModalOpen(false);
+                        // Trigger refresh when modal closes
+                        setRefreshTrigger(prev => prev + 1);
+                    }}
+                />
             </Modal>
         </div>
     );

@@ -177,7 +177,7 @@ export default function StudentSchedule() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/course/enrollments?studentId=${userSession.id}`,
+                `api/course/enrollments/${userSession.id}`,
                 `${BACKEND_API}`,
                 userSession.accessToken || undefined
             );

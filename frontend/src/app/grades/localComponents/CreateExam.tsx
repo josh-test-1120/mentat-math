@@ -4,9 +4,11 @@ import React, { useState, useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { apiHandler } from "@/utils/api";
-import {SessionProvider, useSession} from 'next-auth/react'
+import { SessionProvider, useSession } from 'next-auth/react'
 import Modal from "@/components/services/Modal";
-import {Plus, Loader2} from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
+import Course from "@/components/types/course";
+import { allCourse } from "@/components/services/CourseSelector";
 
 
 // Needed to get environment variable for Backend API
@@ -17,10 +19,11 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * @constructor
  */
 interface CreateExamProps {
+    course: Course | undefined;
     onExamCreated?: () => void;
 }
 
-export default function CreateExam({ onExamCreated }: CreateExamProps) {
+export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
 
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +33,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
         examDifficulty: "",
         isPublished: "",
         isRequired: "",
+        isOnline: "",
         hasExpiration: false,
         examExpirationDate: "",
     });
@@ -42,7 +46,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
     });
 
     // Course-related state
-    const [courses, setCourses] = useState<any[]>([]);
+    const [courses, setCourses] = useState<Course[]>([]);
     const [coursesLoading, setCoursesLoading] = useState(false);
     const [coursesError, setCoursesError] = useState<string | null>(null);
 
@@ -50,10 +54,11 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
     const { data: session } = useSession()
 
     // Form Mapping
-    const {examCourseId, examName, examDifficulty, isPublished, isRequired, hasExpiration, examExpirationDate} = formData;
+    const {examCourseId, examName, examDifficulty, isPublished, isRequired,
+        isOnline, hasExpiration, examExpirationDate} = formData;
 
     // Form validation - only exam name and course are required
-    const isFormValid = examName && examName.trim() !== '' && 
+    const isFormValid = examName && examName.trim() !== '' &&
                        examCourseId && examCourseId !== '';
 
     /**
@@ -121,6 +126,18 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
         }
     }, [userSession.id, session?.user?.accessToken]);
 
+    /**
+     * Update the form data with passed in course
+     */
+    useEffect(() => {
+        if (course?.courseId) {
+            setFormData(prev => ({
+                ...prev,
+                examCourseId: course!.courseId.toString()
+            }));
+        }
+    }, [course]);
+
 
     // Setting data by name, value, type, and checked value
     const data = (e: any) => {
@@ -145,18 +162,18 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             console.log(`This is the session info: ${userSession}`)
             let index = 1;
             console.log(`This is the exam course id: ${examCourseId}`)
-            
+
             // Validate required fields
             if (!examName || examName.trim() === '') {
                 toast.error("Exam name is required");
                 return;
             }
-            
+
             if (!examCourseId || examCourseId === '') {
                 toast.error("Please select a course");
                 return;
             }
-            
+
             // Parse examDifficulty with validation (optional field)
             let parsedDifficulty = null;
             if (examDifficulty && examDifficulty !== '') {
@@ -166,14 +183,14 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                     return;
                 }
             }
-            
+
             // Parse examCourseId with validation
             const parsedCourseId = parseInt(examCourseId);
             if (isNaN(parsedCourseId)) {
                 toast.error("Invalid course selection");
                 return;
             }
-            
+
             const payload: any = {
                 examName: examName.trim(),
                 examState: isPublished ? 1 : 0,
@@ -181,18 +198,18 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                 examDifficulty: parsedDifficulty,
                 examCourseId: parsedCourseId,
                 examDuration: 1.0, // Default value, as it's not in the form yet
-                examOnline: 0, // Default value, as it's not in the form yet
+                examOnline: isOnline ? 1 : 0
             };
             if (hasExpiration && examExpirationDate) {
                 payload.examExpirationDate = examExpirationDate; // ISO date (yyyy-mm-dd)
             }
-            
+
             // Debug logs
             console.log('Session:', session);
             console.log('Access Token:', session?.user?.accessToken);
             console.log('Payload:', payload);
             console.log('Backend API:', BACKEND_API);
-            
+
             const response = await apiHandler(
                 payload,
                 'POST',
@@ -214,6 +231,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                     examDifficulty: "",
                     isPublished: "",
                     isRequired: "",
+                    isOnline: "",
                     hasExpiration: false,
                     examExpirationDate: "",
                 });
@@ -224,6 +242,56 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
             toast.error("Failed to create exam");
         }
     };
+
+    // Get the course select text
+    const getCourseSelectText = () => {
+        // Local variables
+        let reducedCourses: Course[] = [];
+        let loadedCourse = false;
+        let initialDisplayText = '';
+        // Set layout for course passed in (default selection)
+        if (course) {
+            reducedCourses = courses.filter((item) => item.courseId !== course!.courseId);
+            console.log(reducedCourses);
+            initialDisplayText = `${course.courseName} - ${course.courseSection} 
+                (${course.courseQuarter} ${course.courseYear})`;
+            loadedCourse = true;
+        }
+        // Otherwise we handle all courses
+        else {
+            reducedCourses = courses;
+        }
+
+        return (
+            <React.Fragment>
+                {loadedCourse && (
+                    <option key={course?.courseId || `course-0`} value={course?.courseId}>
+                        {initialDisplayText}
+                    </option>
+                )}
+                {reducedCourses.map((course: any, index: number) => {
+                        const courseName = course.courseName || 'Unknown Course';
+                        const courseSection = course.courseSection || '';
+                        const courseQuarter = course.courseQuarter || '';
+                        const courseYear = course.courseYear || '';
+
+                        const displayText = courseSection && courseQuarter && courseYear
+                            ? `${courseName} - ${courseSection} (${courseQuarter} ${courseYear})`
+                            : courseName;
+
+                        return (
+                            <option key={course.courseId || `course-${index+1}`} value={course.courseId}>
+                                {displayText}
+                            </option>
+                        )
+                    })
+                }
+            </React.Fragment>
+        )
+    }
+
+    // Do not include the All courses course if selected
+    if (course && course.courseId === allCourse.courseId) course = undefined;
 
     return (
         <div className="bg-mentat-black text-mentat-gold">
@@ -243,6 +311,7 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create Exam">
                 <form id="createExamForm" className="w-full space-y-6" onSubmit={handleSubmit}>
+                    {/*Initial Input fields*/}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="examName" className="text-sm">
@@ -271,36 +340,17 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                                     onChange={data}
                                     required={true}
                                     disabled={coursesLoading}
-                                    className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                    border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {coursesLoading ? (
+                                    { coursesLoading ? (
                                         <option key="loading" value="">Loading courses...</option>
                                     ) : coursesError ? (
                                         <option key="error" value="">Error loading courses</option>
                                     ) : courses.length === 0 ? (
                                         <option key="no-courses" value="">No courses available</option>
                                     ) : (
-                                        courses.map((course: any, index: number) => {
-                                            // Debug log for each course - check console to see actual structure
-                                            console.log('Course object:', course);
-                                            
-                                            // Use actual API property names (update these based on console output)
-                                            const courseName = course.courseName || 'Unknown Course';
-                                            const courseSection = course.courseSection || '';
-                                            const courseQuarter = course.courseQuarter || '';
-                                            const courseYear = course.courseYear || '';
-                                            
-                                            const displayText = courseSection && courseQuarter && courseYear 
-                                                ? `${courseName} - ${courseSection} (${courseQuarter} ${courseYear})`
-                                                : courseName;
-                                            console.log("Course id is: " + course.courseId);
-                                            
-                                            return (
-                                                <option key={course.courseId || `course-${index}`} value={course.courseId}>
-                                                    {displayText}
-                                                </option>
-                                            );
-                                        })
+                                        getCourseSelectText()
                                     )}
                                 </select>
                                 {coursesLoading && (
@@ -329,7 +379,9 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                                 name="examDifficulty"
                                 value={examDifficulty}
                                 onChange={data}
-                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                                required={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                             >
                                 <option value="">Select difficulty</option>
                                 <option value="1">1 - Very Easy</option>
@@ -339,32 +391,46 @@ export default function CreateExam({ onExamCreated }: CreateExamProps) {
                                 <option value="5">5 - Very Hard</option>
                             </select>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">
-                                    <div className="flex items-center gap-3">
-                                        <input
-                                            id="isRequired"
-                                            type="checkbox"
-                                            name="isRequired"
-                                            checked={Boolean(isRequired)}
-                                            onChange={data}
-                                            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                        />
-                                        <label htmlFor="isRequired" className="select-none">Make Exam Required</label>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <input
-                                            id="isPublished"
-                                            type="checkbox"
-                                            name="isPublished"
-                                            checked={Boolean(isPublished)}
-                                            onChange={data}
-                                            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold"
-                                        />
-                                        <label htmlFor="isPublished" className="select-none">Publish Exam</label>
-                                    </div>
+                    </div>
+                    {/*Check boxes*/}
+                    <div className="grid grid-cols-4 sm:grid-cols-3 gap-4 items-center justify-items-center">
+                        <div className="flex items-center gap-3">
+                            <input
+                                id="examRequired"
+                                type="checkbox"
+                                name="examRequired"
+                                checked={Boolean(isRequired)}
+                                onChange={data}
+                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
+                                    text-mentat-gold focus:ring-mentat-gold"
+                            />
+                            <label htmlFor="examRequired" className="select-none">Make Exam Required</label>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <input
+                                id="examState"
+                                type="checkbox"
+                                name="examState"
+                                checked={Boolean(isPublished)}
+                                onChange={data}
+                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
+                                    text-mentat-gold focus:ring-mentat-gold"
+                            />
+                            <label htmlFor="examState" className="select-none">Publish Exam</label>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <input
+                                id="examOnline"
+                                type="checkbox"
+                                name="examOnline"
+                                checked={Boolean(isOnline)}
+                                onChange={data}
+                                className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold
+                                    focus:ring-mentat-gold"
+                            />
+                            <label htmlFor="examOnline" className="select-none">Make Exam Online</label>
                         </div>
                     </div>
-
                     {/* Full-width section outside the grid */}
                     <div className="w-full">
                         <div className="mt-2 p-3 rounded-lg border border-mentat-gold/20 bg-white/5">

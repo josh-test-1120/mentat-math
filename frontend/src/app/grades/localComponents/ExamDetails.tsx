@@ -189,26 +189,31 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
-                        <input
-                            id="exam_difficulty"
-                            type="text"
-                            name="exam_difficulty"
+                        <label htmlFor="examDifficulty" className="text-sm">Exam Difficulty</label>
+                        <select
+                            id="examDifficulty"
+                            name="examDifficulty"
                             value={examData.examDifficulty}
                             onChange={(e) =>
                                 setExamData({ ...examData, examDifficulty: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
-                                focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            required={true}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                            border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         >
-                        </input>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <label htmlFor="exam_duration" className="text-sm">Exam Duration</label>
                         <input
-                            id="exam_duration"
+                            id="examDuration"
                             type="text"
-                            name="exam_duration"
+                            name="examDuration"
                             value={examData.examDuration}
                             onChange={(e) =>
                                 setExamData({ ...examData, examDuration: e.target.value })}
@@ -221,9 +226,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="flex items-center gap-3">
                                 <input
-                                    id="is_required"
+                                    id="examRequired"
                                     type="checkbox"
-                                    name="is_required"
+                                    name="examRequired"
                                     checked={examData.examRequired === '1'}
                                     onChange={(e) =>
                                         setExamData({ ...examData, examRequired: e.target.checked ? '1' : '0' })}
@@ -235,9 +240,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
 
                             <div className="flex items-center gap-3">
                                 <input
-                                    id="exam_state"
+                                    id="examState"
                                     type="checkbox"
-                                    name="exam_state"
+                                    name="examState"
                                     checked={examData.examState === '1'}
                                     onChange={(e) =>
                                         setExamData({ ...examData, examState: e.target.checked ? '1' : '0' })}
@@ -249,9 +254,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
 
                             <div className="flex items-center gap-3">
                                 <input
-                                    id="is_online"
+                                    id="examOnline"
                                     type="checkbox"
-                                    name="is_online"
+                                    name="examOnline"
                                     checked={examData.examOnline === '1'}
                                     onChange={(e) =>
                                         setExamData({ ...examData, examOnline: e.target.checked ? '1' : '0' })}
@@ -331,7 +336,7 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         type="submit"
                         onClick={handleUpdate}
                     >
-                        Update
+                        Modify
                     </button>
                 </div>
             </form>

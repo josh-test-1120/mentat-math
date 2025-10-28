@@ -25,14 +25,6 @@ export default function GradesPage() {
     const [grades, setGrades] = useState<Grade[]>([]);
     const [tests, setTests] = useState([]);
 
-    const [examResults, setExamResults] = useState<ExamResult[]>([]);
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [examResult, setExamResult] = useState<ExamResultExtended>();
-    const [examsLoading, setExamsLoading] = useState(true);
-    const [examResultsLoading, setExamResultsLoading] = useState(true);
-    const [coursesExamLoading, setCoursesExamLoading] = useState(true);
-
-    // const [finalScore, setFinalScore] = useState('');
     const [loading, setLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);

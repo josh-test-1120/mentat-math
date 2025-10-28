@@ -198,7 +198,7 @@ export default function ExamsPage() {
             const res = await apiHandler(
                 undefined, // No body for GET request
                 'GET',
-                `api/course/enrollments?studentId=${id}`,
+                `api/course/enrollments/${id}`,
                 `${BACKEND_API}`,
                 userSession.accessToken || undefined
             );

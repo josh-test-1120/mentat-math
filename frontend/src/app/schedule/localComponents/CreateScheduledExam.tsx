@@ -51,6 +51,17 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
     const { data: session } = useSession()
 
     /**
+     * Resets the states when the modal opens
+     */
+    useEffect(() => {
+        if (isModalOpen) {
+            setExamName('');
+            setCourse(undefined);
+            setCurrentExam(undefined);
+        }
+    }, [isModalOpen]);
+
+    /**
      * Used to handle session hydration
      */
     useEffect(() => {
@@ -188,8 +199,12 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
             setIsScheduleModalOpen(true);
         }
 
-    console.log(courses);
+    // Form validation - only exam name and course are required
+    const isFormValid = course && examName && examName.trim() !== '' || false;
+
+    console.log(course);
     console.log(studentId);
+    console.log(isFormValid);
 
     return (
         <div className="bg-mentat-black text-mentat-gold">
@@ -423,10 +438,14 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                             Cancel
                         </button>
                         <button
-                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
-                            font-bold py-2 px-4 rounded-md shadow-sm shadow-crimson-700"
+                            className={`font-bold py-2 px-4 rounded-md shadow-sm shadow-crimson-700 ${
+                                isFormValid
+                                    ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson'
+                                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            }`}
                             type="button"
                             onClick={handLoadTestWindows}
+                            disabled={!isFormValid}
                         >
                             Load Test Windows
                         </button>
