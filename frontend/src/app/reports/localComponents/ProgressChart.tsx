@@ -36,6 +36,8 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
 
     // Grade Strategy
     const [gradeStrategy, setGradeStrategy] = useState<GradeRequirements>(emptyStrategy);
+    // Colors
+    const mentatGold = '#dab05a';
 
     // In your useEffect
     useEffect(() => {
@@ -187,20 +189,6 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
         // Get the tooltip
         const toolTip = ToolTip();
 
-        // // Create tooltip element
-        // const tooltip = d3.select("body")
-        //     .append("div")
-        //     .attr("class", "chart-tooltip")
-        //     .style("position", "absolute")
-        //     .style("background", "rgba(0, 0, 0, 0.8)")
-        //     .style("color", "#dab05a")
-        //     .style("padding", "8px 12px")
-        //     .style("border-radius", "4px")
-        //     .style("font-size", "12px")
-        //     .style("pointer-events", "none")
-        //     .style("opacity", 0)
-        //     .style("z-index", 1000);
-
         // Calculate current grade based on passed total exams and total As
         const passedExams = bestExams.filter(exam =>
             exam.status === 'passed').length;
@@ -265,6 +253,12 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                 .data([gradeData])
                 .on("mouseover", function(event, d) {
                     console.log(`This is the data: ${d}`);
+                    // Adjust the stroke (border) of the rect
+                    d3.select(this)
+                        .attr('stroke', mentatGold) // White stroke
+                        .attr('stroke-width', 2)
+                        .attr('stroke-opacity', 0.8)
+                        .attr('opacity', .4);
                     // Setup the tooltip box
                     const content = `
                         <div>
@@ -284,19 +278,13 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                         .style("top", (event.pageY - 15) + "px");
                 })
                 .on("mouseout", function() {
-                    // d3.select(this).attr("opacity", 0.2);
+                    // Hide the tooltip
                     toolTip.style("opacity", 0);
+                    // Adjust the element itself back to normal
+                    d3.select(this)
+                        .attr('stroke', 'transparent') // White stroke
+                        .attr('opacity', .2);
                 });
-
-            // Required threshold line
-            barGroup.append('line')
-                .attr('x1', xScale(grade)!)
-                .attr('x2', xScale(grade)! + xScale.bandwidth())
-                .attr('y1', yScale(requirements.requiredA))
-                .attr('y2', yScale(requirements.requiredA))
-                .attr('stroke', gradeColors[grade])
-                .attr('stroke-width', 2)
-                .attr('stroke-dasharray', '3,2');
 
             // Current progress (if applicable for this grade level)
             if (currentGrade) {
@@ -306,7 +294,7 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                     .attr('width', xScale.bandwidth())
                     .attr('height', chartHeight - yScale(passedExams))
                     .attr('fill', gradeColors[grade])
-                    .attr('opacity', 0.8)
+                    .attr('opacity', 0.6)
                     .attr('rx', 3)
                     .attr('ry', 3)
                     .data([gradeData])
@@ -331,10 +319,33 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
                             .style("top", (event.pageY - 15) + "px");
                     })
                     .on("mouseout", function() {
-                        // d3.select(this).attr("opacity", 0.2);
                         toolTip.style("opacity", 0);
                     });
             }
+
+            // Threshold shadow line first
+            barGroup.append('line')
+                .attr('x1', xScale(grade)!)
+                .attr('x2', xScale(grade)! + xScale.bandwidth())
+                .attr('y1', yScale(requirements.requiredA))
+                .attr('y2', yScale(requirements.requiredA))
+                .attr('stroke', '#000000')
+                .attr('stroke-width', 4)
+                .attr('stroke-opacity', 0.3);
+
+            // Required threshold line
+            const line = barGroup.append('line')
+                .attr('x1', xScale(grade)!)
+                .attr('x2', xScale(grade)! + xScale.bandwidth())
+                .attr('y1', yScale(requirements.requiredA))
+                .attr('y2', yScale(requirements.requiredA))
+                .attr('stroke', gradeColors[grade])
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '3,2')
+                .attr('opacity', 0.8);
+
+            // Start the line animation
+            pulseAnimation(line);
 
             // Grade label
             barGroup.append('text')
@@ -453,6 +464,21 @@ export default function ProgressChart({ exams, course, currentGrade }: ProgressC
             const grades = ['F', 'D', 'C', 'B', 'A'];
             const index = grades.indexOf(grade);
             return index > 0 ? grades[index - 1] : 'F';
+        }
+
+        // Animate the line with a pulse (opacity and stroke)
+        function pulseAnimation(line: d3.Selection<SVGLineElement, undefined, null, undefined>) {
+            line.transition()
+                .duration(1000)
+                .ease(d3.easeSinInOut)
+                .attr('stroke-width', 3)
+                .attr('opacity', 1)
+                .transition()
+                .duration(1000)
+                .ease(d3.easeSinInOut)
+                .attr('stroke-width', 2)
+                .attr('opacity', 0.8)
+                .on('end', () => pulseAnimation(line));
         }
 
         return svg.node();

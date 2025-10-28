@@ -20,6 +20,7 @@ export const StatusChart = ({ data } : StatusChartProps) => {
     // Chart Variables
     const svgRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const mentatGold = '#dab05a';
 
     const scoreToNumber = (score: string) : number => {
         // Convert the letter grade to a number for graphing
@@ -147,7 +148,7 @@ export const StatusChart = ({ data } : StatusChartProps) => {
 
         // Draw the pie slices
         const slices = svg.append("g")
-            .attr("stroke", "white")
+            .attr("stroke", mentatGold)
             .attr("stroke-width", 1)
             .selectAll("path")
             .data(arcs)
@@ -160,7 +161,7 @@ export const StatusChart = ({ data } : StatusChartProps) => {
                 d3.select(this).datum(d);
             })
             .on("mouseover", function(event, d) {
-                d3.select(this).attr("stroke-width", 3);
+                d3.select(this).attr("stroke-width", 2);
                 console.log(`This is the data name: ${d.data.name}`);
                 console.log(`This is the data: ${d.data.details.toString()}`);
                 // Setup the tooltip box
@@ -199,14 +200,14 @@ export const StatusChart = ({ data } : StatusChartProps) => {
             .attr("y", "-0.4em")
             .attr("font-weight", "bold")
             .text(d => d.data.name)
-            .style("fill", "#FCF5E5");
+            .style("fill", mentatGold);
 
         labels.append("tspan")
             .attr("x", 0)
             .attr("y", "0.7em")
-            .attr("fill-opacity", 0.7)
+            .attr("fill-opacity", 0.8)
             .text(d => d.data.value)
-            .style("fill", "#FCF5E5");
+            .style("fill", mentatGold);
 
         // Add tooltips
         slices.append("title")
