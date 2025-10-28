@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRef } from 'react';
 import { toast, ToastContainer } from "react-toastify";
+
+import { getServerAuthSession } from "@/utils/auth";
 import { apiHandler } from "@/utils/api";
-import { useSession } from "next-auth/react";
+import {useSession} from "next-auth/react";
+import StudentExamAnalytics from "./localComponents/StudentExamAnalytics";
+import { FileText, Users } from "lucide-react";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -34,6 +38,7 @@ export default function InstructorReport() {
 
     // Table Body React Reference
     const tableBody = useRef(null);
+    const [viewMode, setViewMode] = useState<'grades' | 'analytics'>('grades');
 
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
@@ -219,30 +224,81 @@ export default function InstructorReport() {
         }
     }
 
+    /**
+     * Window On Load function for UseEffects handler
+     */
+    function windowOnload() {
+        console.log(`This is the session info:`);
+        console.log(userSession);
+        fetchInstructorReport(1);
+    }
+
     return (
         <section
             id={"gradePage"}
             className="text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700"
         >
-            <div className="mx-auto px-4 pt-8 h-dvh bg-mentat-black">
-                <h1 className="text-center text-3xl pb-2">See Student Grades</h1>
-                <table id="instructorExamResultsTable"
-                       className="w-full mb-5 border border-white"
-                >
-                    <thead>
-                    <tr>
-                        <th className="border border-white">Student First Name</th>
-                        <th className="border border-white">Student Last Name</th>
-                        <th className="border border-white">Exam Name</th>
-                        <th className="border border-white">Exam Version</th>
-                        <th className="border border-white">Exam Taken Date</th>
-                        <th className="border border-white">Exam Score</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+            {null /*custom window onload*/}
+            {null /*{windowReady ? (windowOnload()) : (<></>)}*/}
+            {null /*custom session onload*/}
+            {void (sessionReady ? windowOnload() : <></>)}
 
-                    </tbody>
-                </table>
+            <div className="mx-auto px-4 pt-8 min-h-screen bg-mentat-black">
+                {/* View Mode Toggle */}
+                <div className="flex justify-center mb-6">
+                    <div className="inline-flex bg-white/5 border border-mentat-gold/20 rounded-lg p-1">
+                        <button
+                            onClick={() => setViewMode('grades')}
+                            className={`px-6 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                                viewMode === 'grades'
+                                    ? 'bg-crimson text-mentat-gold'
+                                    : 'text-mentat-gold/70 hover:text-mentat-gold'
+                            }`}
+                        >
+                            <FileText className="w-4 h-4" />
+                            Student Grades
+                        </button>
+                        <button
+                            onClick={() => setViewMode('analytics')}
+                            className={`px-6 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                                viewMode === 'analytics'
+                                    ? 'bg-crimson text-mentat-gold'
+                                    : 'text-mentat-gold/70 hover:text-mentat-gold'
+                            }`}
+                        >
+                            <Users className="w-4 h-4" />
+                            Exam Analytics
+                        </button>
+                    </div>
+                </div>
+
+                {/* Content based on view mode */}
+                {viewMode === 'grades' ? (
+                    <div>
+                        <h1 className="text-center text-3xl pb-2 text-mentat-gold">Student Exam Results</h1>
+                        <table id="instructorExamResultsTable"
+                               className="w-full mb-5 border border-white"
+                        >
+                            <thead>
+                            <tr>
+                                <th className="border border-white">Student First Name</th>
+                                <th className="border border-white">Student Last Name</th>
+                                <th className="border border-white">Exam Name</th>
+                                <th className="border border-white">Exam Version</th>
+                                <th className="border border-white">Exam Taken Date</th>
+                                <th className="border border-white">Exam Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="max-w-7xl mx-auto">
+                        <StudentExamAnalytics />
+                    </div>
+                )}
             </div>
         </section>
     );
