@@ -1,15 +1,16 @@
-// @author Telmen Enkhtuvshin
-// backend/src/main/java/org/mentats/mentat/models/TestWindow.java
-// This is the JPA model for the TestWindow entity.
-// It is used to store the test window data.
 package org.mentats.mentat.models;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 
+/**
+ * This is the JPA model for the TestWindow entity
+ * It is used to store the test window data.
+ *
+ * @author Telmen Enkhtuvshin
+ */
 @Entity
 @Table(name = "test_window")
 public class TestWindow {

@@ -36,41 +36,41 @@ public class Exam {
 
     // The name assigned to exam
     @NotBlank
-    @JsonProperty("examName") // Map JSON field to Java field
+//    @JsonProperty("examName") // Map JSON field to Java field
     @Column(name = "exam_name")
     private String name;
 
     // The status assigned to exam
     @NotNull
-    @JsonProperty("examState") // Map JSON field to Java field
+//    @JsonProperty("examState") // Map JSON field to Java field
     @Column(name = "exam_state")
     private Integer state;
 
     // The required state of the exam
     @NotNull
-    @JsonProperty("examRequired") // Map JSON field to Java field
+//    @JsonProperty("examRequired") // Map JSON field to Java field
     @Column(name = "exam_required")
     private Integer required;
 
     // The required state of the exam
-    @JsonProperty("examDifficulty") // Map JSON field to Java field
+//    @JsonProperty("examDifficulty") // Map JSON field to Java field
     @Column(name = "exam_difficulty", nullable = true)
     private Integer difficulty;
 
     // The duration of the exam
     @NotNull
-    @JsonProperty("examDuration") // Map JSON field to Java field
+//    @JsonProperty("examDuration") // Map JSON field to Java field
     @Column(name = "exam_duration")
     private Double duration;
 
     // Is the exam online or offline
     @NotNull
-    @JsonProperty("examOnline") // Map JSON field to Java field
+//    @JsonProperty("examOnline") // Map JSON field to Java field
     @Column(name = "exam_online")
     private Integer online;
 
     // Optional booking expiration date. NULL => no expiration
-    @JsonProperty("examExpirationDate")
+//    @JsonProperty("examExpirationDate")
     @Column(name = "exam_expiration_date", nullable = true)
     private LocalDate expirationDate;
 

@@ -12,6 +12,8 @@ import java.sql.Date;
  * @author Joshua Summers
  */
 public class ExamResultRequest {
+    private Long examResultId;
+
     @NotNull
     private Long examStudentId;
 
@@ -33,6 +35,9 @@ public class ExamResultRequest {
     public ExamResultRequest() {}
 
     // Getters and setters
+    public Long getExamResultId() { return examResultId; }
+    public void setExamResultId(Long examResultId) { this.examResultId = examResultId; }
+
     public Long getExamStudentId() { return examStudentId; }
     public void setExamStudentId(Long examStudentId) { this.examStudentId = examStudentId; }
 

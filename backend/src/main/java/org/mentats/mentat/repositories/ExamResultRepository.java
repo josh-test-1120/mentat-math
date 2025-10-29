@@ -27,7 +27,9 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
     // Delete the ExamResults based on Student Id
     void deleteByStudent_Id(Long studentId);
     // Delete the ExamResults based on Exam Id
-    void deleteByExam_Id(Long examId); // Add this method
+    void deleteByExam_Id(Long examId);
+    // Unique Record checks
+    boolean existsByExam_IdAndExamVersion(Long examId, Integer examVersion);
 
     @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
             "er.examScheduledDate as examScheduledDate, er.examTakenDate as examTakenDate, " +
@@ -37,7 +39,7 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "e.Id as examId, c.courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
-            "c.courseProfessorId as courseProfessorId, c.gradeStrategy as gradeStrategy " +
+            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
             "FROM ExamResult er " +
             "JOIN er.exam e " +
             "JOIN e.course c " +
@@ -52,7 +54,7 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "e.Id as examId, courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
-            "c.courseProfessorId as courseProfessorId, c.gradeStrategy as gradeStrategy " +
+            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
             "FROM ExamResult er " +
             "JOIN er.exam e " +
             "JOIN e.course c " +

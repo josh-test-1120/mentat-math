@@ -1,30 +1,40 @@
-/**
- * @author Telmen Enkhtuvshin
- * This is the JPA composite ID class for StudentCourse JPA persistance object to
- * determine ID and primary keys of StudentCourse object.
- */
-
 package org.mentats.mentat.models;
+
+import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * This is the JPA composite ID class for StudentCourse JPA persistance object to
+ * determine ID and primary keys of StudentCourse object.
+ * @author Telmen Enkhtuvshin
+ */
+@Embeddable
 public class StudentCourseId implements Serializable {
-    private int courseId;
-    private int studentId;
+    private Long courseId;
+    private Long studentId;
 
     public StudentCourseId() {}
 
-    public StudentCourseId(int courseId, int studentId) {
+    public StudentCourseId(Long courseId, Long studentId) {
         this.courseId = courseId;
         this.studentId = studentId;
     }
+
+    // Getters and setters
+    public Long getCourseId() { return courseId; }
+    public void setCourseId(Long courseId) { this.courseId = courseId; }
+
+    public Long getStudentId() { return studentId; }
+    public void setStudentId(Long studentId) { this.studentId = studentId; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof StudentCourseId that)) return false;
-        return courseId == that.courseId && studentId == that.studentId;
+        return Objects.equals(courseId, that.courseId) &&
+                Objects.equals(studentId, that.studentId);
     }
 
     @Override

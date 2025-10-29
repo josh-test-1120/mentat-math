@@ -30,13 +30,13 @@ public class ExamResult {
     private Long Id;
 
     // Fix the student relationship - should be ManyToOne to Student entity
-    @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exam_student_id")
     @NotNull
     private User student;
 
     // Fix the exam relationship - should be ManyToOne to Exam entity
-    @ManyToOne(fetch = FetchType.LAZY)  // ← EAGER instead of LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exam_id")
     @NotNull
     private Exam exam;

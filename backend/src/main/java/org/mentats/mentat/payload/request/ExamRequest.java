@@ -36,6 +36,12 @@ public class ExamRequest {
     private LocalDate examExpirationDate;
 
     /**
+     * Default constructor
+     */
+    public ExamRequest() {
+    }
+
+    /**
      * Getter for Exam Id
      * @return Long of examId
      */

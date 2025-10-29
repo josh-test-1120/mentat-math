@@ -1,6 +1,7 @@
 package org.mentats.mentat.services;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.mentats.mentat.exceptions.DuplicateRecordException;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.Exam;
@@ -59,6 +60,12 @@ public class ExamService {
         // Get referenced objects (FKs)
         GetForeignKeyObjects(examRequest);
 
+        // Check for existing exam
+        boolean exists = courseRepository.existsById(examRequest.getExamId());
+        if (exists) {
+            throw new DuplicateRecordException("Exam already exists");
+        }
+
         // Create entity
         Exam exam = new Exam();
         exam.setCourse(course);
@@ -100,9 +107,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
@@ -154,9 +161,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
@@ -182,9 +189,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
@@ -210,9 +217,9 @@ public class ExamService {
                         proj.getId(),
                         proj.getCourseId(),
                         proj.getName(),
-                        proj.getDifficulty(),
-                        proj.getState(),
                         proj.getRequired(),
+                        proj.getState(),
+                        proj.getDifficulty(),
                         proj.getDuration(),
                         proj.getOnline(),
                         proj.getExpirationDate()
