@@ -10,6 +10,7 @@ import ModifyCourseComponent from "@/app/dashboard/localComponents/ModifyCourse"
 import { toast } from 'react-toastify';
 import { Plus } from "lucide-react";
 import { RingSpinner } from "@/components/UI/Spinners";
+import CourseDetailsComponent from "@/app/dashboard/localComponents/CourseDetails";
 
 /**
  * This is the Dashboard page for the Students
@@ -40,6 +41,7 @@ export default function InstructorCoursesClient() {
     // Modal state checks
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -161,6 +163,15 @@ export default function InstructorCoursesClient() {
         }
     }
 
+    const handleViewCourse = async (id: number, event : any) => {
+        event.preventDefault();
+        let currentCourse: Course | undefined = courses.find((course) => course.courseId === id);
+        if (currentCourse) {
+            setCourse(currentCourse);
+            setIsViewModalOpen(true);
+        }
+    }
+
     return (
         <div className="max-w-6xl mx-auto">
             <div className="mb-6">
@@ -235,14 +246,19 @@ export default function InstructorCoursesClient() {
 
                             <div className="mt-4 pt-4 border-t border-mentat-gold/40">
                                 <div className="flex space-x-2">
-                                    <button className="flex-1 px-3 py-2 bg-[#A30F32] text-sm rounded-lg
-                                        hover:bg-crimson-700 transition-colors">
+                                    <button
+                                        className="flex-1 px-3 py-2 bg-[#A30F32] text-sm rounded-lg
+                                        hover:bg-crimson-700 transition-colors"
+                                        onClick={(e)=>
+                                            handleViewCourse(course.courseId, e)}
+                                    >
                                         View Details
                                     </button>
                                     <button
                                         className="flex-1 px-3 py-2 bg-mentat-gold text-crimson
                                         text-sm rounded-lg hover:bg-mentat-gold-700 transition-colors"
-                                        onClick={(e)=> handleModifyCourse(course.courseId, e)}
+                                        onClick={(e)=>
+                                            handleModifyCourse(course.courseId, e)}
                                     >
                                         Edit Course
                                     </button>
@@ -258,8 +274,24 @@ export default function InstructorCoursesClient() {
                 onClose={handleCloseModal}
                 title="Create New Course"
             >
-                <CreateCourseClient onCourseCreated={handleCourseCreated} onCancel={handleCloseModal} />
+                <CreateCourseClient
+                    onCourseCreated={handleCourseCreated}
+                    onCancel={handleCloseModal}
+                />
             </Modal>
+            {/* View Course Modal */}
+            {course && (
+                <Modal
+                    isOpen={isViewModalOpen}
+                    onClose={() => setIsViewModalOpen(false)}
+                    title="View Course Details"
+                >
+                    <CourseDetailsComponent
+                        course={course}
+                        cancelAction={()=> setIsViewModalOpen(false)}
+                    />
+                </Modal>
+            )}
             {/* Modify Course Modal */}
             <Modal
                 isOpen={isModifyModalOpen}

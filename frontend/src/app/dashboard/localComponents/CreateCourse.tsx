@@ -40,6 +40,11 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
 
     // These are the loading states
     const [isSubmitting, setIsSubmitting] = useState(false);
+    // Form validation - only exam name and course are required
+    const isFormValid = formData.courseName.trim() !== '' &&
+        formData.courseSection.trim() !== '' &&
+        formData.courseQuarter.trim() !== '' &&
+        formData.courseYear !== undefined;
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -119,6 +124,8 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
         }
     };
 
+    console.log(`Current Form valid state: ${isFormValid}`);
+
     return (
         <form onSubmit={handleSubmit} className="w-full space-y-6">
             <div>
@@ -193,16 +200,18 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 <button
                     type="button"
                     onClick={() => onCancel?.()}
-                    className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4
-                    rounded-md border border-mentat-gold/20"
+                    className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson-700 font-semibold py-2 px-4
+                    rounded-md shadow-sm shadow-crimson-700"
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="bg-crimson hover:bg-crimson-700 text-white font-bold py-2 px-4
-                    rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    disabled={isSubmitting || !isFormValid}
+                    className={`font-bold py-2 px-4 rounded-md transition-colors shadow-sm shadow-mentat-gold-700
+                     ${isFormValid
+                        ? 'bg-crimson hover:bg-crimson-700 text-mentat-gold'
+                        : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'}`}
                 >
                     {isSubmitting ? 'Creating...' : 'Create Course'}
                 </button>

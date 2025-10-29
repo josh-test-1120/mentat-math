@@ -1,10 +1,12 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Course from "@/components/types/course";
+import { CourseStrategy } from "@/app/dashboard/types/shared";
+import ModifyGradeStrategyComponent from "@/app/dashboard/localComponents/ModifyGradeStrategyComponent";
 
 interface ModifyCourseComponentProps {
     course: Course | undefined
@@ -12,11 +14,21 @@ interface ModifyCourseComponentProps {
     updateAction: () => void
 }
 
+interface CourseData {
+    courseId: string;
+    courseName: string;
+    courseProfessorId: string;
+    courseQuarter: string;
+    courseSection: string;
+    courseYear: string;
+    gradeStrategy: CourseStrategy | undefined;
+}
+
 /**
  * This is the Modify course action component, which will show the
  * Course details, and allow updates to the course details
  * to take place
- * @param examResult
+ * @param course
  * @param cancelAction
  * @param updateAction
  * @constructor
@@ -24,19 +36,6 @@ interface ModifyCourseComponentProps {
  */
 export default function ModifyCourseComponent({ course,
                                                  cancelAction, updateAction } : ModifyCourseComponentProps) {
-    // Backend API for data
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-    // Course Form state
-    const [courseData, setCourseData] = useState({
-        courseId: course?.courseId,
-        courseName: course?.courseName ?? '',
-        courseProfessorId: `${course?.courseProfessorId ?? ''}`,
-        courseQuarter: `${course?.courseQuarter ?? ''}`,
-        courseSection: `${course?.courseSection ?? ''}`,
-        courseYear: `${course?.courseYear ?? ''}`,
-        gradeStrategy: `${course?.gradeStrategy ?? ''}`,
-    });
-
     // These are the session state variables
     const { data: session, status } = useSession();
     // Session user information
@@ -47,6 +46,12 @@ export default function ModifyCourseComponent({ course,
         email: '',
         accessToken: '',
     });
+    // Course Form state
+    const [courseData, setCourseData] = useState<CourseData>();
+    // Grade Strategy deserialized/serialized
+    const [gradeStrategy, setGradeStrategy] = useState<CourseStrategy>();
+    // Backend API for data
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     /**
      * useAffects that bind the page to refreshes and updates
@@ -65,7 +70,22 @@ export default function ModifyCourseComponent({ course,
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
         }
-    }, [session, status]); // Added status to dependencies
+    }, [session, status]);
+
+    useEffect(() => {
+        if (course) {
+            const strategyJSON =  parseGradeStrategy();
+            setCourseData({
+                courseId: course?.courseId.toString(),
+                courseName: course?.courseName ?? '',
+                courseProfessorId: `${course?.courseProfessorId ?? ''}`,
+                courseQuarter: `${course?.courseQuarter ?? ''}`,
+                courseSection: `${course?.courseSection ?? ''}`,
+                courseYear: `${course?.courseYear ?? ''}`,
+                gradeStrategy: strategyJSON ?? undefined
+            });
+        }
+    }, [course]);
 
     /**
      * This is the modify course result action handler
@@ -157,132 +177,136 @@ export default function ModifyCourseComponent({ course,
         }
     }
 
+    /**
+     * Deserialize the grade strategy from the course
+     */
+    const parseGradeStrategy = () => {
+        if (course?.gradeStrategy) {
+            const strategyJSON: CourseStrategy = JSON.parse(course.gradeStrategy);
+            setGradeStrategy(strategyJSON);
+            return strategyJSON;
+        }
+    }
+
     return (
-        <div className="flex inset-0 justify-center items-center">
-            <form id="ExamActionForm" className="w-full space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="courseName" className="text-sm">Course Name</label>
-                        <input
-                            type="text"
-                            id="courseName"
-                            name="courseName"
-                            value={courseData.courseName}
-                            onChange={(e) =>
-                                setCourseData({ ...courseData, courseName: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold
+        courseData && (
+            <div className="flex inset-0 justify-center items-center">
+                <form id="ExamActionForm" className="w-full space-y-6">
+                    {/*Default Card Layout*/}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/*Course Name Input*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="courseName" className="text-sm">Course Name</label>
+                            <input
+                                type="text"
+                                id="courseName"
+                                name="courseName"
+                                value={courseData.courseName}
+                                onChange={(e) =>
+                                    setCourseData({ ...courseData, courseName: e.target.value })}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold
                                 placeholder-mentat-gold/60 border border-mentat-gold/20
                                 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="courseProfessorId" className="text-sm">Course Instructor ID</label>
-                        <input
-                            id="courseProfessorId"
-                            type="text"
-                            name="courseProfessorId"
-                            value={courseData.courseProfessorId}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                            />
+                        </div>
+                        {/*Professor ID Input*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="courseProfessorId" className="text-sm">Course Instructor ID</label>
+                            <input
+                                id="courseProfessorId"
+                                type="text"
+                                name="courseProfessorId"
+                                value={courseData.courseProfessorId}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0
                                 px-3 py-2"
-                            readOnly={true}
-                        >
-                        </input>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="courseSection" className="text-sm">Course Section</label>
-                        <input
-                            id="courseSection"
-                            type="text"
-                            name="courseSection"
-                            value={courseData.courseSection}
-                            onChange={(e) =>
-                                setCourseData({ ...courseData, courseSection: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                readOnly={true}
+                            >
+                            </input>
+                        </div>
+                        {/*Course Section Input*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="courseSection" className="text-sm">Course Section</label>
+                            <input
+                                id="courseSection"
+                                type="text"
+                                name="courseSection"
+                                value={courseData.courseSection}
+                                onChange={(e) =>
+                                    setCourseData({ ...courseData, courseSection: e.target.value })}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
                                 py-2"
-                        >
-                        </input>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="courseQuarter" className="text-sm">Course Quarter</label>
-                        <input
-                            id="courseQuarter"
-                            type="text"
-                            name="courseQuarter"
-                            value={courseData.courseQuarter}
-                            onChange={(e) =>
-                                setCourseData({ ...courseData, courseQuarter: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                            >
+                            </input>
+                        </div>
+                        {/*Course Quarter Input*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="courseQuarter" className="text-sm">Course Quarter</label>
+                            <input
+                                id="courseQuarter"
+                                type="text"
+                                name="courseQuarter"
+                                value={courseData.courseQuarter}
+                                onChange={(e) =>
+                                    setCourseData({ ...courseData, courseQuarter: e.target.value })}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
                                 py-2"
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_date_scheduled" className="text-sm">Course Year</label>
-                        <input
-                            id="courseYear"
-                            type="text"
-                            name="courseYear"
-                            value={courseData.courseYear}
-                            onChange={(e) =>
-                                setCourseData({ ...courseData, courseYear: e.target.value })}
-                            // onChange={data}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                            />
+                        </div>
+                        {/*Course Year Input*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="courseYear" className="text-sm">Course Year</label>
+                            <input
+                                id="courseYear"
+                                type="text"
+                                name="courseYear"
+                                value={courseData.courseYear}
+                                onChange={(e) =>
+                                    setCourseData({ ...courseData, courseYear: e.target.value })}
+                                // onChange={data}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
                                 py-2"
-                        />
+                            />
+                        </div>
                     </div>
-
-                    {/*<div className="flex flex-col gap-2 justify-center">*/}
-                    {/*    <div className="flex items-center gap-3">*/}
-                    {/*        <input*/}
-                    {/*            id="courseGradeStrategy"*/}
-                    {/*            type="checkbox"*/}
-                    {/*            name="is_required"*/}
-                    {/*            checked={course !== undefined*/}
-                    {/*                ? course.gradeStrategy === 1 : false}*/}
-                    {/*            // onChange={data}*/}
-                    {/*            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5*/}
-                    {/*                text-mentat-gold focus:ring-mentat-gold"*/}
-                    {/*            readOnly={true}*/}
-                    {/*        />*/}
-                    {/*        <label htmlFor="is_required" className="select-none">Is Exam Required</label>*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
-                </div>
-
-                <div className="flex justify-end gap-3">
-                    <button
-                        type="button"
-                        onClick={cancelAction}
-                        className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold
+                    {/*Grade Strategy Details Card Layout*/}
+                    <ModifyGradeStrategyComponent
+                        gradeStrategy={gradeStrategy}
+                        courseId={course?.courseId}
+                        setGradeStrategy={setGradeStrategy}
+                    />
+                    {/*Buttons and Actions*/}
+                    <div className="flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={cancelAction}
+                            className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold
                             py-2 px-4 rounded-md border border-mentat-gold/20"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-bold
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="bg-crimson hover:bg-crimson-700 text-mentat-gold font-bold
                             py-2 px-4 rounded-md shadow-sm shadow-mentat-gold-700"
-                        type="submit"
-                        onClick={handleDelete}
-                    >
-                        Delete Course
-                    </button>
-                    <button
-                        className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
+                            type="submit"
+                            onClick={handleDelete}
+                        >
+                            Delete Course
+                        </button>
+                        <button
+                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
                             py-2 px-4 rounded-md shadow-sm shadow-crimson-700"
-                        type="submit"
-                        onClick={handleUpdate}
-                    >
-                        Modify Course
-                    </button>
-                </div>
-            </form>
-        </div>
+                            type="submit"
+                            onClick={handleUpdate}
+                        >
+                            Modify Course
+                        </button>
+                    </div>
+                </form>
+            </div>
+        )
     );
 }
