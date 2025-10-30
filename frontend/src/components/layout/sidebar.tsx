@@ -634,7 +634,7 @@ export default function Sidebar() {
                         <li>
                             <Link href="/dashboard"
                                   className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        dark:text-white hover:bg-mentat-gold/80 dark:hover:bg-gray-700
                                         hover:text-crimson group">
                                 <HousePlus
                                     className="w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
@@ -645,7 +645,7 @@ export default function Sidebar() {
                         <li>
                             <Link href="/grades"
                                   className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        dark:text-white hover:bg-mentat-gold/80 dark:hover:bg-gray-700
                                         hover:text-crimson group">
                                 <ClipboardList
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
@@ -658,7 +658,7 @@ export default function Sidebar() {
                         <li>
                             <Link href="/schedule"
                                   className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        dark:text-white hover:bg-mentat-gold/80 dark:hover:bg-gray-700
                                         hover:text-crimson group">
                                 <CalendarCheck
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
@@ -671,7 +671,7 @@ export default function Sidebar() {
                         <li>
                             <Link href="/reports"
                                   className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        dark:text-white hover:bg-mentat-gold/80 dark:hover:bg-gray-700
                                         hover:text-crimson group">
                                 <ChartPie
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
