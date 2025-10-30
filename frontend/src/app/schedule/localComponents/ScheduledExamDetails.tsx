@@ -4,17 +4,14 @@ import React, {useEffect, useState} from 'react';
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
-import Modal from "@/components/services/Modal";
 import Course from "@/components/types/course";
 import ExamResult from "@/components/types/exam_result";
 import Grade from "@/components/types/grade";
-import ErrorToast from "@/components/services/error";
-import {DayFlag, DayPicker, getDefaultClassNames, UI} from "react-day-picker";
-import {string} from "prop-types";
+import { DayFlag, DayPicker, getDefaultClassNames } from "react-day-picker";
 import TestWindow from "@/components/types/test_window";
-import {RingSpinner} from "@/components/UI/Spinners";
-import {underline} from "next/dist/lib/picocolors";
+import { RingSpinner } from "@/components/UI/Spinners";
 import TestWindowCard from "@/app/schedule/localComponents/TestWindowCard";
+import ErrorToast from "@/components/services/error";
 
 export interface ExamAction extends ExamResult {
     examName: string;
@@ -452,17 +449,18 @@ export default function ScheduledExamDetailsComponent(
                             className="w-full h-full text-mentat-gold"
                             footer={
                                 selectedDate
-                                    ? <div>
-                                        You picked {selectedDate.toLocaleDateString('en-US', {
+                                    ? (
+                                        <div>
+                                        You picked {new Date(selectedDate).toLocaleDateString('en-US', {
                                             month: 'short',
                                             day: 'numeric',
                                             year: 'numeric'
                                         })}.&nbsp;
-                                        <span className="italic text-mentat-gold/40">
+                                        <span className="italic underline text-mentat-gold/40">
                                             This date will be used for scheduling exam
                                         </span>
                                     </div>
-                                    : "Please pick a date to schedule exam"
+                                    ) : "Please pick a date to schedule exam"
                             }
                             classNames={{
                                 root: "w-full h-full min-h-0",
