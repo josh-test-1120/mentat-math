@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Course from "@/components/types/course";
 import { CourseStrategy } from "@/app/dashboard/types/shared";
 import ModifyGradeStrategyComponent from "@/app/dashboard/localComponents/ModifyGradeStrategyComponent";
+import {RingSpinner} from "@/components/UI/Spinners";
 
 interface ModifyCourseComponentProps {
     course: Course | undefined
@@ -50,6 +51,8 @@ export default function ModifyCourseComponent({ course,
     const [courseData, setCourseData] = useState<CourseData>();
     // Grade Strategy deserialized/serialized
     const [gradeStrategy, setGradeStrategy] = useState<CourseStrategy>();
+    // Modify action state
+    const [isModifying, setIsModifying] = useState(false);
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -94,6 +97,8 @@ export default function ModifyCourseComponent({ course,
     const handleUpdate = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
+        // Update modify state
+        setIsModifying(true);
         console.log(course);
 
         if (courseData) {
@@ -105,7 +110,7 @@ export default function ModifyCourseComponent({ course,
                 courseQuarter: courseData.courseQuarter,
                 courseSection: courseData.courseSection,
                 courseYear: courseData.courseYear,
-                gradeStrategy: courseData.gradeStrategy
+                gradeStrategy: JSON.stringify(gradeStrategy),
             };
 
             // API Handler call
@@ -132,6 +137,8 @@ export default function ModifyCourseComponent({ course,
             } catch (e) {
                 toast.error("Course Modification Failed");
             } finally {
+                // Update modify state
+                setIsModifying(false);
                 // Run the cancel/close callback
                 updateAction();
             }
@@ -302,7 +309,12 @@ export default function ModifyCourseComponent({ course,
                             type="submit"
                             onClick={handleUpdate}
                         >
-                            Modify Course
+                            { isModifying ? (
+                                <div className="flex justify-center items-center">
+                                    <RingSpinner size={'xs'} color={'crimson-700'} />
+                                    <p className="ml-3 text-sm text-crimson-700">Modifying...</p>
+                                </div>
+                            ) : 'Modify Course' }
                         </button>
                     </div>
                 </form>

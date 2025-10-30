@@ -1,9 +1,12 @@
 "use client";
 
-import {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import { toast } from 'react-toastify';
+import ModifyGradeStrategyComponent from "@/app/dashboard/localComponents/ModifyGradeStrategyComponent";
+import { CourseStrategy } from "@/app/dashboard/types/shared";
+import {RingSpinner} from "@/components/UI/Spinners";
 
 interface CreateCourseProps {
   onCourseCreated?: () => void;
@@ -37,6 +40,8 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
         courseQuarter: '',
         courseYear: new Date().getFullYear(),
     });
+    // Grade Strategy deserialized/serialized
+    const [gradeStrategy, setGradeStrategy] = useState<CourseStrategy>();
 
     // These are the loading states
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,11 +74,11 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
     /**
      * This function will handle form submissions
      * to create the new course
-     * @param e
+     * @param event
      */
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         // Prevent default even propagation
-        e.preventDefault();
+        event.preventDefault();
         // Set the submission state
         setIsSubmitting(true);
         // Try - Catch handler
@@ -130,7 +135,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
         <form onSubmit={handleSubmit} className="w-full space-y-6">
             <div>
                 <label htmlFor="courseName" className="text-sm font-medium text-mentat-gold">
-                    Course Name *
+                    Course Name <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="text"
@@ -161,7 +166,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
 
             <div>
                 <label htmlFor="courseQuarter" className="text-sm font-medium text-mentat-gold">
-                    Quarter
+                    Quarter <span className="text-red-500">*</span>
                 </label>
                 <select
                     id="courseQuarter"
@@ -180,7 +185,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
 
             <div>
                 <label htmlFor="courseYear" className="text-sm font-medium text-mentat-gold">
-                    Year *
+                    Year <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -196,6 +201,14 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 />
             </div>
 
+            {/*Grade Strategy Details Card Layout*/}
+            <ModifyGradeStrategyComponent
+                gradeStrategy={gradeStrategy}
+                courseId={undefined}
+                setGradeStrategy={setGradeStrategy}
+            />
+
+            {/*Buttons and actions*/}
             <div className="flex justify-end gap-3 pt-4">
                 <button
                     type="button"
@@ -213,7 +226,12 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                         ? 'bg-crimson hover:bg-crimson-700 text-mentat-gold'
                         : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'}`}
                 >
-                    {isSubmitting ? 'Creating...' : 'Create Course'}
+                    { isSubmitting ? (
+                        <div className="flex justify-center items-center">
+                            <RingSpinner size={'xs'} color={'crimson-700'} />
+                            <p className="ml-3 text-sm text-crimson-700">Creating...</p>
+                        </div>
+                    ) : 'Create Course' }
                 </button>
             </div>
         </form>

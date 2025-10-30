@@ -41,9 +41,6 @@ export default function CourseDetailsComponent({ course,
         'GradeB': 'Grade B', 'GradeB-': 'Grade B-', 'GradeC+': 'Grade C+', 'GradeC': 'Grade C',
         'GradeD': 'Grade D', 'GradeF': 'Grade F'};
 
-    // Backend API for data
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
     /**
      * useAffects that bind the page to refreshes and updates
      */

@@ -47,6 +47,7 @@ export default function ModifyGradeStrategyComponent({gradeStrategy,
         'GradeD': 'Grade D', 'GradeF': 'Grade F'};
     // References
     const gradeErrorRef = useRef<HTMLDivElement>(null);
+    const hasFetchedForCourseRef = useRef<number | null>(null);
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -75,12 +76,19 @@ export default function ModifyGradeStrategyComponent({gradeStrategy,
     useEffect(() => {
         console.log(`This is the courseId: ${courseId}`);
         console.log(`This is the grade strategy: ${gradeStrategy}`);
-        if (gradeStrategy && courseId) {
+        console.log(`This is the start fetched state: ${hasFetchedForCourseRef.current}`);
+        if (!courseId) {
+            setIsLoading(false);
+            return;
+        };
+        if (hasFetchedForCourseRef.current !== courseId && gradeStrategy) {
             console.log(`This is the courseId (inside): ${courseId}`);
             console.log(`This is the grade strategy (inside): ${gradeStrategy}`);
             // const strategyJSON =  parseGradeStrategy();
             fetchExams();
+            hasFetchedForCourseRef.current = courseId;
         }
+        console.log(`This is the final fetched state: ${hasFetchedForCourseRef.current}`);
     }, [gradeStrategy, courseId]);
 
     /**
@@ -161,8 +169,13 @@ export default function ModifyGradeStrategyComponent({gradeStrategy,
                 </div>
             )
                 : !gradeStrategy ? (
-                    <div className="text-center mt-2">
-                        <p className="text-sm italic text-mentat-gold/80">This course has no grade strategy</p>
+                    <div className="text-center mt-2 text-sm italic text-mentat-gold/80">
+                        <p>This course has no grade strategy</p>
+                        {!courseId && (
+                            <p className="text-[12px] text-mentat-gold/60">
+                                If this is a new course, configure this later once exams are populated
+                            </p>
+                        )}
                         <div className="text-[10px] content-center mt-2">
                             <button
                                 className="select-none bg-green-700/60 hover:bg-green-700 rounded-2xl text-mentat-gold py-2 px-4 shadow-sm shadow-mentat-gold-700"
@@ -175,7 +188,7 @@ export default function ModifyGradeStrategyComponent({gradeStrategy,
                 ) : (
                     <div>
                         {/*Link to Exam management page*/}
-                        {!isExamValid && (
+                        {!isExamValid && courseId && (
                             <div
                                 className="flex flex-col gap-2 mb-4 border border-mentat-gold-700/20
                                         rounded-lg px-2 py-2 bg-red-700/20 mt-4">
@@ -228,11 +241,13 @@ export default function ModifyGradeStrategyComponent({gradeStrategy,
                                             id="totalExams"
                                             name="totalExams"
                                             disabled={!isExamValid}
-                                            value={gradeStrategy.totalExams.toString()}
-                                            onChange={(e) => setGradeStrategy({
-                                                ...gradeStrategy,
-                                                totalExams: parseInt(e.target.value)
-                                            })}
+                                            value={gradeStrategy.totalExams}
+                                            onChange={(e) =>
+                                                setGradeStrategy({
+                                                    ...gradeStrategy,
+                                                    totalExams: e.target.value !== '' ? parseInt(e.target.value) : 0
+                                                })
+                                            }
                                             className={`w-12 rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 ${
                                                 isExamValid ? 'text-mentat-gold opacity-100' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                             }`}

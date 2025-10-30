@@ -429,6 +429,17 @@ export default function ScheduledExamDetailsComponent(
                             {examResultData.examOnline ? 'True' : 'False'}
                         </span>
                     </div>
+                    <hr className="m-2 border border-mentat-gold/10" />
+                    <div className="flex justify-between">
+                        <span className="font-semibold italic">
+                            Exam Expiration:
+                        </span>
+                        <span className={`
+                            ${examResultData.expirationDate ? 'text-red-600' : 'text-grey-600 opacity-50'}
+                        `}>
+                            {examResultData.expirationDate ? examResultData.expirationDate : 'N/A'}
+                        </span>
+                    </div>
                 </div>
                 {/*This is the center panel content*/}
                 <div className="flex flex-col w-3/5 h-full min-h-0 rounded-lg
