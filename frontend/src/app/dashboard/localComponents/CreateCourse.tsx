@@ -6,7 +6,7 @@ import { apiHandler } from '@/utils/api';
 import { toast } from 'react-toastify';
 import ModifyGradeStrategy from "@/app/dashboard/localComponents/ModifyGradeStrategy";
 import { CourseStrategy } from "@/app/dashboard/types/shared";
-import {RingSpinner} from "@/components/UI/Spinners";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 interface CreateCourseProps {
   onCourseCreated?: () => void;

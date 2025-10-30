@@ -3,6 +3,15 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import {
+    CalendarCheck,
+    ChartPie,
+    ClipboardList,
+    HousePlus,
+    KeyRound,
+    Menu,
+    MessageCircleQuestionMark, UserRoundPen
+} from "lucide-react";
 
 /**
  * Overview SVG
@@ -603,7 +612,7 @@ export default function Sidebar() {
                                 className="group flex items-center p-2 text-base font-normal rounded-lg
                                 hover:bg-crimson-700 group"
                             >
-                                <HamburgerSvgComponent
+                                <Menu
                                     className={`
                                         w-4 h-4 text-mentat-gold/80 transition-all duration-150
                                         group-hover:bg-crimson-700
@@ -625,8 +634,9 @@ export default function Sidebar() {
                         <li>
                             <Link href="/dashboard"
                                   className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <OverviewSvgComponent
+                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        hover:text-crimson group">
+                                <HousePlus
                                     className="w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
                                     group-hover:text-gray-900 dark:group-hover:text-white"/>
                                 <span className="ml-3">Dashboard</span>
@@ -635,8 +645,9 @@ export default function Sidebar() {
                         <li>
                             <Link href="/grades"
                                   className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <PagesSvgComponent
+                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        hover:text-crimson group">
+                                <ClipboardList
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
                                         group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
                                 <span className="ml-3">
@@ -646,52 +657,27 @@ export default function Sidebar() {
                         </li>
                         <li>
                             <Link href="/schedule"
-                                  className="flex items-center p-2 w-full text-base font-normal text-yellow-300
-                                  rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
-                                  dark:hover:bg-gray-700">
-                                <SalesSvgComponent
-                                    className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
-                                        "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                  className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        hover:text-crimson group">
+                                <CalendarCheck
+                                    className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                        group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
                                 <span className="ml-3">
                                     {userType === 'Student' ? 'Schedule Exam' : 'Create Test Window'}
                                 </span>
                             </Link>
                         </li>
-                        {/*<li>*/}
-                        {/*    <Link href="/exams"*/}
-                        {/*          className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">*/}
-                        {/*        <MessagesSvgComponent*/}
-                        {/*            className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>*/}
-                        {/*        <span className="flex-1 ml-3 whitespace-nowrap">Exams</span>*/}
-                        {/*    </Link>*/}
-                        {/*</li>*/}
                         <li>
                             <Link href="/reports"
-                                  className="flex items-center p-2 w-full text-base font-normal text-yellow-300
-                                  rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
-                                  dark:hover:bg-gray-700">
-                                <AuthenticationSvgComponent
-                                    className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
-                                        "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                  className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700
+                                        hover:text-crimson group">
+                                <ChartPie
+                                    className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                        group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
                                 <span className="ml-3">Reports</span>
                             </Link>
-                            {/*<ul id="dropdown-authentication" className="hidden py-2 space-y-2">*/}
-                            {/*    <li>*/}
-                            {/*        <a href="#"*/}
-                            {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
-                            {/*            In</a>*/}
-                            {/*    </li>*/}
-                            {/*    <li>*/}
-                            {/*        <a href="#"*/}
-                            {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
-                            {/*            Up</a>*/}
-                            {/*    </li>*/}
-                            {/*    <li>*/}
-                            {/*        <a href="#"*/}
-                            {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Forgot*/}
-                            {/*            Password</a>*/}
-                            {/*    </li>*/}
-                            {/*</ul>*/}
                         </li>
                     </ul>
                     <ul className="pt-5 mt-5 space-y-2 border-t border-mentat-gold/40 dark:border-gray-700">
@@ -700,7 +686,7 @@ export default function Sidebar() {
                                className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
                                transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
                                group disabled">
-                                <DocsSvgComponent
+                                <UserRoundPen
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
                                     dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 />
@@ -712,7 +698,7 @@ export default function Sidebar() {
                                className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
                                transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
                                group disabled">
-                                <ComponentsSvgComponent
+                                <KeyRound
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
                                    dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 />
@@ -724,7 +710,7 @@ export default function Sidebar() {
                                className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
                                transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
                                group disabled">
-                                <HelpSvgComponent
+                                <MessageCircleQuestionMark
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
                                     dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 />
