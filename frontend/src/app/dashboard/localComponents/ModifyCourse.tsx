@@ -6,7 +6,7 @@ import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import Course from "@/components/types/course";
 import { CourseStrategy } from "@/app/dashboard/types/shared";
-import ModifyGradeStrategyComponent from "@/app/dashboard/localComponents/ModifyGradeStrategyComponent";
+import ModifyGradeStrategy from "@/app/dashboard/localComponents/ModifyGradeStrategy";
 import { RingSpinner } from "@/components/UI/Spinners";
 
 interface ModifyCourseComponentProps {
@@ -286,7 +286,7 @@ export default function ModifyCourseComponent({ course,
                         </div>
                     </div>
                     {/*Grade Strategy Details Card Layout*/}
-                    <ModifyGradeStrategyComponent
+                    <ModifyGradeStrategy
                         gradeStrategy={gradeStrategy}
                         courseId={course?.courseId}
                         setGradeStrategy={setGradeStrategy}

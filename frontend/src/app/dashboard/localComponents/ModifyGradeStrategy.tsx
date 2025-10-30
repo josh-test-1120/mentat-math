@@ -17,7 +17,7 @@ interface ModifyGradeStrategyComponentProps {
     setGradeStrategy: (gradeStrategy: CourseStrategy) => void;
 }
 
-export default function ModifyGradeStrategyComponent({gradeStrategy,
+export default function ModifyGradeStrategy({gradeStrategy,
                                                          courseId, setGradeStrategy}: ModifyGradeStrategyComponentProps) {
     // These are the session state variables
     const { data: session, status } = useSession();

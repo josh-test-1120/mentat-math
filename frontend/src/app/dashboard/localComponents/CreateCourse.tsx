@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import { toast } from 'react-toastify';
-import ModifyGradeStrategyComponent from "@/app/dashboard/localComponents/ModifyGradeStrategyComponent";
+import ModifyGradeStrategy from "@/app/dashboard/localComponents/ModifyGradeStrategy";
 import { CourseStrategy } from "@/app/dashboard/types/shared";
 import {RingSpinner} from "@/components/UI/Spinners";
 
@@ -203,7 +203,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
             </div>
 
             {/*Grade Strategy Details Card Layout*/}
-            <ModifyGradeStrategyComponent
+            <ModifyGradeStrategy
                 gradeStrategy={gradeStrategy}
                 courseId={undefined}
                 setGradeStrategy={setGradeStrategy}
