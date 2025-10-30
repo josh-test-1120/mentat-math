@@ -9,6 +9,7 @@ import Modal from "@/components/services/Modal";
 import { Plus, Loader2 } from 'lucide-react';
 import Course from "@/components/types/course";
 import { allCourse } from "@/components/services/CourseSelector";
+import {RingSpinner} from "@/components/UI/Spinners";
 
 
 // Needed to get environment variable for Backend API
@@ -50,6 +51,8 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
     const [courses, setCourses] = useState<Course[]>([]);
     const [coursesLoading, setCoursesLoading] = useState(false);
     const [coursesError, setCoursesError] = useState<string | null>(null);
+    // Modify action state
+    const [isCreating, setIsCreating] = useState(false);
 
     // Session information
     const { data: session } = useSession()
@@ -161,6 +164,8 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
      */
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault(); // Prevent default events
+        // Update create state
+        setIsCreating(true);
 
         // Try wrapper to handle async exceptions
         try {
@@ -246,6 +251,10 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
             }
         } catch (error) {
             toast.error("Failed to create exam");
+        }
+        finally {
+            // Update create state
+            setIsCreating(false);
         }
     };
 
@@ -501,7 +510,12 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                             type="submit"
                             disabled={!isFormValid}
                         >
-                            Create Exam
+                            { isCreating ? (
+                                <div className="flex justify-center items-center">
+                                    <RingSpinner size={'xs'} color={'crimson-700'} />
+                                    <p className="ml-3 text-sm text-crimson-700">Creating...</p>
+                                </div>
+                            ) : 'Create Exam' }
                         </button>
                     </div>
                 </form>

@@ -6,6 +6,7 @@ import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import { ExamExtended } from "@/app/grades/util/types";
 import ErrorToast from "@/components/services/error";
+import {RingSpinner} from "@/components/UI/Spinners";
 
 interface ExamDetailsComponentProps {
     exam: ExamExtended;
@@ -31,6 +32,10 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         hasExpiration: Boolean(exam?.examExpirationDate),
         examExpirationDate: exam?.examExpirationDate ?? ''
     });
+
+    // Modify action state
+    const [isModifying, setIsModifying] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [sessionReady, setSessionReady] = useState(false);
@@ -64,6 +69,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
     const handleUpdate = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
+        // Set Modify state
+        setIsModifying(true);
+
         console.log("Modify Exam");
         console.log(exam);
         console.log(examData);
@@ -113,6 +121,8 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         } catch (e) {
             toast.error("Exam Update Failed");
         } finally {
+            // Set Modify state
+            setIsModifying(false);
             // Run the cancel/close callback
             updateAction();
         }
@@ -122,6 +132,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
     const handleDelete = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
+        // Set Modify state
+        setIsDeleting(true);
+
         // API Handler call
         try {
             console.log("Deleting Exam");
@@ -147,6 +160,8 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         } catch (e) {
             toast.error("Exam Deletion Failed");
         } finally {
+            // Set Modify state
+            setIsDeleting(false);
             // Run the cancel/close callback
             updateAction();
         }
@@ -325,7 +340,12 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         type="submit"
                         onClick={handleDelete}
                     >
-                        Delete
+                        { isDeleting ? (
+                            <div className="flex justify-center items-center">
+                                <RingSpinner size={'xs'} color={'mentat-gold'} />
+                                <p className="ml-3 text-sm text-mentat-gold">Deleting...</p>
+                            </div>
+                        ) : 'Delete Exam' }
                     </button>
                     <button
                         className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
@@ -333,7 +353,12 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         type="submit"
                         onClick={handleUpdate}
                     >
-                        Modify
+                        { isModifying ? (
+                            <div className="flex justify-center items-center">
+                                <RingSpinner size={'xs'} color={'crimson-700'} />
+                                <p className="ml-3 text-sm text-crimson-700">Modifying...</p>
+                            </div>
+                        ) : 'Modify Exam' }
                     </button>
                 </div>
             </form>
