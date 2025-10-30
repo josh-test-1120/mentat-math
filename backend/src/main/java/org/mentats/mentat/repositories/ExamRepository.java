@@ -27,4 +27,6 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
     List<Exam> findByCourse_CourseIdAndState(Long courseId, Integer state);
     // Delete exams by course ID
     void deleteByCourse_CourseId(Long courseId);
+    // Check if exam already exists by name
+    boolean existsByName(String examName);
 }

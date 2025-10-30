@@ -61,9 +61,9 @@ public class ExamService {
         GetForeignKeyObjects(examRequest);
 
         // Check for existing exam
-        boolean exists = courseRepository.existsById(examRequest.getExamId());
+        boolean exists = examRepository.existsByName(examRequest.getExamName());
         if (exists) {
-            throw new DuplicateRecordException("Exam already exists");
+            throw new DuplicateRecordException("Exam with this name already exists");
         }
 
         // Create entity
