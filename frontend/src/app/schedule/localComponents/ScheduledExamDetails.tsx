@@ -47,10 +47,6 @@ interface ScheduledExamDetailsComponentProps {
 
 export default function ScheduledExamDetailsComponent(
         { exam, course, cancelAction, updateAction } : ScheduledExamDetailsComponentProps) {
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-    // const [exam, updateExam] = useState<ExamProp>();
-    console.log(exam);
-
     // Session Information
     const {data: session, status} = useSession();
     const [testWindows, setTestWindows] = useState<TestWindow[]>([]);
@@ -110,6 +106,8 @@ export default function ScheduledExamDetailsComponent(
     }
     // New Schedule event (due to no date)
     const newScheduledExam = exam.examScheduledDate === undefined;
+    // Backend API
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     // Page and Session Hydration
     useEffect(() => {
@@ -133,10 +131,6 @@ export default function ScheduledExamDetailsComponent(
         if (examResultData) {
             setSelectedDate(examResultData.examScheduledDate);
             setCurrentMonth(examResultData.examScheduledDate);
-            // setSelectedDate(encodeStringDate(examResultData.examScheduledDate.toLocaleString('en-US',
-            //     { timeZone: 'America/Los_Angeles' })));
-            // setCurrentMonth(encodeStringDate(examResultData.examScheduledDate.toLocaleString('en-US',
-            //     { timeZone: 'America/Los_Angeles' })));
             fetchTestWindows();
         }
     }, [examResultData]);
@@ -145,8 +139,6 @@ export default function ScheduledExamDetailsComponent(
         // Prevent default events
         console.log("Reschedule Exam");
         setHandlerRunning(true);
-        console.log(exam);
-        console.log(window);
         // If the window exists
         if (window) {
             // Create data package
@@ -157,10 +149,8 @@ export default function ScheduledExamDetailsComponent(
                 examVersion: examResultData.examVersion || 1,
                 examScore: examResultData?.examScore,
                 examScheduledDate: selectedDate ||
-                    examResultData.examScheduledDate,
-                examTakenDate: examResultData?.examTakenDate
+                    examResultData.examScheduledDate
             }
-            console.log('updatedData', updatedData);
 
             setExamData(updatedData);
 
@@ -207,10 +197,6 @@ export default function ScheduledExamDetailsComponent(
         // Prevent default events
         console.log("Schedule Exam");
         setHandlerRunning(true);
-        console.log(exam);
-        console.log(examResultData);
-        console.log(window);
-        console.log(session);
         // If the window exists
         if (window) {
 
@@ -222,10 +208,7 @@ export default function ScheduledExamDetailsComponent(
                 examScore: examResultData?.examScore,
                 examScheduledDate: selectedDate ||
                     examResultData.examScheduledDate,
-                examTakenDate: examResultData?.examTakenDate
             }
-            console.log('New Data');
-            console.log(insertData);
             setExamData(insertData);
 
             // Update the state directly, to update UI
@@ -251,9 +234,7 @@ export default function ScheduledExamDetailsComponent(
                     toast.error(res?.message || "Failed to create the exam result");
                 } else {
                     toast.success("Successfully scheduled the Exam!");
-                    // updateExam(undefined);
                     console.log("Exam Result Create Succeeded.");
-                    console.log(res.toString());
                 }
             } catch (e) {
                 toast.error("Exam Result Create Failed");
@@ -469,11 +450,20 @@ export default function ScheduledExamDetailsComponent(
                             month={currentMonth} // Controls which month is displayed
                             onMonthChange={setCurrentMonth} // Update when user navigates
                             className="w-full h-full text-mentat-gold"
-                            // footer={
-                            //     selectedDate
-                            //         ? `You picked ${selectedDate.toLocaleDateString()}.`
-                            //         : "Please pick a date."
-                            // }
+                            footer={
+                                selectedDate
+                                    ? <div>
+                                        You picked {selectedDate.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}.&nbsp;
+                                        <span className="italic text-mentat-gold/40">
+                                            This date will be used for scheduling exam
+                                        </span>
+                                    </div>
+                                    : "Please pick a date to schedule exam"
+                            }
                             classNames={{
                                 root: "w-full h-full min-h-0",
                                 nav: "flex justify-between text-crimson bg-mentat-gold",
@@ -485,6 +475,7 @@ export default function ScheduledExamDetailsComponent(
                                 head: "mb-2",
                                 day: `${defaultClassNames.day}, text-center`,
                                 [DayFlag.disabled]: "text-gray-700 cursor-not-allowed text-center",
+                                footer: "text-crimson text-center text-sm -mt-4",
                             }}
                             styles={{
                                 root: { height: '100%', minHeight: 0 },
@@ -618,108 +609,6 @@ export default function ScheduledExamDetailsComponent(
                                     activeOverlay={activeOverlay}
                                     newScheduled={newScheduledExam}
                                 />
-                                // In your map function:
-                                // <div className="relative" key={testWindow.testWindowId}>
-                                //     {/* Your existing card */}
-                                //     <div
-                                //         className="border border-mentat-gold/20 mb-2
-                                // rounded-xl bg-card-color p-2 hover:bg-card-color/10"
-                                //         onClick={() => {
-                                //             if (activeOverlay !== testWindow.testWindowId) {
-                                //                 navigateTestWindow(testWindow);
-                                //             }
-                                //         }}
-                                //     >
-                                //         <div>
-                                //             <div className="flex font-semibold italic justify-between">
-                                //                 <span className="">
-                                //                     Description:
-                                //                 </span>
-                                //             </div>
-                                //             <div className="rounded-lg text-sm">
-                                //                 <span className="text-mentat-gold-700">
-                                //                     {testWindow.description}
-                                //                 </span>
-                                //             </div>
-                                //         </div>
-                                //         <div className="my-1">
-                                //             <div className="flex font-semibold italic justify-between">
-                                //                 <span className="">
-                                //                     Start Date/Time:
-                                //                 </span>
-                                //             </div>
-                                //             <div className="rounded-lg text-sm">
-                                //                 <span className="text-mentat-gold-700">
-                                //                     {testWindow?.testWindowStartDate?.toLocaleString('en-US',
-                                //                         { timeZone: 'America/Los_Angeles' })}: {testWindow?.testStartTime}
-                                //                 </span>
-                                //             </div>
-                                //         </div>
-                                //         <div className="my-1 overflow-y-auto">
-                                //             <div className="flex font-semibold italic justify-between">
-                                //                 <span className="">
-                                //                     End Date/Time:
-                                //                 </span>
-                                //             </div>
-                                //             <div className="rounded-lg text-sm">
-                                //                 <span className="text-mentat-gold-700">
-                                //                     {testWindow?.testWindowEndDate?.toLocaleString('en-US',
-                                //                         { timeZone: 'America/Los_Angeles' })}: {testWindow?.testEndTime}
-                                //                 </span>
-                                //             </div>
-                                //         </div>
-                                //         <div className="my-1">
-                                //             <div className="flex font-semibold italic justify-between">
-                                //                 <span className="">
-                                //                     Active:
-                                //                 </span>
-                                //                 <span className={`${ testWindow.isActive ?
-                                //                     'text-green-700' : 'text-red-700'
-                                //                 }`}>
-                                //             <span className="not-italic">
-                                //                 {testWindow.isActive.toString()}
-                                //             </span>
-                                //         </span>
-                                //             </div>
-                                //         </div>
-                                //     </div>
-                                //     {/* Overlay that appears when active */}
-                                //     {activeOverlay === testWindow.testWindowId && (
-                                //         <div className="absolute inset-0 bg-mentat-black/10 backdrop-blur-sm rounded-xl
-                                //     flex items-center justify-center z-20"
-                                //         >
-                                //             <div className="flex flex-col gap-3 items-center">
-                                //                 <button
-                                //                     className="px-4 py-2 rounded-lg text-sm font-medium
-                                //                     transition-colors shadow-sm shadow-mentat-gold-700
-                                //                     bg-crimson text-mentat-gold hover:bg-crimson-700"
-                                //                     // className="bg-crimson text-mentat-black px-6 py-3 rounded-lg
-                                //                     //    font-semibold hover:bg-mentat-gold/80 transition-colors
-                                //                     //    w-32"
-                                //                     onClick={() => {
-                                //                         if (!newScheduledExam)
-                                //                             handleUpdate(testWindow);
-                                //                         else
-                                //                             handleCreate(testWindow);
-                                //                     }}
-                                //                 >
-                                //                     {newScheduledExam ? 'Schedule' : 'Reschedule'}
-                                //                 </button>
-                                //                 <button
-                                //                     className="px-4 py-2 rounded-lg text-sm bg-mentat-gold
-                                //                     transform-colors hover:bg-mentat-gold-700
-                                //                     text-crimson font-bold shadow-sm shadow-crimson-700"
-                                //                     onClick={(e) => {
-                                //                         e.stopPropagation();
-                                //                         setActiveOverlay(null);
-                                //                     }}
-                                //                 >
-                                //                     Cancel
-                                //                 </button>
-                                //             </div>
-                                //         </div>
-                                //     )}
-                                // </div>
                             ))}
                         </div>
                     </div>
