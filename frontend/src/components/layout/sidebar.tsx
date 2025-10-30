@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import Link from "next/link";
-import {useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 /**
  * Overview SVG
@@ -422,6 +422,7 @@ export default function Sidebar() {
     // State to manage the open/close state of the sidebar
     const [isOpen, setIsOpen] = useState(true);
     // Refs for the elements we need to manipulate
+    const sidebarParentRef = useRef<HTMLDivElement>(null);
     const sidebarRef = useRef<HTMLDivElement>(null);
     const middleRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -491,12 +492,10 @@ export default function Sidebar() {
         const newIsOpen = !isOpen;
 
         requestAnimationFrame(() => {
-            // Adjust the outer sidebar container width so main content expands/contracts
-            const sidebarBox = document.getElementById('sidebar-box');
-
             // Check if all refs are available
             if (!sidebarRef.current || !middleRef.current || !bottomRef.current ||
-                !hamburgerBlockRef.current || !hamburgerParentRef.current) {
+                !hamburgerBlockRef.current || !hamburgerParentRef.current ||
+                !sidebarParentRef.current) {
                 return;
             }
 
@@ -523,6 +522,9 @@ export default function Sidebar() {
                 // 6. Update rounded status
                 hamburgerBlockRef.current.classList.add("rounded-xl");
                 hamburgerParentRef.current.classList.add("rounded-xl");
+                // 7. Update the parent reference
+                sidebarParentRef.current.classList.remove("w-68");
+                sidebarParentRef.current.classList.add("w-4");
             } else {
                 // EXPAND sequence - order important for graceful transition
                 // 1. Adjust the sidebar colors
@@ -546,6 +548,9 @@ export default function Sidebar() {
                 // 6. Update the rounded corners
                 hamburgerBlockRef.current.classList.remove("rounded-xl");
                 hamburgerParentRef.current.classList.remove("rounded-xl");
+                // 7. Update the parent reference
+                sidebarParentRef.current.classList.remove("w-4");
+                sidebarParentRef.current.classList.add("w-68");
             }
         });
 
@@ -553,276 +558,281 @@ export default function Sidebar() {
     };
 
     return (
-        <aside
-            ref={sidebarRef}
-            id="sidebar"
-            // className="h-full w-full flex flex-col transition-[width] ease-in-out delay-50 bg-crimson"
-            className="h-full w-full flex flex-col transition-[width]
-                    ease-in-out delay-50 bg-gradient-to-br
-                    from-crimson-700  via-mentat-black/50 to-mentat-black"
-            aria-label="Sidenav"
+        <div
+            id="sidebar-box"
+            ref={sidebarParentRef}
+            className={`w-68 flex-shrink-0 transition-all duration-300 ease-in-out`}
         >
-            {/* Put back the entire hgslider-block as this is REQUIRED for collapse animations*/}
-            <div id="sidebar-header">
-                {/* Floating slider box */}
-                <div
-                    ref={hamburgerBlockRef}
-                    id="hgslider-block"
-                    className={`
-                      z-10 inline-block w-full rounded-lg
-                      transition-all duration-300 ease-in-out`}
-                >
-                    <div
-                        id="hgSlider"
-                        className={`
-                            h-8 inline-block align-top 
-                            transition-all duration-300 ease-in-out
-                            ${isOpen ? 'w-[14rem] opacity-100' : 'translate-x-[-200px] opacity-0'}
-                          `}
-                    >
-                        &nbsp;
-                    </div>
-
-                    <div
-                        ref={hamburgerParentRef}
-                        id="hgslider-parent"
-                        className="inline-block"
-                    >
-                        <a
-                            href="#"
-                            onClick={sidebarHandler}
-                            className="group flex items-center p-2 text-base font-normal rounded-lg
-                            hover:bg-crimson-700 group"
-                        >
-                            <HamburgerSvgComponent
-                                className={`
-                                    w-4 h-4 text-mentat-gold/80 transition-all duration-150
-                                    group-hover:bg-crimson-700
-                                    ${isOpen ? 'zinc-900 rotate-0' : 'bg-mentat-black rotate-180'}
-                                  `}
-                            />
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {/* Menu selections and details */}
-            <div
-                ref={middleRef}
-                id="sidebar-middle"
-                className="flex-1 overflow-y-auto pb-5 px-3"
+            <aside
+                ref={sidebarRef}
+                id="sidebar"
+                className="h-full w-full flex flex-col transition-[width]
+                        ease-in-out delay-50 bg-gradient-to-br
+                        from-crimson-700  via-mentat-black/50 to-mentat-black"
+                aria-label="Sidenav"
             >
-                <ul className="space-y-2">
-                    <li>
-                        <Link href="/dashboard"
-                              className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                    dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                            <OverviewSvgComponent
-                                className="w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
-                                group-hover:text-gray-900 dark:group-hover:text-white"/>
-                            <span className="ml-3">Dashboard</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/grades"
-                              className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                                    dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                            <PagesSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
-                                    group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
-                            <span className="ml-3">
-                                {userType === 'Student' ? 'Grades' : 'Exams'}
-                            </span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/schedule"
-                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300
-                              rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
-                              dark:hover:bg-gray-700">
-                            <SalesSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
-                                    "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
-                            <span className="ml-3">
-                                {userType === 'Student' ? 'Schedule Exam' : 'Create Test Window'}
-                            </span>
-                        </Link>
-                    </li>
-                    {/*<li>*/}
-                    {/*    <Link href="/exams"*/}
-                    {/*          className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">*/}
-                    {/*        <MessagesSvgComponent*/}
-                    {/*            className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>*/}
-                    {/*        <span className="flex-1 ml-3 whitespace-nowrap">Exams</span>*/}
-                    {/*    </Link>*/}
-                    {/*</li>*/}
-                    <li>
-                        <Link href="/reports"
-                              className="flex items-center p-2 w-full text-base font-normal text-yellow-300
-                              rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
-                              dark:hover:bg-gray-700">
-                            <AuthenticationSvgComponent
-                                className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
-                                    "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
-                            <span className="ml-3">Reports</span>
-                        </Link>
-                        {/*<ul id="dropdown-authentication" className="hidden py-2 space-y-2">*/}
-                        {/*    <li>*/}
-                        {/*        <a href="#"*/}
-                        {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
-                        {/*            In</a>*/}
-                        {/*    </li>*/}
-                        {/*    <li>*/}
-                        {/*        <a href="#"*/}
-                        {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
-                        {/*            Up</a>*/}
-                        {/*    </li>*/}
-                        {/*    <li>*/}
-                        {/*        <a href="#"*/}
-                        {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Forgot*/}
-                        {/*            Password</a>*/}
-                        {/*    </li>*/}
-                        {/*</ul>*/}
-                    </li>
-                </ul>
-                <ul className="pt-5 mt-5 space-y-2 border-t border-mentat-gold/40 dark:border-gray-700">
-                    <li>
-                        <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                           transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
-                           group disabled">
-                            <DocsSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
-                                dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            />
-                            <span className="ml-3">Profile</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                           transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
-                           group disabled">
-                            <ComponentsSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
-                               dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            />
-                            <span className="ml-3">Administration</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#"
-                           className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                           transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
-                           group disabled">
-                            <HelpSvgComponent
-                                className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
-                                dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            />
-                            <span className="ml-3">Help</span>
-                        </a>
-                    </li>
-                </ul>
-                { session ? (
-                    <div>
-                        {/* Line Divider */}
-                        <hr className="border-mentat-gold/40 mt-5"></hr>
-                        {/* User Info & Actions */}
-                        <div className="items-center px-4 mt-5 space-x-4">
-                            <div className="text-mentat-gold text-sm">
-                                <p>Email: {session?.user?.email}</p>
-                                <p>Username: {session?.user?.username}</p>
-                                <p>Role: {userType}</p>
-                            </div>
+                {/* Put back the entire hgslider-block as this is REQUIRED for collapse animations*/}
+                <div id="sidebar-header">
+                    {/* Floating slider box */}
+                    <div
+                        ref={hamburgerBlockRef}
+                        id="hgslider-block"
+                        className={`
+                          z-10 inline-block w-full rounded-lg
+                          transition-all duration-300 ease-in-out`}
+                    >
+                        <div
+                            id="hgSlider"
+                            className={`
+                                h-8 inline-block align-top 
+                                transition-all duration-300 ease-in-out
+                                ${isOpen ? 'w-[14rem] opacity-100' : 'translate-x-[-200px] opacity-0'}
+                              `}
+                        >
+                            &nbsp;
+                        </div>
+
+                        <div
+                            ref={hamburgerParentRef}
+                            id="hgslider-parent"
+                            className="inline-block"
+                        >
+                            <a
+                                href="#"
+                                onClick={sidebarHandler}
+                                className="group flex items-center p-2 text-base font-normal rounded-lg
+                                hover:bg-crimson-700 group"
+                            >
+                                <HamburgerSvgComponent
+                                    className={`
+                                        w-4 h-4 text-mentat-gold/80 transition-all duration-150
+                                        group-hover:bg-crimson-700
+                                        ${isOpen ? 'zinc-900 rotate-0' : 'bg-mentat-black rotate-180'}
+                                      `}
+                                />
+                            </a>
                         </div>
                     </div>
-                ) : null}
-                {/* Line Divider */}
-                <hr className="border-mentat-gold/40 mt-5"></hr>
-                {/* Date/Time Section */}
-                <div className="text-mentat-gold px-4 mt-5">
-                    <div>Today's Date: <span id="date">{currDate}</span></div>
-                    <div>Current Time: <span id="time">{currTime}</span></div>
                 </div>
-            </div>
-            {/*Footer Bar*/}
-            <div
-                ref={bottomRef}
-                id="sidebar-bottom"
-                className="hidden bottom-0 left-0 justify-center p-1 rounded-md space-x-4 w-full lg:flex bg-mentat-gold dark:bg-mentat-gold-700 z-20"
-            >
-                <p className="text-xs text-center">Copyright @2025</p>
-            </div>
 
-            {/*<div id="sidebar-bottom"*/}
-            {/*    className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">*/}
-            {/*    <a href="#"*/}
-            {/*       className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400*/}
-            {/*            hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 disabled">*/}
-            {/*       <SliderSvgComponent className="w-6 h-6"/>*/}
-            {/*    </a>*/}
-            {/*    <a href="#" data-tooltip-target="tooltip-settings"*/}
-            {/*       className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400*/}
-            {/*            dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600 disabled">*/}
-            {/*        <SettingsSvgComponent className="w-6 h-6"/>*/}
-            {/*    </a>*/}
-            {/*    <div id="tooltip-settings" role="tooltip"*/}
-            {/*         className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900*/}
-            {/*            rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip disabled">*/}
-            {/*        Settings page*/}
-            {/*        <div className="tooltip-arrow" data-popper-arrow></div>*/}
-            {/*    </div>*/}
-            {/*    <button type="button" data-dropdown-toggle="language-dropdown"*/}
-            {/*            className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:hover:text-white dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">*/}
-            {/*    <DropDownSvgComponent className={"h-5 w-5 rounded-full mt-0.5"}/>*/}
-            {/*    </button>*/}
-            {/*    <div*/}
-            {/*        className="hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700"*/}
-            {/*        id="language-dropdown">*/}
-            {/*        <ul className="py-1" role="none">*/}
-            {/*            <li>*/}
-            {/*                <a href="#"*/}
-            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"*/}
-            {/*                   role="menuitem">*/}
-            {/*                    <div className="inline-flex items-center">*/}
-            {/*                        <EnglishSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>*/}
-            {/*                        English (US)*/}
-            {/*                    </div>*/}
-            {/*                </a>*/}
-            {/*            </li>*/}
-            {/*            <li>*/}
-            {/*                <a href="#"*/}
-            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"*/}
-            {/*                   role="menuitem">*/}
-            {/*                    <div className="inline-flex items-center">*/}
-            {/*                        <GermanSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>*/}
-            {/*                        Deutsch*/}
-            {/*                    </div>*/}
-            {/*                </a>*/}
-            {/*            </li>*/}
-            {/*            <li>*/}
-            {/*                <a href="#"*/}
-            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"*/}
-            {/*                   role="menuitem">*/}
-            {/*                    <div className="inline-flex items-center">*/}
-            {/*                        <ItalianSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>*/}
-            {/*                        Italiano*/}
-            {/*                    </div>*/}
-            {/*                </a>*/}
-            {/*            </li>*/}
-            {/*            <li>*/}
-            {/*                <a href="#"*/}
-            {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"*/}
-            {/*                   role="menuitem">*/}
-            {/*                    <div className="inline-flex items-center">*/}
-            {/*                    <MenuSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>*/}
-            {/*                        Test*/}
-            {/*                    </div>*/}
-            {/*                </a>*/}
-            {/*            </li>*/}
-            {/*        </ul>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
-        </aside>
+                {/* Menu selections and details */}
+                <div
+                    ref={middleRef}
+                    id="sidebar-middle"
+                    className="flex-1 overflow-y-auto pb-5 px-3"
+                >
+                    <ul className="space-y-2">
+                        <li>
+                            <Link href="/dashboard"
+                                  className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                <OverviewSvgComponent
+                                    className="w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400
+                                    group-hover:text-gray-900 dark:group-hover:text-white"/>
+                                <span className="ml-3">Dashboard</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/grades"
+                                  className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                        dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                <PagesSvgComponent
+                                    className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                        group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"/>
+                                <span className="ml-3">
+                                    {userType === 'Student' ? 'Grades' : 'Exams'}
+                                </span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/schedule"
+                                  className="flex items-center p-2 w-full text-base font-normal text-yellow-300
+                                  rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                                  dark:hover:bg-gray-700">
+                                <SalesSvgComponent
+                                    className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
+                                        "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                <span className="ml-3">
+                                    {userType === 'Student' ? 'Schedule Exam' : 'Create Test Window'}
+                                </span>
+                            </Link>
+                        </li>
+                        {/*<li>*/}
+                        {/*    <Link href="/exams"*/}
+                        {/*          className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">*/}
+                        {/*        <MessagesSvgComponent*/}
+                        {/*            className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"}/>*/}
+                        {/*        <span className="flex-1 ml-3 whitespace-nowrap">Exams</span>*/}
+                        {/*    </Link>*/}
+                        {/*</li>*/}
+                        <li>
+                            <Link href="/reports"
+                                  className="flex items-center p-2 w-full text-base font-normal text-yellow-300
+                                  rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white
+                                  dark:hover:bg-gray-700">
+                                <AuthenticationSvgComponent
+                                    className={"flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75" +
+                                        "group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"}/>
+                                <span className="ml-3">Reports</span>
+                            </Link>
+                            {/*<ul id="dropdown-authentication" className="hidden py-2 space-y-2">*/}
+                            {/*    <li>*/}
+                            {/*        <a href="#"*/}
+                            {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
+                            {/*            In</a>*/}
+                            {/*    </li>*/}
+                            {/*    <li>*/}
+                            {/*        <a href="#"*/}
+                            {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sign*/}
+                            {/*            Up</a>*/}
+                            {/*    </li>*/}
+                            {/*    <li>*/}
+                            {/*        <a href="#"*/}
+                            {/*           className="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Forgot*/}
+                            {/*            Password</a>*/}
+                            {/*    </li>*/}
+                            {/*</ul>*/}
+                        </li>
+                    </ul>
+                    <ul className="pt-5 mt-5 space-y-2 border-t border-mentat-gold/40 dark:border-gray-700">
+                        <li>
+                            <a href="#"
+                               className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
+                               group disabled">
+                                <DocsSvgComponent
+                                    className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                    dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                />
+                                <span className="ml-3">Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                               className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
+                               group disabled">
+                                <ComponentsSvgComponent
+                                    className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                   dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                />
+                                <span className="ml-3">Administration</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                               className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
+                               group disabled">
+                                <HelpSvgComponent
+                                    className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
+                                    dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                />
+                                <span className="ml-3">Help</span>
+                            </a>
+                        </li>
+                    </ul>
+                    { session ? (
+                        <div>
+                            {/* Line Divider */}
+                            <hr className="border-mentat-gold/40 mt-5"></hr>
+                            {/* User Info & Actions */}
+                            <div className="items-center px-4 mt-5 space-x-4">
+                                <div className="text-mentat-gold text-sm">
+                                    <p>Email: {session?.user?.email}</p>
+                                    <p>Username: {session?.user?.username}</p>
+                                    <p>Role: {userType}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : null}
+                    {/* Line Divider */}
+                    <hr className="border-mentat-gold/40 mt-5"></hr>
+                    {/* Date/Time Section */}
+                    <div className="text-mentat-gold px-4 mt-5">
+                        <div>Today's Date: <span id="date">{currDate}</span></div>
+                        <div>Current Time: <span id="time">{currTime}</span></div>
+                    </div>
+                </div>
+                {/*Footer Bar*/}
+                <div
+                    ref={bottomRef}
+                    id="sidebar-bottom"
+                    className="hidden bottom-0 left-0 justify-center p-1 rounded-md space-x-4 w-full lg:flex bg-mentat-gold dark:bg-mentat-gold-700 z-20"
+                >
+                    <p className="text-xs text-center">Copyright @2025</p>
+                </div>
+
+                {/*<div id="sidebar-bottom"*/}
+                {/*    className="hidden bottom-0 left-0 justify-center p-4 space-x-4 w-full lg:flex bg-white dark:bg-gray-800 z-20">*/}
+                {/*    <a href="#"*/}
+                {/*       className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400*/}
+                {/*            hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 disabled">*/}
+                {/*       <SliderSvgComponent className="w-6 h-6"/>*/}
+                {/*    </a>*/}
+                {/*    <a href="#" data-tooltip-target="tooltip-settings"*/}
+                {/*       className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:text-gray-400*/}
+                {/*            dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600 disabled">*/}
+                {/*        <SettingsSvgComponent className="w-6 h-6"/>*/}
+                {/*    </a>*/}
+                {/*    <div id="tooltip-settings" role="tooltip"*/}
+                {/*         className="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900*/}
+                {/*            rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip disabled">*/}
+                {/*        Settings page*/}
+                {/*        <div className="tooltip-arrow" data-popper-arrow></div>*/}
+                {/*    </div>*/}
+                {/*    <button type="button" data-dropdown-toggle="language-dropdown"*/}
+                {/*            className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer dark:hover:text-white dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">*/}
+                {/*    <DropDownSvgComponent className={"h-5 w-5 rounded-full mt-0.5"}/>*/}
+                {/*    </button>*/}
+                {/*    <div*/}
+                {/*        className="hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700"*/}
+                {/*        id="language-dropdown">*/}
+                {/*        <ul className="py-1" role="none">*/}
+                {/*            <li>*/}
+                {/*                <a href="#"*/}
+                {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"*/}
+                {/*                   role="menuitem">*/}
+                {/*                    <div className="inline-flex items-center">*/}
+                {/*                        <EnglishSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>*/}
+                {/*                        English (US)*/}
+                {/*                    </div>*/}
+                {/*                </a>*/}
+                {/*            </li>*/}
+                {/*            <li>*/}
+                {/*                <a href="#"*/}
+                {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"*/}
+                {/*                   role="menuitem">*/}
+                {/*                    <div className="inline-flex items-center">*/}
+                {/*                        <GermanSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>*/}
+                {/*                        Deutsch*/}
+                {/*                    </div>*/}
+                {/*                </a>*/}
+                {/*            </li>*/}
+                {/*            <li>*/}
+                {/*                <a href="#"*/}
+                {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-600"*/}
+                {/*                   role="menuitem">*/}
+                {/*                    <div className="inline-flex items-center">*/}
+                {/*                        <ItalianSvgComponent className="h-3.5 w-3.5 rounded-full mr-2"/>*/}
+                {/*                        Italiano*/}
+                {/*                    </div>*/}
+                {/*                </a>*/}
+                {/*            </li>*/}
+                {/*            <li>*/}
+                {/*                <a href="#"*/}
+                {/*                   className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:text-white dark:text-gray-300 dark:hover:bg-gray-600"*/}
+                {/*                   role="menuitem">*/}
+                {/*                    <div className="inline-flex items-center">*/}
+                {/*                    <MenuSvgComponent className={"h-3.5 w-3.5 rounded-full mr-2"}/>*/}
+                {/*                        Test*/}
+                {/*                    </div>*/}
+                {/*                </a>*/}
+                {/*            </li>*/}
+                {/*        </ul>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
+            </aside>
+        </div>
     );
 };
