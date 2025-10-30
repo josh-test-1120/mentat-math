@@ -97,7 +97,8 @@ export default function GradeDashboard({ grades, score, isStrategy=false }: Grad
                 <div className="bg-card-color p-4 rounded-lg shadow-sm border
                     border-mentat-gold/40 shadow-crimson-700">
                     <h3 className="text-sm font-medium text-mentat-gold/80">Exams Taken</h3>
-                    <p className="text-2xl font-bold">{grades.length}</p>
+                    <p className="text-2xl font-bold">{grades.filter((grade)=>
+                        grade.status !== 'pending').length}</p>
                 </div>
 
                 {/* Success Rate */}
