@@ -14,7 +14,7 @@ import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamExtended } from "@/app/grades/util/types";
 import ExamResult from "@/components/types/exam_result";
 import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
-import {ExamStatistics} from "@/app/grades/localComponents/ExamStatistics";
+import { ExamStatistics } from "@/app/grades/localComponents/ExamStatistics";
 
 // Status Counter
 const statusScore = (exam: ExamResult) => {

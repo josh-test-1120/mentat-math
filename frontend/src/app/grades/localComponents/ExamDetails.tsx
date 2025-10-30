@@ -1,13 +1,9 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import { Card, CardContent, Button } from "@/components/UI/calendar/ui"
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
-import Modal from "@/components/services/Modal";
-import Exam from "@/components/types/exam";
-import Course from "@/components/types/course";
 import { ExamExtended } from "@/app/grades/util/types";
 import ErrorToast from "@/components/services/error";
 
@@ -200,11 +196,12 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                             className="w-full rounded-md bg-white/5 text-mentat-gold border
                             border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         >
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
+                            <option value="">Select difficulty</option>
+                            <option value="1">1 - Very Easy</option>
+                            <option value="2">2 - Easy</option>
+                            <option value="3">3 - Medium</option>
+                            <option value="4">4 - Hard</option>
+                            <option value="5">5 - Very Hard</option>
                         </select>
                     </div>
 

@@ -31,9 +31,10 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
         examCourseId: "",
         examName: "",
         examDifficulty: "",
-        isPublished: "",
-        isRequired: "",
-        isOnline: "",
+        examDuration: "",
+        examState: "",
+        examRequired: "",
+        examOnline: "",
         hasExpiration: false,
         examExpirationDate: "",
     });
@@ -54,12 +55,11 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
     const { data: session } = useSession()
 
     // Form Mapping
-    const {examCourseId, examName, examDifficulty, isPublished, isRequired,
-        isOnline, hasExpiration, examExpirationDate} = formData;
+    const {examCourseId, examName, examDifficulty, examDuration, examState, examRequired,
+        examOnline, hasExpiration, examExpirationDate} = formData;
 
     // Form validation - only exam name and course are required
-    const isFormValid = examName && examName.trim() !== '' &&
-                       examCourseId && examCourseId !== '';
+    const isFormValid = examName.trim() !== '' && examCourseId !== '';
 
     /**
      * Fetch courses from the backend
@@ -142,12 +142,17 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
     // Setting data by name, value, type, and checked value
     const data = (e: any) => {
         const { name, value, type, checked } = e.target;
-        setFormData({
-            // Spread data
-            ...formData,
-            // Override field name's value by type checkbox for correctness
+        // setFormData({
+        //     // Spread data
+        //     ...formData,
+        //     // Override field name's value by type checkbox for correctness
+        //     [name]: type === 'checkbox' ? checked : value,
+        // });
+        console.log(formData);
+        setFormData(prevFormData => ({
+            ...prevFormData,
             [name]: type === 'checkbox' ? checked : value,
-        });
+        }));
     };
 
     /**
@@ -193,12 +198,12 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
 
             const payload: any = {
                 examName: examName.trim(),
-                examState: isPublished ? 1 : 0,
-                examRequired: isRequired ? 1 : 0,
+                examState: examState ? 1 : 0,
+                examRequired: examRequired ? 1 : 0,
                 examDifficulty: parsedDifficulty,
                 examCourseId: parsedCourseId,
                 examDuration: 1.0, // Default value, as it's not in the form yet
-                examOnline: isOnline ? 1 : 0
+                examOnline: examOnline ? 1 : 0
             };
             if (hasExpiration && examExpirationDate) {
                 payload.examExpirationDate = examExpirationDate; // ISO date (yyyy-mm-dd)
@@ -229,9 +234,10 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                     examCourseId: courses.length > 0 ? courses[0].courseId?.toString() || "" : "",
                     examName: "",
                     examDifficulty: "",
-                    isPublished: "",
-                    isRequired: "",
-                    isOnline: "",
+                    examDuration: "",
+                    examState: "",
+                    examRequired: "",
+                    examOnline: "",
                     hasExpiration: false,
                     examExpirationDate: "",
                 });
@@ -391,6 +397,19 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                                 <option value="5">5 - Very Hard</option>
                             </select>
                         </div>
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="exam_duration" className="text-sm">Exam Duration</label>
+                            <input
+                                id="examDuration"
+                                type="text"
+                                name="examDuration"
+                                value={examDuration}
+                                onChange={data}
+                                required={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
+                                    focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            />
+                        </div>
                     </div>
                     {/*Check boxes*/}
                     <div className="grid grid-cols-4 sm:grid-cols-3 gap-4 items-center justify-items-center">
@@ -399,7 +418,7 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                                 id="examRequired"
                                 type="checkbox"
                                 name="examRequired"
-                                checked={Boolean(isRequired)}
+                                checked={Boolean(examRequired)}
                                 onChange={data}
                                 className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
                                     text-mentat-gold focus:ring-mentat-gold"
@@ -411,7 +430,7 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                                 id="examState"
                                 type="checkbox"
                                 name="examState"
-                                checked={Boolean(isPublished)}
+                                checked={Boolean(examState)}
                                 onChange={data}
                                 className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
                                     text-mentat-gold focus:ring-mentat-gold"
@@ -423,7 +442,7 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                                 id="examOnline"
                                 type="checkbox"
                                 name="examOnline"
-                                checked={Boolean(isOnline)}
+                                checked={Boolean(examOnline)}
                                 onChange={data}
                                 className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold
                                     focus:ring-mentat-gold"
