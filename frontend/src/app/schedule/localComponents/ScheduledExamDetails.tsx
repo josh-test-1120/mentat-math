@@ -86,9 +86,14 @@ export default function ScheduledExamDetailsComponent(
         email: ''
     });
 
+    // Daypicker states
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     // Separate state for displayed month
     const [currentMonth, setCurrentMonth] = useState<Date | undefined>(undefined);
+    // Date Range states
+    const [startDate, setStartDate] = useState<Date>(new Date());
+    const [endDate, setEndDate] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() + 3)));
+
     const defaultClassNames = getDefaultClassNames();
 
     // Add state to track which card is showing overlay
@@ -333,10 +338,16 @@ export default function ScheduledExamDetailsComponent(
             setActiveOverlay(window.testWindowId);
 
             if (window.testWindowStartDate) {
-                let moveToDate = encodeStringDate(window.testWindowStartDate.toLocaleString('en-US',
+                let startDate = encodeStringDate(window.testWindowStartDate.toLocaleString('en-US',
                     { timeZone: 'America/Los_Angeles' }));
-                setSelectedDate(moveToDate);
-                setCurrentMonth(moveToDate);
+                setSelectedDate(startDate);
+                setCurrentMonth(startDate);
+                setStartDate(startDate);
+            }
+            if (window.testWindowEndDate) {
+                let endDate = encodeStringDate(window.testWindowEndDate.toLocaleString('en-US',
+                    { timeZone: 'America/Los_Angeles' }));
+                setEndDate(endDate);
             }
         } catch (e) {
             toast.error("Test Window Move Failed");
@@ -449,7 +460,12 @@ export default function ScheduledExamDetailsComponent(
                             mode="single"
                             selected={selectedDate}
                             onSelect={(date) =>
-                            {setSelectedDate(date);}}
+                                {setSelectedDate(date);
+                            }}
+                            disabled={{
+                                before: startDate,
+                                after: endDate,
+                            }}
                             month={currentMonth} // Controls which month is displayed
                             onMonthChange={setCurrentMonth} // Update when user navigates
                             className="w-full h-full text-mentat-gold"
@@ -468,6 +484,7 @@ export default function ScheduledExamDetailsComponent(
                                 month_grid: `${defaultClassNames.month_grid}, h-full min-h-0`,
                                 head: "mb-2",
                                 day: `${defaultClassNames.day}, text-center`,
+                                [DayFlag.disabled]: "text-gray-700 cursor-not-allowed text-center",
                             }}
                             styles={{
                                 root: { height: '100%', minHeight: 0 },
