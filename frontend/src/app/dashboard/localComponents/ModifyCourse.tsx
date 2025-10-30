@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import Course from "@/components/types/course";
 import { CourseStrategy } from "@/app/dashboard/types/shared";
 import ModifyGradeStrategyComponent from "@/app/dashboard/localComponents/ModifyGradeStrategyComponent";
-import {RingSpinner} from "@/components/UI/Spinners";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 interface ModifyCourseComponentProps {
     course: Course | undefined
@@ -53,6 +53,7 @@ export default function ModifyCourseComponent({ course,
     const [gradeStrategy, setGradeStrategy] = useState<CourseStrategy>();
     // Modify action state
     const [isModifying, setIsModifying] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -155,6 +156,9 @@ export default function ModifyCourseComponent({ course,
     const handleDelete = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
+        // Update delete state
+        setIsDeleting(true);
+
         // API Handler call
         try {
             console.log("Deleting Course");
@@ -179,6 +183,8 @@ export default function ModifyCourseComponent({ course,
         } catch (e) {
             toast.error("Course Deletion Failed");
         } finally {
+            // Update delete state
+            setIsDeleting(false);
             // Run the cancel/close callback
             updateAction();
         }
@@ -301,7 +307,12 @@ export default function ModifyCourseComponent({ course,
                             type="submit"
                             onClick={handleDelete}
                         >
-                            Delete Course
+                            { isDeleting ? (
+                                <div className="flex justify-center items-center">
+                                    <RingSpinner size={'xs'} color={'mentat-gold'} />
+                                    <p className="ml-3 text-sm text-mentat-gold">Deleting...</p>
+                                </div>
+                            ) : 'Delete Course' }
                         </button>
                         <button
                             className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold

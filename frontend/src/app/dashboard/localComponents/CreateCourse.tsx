@@ -88,7 +88,8 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 courseSection: formData.courseSection,
                 courseQuarter: formData.courseQuarter,
                 courseYear: formData.courseYear,
-                userID: userSession.id,
+                courseProfessorId: userSession.id,
+                gradeStrategy: gradeStrategy ? JSON.stringify(gradeStrategy) : undefined,
             };
 
             const res = await apiHandler(
@@ -228,8 +229,8 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 >
                     { isSubmitting ? (
                         <div className="flex justify-center items-center">
-                            <RingSpinner size={'xs'} color={'crimson-700'} />
-                            <p className="ml-3 text-sm text-crimson-700">Creating...</p>
+                            <RingSpinner size={'xs'} color={'mentat-gold'} />
+                            <p className="ml-3 text-sm text-mentat-gold">Creating...</p>
                         </div>
                     ) : 'Create Course' }
                 </button>

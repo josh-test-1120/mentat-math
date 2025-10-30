@@ -186,7 +186,7 @@ export default function ModifyGradeStrategyComponent({gradeStrategy,
                         </div>
                     </div>
                 ) : (
-                    <div>
+                    <div className="mt-4">
                         {/*Link to Exam management page*/}
                         {!isExamValid && courseId && (
                             <div
