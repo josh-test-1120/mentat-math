@@ -5,6 +5,7 @@ import org.mentats.mentat.components.StudentCourseValidator;
 import org.mentats.mentat.exceptions.ValidationException;
 import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.StudentCourse;
+import org.mentats.mentat.models.StudentCourseId;
 import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.StudentCourseRequest;
 import org.mentats.mentat.payload.response.CourseResponse;
@@ -77,8 +78,12 @@ public class StudentCourseService {
         // Get referenced objects (FKs)
         GetForeignKeyObjects(studentCourseRequest);
 
+        // Create the composite ID
+        StudentCourseId id = new StudentCourseId(course.getCourseId(), student.getId());
+
         // Create entity
         StudentCourse studentCourse = new StudentCourse();
+        studentCourse.setId(id);
         studentCourse.setCourse(course);
         studentCourse.setStudent(student);
         studentCourse.setStudentCourseGrade(studentCourseRequest.getStudentCourseGrade());

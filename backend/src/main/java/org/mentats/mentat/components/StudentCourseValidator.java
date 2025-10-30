@@ -136,8 +136,11 @@ public class StudentCourseValidator {
         if (studentCourse.getStudentId() == null) {
             throw new ValidationException("Student ID is required");
         }
+        // Handle case where there is no date, so we set to now
         if (studentCourse.getStudentDateRegistered() == null) {
-            throw new ValidationException("Registration date is required");
+            LocalDate now = LocalDate.now();
+            studentCourse.setStudentDateRegistered(now);
+            //throw new ValidationException("Registration date is required");
         }
 
         // Validate IDs are positive

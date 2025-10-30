@@ -81,11 +81,15 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
         // Set joining state
         setIsJoining(true);
 
+        const courseIdProper = Number(courseId);
+        const studentIdProper = Number(userSession.id);
+
+
         // Try wrapper to handle async exceptions
         try {
             // API Handler
             const res = await apiHandler(
-                { studentId: userSession.id, courseId },
+                { studentId: studentIdProper, courseId: courseIdProper },
                 "POST",
                 "api/course/joinCourse",
                 `${BACKEND_API}`,
