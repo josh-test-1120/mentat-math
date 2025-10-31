@@ -85,14 +85,20 @@ export const ExamTable: React.FC<ReportTableProps> =
             item.examName === item1);
         const matchingExamResult = grades.find(item =>
             item.examId === matchingExam?.examId);
+        const defaultRecord = examRequiredDefault(item1.toString(),
+            course.courseName) as Report;
         if (matchingExamResult)
             return {
                 ...matchingExam,
                 ...matchingExamResult
             } as Report;
+        // This is the exam only layout
+        else if (matchingExam) return {
+            ...defaultRecord,
+            ...matchingExam
+        } as Report;
         // This is a generic layout
-        else return examRequiredDefault(item1.toString(),
-            course.courseName) as Report;
+        else return defaultRecord;
     });
     console.log('This is the required exams array');
     console.log(requiredExams);
@@ -103,13 +109,20 @@ export const ExamTable: React.FC<ReportTableProps> =
             item.examName === item1);
         const matchingExamResult = grades.find(item =>
             item.examId === matchingExam?.examId);
+        const defaultRecord = examOptionalDefault(item1.toString(),
+            course.courseName, gradeStrategy) as Report;
         if (matchingExamResult)
             return {
                 ...matchingExam,
                 ...matchingExamResult
             } as Report;
-        else return examOptionalDefault(item1.toString(),
-            course.courseName, gradeStrategy) as Report;
+        // This is a exam only layout
+        else if (matchingExam) return {
+            ...defaultRecord,
+            ...matchingExam
+        } as Report;
+        // This is a generic layout
+        else return defaultRecord;
     });
     console.log('This is the optional exams array');
     console.log(optionalExams);

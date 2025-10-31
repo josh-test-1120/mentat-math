@@ -64,12 +64,6 @@ public class CourseService {
         // Get referenced objects (FKs)
         GetForeignKeyObjects(courseRequest);
 
-        // Check for existing course
-        boolean exists = courseRepository.existsById(courseRequest.getCourseId());
-        if (exists) {
-            throw new DuplicateRecordException("Course already exists");
-        }
-
         // Create entity
         Course course = new Course();
         course.setInstructor(instructor);

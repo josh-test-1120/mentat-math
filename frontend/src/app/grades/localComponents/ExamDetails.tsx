@@ -1,15 +1,12 @@
 'use client'
 
 import React, {useEffect, useState} from 'react';
-import { Card, CardContent, Button } from "@/components/UI/calendar/ui"
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
-import Modal from "@/components/services/Modal";
-import Exam from "@/components/types/exam";
-import Course from "@/components/types/course";
 import { ExamExtended } from "@/app/grades/util/types";
 import ErrorToast from "@/components/services/error";
+import {RingSpinner} from "@/components/UI/Spinners";
 
 interface ExamDetailsComponentProps {
     exam: ExamExtended;
@@ -35,6 +32,10 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         hasExpiration: Boolean(exam?.examExpirationDate),
         examExpirationDate: exam?.examExpirationDate ?? ''
     });
+
+    // Modify action state
+    const [isModifying, setIsModifying] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [sessionReady, setSessionReady] = useState(false);
@@ -68,6 +69,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
     const handleUpdate = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
+        // Set Modify state
+        setIsModifying(true);
+
         console.log("Modify Exam");
         console.log(exam);
         console.log(examData);
@@ -117,6 +121,8 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         } catch (e) {
             toast.error("Exam Update Failed");
         } finally {
+            // Set Modify state
+            setIsModifying(false);
             // Run the cancel/close callback
             updateAction();
         }
@@ -126,6 +132,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
     const handleDelete = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
+        // Set Modify state
+        setIsDeleting(true);
+
         // API Handler call
         try {
             console.log("Deleting Exam");
@@ -151,6 +160,8 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         } catch (e) {
             toast.error("Exam Deletion Failed");
         } finally {
+            // Set Modify state
+            setIsDeleting(false);
             // Run the cancel/close callback
             updateAction();
         }
@@ -189,26 +200,32 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>
-                        <input
-                            id="exam_difficulty"
-                            type="text"
-                            name="exam_difficulty"
+                        <label htmlFor="examDifficulty" className="text-sm">Exam Difficulty</label>
+                        <select
+                            id="examDifficulty"
+                            name="examDifficulty"
                             value={examData.examDifficulty}
                             onChange={(e) =>
                                 setExamData({ ...examData, examDifficulty: e.target.value })}
-                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
-                                focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
+                            required={true}
+                            className="w-full rounded-md bg-white/5 text-mentat-gold border
+                            border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
                         >
-                        </input>
+                            <option value="">Select difficulty</option>
+                            <option value="1">1 - Very Easy</option>
+                            <option value="2">2 - Easy</option>
+                            <option value="3">3 - Medium</option>
+                            <option value="4">4 - Hard</option>
+                            <option value="5">5 - Very Hard</option>
+                        </select>
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <label htmlFor="exam_duration" className="text-sm">Exam Duration</label>
                         <input
-                            id="exam_duration"
+                            id="examDuration"
                             type="text"
-                            name="exam_duration"
+                            name="examDuration"
                             value={examData.examDuration}
                             onChange={(e) =>
                                 setExamData({ ...examData, examDuration: e.target.value })}
@@ -221,9 +238,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="flex items-center gap-3">
                                 <input
-                                    id="is_required"
+                                    id="examRequired"
                                     type="checkbox"
-                                    name="is_required"
+                                    name="examRequired"
                                     checked={examData.examRequired === '1'}
                                     onChange={(e) =>
                                         setExamData({ ...examData, examRequired: e.target.checked ? '1' : '0' })}
@@ -235,9 +252,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
 
                             <div className="flex items-center gap-3">
                                 <input
-                                    id="exam_state"
+                                    id="examState"
                                     type="checkbox"
-                                    name="exam_state"
+                                    name="examState"
                                     checked={examData.examState === '1'}
                                     onChange={(e) =>
                                         setExamData({ ...examData, examState: e.target.checked ? '1' : '0' })}
@@ -249,9 +266,9 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
 
                             <div className="flex items-center gap-3">
                                 <input
-                                    id="is_online"
+                                    id="examOnline"
                                     type="checkbox"
-                                    name="is_online"
+                                    name="examOnline"
                                     checked={examData.examOnline === '1'}
                                     onChange={(e) =>
                                         setExamData({ ...examData, examOnline: e.target.checked ? '1' : '0' })}
@@ -323,7 +340,12 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         type="submit"
                         onClick={handleDelete}
                     >
-                        Delete
+                        { isDeleting ? (
+                            <div className="flex justify-center items-center">
+                                <RingSpinner size={'xs'} color={'mentat-gold'} />
+                                <p className="ml-3 text-sm text-mentat-gold">Deleting...</p>
+                            </div>
+                        ) : 'Delete Exam' }
                     </button>
                     <button
                         className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson font-bold
@@ -331,7 +353,12 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                         type="submit"
                         onClick={handleUpdate}
                     >
-                        Update
+                        { isModifying ? (
+                            <div className="flex justify-center items-center">
+                                <RingSpinner size={'xs'} color={'crimson-700'} />
+                                <p className="ml-3 text-sm text-crimson-700">Modifying...</p>
+                            </div>
+                        ) : 'Modify Exam' }
                     </button>
                 </div>
             </form>

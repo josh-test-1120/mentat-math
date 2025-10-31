@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion';
 import Course from "@/components/types/course";
 import Grade from "@/components/types/grade";
-import { getExamPropCourse } from "@/app/schedule/localComponents/ExamCard";
+import {getExamPropCourse, getExamPropStatus} from "@/app/schedule/localComponents/ExamCard";
 import CreateScheduledExam from "@/app/schedule/localComponents/CreateScheduledExam";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { ExamCardMedium } from "@/app/schedule/localComponents/ExamCard";
@@ -47,6 +47,8 @@ export default function StudentSchedule() {
     const hasFetched = useRef(false);
     // These are the filter states
     const [filter, setFilter] = useState<'all' | 'MATH260' | 'MATH330' | string>('all');
+    // These are the valid statuses for showing scheduled exams
+    const validStatus = ['pending', 'upcoming', 'missing'];
     // This is the Backend API data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -177,7 +179,7 @@ export default function StudentSchedule() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/course/enrollments?studentId=${userSession.id}`,
+                `api/course/enrollments/${userSession.id}`,
                 `${BACKEND_API}`,
                 userSession.accessToken || undefined
             );
@@ -307,7 +309,8 @@ export default function StudentSchedule() {
                         { session?.user?.id && filteredCourses ? (
                             < CreateScheduledExam
                                 studentId={session?.user?.id}
-                                courses={filteredCourses}
+                                courses={courses}
+                                filteredCourse={course}
                                 updateAction={() => {
                                     // Trigger refresh when modal closes
                                     setRefreshTrigger(prev => prev + 1);
@@ -352,7 +355,12 @@ export default function StudentSchedule() {
                     ) : filteredExams && filteredExams.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             <AnimatePresence>
-                                {filteredExams.map((examInst) => (
+                                {filteredExams
+                                    .filter((exam) => {
+                                        const status = getExamPropStatus(exam);
+                                        return validStatus.includes(status);
+                                    })
+                                    .map((examInst) => (
                                     <ExamCardMedium
                                         key={examInst.examId}
                                         exam={examInst}

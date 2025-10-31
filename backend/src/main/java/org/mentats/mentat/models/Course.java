@@ -70,7 +70,7 @@ public class Course {
     public String courseQuarter;
 
     // Course Grade Strategy
-    @Size(max = 255)
+    @Size(max = 10000)
     @JsonProperty("gradeStrategy") // Map JSON field to Java field
     @Column(name = "course_grade_strategy", columnDefinition = "JSON")
     public String gradeStrategy;

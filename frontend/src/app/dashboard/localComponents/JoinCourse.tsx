@@ -81,11 +81,15 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
         // Set joining state
         setIsJoining(true);
 
+        const courseIdProper = Number(courseId);
+        const studentIdProper = Number(userSession.id);
+
+
         // Try wrapper to handle async exceptions
         try {
             // API Handler
             const res = await apiHandler(
-                { studentId: userSession.id, courseId },
+                { studentId: studentIdProper, courseId: courseIdProper },
                 "POST",
                 "api/course/joinCourse",
                 `${BACKEND_API}`,
@@ -116,8 +120,8 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
             <Card className="w-full max-w-md p-6 rounded-2xl shadow-lg">
                 <CardContent>
                     <h1 className="text-2xl font-bold mb-4">Join a Course</h1>
-                    <p className="text-white mb-6">Enter the Course ID to join a course.</p>
-                    <p className="text-white mb-6">Tip: Ask your instructor for the Course ID.</p>
+                    <p className="text-mentat-gold/60 mb-6">Enter the Course ID to join a course.</p>
+                    <p className="text-mentat-gold/60 mb-6">Tip: Ask your instructor for the Course ID.</p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <input
@@ -125,12 +129,16 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
                             placeholder="Course ID"
                             value={courseId}
                             onChange={(e) => setCourseId(e.target.value)}
-                            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-3 border border-mentat-gold/20 rounded-lg
+                            focus:ring-1 bg-card-color placeholder-mentat-gold/20
+                            focus:ring-mentat-gold/20 focus:border-mentat-gold/40"
                         />
                         <button 
                             type="submit" 
-                            className="w-full py-2 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:brightness-110 flex items-center justify-center gap-2"
-                            style={{ backgroundColor: '#A30F32' }}
+                            className="w-full py-2 rounded-lg text-mentat-gold disabled:opacity-50
+                            disabled:cursor-not-allowed transition-all duration-200 hover:brightness-110 flex
+                            items-center justify-center gap-2 shadow-sm shadow-mentat-gold-700
+                            bg-crimson hover:bg-crimson-700"
                             disabled={isJoining || !userSession.id}
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

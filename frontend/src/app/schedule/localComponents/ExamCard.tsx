@@ -32,6 +32,31 @@ export const getExamPropCourse = (exam: Grade): string => {
 };
 
 /**
+ * Determine grade status based on exam score, and exam date
+ * @param exam
+ */
+export const getExamPropStatus =
+    (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+        // Get the proper exam scheduled date, with timezone
+        const examDate = new Date(exam.examScheduledDate);
+        const examPstDate = new Date(examDate.toLocaleString('en-US',
+            { timeZone: 'America/Los_Angeles' }));
+        // Get the today's date, with timezone
+        const today = new Date();
+        const todayPstDate = new Date(today.toLocaleString('en-US',
+            { timeZone: 'America/Los_Angeles' }));
+        // If exam date is in the future, it's upcoming
+        if (examPstDate > todayPstDate) return 'upcoming';
+        // If exam date is in the past and has a score, it's completed
+        else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
+        // If no exam date and no score
+        else if ((exam.examScheduledDate == undefined)
+            && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
+        // If the exam date is in the past but no score, it's pending
+        else return 'pending';
+    };
+
+/**
  * This is the card component that will render a
  * medium size card with the exam result information
  * available
@@ -125,30 +150,30 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         );
     };
 
-    /**
-     * Determine grade status based on exam score, and exam date
-     * @param exam
-     */
-    const getExamPropStatus =
-        (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
-            // Get the proper exam scheduled date, with timezone
-            const examDate = new Date(exam.examScheduledDate);
-            const examPstDate = new Date(examDate.toLocaleString('en-US',
-                { timeZone: 'America/Los_Angeles' }));
-            // Get the today's date, with timezone
-            const today = new Date();
-            const todayPstDate = new Date(today.toLocaleString('en-US',
-                { timeZone: 'America/Los_Angeles' }));
-            // If exam date is in the future, it's upcoming
-            if (examPstDate > todayPstDate) return 'upcoming';
-            // If exam date is in the past and has a score, it's completed
-            else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
-            // If no exam date and no score
-            else if ((exam.examScheduledDate == undefined)
-                && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
-            // If the exam date is in the past but no score, it's pending
-            else return 'pending';
-        };
+    // /**
+    //  * Determine grade status based on exam score, and exam date
+    //  * @param exam
+    //  */
+    // const getExamPropStatus =
+    //     (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
+    //         // Get the proper exam scheduled date, with timezone
+    //         const examDate = new Date(exam.examScheduledDate);
+    //         const examPstDate = new Date(examDate.toLocaleString('en-US',
+    //             { timeZone: 'America/Los_Angeles' }));
+    //         // Get the today's date, with timezone
+    //         const today = new Date();
+    //         const todayPstDate = new Date(today.toLocaleString('en-US',
+    //             { timeZone: 'America/Los_Angeles' }));
+    //         // If exam date is in the future, it's upcoming
+    //         if (examPstDate > todayPstDate) return 'upcoming';
+    //         // If exam date is in the past and has a score, it's completed
+    //         else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
+    //         // If no exam date and no score
+    //         else if ((exam.examScheduledDate == undefined)
+    //             && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
+    //         // If the exam date is in the past but no score, it's pending
+    //         else return 'pending';
+    // };
 
     // Get the status of the exam
     const examStatus = getExamPropStatus(exam);

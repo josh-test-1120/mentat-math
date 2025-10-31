@@ -85,8 +85,10 @@ public class CourseValidator {
 //        if (gradeStrategy == null || gradeStrategy.trim().isEmpty()) {
 //            throw new ValidationException("Grade strategy is required");
 //        }
-        if (gradeStrategy.length() > 255) {
-            throw new ValidationException("Grade strategy cannot exceed 255 characters");
+        if (gradeStrategy != null) {
+            if (gradeStrategy.length() > 10000) {
+                throw new ValidationException("Grade strategy cannot exceed 10000 characters");
+            }
         }
     }
 

@@ -1,9 +1,12 @@
 "use client";
 
-import {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { apiHandler } from '@/utils/api';
 import { toast } from 'react-toastify';
+import ModifyGradeStrategy from "@/app/dashboard/localComponents/ModifyGradeStrategy";
+import { CourseStrategy } from "@/app/dashboard/types/shared";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 interface CreateCourseProps {
   onCourseCreated?: () => void;
@@ -37,9 +40,16 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
         courseQuarter: '',
         courseYear: new Date().getFullYear(),
     });
+    // Grade Strategy deserialized/serialized
+    const [gradeStrategy, setGradeStrategy] = useState<CourseStrategy>();
 
     // These are the loading states
     const [isSubmitting, setIsSubmitting] = useState(false);
+    // Form validation - only exam name and course are required
+    const isFormValid = formData.courseName.trim() !== '' &&
+        formData.courseSection.trim() !== '' &&
+        formData.courseQuarter.trim() !== '' &&
+        formData.courseYear !== undefined;
     // Backend API for data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -64,11 +74,11 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
     /**
      * This function will handle form submissions
      * to create the new course
-     * @param e
+     * @param event
      */
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         // Prevent default even propagation
-        e.preventDefault();
+        event.preventDefault();
         // Set the submission state
         setIsSubmitting(true);
         // Try - Catch handler
@@ -78,7 +88,8 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 courseSection: formData.courseSection,
                 courseQuarter: formData.courseQuarter,
                 courseYear: formData.courseYear,
-                userID: userSession.id,
+                courseProfessorId: userSession.id,
+                gradeStrategy: gradeStrategy ? JSON.stringify(gradeStrategy) : undefined,
             };
 
             const res = await apiHandler(
@@ -119,11 +130,13 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
         }
     };
 
+    console.log(`Current Form valid state: ${isFormValid}`);
+
     return (
         <form onSubmit={handleSubmit} className="w-full space-y-6">
             <div>
                 <label htmlFor="courseName" className="text-sm font-medium text-mentat-gold">
-                    Course Name *
+                    Course Name <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="text"
@@ -154,7 +167,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
 
             <div>
                 <label htmlFor="courseQuarter" className="text-sm font-medium text-mentat-gold">
-                    Quarter
+                    Quarter <span className="text-red-500">*</span>
                 </label>
                 <select
                     id="courseQuarter"
@@ -173,7 +186,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
 
             <div>
                 <label htmlFor="courseYear" className="text-sm font-medium text-mentat-gold">
-                    Year *
+                    Year <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -189,22 +202,37 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 />
             </div>
 
+            {/*Grade Strategy Details Card Layout*/}
+            <ModifyGradeStrategy
+                gradeStrategy={gradeStrategy}
+                courseId={undefined}
+                setGradeStrategy={setGradeStrategy}
+            />
+
+            {/*Buttons and actions*/}
             <div className="flex justify-end gap-3 pt-4">
                 <button
                     type="button"
                     onClick={() => onCancel?.()}
-                    className="bg-white/5 hover:bg-white/10 text-mentat-gold font-semibold py-2 px-4
-                    rounded-md border border-mentat-gold/20"
+                    className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson-700 font-semibold py-2 px-4
+                    rounded-md shadow-sm shadow-crimson-700"
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="bg-crimson hover:bg-crimson-700 text-white font-bold py-2 px-4
-                    rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    disabled={isSubmitting || !isFormValid}
+                    className={`font-bold py-2 px-4 rounded-md transition-colors shadow-sm shadow-mentat-gold-700
+                     ${isFormValid
+                        ? 'bg-crimson hover:bg-crimson-700 text-mentat-gold'
+                        : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'}`}
                 >
-                    {isSubmitting ? 'Creating...' : 'Create Course'}
+                    { isSubmitting ? (
+                        <div className="flex justify-center items-center">
+                            <RingSpinner size={'xs'} color={'mentat-gold'} />
+                            <p className="ml-3 text-sm text-mentat-gold">Creating...</p>
+                        </div>
+                    ) : 'Create Course' }
                 </button>
             </div>
         </form>

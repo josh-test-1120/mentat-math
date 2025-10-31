@@ -37,9 +37,7 @@ export default async function RootLayout({
             <div className="h-full flex flex-col">
               <Header />
               <div className="flex flex-1 min-h-0">
-                <div id="sidebar-box" className="w-64 flex-shrink-0 transition-all duration-300 ease-in-out">
-                  <Sidebar />
-                </div>
+                <Sidebar />
                 <div
                   id="mainbar-box"
                   className="flex-1 min-h-0 overflow-auto scrollbar-hide"

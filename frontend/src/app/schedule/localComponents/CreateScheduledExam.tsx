@@ -5,14 +5,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { ChangeEvent, MouseEvent } from 'react';
 import { apiHandler } from "@/utils/api";
-import {SessionProvider, useSession} from 'next-auth/react'
+import { SessionProvider , useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
 import { Plus } from 'lucide-react';
 import Course from "@/components/types/course";
 import Exam from "@/components/types/exam";
-import {RingSpinner} from "@/components/UI/Spinners";
 import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
 import Grade from "@/components/types/grade";
+import { allCourse } from "@/components/services/CourseSelector";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -20,6 +20,7 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 interface CreateScheduledExamProps {
     studentId: string | undefined;
     courses: Course[] | undefined;
+    filteredCourse: Course | undefined;
     updateAction: () => void;
 }
 
@@ -27,7 +28,7 @@ interface CreateScheduledExamProps {
  * Student Schedule Page
  * @constructor
  */
-export default function CreateScheduledExam({ studentId, courses, updateAction }
+export default function CreateScheduledExam({ studentId, courses, filteredCourse, updateAction }
                                             :CreateScheduledExamProps ) {
 
     // State information
@@ -51,6 +52,51 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
     const { data: session } = useSession()
 
     /**
+     * Resets the states when the modal opens
+     */
+    useEffect(() => {
+        if (isModalOpen) {
+            // Truth testing
+            const defaultCourse = (filteredCourse && filteredCourse.courseId === allCourse.courseId) ||
+                (filteredCourse === undefined);
+            const mismatchedCourse = course && filteredCourse &&
+                course.courseId !== filteredCourse.courseId;
+
+            // Reset the exams
+            setExamName('');
+            setCurrentExam(undefined);
+
+            // Flush the course settings if passing in default
+            if (defaultCourse) {
+                setCourse(undefined);
+                setCourseName(undefined);
+                setExams([]);
+            }
+            // Recapture proper defaults if changed and closed
+            else if (mismatchedCourse) {
+                setCourse(filteredCourse);
+                setCourseName(filteredCourse?.courseName)
+                fetchExamsByCourse(filteredCourse.courseId.toString());
+            }
+        }
+    }, [isModalOpen]);
+
+    /**
+     * Resets the states when the filtered course changes
+     */
+    useEffect(() => {
+        if (filteredCourse) {
+            if (filteredCourse.courseId !== allCourse.courseId) {
+                setCourse(filteredCourse)
+                setCourseName(filteredCourse.courseName);
+                fetchExamsByCourse(filteredCourse.courseId.toString());
+            }
+            console.log('Filtered Course useEffect');
+            console.log(filteredCourse);
+        }
+    }, [filteredCourse]);
+
+    /**
      * Used to handle session hydration
      */
     useEffect(() => {
@@ -64,6 +110,9 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
         }
     }, [session]);
 
+    /**
+     * Exam refresh useEffect
+     */
     useEffect(() => {
         if (!currentExam) return;
         else {
@@ -188,8 +237,59 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
             setIsScheduleModalOpen(true);
         }
 
-    console.log(courses);
+    // Get the course select text
+    const getCourseSelectText = () => {
+        console.log('getCourseSelectText function');
+        // Local variables
+        let reducedCourses: Course[] = [];
+        let loadedCourse = false;
+        // Set layout for course passed in (default selection)
+        if (courses && courses.length > 0) {
+            if (course) {
+                reducedCourses = courses.filter((item) => item.courseId !== course.courseId);
+                console.log(reducedCourses);
+                loadedCourse = true;
+            }
+            // Otherwise we handle all courses
+            else {
+                reducedCourses = courses;
+            }
+        }
+
+        return (
+            <React.Fragment>
+                {loadedCourse && course && (
+                    <option
+                        key={course.courseId}
+                        data-key={course.courseId}
+                        value={course.courseId}>
+                        {course.courseName}
+                    </option>
+                )}
+                {reducedCourses.map((course: any, index: number) => {
+                    const courseName = course.courseName || 'Unknown Course';
+
+                    return (
+                        <option
+                            key={course.courseId}
+                            data-key={course.courseId}
+                            value={course.courseId}>
+                            {courseName}
+                        </option>
+                    )
+                })}
+            </React.Fragment>
+        )
+    }
+
+    // Form validation - only exam name and course are required
+    const isFormValid = course && examName && examName.trim() !== '' || false;
+
+    console.log(course);
     console.log(studentId);
+    console.log(isFormValid);
+    console.log(filteredCourse);
+    console.log(courses)
 
     return (
         <div className="bg-mentat-black text-mentat-gold">
@@ -224,15 +324,14 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0
                                 px-3 py-2"
                             >
-                                <option value="">Select a course</option>
-                                {courses && courses.map(course => (
-                                    <option
-                                        key={course.courseId}
-                                        data-key={course.courseId}
-                                        value={course.courseId}>
-                                        {course.courseName}
-                                    </option>
-                                ))}
+                                {course ? (
+                                    getCourseSelectText()
+                                ) : (
+                                    <React.Fragment>
+                                        <option value="">Select a course</option>
+                                        {getCourseSelectText()}
+                                    </React.Fragment>
+                                )}
                             </select>
                         </div>
                         {/*Exam Selection and Logic*/}
@@ -423,10 +522,14 @@ export default function CreateScheduledExam({ studentId, courses, updateAction }
                             Cancel
                         </button>
                         <button
-                            className="bg-mentat-gold hover:bg-mentat-gold-700 text-crimson
-                            font-bold py-2 px-4 rounded-md shadow-sm shadow-crimson-700"
+                            className={`font-bold py-2 px-4 rounded-md shadow-sm shadow-crimson-700 ${
+                                isFormValid
+                                    ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson'
+                                    : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            }`}
                             type="button"
                             onClick={handLoadTestWindows}
+                            disabled={!isFormValid}
                         >
                             Load Test Windows
                         </button>
