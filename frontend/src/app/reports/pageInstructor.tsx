@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { getServerAuthSession } from "@/utils/auth";
 import { apiHandler } from "@/utils/api";
 import {useSession} from "next-auth/react";
-import StudentExamAnalytics from "./localComponents/StudentExamAnalytics";
+import StudentExamSummary from "./localComponents/StudentExamSummary";
 import { FileText, Users } from "lucide-react";
 
 // Needed to get environment variable for Backend API
@@ -38,7 +38,7 @@ export default function InstructorReport() {
 
     // Table Body React Reference
     const tableBody = useRef(null);
-    const [viewMode, setViewMode] = useState<'grades' | 'analytics'>('grades');
+    const [viewMode, setViewMode] = useState<'grades' | 'summary'>('grades');
 
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
@@ -259,15 +259,15 @@ export default function InstructorReport() {
                             Student Grades
                         </button>
                         <button
-                            onClick={() => setViewMode('analytics')}
+                            onClick={() => setViewMode('summary')}
                             className={`px-6 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
-                                viewMode === 'analytics'
+                                viewMode === 'summary'
                                     ? 'bg-crimson text-mentat-gold'
                                     : 'text-mentat-gold/70 hover:text-mentat-gold'
                             }`}
                         >
                             <Users className="w-4 h-4" />
-                            Exam Analytics
+                            Exam Summary
                         </button>
                     </div>
                 </div>
@@ -296,7 +296,7 @@ export default function InstructorReport() {
                     </div>
                 ) : (
                     <div className="max-w-7xl mx-auto">
-                        <StudentExamAnalytics />
+                        <StudentExamSummary />
                     </div>
                 )}
             </div>
