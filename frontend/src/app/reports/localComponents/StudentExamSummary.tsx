@@ -28,10 +28,10 @@ interface DaySummary {
 }
 
 /**
- * Student Exam Analytics Component
+ * Student Exam Summary Component
  * Shows instructors which students scheduled which exams
  */
-export default function StudentExamAnalytics() {
+export default function StudentExamSummary() {
     const { data: session } = useSession();
     const [loading, setLoading] = useState(true);
     const [dataByDay, setDataByDay] = useState<Map<string, ScheduledExamStats[]>>(new Map());
@@ -41,11 +41,11 @@ export default function StudentExamAnalytics() {
     useEffect(() => {
         const accessToken = session?.user?.accessToken;
         if (accessToken) {
-            fetchAnalytics();
+            fetchSummary();
         }
     }, [session]);
 
-    const fetchAnalytics = async () => {
+    const fetchSummary = async () => {
         try {
             setLoading(true);
             const accessToken = session?.user?.accessToken;
@@ -54,13 +54,13 @@ export default function StudentExamAnalytics() {
             const response = await apiHandler(
                 undefined,
                 'GET',
-                `api/scheduled-exam/analytics`,
+                `api/scheduled-exam/summary`,
                 BACKEND_API,
                 accessToken
             );
 
             if (response instanceof Error || response.error) {
-                console.error('Error fetching analytics:', response);
+                console.error('Error fetching summary:', response);
                 return;
             }
 
@@ -84,7 +84,7 @@ export default function StudentExamAnalytics() {
                 setSelectedDate(Array.from(dayMap.keys())[0]);
             }
         } catch (error) {
-            console.error('Error fetching analytics:', error);
+            console.error('Error fetching summary:', error);
         } finally {
             setLoading(false);
         }
@@ -129,9 +129,6 @@ export default function StudentExamAnalytics() {
             <div className="text-center py-12">
                 <FileText className="w-16 h-16 mx-auto text-mentat-gold/50 mb-4" />
                 <p className="text-mentat-gold/70 text-lg">No scheduled exams found</p>
-                <p className="text-mentat-gold/50 text-sm mt-2">
-                    Note: Backend API endpoint `/api/scheduled-exam/analytics` needs to be implemented
-                </p>
             </div>
         );
     }
@@ -142,7 +139,7 @@ export default function StudentExamAnalytics() {
             <div className="bg-gradient-to-r from-crimson/20 to-crimson/10 p-6 rounded-lg border border-crimson/30">
                 <h2 className="text-2xl font-bold text-mentat-gold mb-2 flex items-center gap-2">
                     <Users className="w-6 h-6" />
-                    Student Exam Scheduling Analytics
+                    Student Exam Scheduling Summary
                 </h2>
                 <p className="text-mentat-gold/70">View which students scheduled which exams</p>
             </div>
