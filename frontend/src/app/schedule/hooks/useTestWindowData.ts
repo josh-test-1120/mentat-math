@@ -34,7 +34,7 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
 
                 console.log('Session data:', {
                     userId: session.id,
-                    accessToken: session.accessToken !=='' ? 'Present' : 'Missing',
+                    accessToken: session.accessToken !== '' ? 'Present' : 'Missing',
                     tokenLength: session.accessToken.length || 0
                 });
 
