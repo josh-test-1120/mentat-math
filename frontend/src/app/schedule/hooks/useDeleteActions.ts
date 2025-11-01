@@ -43,7 +43,7 @@ export const useDeleteActions = (
                     'DELETE',
                     `api/test-window/${activeTestWindow.id}`,
                     `${backendApi}`,
-                    session?.user?.accessToken || undefined
+                    session.accessToken
                 );
 
                 if (res?.error) {
@@ -76,7 +76,7 @@ export const useDeleteActions = (
                     'PATCH',
                     `api/test-window/${activeTestWindow.id}/add-exception`,
                     `${backendApi}`,
-                    session?.user?.accessToken || undefined
+                    session.accessToken
                 );
 
                 if (res?.error) {
@@ -127,7 +127,7 @@ export const useDeleteActions = (
                     'PATCH',
                     `api/test-window/${activeTestWindow.id}/update-end-date`,
                     `${backendApi}`,
-                    session?.user?.accessToken || undefined
+                    session.accessToken
                 );
             
                 if (res?.error) {
@@ -160,7 +160,7 @@ export const useDeleteActions = (
     }, [
         activeTestWindow,
         deleteScope,
-        session?.user?.accessToken,
+        session.accessToken,
         backendApi,
         selectedCourseId,
         fetchTestWindows,

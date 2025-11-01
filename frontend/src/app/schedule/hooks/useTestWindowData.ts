@@ -27,23 +27,23 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
             console.log('Not authenticated, status:', status);
             return;
         }
-        if (session?.user?.id && session?.user?.accessToken) {
+        if (session.id && session.accessToken) {
             try {
                 setLoading(true);
                 setError(null);
 
                 console.log('Session data:', {
-                    userId: session.user.id,
-                    accessToken: session.user.accessToken ? 'Present' : 'Missing',
-                    tokenLength: session.user.accessToken?.length || 0
+                    userId: session.id,
+                    accessToken: session.accessToken !=='' ? 'Present' : 'Missing',
+                    tokenLength: session.accessToken.length || 0
                 });
 
                 const res = await apiHandler(
                     undefined,
                     'GET',
-                    `api/course/listCourses?id=${session.user.id}`,
+                    `api/course/listCourses?id=${session.id}`,
                     `${backendApi}`,
-                    session?.user?.accessToken || undefined
+                    session.accessToken
                 );
 
                 if (res?.error) {
@@ -79,13 +79,13 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
             }
         } else {
             console.log('Missing required session data:', {
-                userId: session?.user?.id ? 'Present' : 'Missing',
-                accessToken: session?.user?.accessToken ? 'Present' : 'Missing'
+                userId: session.id !== '' ? 'Present' : 'Missing',
+                accessToken: session.accessToken !== '' ? 'Present' : 'Missing'
             });
             setError('Missing authentication token');
             setLoading(false);
         }
-    }, [session?.user?.id, session?.user?.accessToken, status, backendApi]);
+    }, [session.id, session.accessToken, status, backendApi]);
 
     return {
         courses,
@@ -111,7 +111,7 @@ export const useTestWindows = (session: any, backendApi: string) => {
             return;
         }
 
-        if (!session?.user?.accessToken) {
+        if (session.accessToken === '') {
             console.log('No access token available, skipping fetch');
             return;
         }
@@ -133,7 +133,7 @@ export const useTestWindows = (session: any, backendApi: string) => {
                 'GET',
                 endpoint,
                 `${backendApi}`,
-                session?.user?.accessToken || undefined
+                session.accessToken
             );
 
             if (res?.error) {
@@ -191,7 +191,7 @@ export const useTestWindows = (session: any, backendApi: string) => {
                 setLoading(false);
             }
         }
-    }, [session?.user?.accessToken, backendApi]);
+    }, [session.accessToken, backendApi]);
 
     return {
         testWindows,

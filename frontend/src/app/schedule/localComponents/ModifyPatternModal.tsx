@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import { showErrorToast, showInfoToast } from "@/utils/toastUtils";
 import { apiHandler } from "@/utils/api";
 import { motion } from 'framer-motion';
+import {RingSpinner} from "@/components/UI/Spinners";
 
 // Course type definition
 type Course = {
@@ -48,12 +49,15 @@ export default function ModifyPatternModal({
     courses = [],
     onTestWindowUpdated
 }: ModifyPatternModalProps) {
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
     const [formData, setFormData] = useState<TestWindowFormData>({
@@ -82,17 +86,23 @@ export default function ModifyPatternModal({
         saturday: false
     });
 
-    // Session Hydration
+    // This is the Backend API data
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
     useEffect(() => {
         if (status !== "authenticated") return;
-    
         if (session) {
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
             };
-            
+
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
         }
@@ -100,13 +110,15 @@ export default function ModifyPatternModal({
 
     // Fetch test window data when modal opens
     useEffect(() => {
-        if (isOpen && testWindowId && session?.user?.accessToken) {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        else if (isOpen && testWindowId) {
             fetchTestWindowData();
         }
-    }, [isOpen, testWindowId, session?.user?.accessToken]);
+    }, [isOpen, testWindowId, sessionReady, userSession.id]);
 
     const fetchTestWindowData = async () => {
-        if (!session?.user?.accessToken) return;
+        if (userSession.accessToken !== '') return;
         
         setFetchingData(true);
         try {
@@ -114,8 +126,8 @@ export default function ModifyPatternModal({
                 undefined,
                 'GET',
                 `api/test-window/${testWindowId}`,
-                process.env.NEXT_PUBLIC_BACKEND_API || '',
-                session.user.accessToken
+                `${BACKEND_API}`,
+                userSession.accessToken,
             );
 
             if (response?.error) {
@@ -376,8 +388,8 @@ export default function ModifyPatternModal({
                 requestData,
                 'PUT',
                 `api/test-window/${testWindowId}`,
-                process.env.NEXT_PUBLIC_BACKEND_API || '',
-                session?.user?.accessToken || undefined
+                `${BACKEND_API}`,
+                userSession.accessToken
             );
             
             console.log('API Response:', response);
@@ -432,8 +444,9 @@ export default function ModifyPatternModal({
                 {/* Content */}
                 <div className="p-6">
                     {fetchingData ? (
-                        <div className="flex items-center justify-center py-8">
-                            <div className="text-mentat-gold">Loading test window data...</div>
+                        <div className="flex justify-center items-center py-8">
+                            <RingSpinner size={'sm'} color={'mentat-gold'} />
+                            <p className="ml-3 text-md text-mentat-gold">Loading test window data...</p>
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">

@@ -41,8 +41,8 @@ export default function TestWindowPage() {
     
     // Custom hooks
     const { saveCalendarState, restoreCalendarState } = useCalendarState();
-    const { courses, loading: coursesLoading, error, fetchInstructorCourses } = useInstructorCourses(session, status, BACKEND_API || '');
-    const { testWindows, loading: testWindowsLoading, fetchTestWindows } = useTestWindows(session, BACKEND_API || '');
+    const { courses, loading: coursesLoading, error, fetchInstructorCourses } = useInstructorCourses(userSession, status, BACKEND_API || '');
+    const { testWindows, loading: testWindowsLoading, fetchTestWindows } = useTestWindows(userSession, BACKEND_API || '');
     
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +61,7 @@ export default function TestWindowPage() {
         handleConfirmDelete,
         handleDeleteTestWindow
     } = useDeleteActions(
-        session,
+        userSession,
         BACKEND_API || '',
         selectedCourseId,
         fetchTestWindows,
