@@ -74,7 +74,7 @@ export default function StudentSchedule() {
         if (!sessionReady) return;
         // Otherwise, hydration the data
         const fetchData = async () => {
-            if (hasFetched.current) return;
+            // if (hasFetched.current) return;
             hasFetched.current = true;
             setLoading(true);
             // Try - Catch handler
