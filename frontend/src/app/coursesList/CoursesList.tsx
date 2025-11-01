@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
-import { ExamResultExtended } from "@/app/dashboard/types/shared";
-import { getExamPropStatus } from "@/app/dashboard/localComponents/GradeCard";
 
 export default function CourseList() {
     interface Course {
