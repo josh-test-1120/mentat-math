@@ -118,7 +118,7 @@ export default function ModifyPatternModal({
     }, [isOpen, testWindowId, sessionReady, userSession.id]);
 
     const fetchTestWindowData = async () => {
-        if (userSession.accessToken !== '') return;
+        if (userSession.accessToken === '') return;
         
         setFetchingData(true);
         try {
