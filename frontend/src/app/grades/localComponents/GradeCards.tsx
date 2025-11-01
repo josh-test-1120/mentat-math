@@ -40,7 +40,12 @@ const ScoreDisplay = ({ score }: { score: string | undefined }) => {
 };
 
 /**
- * These are the card components
+ * This the is Grade Cards that are used
+ * in student views for presenting the grades
+ * that a student has received for each exam
+ * result entry they have in the database
+ * @author Joshua Summers
+ * @param grade
  */
 // Extended GradeCard Component
 export function GradeCardExtended({ grade, index, onclick }: GradeCardExtendedProps) {

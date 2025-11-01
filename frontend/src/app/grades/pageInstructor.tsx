@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState, useEffect, useMemo} from "react";
+import React, {useState, useEffect, useMemo, useRef} from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { apiHandler } from "@/utils/api";
 import { useSession } from 'next-auth/react'
@@ -50,37 +50,93 @@ const avgScore = (exams: ExamResult[]) => {
     }
 }
 
+/**
+ * This is the Instructor Dashboard Page
+ * This will show the courses an instructor has created
+ * and allow them to modify those courses or view
+ * details
+ * @author Joshua Summers
+ * @constructor
+ */
 // Main Component
 export default function ExamDashboard() {
-    const {data: session, status} = useSession();
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // Data states
     const [exams, setExams] = useState<ExamExtended[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
     const [exam, setExam] = useState<ExamExtended>();
     const [course, setCourse] = useState<Course>();
+    // Toggle states
     const [loading, setLoading] = useState(true);
     const [coursesLoading, setCoursesLoading] = useState(true);
     const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
+    // Filter states
     const [selectedCourse, setSelectedCourse] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | string>('all');
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
+    // Backend API data
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    // Fetch exams
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
     useEffect(() => {
-        // If not authenticated, return
-        if (status !== 'authenticated') return;
-        // Get instructor ID
-        const id = session?.user?.id?.toString();
-        // If no instructor ID, return
-        if (!id) return;
+        let id = '';
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Hydrate session information
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
 
-        // Fetch Courses for instructor
-        fetchCourses(id);
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
 
-    }, [status, session, BACKEND_API, refreshTrigger]);
+    /**
+     * Used to handle actions once session is ready
+     */
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Wrapper for async function
+        const fetchData = async () => {
+            if (hasFetched.current) return;
+            hasFetched.current = true;
 
+            try {
+                await fetchCourses(userSession.id);
+                // avgScore(grades);
+            } catch (error) {
+                console.error('Error fetching Courses:', error);
+            }
+            finally {
+                setRefreshTrigger(prev => prev + 1);
+            }
+        };
+        fetchData();
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
+
+    /**
+     * Fetch the exams when courses change
+     */
     useEffect(() => {
         if (!courses) return;
         if (courses && courses.length > 0) fetchExams();
@@ -107,7 +163,7 @@ export default function ExamDashboard() {
                 'GET',
                 `api/course/instructor/${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors
@@ -115,32 +171,13 @@ export default function ExamDashboard() {
                 console.error('Error fetching courses:', res.error);
                 setCourses([]);
             } else {
-                // Convert object to array
-                let coursesData = [];
-
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    coursesData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    coursesData = Object.entries(res)
-                        .filter(([key, value]) =>
-                            value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    coursesData = [];
-                }
-
-                // Filter out invalid entries
-                coursesData = coursesData.filter(c => c && typeof c === 'object');
-
+                // Get all the courses
+                let coursesData = res.courses || res || []; // Once grabbed, it is gone
+                // Ensure it's an array
+                coursesData = Array.isArray(coursesData) ? coursesData : [coursesData];
                 console.log('Processed courses data:', coursesData);
-                // Set courses to coursesData
+                // Set the courses
                 setCourses(coursesData);
-                // setFilter('all');
-                // console.log('Length of filter:', filteredExams.length);
             }
         } catch (e) {
             // Error fetching courses
@@ -169,55 +206,31 @@ export default function ExamDashboard() {
                     'GET',
                     `api/exam/course/${course.courseId}`,
                     `${BACKEND_API}`,
-                    session?.user?.accessToken || undefined
+                    userSession.accessToken
                 );
 
                 // Handle errors
                 if (res instanceof Error || (res && res.error)) {
                     console.error('Error fetching exams:', res.error);
-                    // setExams([]);
                 } else {
-                    // Convert object to array
-                    let courseExamsData = [];
-
-                    // If res is an array, set coursesData to res
-                    if (Array.isArray(res)) {
-                        courseExamsData = res;
-                        // If res is an object, set coursesData to the values of the object
-                    } else if (res && typeof res === 'object') {
-                        // Use Object.entries() to get key-value pairs, then map to values
-                        courseExamsData = Object.entries(res)
-                            .filter(([key, value]) =>
-                                value !== undefined && value !== null)
-                            .map(([key, value]) => value);
-                        // If res is not an array or object, set coursesData to an empty array
-                    } else {
-                        courseExamsData = [];
-                    }
-
-                    // Filter out invalid entries
-                    courseExamsData = courseExamsData.filter(c => c && typeof c === 'object');
-
+                    // Get all the course exams
+                    let courseExamsData = res.exams || res || []; // Once grabbed, it is gone
+                    // Ensure it's an array
+                    courseExamsData = Array.isArray(courseExamsData) ? courseExamsData : [courseExamsData];
+                    console.log('Processed course exams data:', courseExamsData);
+                    // Update the course Name in each exam
                     courseExamsData = courseExamsData.map((grade: ExamExtended) => ({
                         ...grade,
                         courseName: courses.filter(course =>
                             course.courseId === grade.courseId)[0].courseName,
                     }));
+                    // Push the exam to list of exams
                     examsData.push(...courseExamsData);
                     console.log(`Processed exams data for course ${course.courseName}:`, courseExamsData);
-                    // Set courses to coursesData
-                    // setExams(examsData);
-                    // setFilter('all');
-                    // console.log('Length of filter:', filteredExams.length);
                 }
             } catch (e) {
-                // Error fetching courses
-                console.error('Error fetching exams:', e);
-                // Set courses to empty array
-                // setExams([]);
-            } finally {
-                // Set loading to false
-                // setLoading(false);
+                // Error fetching exams by course
+                console.error('Error fetching course exams:', e);
             }
         }
         setExams(examsData);

@@ -83,7 +83,7 @@ export default function ExamActionsComponent({ examResult,
                 "DELETE",
                 `api/exam/result/${examResult?.examResultId}`,
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors properly

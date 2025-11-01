@@ -1,12 +1,3 @@
-/**
- * This component will render an SVG chart of the student progress.
- * Due to the SVG rendering process, and data updates while processing
- * I had to split the useAffects very carefully to ensure
- * that proper re-rendering was happening to the entire SVG
- * when the gradeStrategy is ready
- * @author Joshua Summers
- */
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -27,6 +18,14 @@ interface ProgressChartProps {
     currentGrade: String;
 }
 
+/**
+ * This component will render an SVG chart of the student progress.
+ * Due to the SVG rendering process, and data updates while processing
+ * I had to split the useAffects very carefully to ensure
+ * that proper re-rendering was happening to the entire SVG
+ * when the gradeStrategy is ready
+ * @author Joshua Summers
+ */
 export default function ProgressChart({ exams, course, currentGrade }: ProgressChartProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);

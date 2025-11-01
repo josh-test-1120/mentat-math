@@ -1,10 +1,3 @@
-/**
- * This component will render a small dashboard that
- * displays some statistics about the exams that
- * have been taken in the course
- * Optimized with Memo features to precalculate on render
- * @author Joshua Summers
- */
 'use client';
 
 import React, {useMemo} from "react";
@@ -19,6 +12,13 @@ interface GradeDashboardProps {
     isStrategy: Boolean;
 }
 
+/**
+ * This component will render a small dashboard that
+ * displays some statistics about the exams that
+ * have been taken in the course
+ * Optimized with Memo features to precalculate on render
+ * @author Joshua Summers
+ */
 export default function GradeDashboard({ grades, score, isStrategy=false }: GradeDashboardProps) {
     // Memo of calculated pass rate
     const calculatePassRate = useMemo(() => {

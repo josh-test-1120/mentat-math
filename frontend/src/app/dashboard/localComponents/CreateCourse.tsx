@@ -97,7 +97,7 @@ export default function CreateCourse({ onCourseCreated, onCancel }: CreateCourse
                 'POST',
                 'api/course/createCourse',
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             if (res?.error) {

@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { apiHandler } from "@/utils/api";
-import { SessionProvider, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import Modal from "@/components/services/Modal";
 import { Plus, Loader2 } from 'lucide-react';
 import Course from "@/components/types/course";
 import { allCourse } from "@/components/services/CourseSelector";
-import {RingSpinner} from "@/components/UI/Spinners";
-
-
-// Needed to get environment variable for Backend API
-const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
+import { RingSpinner } from "@/components/UI/Spinners";
 
 /**
- * Default Schedule Page
+ * Default Create Exam Page
+ * This will show the Create exam modal
+ * that an instructor can use to create
+ * new exams that students can take
+ * @author Joshua Summers
  * @constructor
  */
 interface CreateExamProps {
@@ -25,7 +25,16 @@ interface CreateExamProps {
 }
 
 export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
-
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
     // State information
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -40,22 +49,14 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
         examExpirationDate: "",
     });
 
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: ''
-    });
-
     // Course-related state
     const [courses, setCourses] = useState<Course[]>([]);
     const [coursesLoading, setCoursesLoading] = useState(false);
     const [coursesError, setCoursesError] = useState<string | null>(null);
     // Modify action state
     const [isCreating, setIsCreating] = useState(false);
-
-    // Session information
-    const { data: session } = useSession()
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
 
     // Form Mapping
     const {examCourseId, examName, examDifficulty, examDuration, examState, examRequired,
@@ -63,6 +64,9 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
 
     // Form validation - only exam name and course are required
     const isFormValid = examName.trim() !== '' && examCourseId !== '';
+
+    // Needed to get environment variable for Backend API
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
     /**
      * Fetch courses from the backend
@@ -107,27 +111,45 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
     };
 
     /**
-     * Used to handle session hydration
+     * useAffects for session hydration
      */
+    // General effect: Initial session hydration
     useEffect(() => {
+        let id = '';
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Hydrate session information
         if (session) {
-            setSession(() => ({
+            const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
-            }));
-            setSessionReady(prev => prev || userSession.id !== "");
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
         }
-    }, [session]);
+    }, [session, status]);
 
     /**
      * Fetch courses when userSession is ready
      */
     useEffect(() => {
-        if (userSession.id && session?.user?.accessToken) {
-            fetchCourses();
-        }
-    }, [userSession.id, session?.user?.accessToken]);
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Wrapper for async function
+        const fetchData = async () => {
+            if (hasFetched.current) return;
+            hasFetched.current = true;
+
+            try {
+                await fetchCourses();
+            } catch (error) {
+                console.error('Error fetching Courses:', error);
+            }
+        };
+        fetchData();
+    }, [sessionReady, userSession.id, hasFetched]);
 
     /**
      * Update the form data with passed in course
@@ -141,17 +163,14 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
         }
     }, [course]);
 
-
+    /**
+     * Update the state information from the form when changed
+     * @param e
+     */
     // Setting data by name, value, type, and checked value
     const data = (e: any) => {
         const { name, value, type, checked } = e.target;
-        // setFormData({
-        //     // Spread data
-        //     ...formData,
-        //     // Override field name's value by type checkbox for correctness
-        //     [name]: type === 'checkbox' ? checked : value,
-        // });
-        console.log(formData);
+        // Update the state information from the form
         setFormData(prevFormData => ({
             ...prevFormData,
             [name]: type === 'checkbox' ? checked : value,
@@ -225,7 +244,7 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
                 'POST',
                 'api/exam/create',
                 `${BACKEND_API}`,
-                session?.user?.accessToken ?? undefined
+                userSession.accessToken
             );
             console.log(`This is the response:`);
             console.log(response);

@@ -1,15 +1,9 @@
-/**
- * This component will handle rendering a flex based table
- * All animations for rendering the rows is controlled
- * inside this component
- * @author Joshua Summers
- */
+'use client'
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Report, GradeStrategy, GradeRequirements } from "../types/shared";
+import { Report, GradeStrategy } from "../types/shared";
 import { StarIcon } from "lucide-react";
-import { Grade } from "@/components/types/exams";
 import Exam from "@/components/types/exam";
 import Course from "@/components/types/course";
 import { examRequiredDefault, examOptionalDefault } from '../types/defaults'
@@ -24,6 +18,12 @@ interface ReportTableProps {
     optional: String[];
 }
 
+/**
+ * This component will handle rendering a flex based table
+ * All animations for rendering the rows is controlled
+ * inside this component
+ * @author Joshua Summers
+ */
 export const ExamTable: React.FC<ReportTableProps> =
     ({ grades, gradeStrategy, required, optional,
          exams, course, currentGrade }: ReportTableProps) => {
@@ -74,10 +74,6 @@ export const ExamTable: React.FC<ReportTableProps> =
         if (passed >= gradeStrategy.total && passedAs >= gradeStrategy.requiredA) return 'Passed';
         else return 'Not Yet';
     }
-
-    console.log('These are the passes grades');
-    console.log(grades);
-    console.log(exams);
 
     // Let's create the required exams list
     const requiredExams = required.map(item1 => {

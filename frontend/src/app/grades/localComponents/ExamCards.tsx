@@ -10,7 +10,19 @@ interface ExamCardCompactProps {
     index: number;
     onclick?: (e: any) => void;
 }
-// Compact ExamCard Component
+
+/**
+ * This is the exam card used in the
+ * instructor exam page view.
+ * These cards are smaller,
+ * but contain all the relevant exam
+ * information.
+ * @author Joshua Summers
+ * @param exam
+ * @param index
+ * @param onclick
+ * @constructor
+ */
 export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
 
     // Determine exam status based on date and grade
@@ -73,13 +85,6 @@ export function ExamCardSmall({ exam, index, onclick }: ExamCardCompactProps ) {
         >
             {/*<div style={accentStyle}/>*/}
             {isHovered && <div style={accentStyle} />}
-            {/*<div className="flex justify-between items-start mb-1">*/}
-            {/*    <h3 className="font-semibold text-mentat-gold text-sm truncate">{exam.examName}</h3>*/}
-            {/*    <span className="text-xs px-2 rounded-full flex items-center gap-1 whitespace-nowrap">*/}
-            {/*        /!*TODO: Fix type safety*!/*/}
-            {/*        <span>{getStatusBadge(exam as any)}</span>*/}
-            {/*    </span>*/}
-            {/*</div>*/}
             <div className="flex justify-between items-start pb-0.5 mb-1">
                 <h3 className="font-semibold text-mentat-gold text-sm truncate
                         hover:whitespace-normal hover:overflow-visible hover:z-10">

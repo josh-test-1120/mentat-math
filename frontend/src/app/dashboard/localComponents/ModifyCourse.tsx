@@ -124,7 +124,7 @@ export default function ModifyCourseComponent({ course,
                     "PATCH",
                     `api/course/${course?.courseId}`,
                     `${BACKEND_API}`,
-                    userSession.accessToken || undefined
+                    userSession.accessToken
                 );
 
                 // Handle errors properly
@@ -169,7 +169,7 @@ export default function ModifyCourseComponent({ course,
                 "DELETE",
                 `api/course/${course?.courseId}`,
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors properly

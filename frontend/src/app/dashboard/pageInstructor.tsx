@@ -79,7 +79,7 @@ export default function InstructorCoursesClient() {
                 let coursesData : Course[] = [];
 
                 // Get the response data
-                coursesData = res?.courses || res || [];
+                coursesData = res?.courses || res || []; // Once grabbed, it is gone
                 // Ensure it's an array
                 coursesData = Array.isArray(coursesData) ? coursesData : [coursesData];
 
@@ -135,7 +135,7 @@ export default function InstructorCoursesClient() {
         };
         // Run the async handler to fetch data
         fetchData();
-    }, [userSession, refreshTrigger]);
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
 
     const handleCreateCourse = () => {
         setIsCreateModalOpen(true);

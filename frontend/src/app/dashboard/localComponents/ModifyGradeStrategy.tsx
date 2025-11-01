@@ -18,7 +18,8 @@ interface ModifyGradeStrategyComponentProps {
 }
 
 export default function ModifyGradeStrategy({gradeStrategy,
-                                                         courseId, setGradeStrategy}: ModifyGradeStrategyComponentProps) {
+                                            courseId,
+                                            setGradeStrategy}: ModifyGradeStrategyComponentProps) {
     // These are the session state variables
     const { data: session, status } = useSession();
     // Session user information
@@ -74,6 +75,8 @@ export default function ModifyGradeStrategy({gradeStrategy,
      * and refreshes the page accordingly
      */
     useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
         console.log(`This is the courseId: ${courseId}`);
         console.log(`This is the grade strategy: ${gradeStrategy}`);
         console.log(`This is the start fetched state: ${hasFetchedForCourseRef.current}`);
@@ -89,7 +92,7 @@ export default function ModifyGradeStrategy({gradeStrategy,
             hasFetchedForCourseRef.current = courseId;
         }
         console.log(`This is the final fetched state: ${hasFetchedForCourseRef.current}`);
-    }, [gradeStrategy, courseId]);
+    }, [sessionReady, gradeStrategy, courseId]);
 
     /**
      * useEffect that binds to the exams state
@@ -126,7 +129,7 @@ export default function ModifyGradeStrategy({gradeStrategy,
                 'GET',
                 `api/exam/course/${courseId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors

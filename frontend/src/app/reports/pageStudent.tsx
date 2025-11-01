@@ -19,15 +19,29 @@ import { RingSpinner } from "@/components/UI/Spinners";
 import GradeDetermination from "@/app/reports/utils/GradeDetermination";
 import { CourseSelector, allCourse } from "@/components/services/CourseSelector";
 
+/**
+ * This is the Student Report page
+ * This will give a comprehensive overview
+ * of all exams that have been taken,
+ * what grades have been received,
+ * and what grade they are likely to receive
+ * based on their progress.
+ * Additionally, a student can see their progress
+ * towards any particular grade to know what more
+ * is required to receive that grade
+ * @author Joshua Summers
+ * @constructor
+ */
 export function StudentReport() {
-    // Session states
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
-    const {data: session, status} = useSession();
-    const [userSession, setUserSession] = useState({
+    const [userSession, setSession] = useState({
         id: '',
         username: '',
         email: '',
-        name: ''
+        accessToken: '',
     });
 
     // View data states
@@ -38,17 +52,14 @@ export function StudentReport() {
     const [exams, setExams] = useState<Exam[]>([]);
     const [gradeStrategy, setGradeStrategy] = useState<GradeStrategy>();
     const [currentGrade, setCurrentGrade] = useState<String>('A');
-    const [tests, setTests] = useState([]);
-    // const [finalScore, setFinalScore] = useState('');
+    // Toggle states
     const [loading, setLoading] = useState(true);
-    const [isExamModalOpen, setIsExamModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
 
     // Filter states
-    const [selectedClass, setSelectedClass] = useState<string>('all');
     const [filter, setFilter] = useState<'all' | 'passed' | 'failed' | 'pending'>('all');
     const [courseFilter, setCourseFilter] = useState<string>('');
     const [gradeFilter, setGradeFilter] = useState<'A' | 'B' | 'C' | 'D' | 'F'>('A');
@@ -163,9 +174,11 @@ export function StudentReport() {
 
     // EFFECT 1: Initial data loading (IMPROVED)
     useEffect(() => {
-        if (status !== 'authenticated' || !session || hasFetched.current) return;
-
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Wrapper for async function
         const fetchData = async () => {
+            if (hasFetched.current) return;
             hasFetched.current = true;
             setLoading(true);
 
@@ -176,7 +189,6 @@ export function StudentReport() {
                 if (coursesData.length > 0) {
                     // Set initial course filter
                     setCourseFilter(coursesData[0].courseName);
-                    // Don't fetch exams here - let EFFECT 2 handle it
                 }
             } catch (error) {
                 console.error('Error fetching initial data:', error);
@@ -186,9 +198,9 @@ export function StudentReport() {
         };
 
         fetchData();
-    }, [session, status]); // Removed refreshTrigger and hasFetched from deps
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
 
-    // EFFECT 2: Course-specific data (IMPROVED)
+    // EFFECT 2: Course-specific data
     useEffect(() => {
         if (!filteredCourses?.[0] || loading) return;
 
@@ -203,36 +215,45 @@ export function StudentReport() {
         };
 
         updateCourseData();
-    }, [filteredCourses?.[0]?.courseId, courseFilter, loading]); // More specific deps
+    }, [filteredCourses?.[0]?.courseId, courseFilter, loading]);
 
-    // EFFECT 3: Grade strategy updates (SIMPLIFIED)
+    // EFFECT 3: Grade strategy updates
     useEffect(() => {
         if (filteredGradeStrategy) {
             console.log('Inside the filtered grade strategy useAffect');
             setGradeStrategy(filteredGradeStrategy.strategy);
         }
-    }, [filteredGradeStrategy]); // Only depend on the memoized value
+    }, [filteredGradeStrategy]);
 
-    // EFFECT 4: Current grade updates (SIMPLIFIED)
+    // EFFECT 4: Current grade updates
     useEffect(() => {
         console.log('Calculate current grade:');
         console.log(calculatedCurrentGrade)
         setCurrentGrade(calculatedCurrentGrade);
-    }, [calculatedCurrentGrade]); // Only depend on the memoized value
+    }, [calculatedCurrentGrade]);
 
+    /**
+     * useAffects for session hydration
+     */
     // EFFECT 5: Session management (separate from data fetching)
     useEffect(() => {
-        if (status === 'authenticated' && session) {
-            setUserSession({
-                id: session.user.id?.toString() || '',
-                username: session.user.username || '',
-                email: session.user.email || '',
-                name: session.user.name || ''
-            });
-            setSessionReady(true);
+        let id = '';
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Hydrate session information
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
         }
     }, [session, status]);
 
+    // Motion Container Variant definitions
     const containerVariants = {
         hidden: {opacity: 0},
         visible: {
@@ -297,26 +318,20 @@ export function StudentReport() {
                 'GET',
                 `api/exam/result/grades/${session?.user?.id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
             console.log(res);
 
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching grades:', res.error);
-                // setGrades([]);
-                // setCourseGrades([]);
             } else {
-                // Assuming your API returns both exams and tests
-                // Adjust this based on your actual API response structure
-                // Ensure all grades have a status
-                examsRaw = res.grades || res; // Once grabbed, it is gone
+                // Get all the grades
+                examsRaw = res.grades || res || []; // Once grabbed, it is gone
                 // Ensure each grade has a proper status
                 examsRaw = examsRaw.map(grade => ({
                     ...grade,
                     status: getGradeStatus(grade as Grade)
                 }));
-                // setGrades(examsRaw);
-                // setCourseGrades(examsRaw);
             }
         } catch (error) {
             console.error('Error fetching student grades:', error as string);
@@ -359,7 +374,7 @@ export function StudentReport() {
                     'GET',
                     `api/course/${courseId}`,
                     `${BACKEND_API}`,
-                    session?.user?.accessToken || undefined
+                    userSession.accessToken
                 );
                 console.log('Course API response');
                 console.log(res);
@@ -408,21 +423,15 @@ export function StudentReport() {
                 'GET',
                 `api/exam/course/${course.courseId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
             console.log(res);
 
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching exams for exams:', res.error);
-                // setGrades([]);
-                // setCourseGrades([]);
             } else {
-                // Assuming your API returns both exams and tests
-                // Adjust this based on your actual API response structure
-                // Ensure all grades have a status
-                examsRaw = res.exams || res; // Once grabbed, it is gone
-                // setGrades(examsRaw);
-                // setCourseGrades(examsRaw);
+                // Get all the exams
+                examsRaw = res.exams || res || []; // Once grabbed, it is gone
             }
         } catch (error) {
             console.error('Error fetching course exams:', error as string);
@@ -437,14 +446,6 @@ export function StudentReport() {
             console.log(examsRaw);
             return examsRaw;
         }
-    }
-
-    // Load Grade Details Modal
-    const loadGradeDetails = async (grade: Report, e: any) => {
-        e.preventDefault();
-        console.log('Grade event click:', e);
-        // setExamResult(grade);
-        // setIsExamModalOpen(true)
     }
 
     // Handle Course Updates from Course Selector Components
@@ -467,7 +468,6 @@ export function StudentReport() {
             }
         }
     }
-
 
     return (
         <div>

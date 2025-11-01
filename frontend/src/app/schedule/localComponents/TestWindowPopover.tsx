@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import Popover from '@/components/UI/calendar/Popover';
 import { ActiveTestWindow } from '../hooks/useDeleteActions';
-import ExamSelectionModal from './ExamSelectionModal';
+// import ExamSelectionModal from './ExamSelectionModal';
 import ModifyPatternModal from './ModifyPatternModal';
 
 interface TestWindowPopoverProps {

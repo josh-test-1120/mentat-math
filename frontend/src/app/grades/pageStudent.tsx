@@ -7,18 +7,25 @@ import { Grade } from '@/app/grades/util/types';
 import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import { RingSpinner } from "@/components/UI/Spinners";
-import { ExamResultExtended } from "@/app/dashboard/types/shared";
-import ExamResult from "@/components/types/exam_result";
-import Course from "@/components/types/course";
 
+/**
+ * This is the Student grades page
+ * A listing of student grades can be seen
+ * for all exams that have been scheduled
+ * pending exams are also visible, but no grade shows
+ * @author Joshua Summers
+ * @constructor
+ */
 export default function GradesPage() {
-    // Session states
-    const [sessionReady, setSessionReady] = useState(false);
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
     // View data states
@@ -66,28 +73,38 @@ export default function GradesPage() {
     };
 
     /**
-     * Used to handle session hydration
+     * useAffects for session hydration
      */
+    // General effect: Initial session hydration
     useEffect(() => {
-        console.log(`This is the session ready state: ${sessionReady}`)
-        // If not authenticated, return
-        if (status !== 'authenticated') return;
-
+        let id = '';
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Hydrate session information
         if (session) {
-            setSession(() => ({
+            const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
-            }));
-            if (userSession.id != "") { setSessionReady(true); }
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
         }
+    }, [session, status]);
+
+    /**
+     * Used to handle actions once session is ready
+     */
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
         // Wrapper for async function
         const fetchData = async () => {
             if (hasFetched.current) return;
             hasFetched.current = true;
 
             try {
-                // await fetchExams();
                 await fetchExams();
                 // avgScore(grades);
             } catch (error) {
@@ -98,30 +115,7 @@ export default function GradesPage() {
             }
         };
         fetchData();
-    }, [session, status, hasFetched, refreshTrigger]);
-
-    // // Effects for getting exams after exam results
-    // useEffect(() => {
-    //     if (examResultsLoading) return;
-    //     else if (examResults && examResults.length !== 0) {
-    //         console.log('examResults use effects')
-    //         console.log(`use effects: ${examResultsLoading}`);
-    //         fetchExams();
-    //         // fetchCourses();
-    //         console.log('Fetching exams');
-    //     }
-    // }, [examResults, examResultsLoading]); // Include all dependencies
-
-    // // Effects for getting courses after exams
-    // useEffect(() => {
-    //     if (examsLoading) return;
-    //     if (examResultsLoading) return;
-    //     else if (grades && grades.length !== 0) {
-    //         fetchCourses();
-    //         console.log('Fetching courses')
-    //     }
-    //     else return;
-    // }, [examsLoading, examResultsLoading]);
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
 
     /**
      * Average Grade Determination
@@ -175,32 +169,29 @@ export default function GradesPage() {
                 'GET',
                 `api/exam/result/grades/${session?.user?.id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
             console.log(res);
 
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching grades:', res.error);
                 setGrades([]);
-                setTests([]);
             } else {
-                // Assuming your API returns both exams and tests
-                // Adjust this based on your actual API response structure
-                // Ensure all grades have a status
-                setGrades(res.grades || res); // Use res.grades if nested, or res directly
-                // Ensure each grade has a proper status
-                setGrades(prevGrades =>
-                    prevGrades.map(grade => ({
-                        ...grade,
-                        status: getGradeStatus(grade)
-                    }))
-                );
-                setTests(res.tests || []); // Add logic for tests if needed
+                // Get all the grades
+                let gradesData = res.grades || res || []; // Once grabbed, it is gone
+                // Ensure it's an array
+                gradesData = Array.isArray(gradesData) ? gradesData : [gradesData];
+                // Set the status for each grade
+                gradesData = gradesData.map((grade: any) => ({
+                    ...grade,
+                    status: getGradeStatus(grade)
+                }))
+                // Set the grades
+                setGrades(gradesData);
             }
         } catch (error) {
             console.error('Error fetching student grades:', error as string);
             setGrades([]);
-            setTests([]);
         } finally {
             setLoading(false);
         }
@@ -210,8 +201,7 @@ export default function GradesPage() {
     const loadGradeDetails = async (grade: Grade, e : any) => {
         e.preventDefault();
         console.log('Grade event click:', e);
-        // setExamResult(grade);
-        // setIsExamModalOpen(true)
+        // Empty for now
     }
 
     return (
