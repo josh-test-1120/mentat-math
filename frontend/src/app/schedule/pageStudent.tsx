@@ -34,13 +34,10 @@ export default function StudentSchedule() {
     });
     // These are the state variables used in the page
     const [exams, setExams] = useState<Grade[]>([]);
-    const [exam, setExam] = useState<Grade>();
     const [course, setCourse] = useState<Course>();
     const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
     // Modal state checks
-    const [isExamModalOpen, setIsExamModalOpen] = useState(false);
-    const [isModalLoading, setIsModalLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     // Refresh trigger (to re-render page)
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     // Reference to control React double render of useEffect
@@ -77,6 +74,7 @@ export default function StudentSchedule() {
         if (!sessionReady) return;
         // Otherwise, hydration the data
         const fetchData = async () => {
+            if (hasFetched.current) return;
             hasFetched.current = true;
             setLoading(true);
             // Try - Catch handler
@@ -93,7 +91,7 @@ export default function StudentSchedule() {
         };
         // Run the async handler to fetch data
         fetchData();
-    }, [userSession, refreshTrigger]);
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
 
     /**
      * This is the Memoized list of exams
@@ -136,7 +134,7 @@ export default function StudentSchedule() {
                 'GET',
                 `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors
@@ -147,7 +145,7 @@ export default function StudentSchedule() {
                 // Convert object to array
                 let examsData: Grade[] = [];
                 // Get the response data
-                examsData = res?.grades || res || [];
+                examsData = res?.exams || res || []; // Once grabbed, it is gone
                 // Ensure it's an array
                 examsData = Array.isArray(examsData) ? examsData : [examsData];
                 // Set courses to coursesData
@@ -181,7 +179,7 @@ export default function StudentSchedule() {
                 'GET',
                 `api/course/enrollments/${userSession.id}`,
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             if (res instanceof Error || (res && res.error)) {
@@ -202,76 +200,6 @@ export default function StudentSchedule() {
             // Now we are done loading data
             // return the data for immediate use
             return coursesData;
-        }
-    }
-
-    /**
-     * Fetch Course
-     * Implementation for course API handler
-     * @param courseId
-     */
-    const fetchCourse = async (courseId: number) => {
-        // API Handler call
-        try {
-            console.log(`Fetching course details for course: ${courseId}...`);
-            // API Handler
-            const res = await apiHandler(
-                undefined,
-                "GET",
-                `api/course/${courseId}`,
-                `${BACKEND_API}`,
-                userSession?.accessToken || undefined
-            );
-
-            // Handle errors properly
-            if (res instanceof Error || (res && res.error)) {
-                console.error(res?.message || "Failed to fetch the course");
-                setCourse(undefined);
-            } else {
-                console.log("Successfully fetched the course details!");
-                // updateExam(undefined);
-                console.log("Course fetch succeeded");
-                console.log(res.toString());
-
-                // Convert response to Exam interface object
-                const courseData: Course = {
-                    courseName: res.courseName,
-                    courseId: res.courseId,
-                    courseProfessorId: res.courseProfessorId,
-                    courseYear: res.courseYear,
-                    courseQuarter: res.courseQuarter,
-                    courseSection: res.courseSection
-                };
-                // Set courses to coursesData
-                setCourse(courseData);
-            }
-        } catch (error) {
-            console.error('Error fetching course data', error as string);
-        } finally {
-            // Run the cancel/close callback (if any)
-        }
-    }
-
-    /**
-     * This is the handler to load Scheduled Exam Data
-     * @param exam
-     * @param e
-     */
-    const loadScheduledExamData = async (exam: Grade, e: any) => {
-        e.preventDefault();
-        // Set the exams
-        setExam(exam);
-        // Adjust modal states
-        setIsExamModalOpen(true); // Open modal immediately
-        setIsModalLoading(true); // Show spinner inside modal
-        // Let's try and fetch the course
-        try {
-            // Load course data while modal is open
-            await fetchCourse(exam.courseId);
-        } catch (error) {
-            console.error('Failed to load course details:', error);
-        } finally {
-            setIsModalLoading(false); // Hide spinner when done
         }
     }
 
@@ -365,7 +293,6 @@ export default function StudentSchedule() {
                                         key={examInst.examId}
                                         exam={examInst}
                                         index={0}
-                                        onclick={(e) => loadScheduledExamData(examInst, e)}
                                         updateAction={() => {
                                             // Trigger refresh when modal closes
                                             setRefreshTrigger(prev => prev + 1);

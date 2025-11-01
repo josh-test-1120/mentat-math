@@ -1,5 +1,4 @@
-// components/D3Chart.js
-'use client'; // This component will be rendered on the client
+'use client';
 
 import {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
@@ -16,6 +15,15 @@ interface GradeStatus {
     details: string[];
 }
 
+/**
+ * This is the status chart
+ * that will render an SVG of a pie
+ * chart that will show the exams
+ * that are passed, failed, and pending
+ * @author Joshua Summers
+ * @param data
+ * @constructor
+ */
 export const StatusChart = ({ data } : StatusChartProps) => {
     // Chart Variables
     const svgRef = useRef<HTMLDivElement>(null);

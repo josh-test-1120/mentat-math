@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import { ChangeEvent, MouseEvent } from 'react';
 import { apiHandler } from "@/utils/api";
-import { SessionProvider , useSession} from 'next-auth/react'
+import { useSession} from 'next-auth/react'
 import Modal from "@/components/services/Modal";
 import { Plus } from 'lucide-react';
 import Course from "@/components/types/course";
@@ -26,10 +26,24 @@ interface CreateScheduledExamProps {
 
 /**
  * Student Schedule Page
+ * This will show the create scheduled exam
+ * modal that a student can use to create
+ * a new scheduled exam
+ * @author Joshua Summers
  * @constructor
  */
 export default function CreateScheduledExam({ studentId, courses, filteredCourse, updateAction }
                                             :CreateScheduledExamProps ) {
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
 
     // State information
     const [course, setCourse] = useState<Course>();
@@ -41,15 +55,11 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: ''
-    });
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
 
-    // Session information
-    const { data: session } = useSession()
+    // Form validation - only exam name and course are required
+    const isFormValid = course && examName && examName.trim() !== '' || false;
 
     /**
      * Resets the states when the modal opens
@@ -81,34 +91,39 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
         }
     }, [isModalOpen]);
 
-    /**
-     * Resets the states when the filtered course changes
-     */
-    useEffect(() => {
-        if (filteredCourse) {
-            if (filteredCourse.courseId !== allCourse.courseId) {
-                setCourse(filteredCourse)
-                setCourseName(filteredCourse.courseName);
-                fetchExamsByCourse(filteredCourse.courseId.toString());
-            }
-            console.log('Filtered Course useEffect');
-            console.log(filteredCourse);
-        }
-    }, [filteredCourse]);
+    // /**
+    //  * Resets the states when the filtered course changes
+    //  */
+    // useEffect(() => {
+    //     if (filteredCourse) {
+    //         if (filteredCourse.courseId !== allCourse.courseId) {
+    //             setCourse(filteredCourse)
+    //             setCourseName(filteredCourse.courseName);
+    //             fetchExamsByCourse(filteredCourse.courseId.toString());
+    //         }
+    //         console.log('Filtered Course useEffect');
+    //         console.log(filteredCourse);
+    //     }
+    // }, [filteredCourse]);
 
     /**
-     * Used to handle session hydration
+     * useAffects that bind the page to refreshes and updates
      */
+    // General effect: Initial session hydration
     useEffect(() => {
+        if (status !== "authenticated") return;
         if (session) {
-            setSession(() => ({
+            const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
-            }));
-            setSessionReady(prev => prev || userSession.id !== "");
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
         }
-    }, [session]);
+    }, [session, status]);
 
     /**
      * Exam refresh useEffect
@@ -130,7 +145,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                 'GET',
                 `api/exam/course/${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors
@@ -140,38 +155,19 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             } else {
                 // Convert object to array
                 let examsData = [];
-
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    examsData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    examsData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    examsData = [];
-                }
-
-                // Filter out invalid entries
-                examsData = examsData.filter(c => c && typeof c === 'object');
-
+                // Get the response data
+                examsData = res?.exams || res || []; // Once grabbed, it is gone
+                // Ensure it's an array
+                examsData = Array.isArray(examsData) ? examsData : [examsData];
                 console.log('Processed exams data:', examsData);
                 // Set courses to coursesData
                 setExams(examsData);
-                // setFilter('all');
-                // console.log('Length of filter:', filteredExams.length);
             }
         } catch (e) {
             // Error fetching courses
             console.error('Error fetching exams:', e);
             // Set courses to empty array
             setExams([]);
-        } finally {
-            // Set loading to false
-            // setLoading(false);
         }
     }
 
@@ -239,7 +235,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     // Get the course select text
     const getCourseSelectText = () => {
-        console.log('getCourseSelectText function');
         // Local variables
         let reducedCourses: Course[] = [];
         let loadedCourse = false;
@@ -281,15 +276,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             </React.Fragment>
         )
     }
-
-    // Form validation - only exam name and course are required
-    const isFormValid = course && examName && examName.trim() !== '' || false;
-
-    console.log(course);
-    console.log(studentId);
-    console.log(isFormValid);
-    console.log(filteredCourse);
-    console.log(courses)
 
     return (
         <div className="bg-mentat-black text-mentat-gold">

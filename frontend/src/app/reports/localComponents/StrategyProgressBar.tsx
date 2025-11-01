@@ -1,10 +1,3 @@
-/**
- * This component will render a combined progress bar showing:
- * 1) Number of exams completed out of total (with required/optional breakdown)
- * 2) Number of A grades out of required A's
- * 3) Overall completion percentage combining both metrics
- * @author Joshua Summers
- */
 'use client';
 
 import React from "react";
@@ -17,6 +10,13 @@ interface StrategyProgressBarProps {
     optional: String[];
 }
 
+/**
+ * This component will render a combined progress bar showing:
+ * 1) Number of exams completed out of total (with required/optional breakdown)
+ * 2) Number of A grades out of required A's
+ * 3) Overall completion percentage combining both metrics
+ * @author Joshua Summers
+ */
 export function StrategyProgressBar({grades, strategy, required, optional}: StrategyProgressBarProps) {
     // Calculate exam completion counts with required/optional breakdown
     const calculateExamCounts = (currentGrades: Report[]) => {

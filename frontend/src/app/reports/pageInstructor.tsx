@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRef } from 'react';
 import { toast, ToastContainer } from "react-toastify";
-
-import { getServerAuthSession } from "@/utils/auth";
 import { apiHandler } from "@/utils/api";
-import {useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -16,60 +14,74 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * @constructor
  */
 export default function InstructorReport() {
-
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
     // State information
     const [windowReady, setWindowReady] = useState(true);
     const [testTable, setTestTable] = useState();
     const [loading, setLoading] = useState(true);
     const [reports, setReports] = useState<Report[]>([]);
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: ''
-    });
-
-    // Session information
-    const { data: session } = useSession()
+    // Refresh trigger tracker
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     // Table Body React Reference
     const tableBody = useRef(null);
 
-    // Pre-flight and loading effects
-    useEffect(() => {
-        if (document.readyState !== 'complete') {
-            const handler = () => {
-                console.log('load');
-                setWindowReady(false);
-            };
-            window.addEventListener('load', handler);
-            return () => {
-                window.removeEventListener('load', handler);
-            };
-        } else {
-            const timeout = window.setTimeout(() => {
-                console.log('timeout');
-                setWindowReady(false);
-            }, 0);
-
-            return () => window.clearTimeout(timeout);
-        }
-    }, []);
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
 
     /**
-     * Used to handle session hydration
+     * useAffects for session hydration
      */
+    // General effect: Initial session hydration
     useEffect(() => {
+        let id = '';
+        if (status !== 'authenticated' || !session || hasFetched.current) return;
+        // Hydrate session information
         if (session) {
-            setSession(() => ({
+            const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
-            }));
-            setSessionReady(prev => prev || userSession.id !== "");
-            //if (userSession.id != "") { setSessionReady(true); }
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
         }
-    }, [session]);
+    }, [session, status]);
+
+    /**
+     * Used to handle actions once session is ready
+     */
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Wrapper for async function
+        const fetchData = async () => {
+            if (hasFetched.current) return;
+            hasFetched.current = true;
+
+            try {
+                await fetchInstructorReport(1);
+                // avgScore(grades);
+            } catch (error) {
+                console.error('Error fetching report data:', error);
+            }
+            finally {
+                setRefreshTrigger(prev => prev + 1);
+            }
+        };
+        fetchData();
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
 
     /**
      * Fetch the Instructor report based on the course ID
@@ -86,7 +98,7 @@ export default function InstructorReport() {
                 'GET',
                 `api/instructorReportString1?corID=${corID}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
             // url.searchParams.append('corID',corID);
 
@@ -207,25 +219,11 @@ export default function InstructorReport() {
         }
     }
 
-    /**
-     * Window On Load function for UseEffects handler
-     */
-    function windowOnload() {
-        console.log(`This is the session info:`);
-        console.log(userSession);
-        fetchInstructorReport(1);
-    }
-
     return (
         <section
             id={"gradePage"}
             className="text-amber-400 font-bold bg-gradient-to-r from-zinc-800 via-black-300 to-zinc-700"
         >
-            {null /*custom window onload*/}
-            {null /*{windowReady ? (windowOnload()) : (<></>)}*/}
-            {null /*custom session onload*/}
-            {void (sessionReady ? windowOnload() : <></>)}
-
             <div className="mx-auto px-4 pt-8 h-dvh bg-mentat-black">
                 <h1 className="text-center text-3xl pb-2">See Student Grades</h1>
                 <table id="instructorExamResultsTable"

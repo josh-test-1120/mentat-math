@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, {useState, useEffect, useCallback, useRef} from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { useSession } from 'next-auth/react';
@@ -24,8 +24,20 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
  * @constructor
  */
 export default function TestWindowPage() {
-    // Session information
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // Refresh trigger (to re-render page)
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
     
     // Custom hooks
     const { saveCalendarState, restoreCalendarState } = useCalendarState();
@@ -72,25 +84,57 @@ export default function TestWindowPage() {
     const [popoverAnchor, setPopoverAnchor] = useState<{ x: number; y: number } | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
+    useEffect(() => {
+        if (status !== "authenticated") return;
+        // console.log('=== SESSION DEBUG ===');
+        // console.log('Session status:', status);
+        // console.log('Full session object:', JSON.stringify(session, null, 2));
+        // console.log('User ID:', session?.user?.id);
+        // console.log('User type:', session?.user?.userType);
+        // console.log('Access Token:', session?.user?.accessToken ? 'Present' : 'Missing');
+        // console.log('Access Token length:', session?.user?.accessToken?.length || 0);
+        // console.log('Access Token preview:', session?.user?.accessToken?.substring(0, 20) + '...');
+        // console.log('===================');
+        if (session) {
+            const newUserSession = {
+                id: session?.user.id?.toString() || '',
+                username: session?.user.username || '',
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
+        }
+    }, [session, status]);
+
     // Fetch courses when session is authenticated
     useEffect(() => {
-        console.log('=== SESSION DEBUG ===');
-        console.log('Session status:', status);
-        console.log('Full session object:', JSON.stringify(session, null, 2));
-        console.log('User ID:', session?.user?.id);
-        console.log('User type:', session?.user?.userType);
-        console.log('Access Token:', session?.user?.accessToken ? 'Present' : 'Missing');
-        console.log('Access Token length:', session?.user?.accessToken?.length || 0);
-        console.log('Access Token preview:', session?.user?.accessToken?.substring(0, 20) + '...');
-        console.log('===================');
-        
-        if (status === 'authenticated' && session?.user?.id && session?.user?.accessToken) {
-            console.log('Session authenticated with accessToken, fetching courses...');
-            fetchInstructorCourses();
-        } else {
-            console.log('Not fetching courses. Status:', status, 'User ID:', session?.user?.id, 'Access Token:', session?.user?.accessToken ? 'Present' : 'Missing');
-        }
-    }, [status, session?.user?.id, session?.user?.accessToken, fetchInstructorCourses]);
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Otherwise, hydration the data
+        const fetchData = async () => {
+            if (hasFetched.current) return;
+            hasFetched.current = true;
+            // Try - Catch handler
+            try {
+                console.log('Session authenticated with accessToken, fetching courses...');
+                // Fetch Instructor Courses
+                fetchInstructorCourses();
+            } catch (error) {
+                console.error('Error fetching instructor courses:', error);
+                console.log('Not fetching courses. Status:', status, 'User ID:',
+                    session?.user?.id, 'Access Token:',
+                    session?.user?.accessToken ? 'Present' : 'Missing');
+            }
+        };
+        // Run the async handler to fetch data
+        fetchData();
+    }, [sessionReady, userSession.id, hasFetched, fetchInstructorCourses]);
 
     // Fetch test windows when course is selected
     useEffect(() => {

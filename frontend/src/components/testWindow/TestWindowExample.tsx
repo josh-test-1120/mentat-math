@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import CreateTestWindow from "../../createTestWindow/pageClient";
+import CreateTestWindow from "@/app/createTestWindow/pageClient";
 
 // Example component showing how to use CreateTestWindow
 export default function TestWindowExample() {
@@ -9,9 +9,9 @@ export default function TestWindowExample() {
 
   // Mock data - in real app, this would come from your API
   const mockCourses = [
-    { courseID: 1, courseName: "Mathematics 101", courseSection: "A", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 },
-    { courseID: 2, courseName: "Physics 201", courseSection: "B", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 },
-    { courseID: 3, courseName: "Chemistry 301", courseSection: "C", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 }
+    { courseId: 1, courseName: "Mathematics 101", courseSection: "A", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 },
+    { courseId: 2, courseName: "Physics 201", courseSection: "B", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 },
+    { courseId: 3, courseName: "Chemistry 301", courseSection: "C", courseYear: 2024, courseQuarter: "Fall", courseProfessorId: 1 }
   ];
 
   const mockExams = [
@@ -36,8 +36,8 @@ export default function TestWindowExample() {
       </button>
 
       <CreateTestWindow
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        // isOpen={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
         onTestWindowCreated={handleTestWindowCreated}
         courses={mockCourses}
         exams={mockExams}

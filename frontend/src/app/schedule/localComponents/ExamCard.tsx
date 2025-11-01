@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { MouseEvent } from 'react';
 import Grade from "@/components/types/grade";
-import ExamResult from "@/components/types/exam_result";
 import { Calendar, Award, AlertCircle } from 'lucide-react';
 import React, {useEffect, useRef, useState} from "react";
 import { apiHandler } from "@/utils/api";
@@ -150,34 +149,8 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
         );
     };
 
-    // /**
-    //  * Determine grade status based on exam score, and exam date
-    //  * @param exam
-    //  */
-    // const getExamPropStatus =
-    //     (exam: Grade): 'completed' | 'upcoming' | 'missing' | 'canceled' | 'pending' => {
-    //         // Get the proper exam scheduled date, with timezone
-    //         const examDate = new Date(exam.examScheduledDate);
-    //         const examPstDate = new Date(examDate.toLocaleString('en-US',
-    //             { timeZone: 'America/Los_Angeles' }));
-    //         // Get the today's date, with timezone
-    //         const today = new Date();
-    //         const todayPstDate = new Date(today.toLocaleString('en-US',
-    //             { timeZone: 'America/Los_Angeles' }));
-    //         // If exam date is in the future, it's upcoming
-    //         if (examPstDate > todayPstDate) return 'upcoming';
-    //         // If exam date is in the past and has a score, it's completed
-    //         else if ((exam.examScore !== undefined) && (exam.examScore !== '')) return 'completed';
-    //         // If no exam date and no score
-    //         else if ((exam.examScheduledDate == undefined)
-    //             && (exam.examScore == undefined) || (exam.examScore == '')) return 'missing';
-    //         // If the exam date is in the past but no score, it's pending
-    //         else return 'pending';
-    // };
-
     // Get the status of the exam
     const examStatus = getExamPropStatus(exam);
-
 
     // Helper function to determine expiration status
     const getExpirationStatus = (exam: Grade): 'expired' | 'expiring-soon' | 'valid' => {
@@ -267,7 +240,7 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                 "DELETE",
                 `api/exam/result/${id}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors properly

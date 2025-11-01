@@ -13,6 +13,17 @@ interface ExamStatisticsProps {
     onclick?: (e: any) => void;
 }
 
+/**
+ * This will show the statistics of exams
+ * that students have taken, so that an
+ * instructor can get some insight into
+ * overall course-wide exam performance
+ * @author Joshua Summers
+ * @param exams
+ * @param index
+ * @param onclick
+ * @constructor
+ */
 // Compact ExamCard Component
 export function ExamStatistics({ exams, index, onclick }: ExamStatisticsProps ) {
     // These are the session state variables
@@ -28,8 +39,6 @@ export function ExamStatistics({ exams, index, onclick }: ExamStatisticsProps ) 
     // These are the state variables for the page
     const [examResults, setExamResults] = useState<ExamResult[]>();
     const [examResultsLoading, setExamResultsLoading] = useState(true);
-    // Reference to control React double render of useEffect
-    const hasFetched = useRef(false);
     // This is the backend API data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -82,66 +91,29 @@ export function ExamStatistics({ exams, index, onclick }: ExamStatisticsProps ) 
                     'GET',
                     `api/exam/result/exam/${exam.examId}`,
                     `${BACKEND_API}`,
-                    session?.user?.accessToken || undefined
+                    userSession.accessToken
                 );
 
                 // Handle errors
                 if (res instanceof Error || (res && res.error)) {
                     console.error('Error fetching exams:', res.error);
-                    // setExams([]);
                 } else {
-                    // Convert object to array
-                    let examResultsData = [];
-
-                    // If res is an array, set coursesData to res
-                    if (Array.isArray(res)) {
-                        examResultsData = res;
-                        // If res is an object, set coursesData to the values of the object
-                    } else if (res && typeof res === 'object') {
-                        // Use Object.entries() to get key-value pairs, then map to values
-                        examResultsData = Object.entries(res)
-                            .filter(([key, value]) =>
-                                value !== undefined && value !== null)
-                            .map(([key, value]) => value);
-                        // If res is not an array or object, set coursesData to an empty array
-                    } else {
-                        examResultsData = [];
-                    }
-
-                    // Filter out invalid entries
-                    examResultsData = examResultsData.filter(c => c && typeof c === 'object');
-
-                    // examResultsData = examResultsData.map((grade: ExamExtended) => ({
-                    //     ...grade,
-                    //     courseName: courses.filter(course =>
-                    //         course.courseId === grade.courseId)[0].courseName,
-                    // }));
+                    // Get all the exam results
+                    let examResultsData = res.exams || res || []; // Once grabbed, it is gone
+                    // Ensure it's an array
+                    examResultsData = Array.isArray(examResultsData) ? examResultsData : [examResultsData];
+                    // Update the existing exam results
                     examResults.push(...examResultsData);
-                    // console.log(`Processed exams data for course ${course.courseName}:`, examResultsData);
-                    // Set courses to coursesData
-                    // setExams(examsData);
-                    // setFilter('all');
-                    // console.log('Length of filter:', filteredExams.length);
                 }
             } catch (e) {
                 // Error fetching courses
                 console.error('Error fetching exams:', e);
-                // Set courses to empty array
-                // setExams([]);
-            } finally {
-                // Set loading to false
-                // setLoading(false);
-                // setExamResults(examResults);
             }
         }
         console.log('Exam Result fetched');
-        console.log(examResults);
-
+        // Update states
         setExamResults(examResults);
         setExamResultsLoading(false);
-
-        // setExamsLoading(false);
-
     }
 
     /**
@@ -163,28 +135,25 @@ export function ExamStatistics({ exams, index, onclick }: ExamStatisticsProps ) 
         }
     }, [session, status]);
 
-    // Data load effect: Initial data hydration (after session hydration)
+    /**
+     * Used to handle actions once session is ready
+     */
     useEffect(() => {
         // Exit if session not ready
         if (!sessionReady) return;
         // Drop out until exams are ready
         if (exams.length === 0) return;
-        // Otherwise, hydration the data
+        // Wrapper for async function
         const fetchData = async () => {
-            hasFetched.current = true;
-            // Try - Catch handler
             try {
                 // Fetch Exams
-                fetchExamResults();
+                await fetchExamResults();
             } catch (error) {
-                console.error('Error fetching exam results:', error);
-            } finally {
-                console.error('Fetched all exams results successfully');
+                console.error('Error fetching Exams:', error);
             }
         };
-        // Run the async handler to fetch data
         fetchData();
-    }, [userSession, exams]);
+    }, [sessionReady, userSession.id, exams]);
 
     return (
         examResultsLoading ? (

@@ -112,7 +112,7 @@ export default function ExamsPage() {
         };
         // Run the async handler to fetch data
         fetchData();
-    }, [userSession, refreshTrigger]);
+    }, [sessionReady, userSession.id, hasFetched, refreshTrigger]);
 
     // Data change effect: Update exams and reload state fields when this state changes
     useEffect(() => {
@@ -153,7 +153,7 @@ export default function ExamsPage() {
                 'GET',
                 `api/exam/result/grades/${id}`,
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors
@@ -162,7 +162,7 @@ export default function ExamsPage() {
                 setExams([]);
             } else {
                 // Get the response data
-                gradesData = res?.grades || res || [];
+                gradesData = res?.grades || res || []; // Once grabbed, it is gone
                 // Ensure it's an array
                 gradesData = Array.isArray(gradesData) ? gradesData : [gradesData];
                 // Add the status to each record
@@ -202,7 +202,7 @@ export default function ExamsPage() {
                 'GET',
                 `api/course/enrollments/${id}`,
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors
@@ -211,7 +211,7 @@ export default function ExamsPage() {
                 setCourses([]);
             } else {
                 // Get the response data
-                coursesData = res?.grades || res || [];
+                coursesData = res?.grades || res || []; // Once grabbed, it is gone
                 // Ensure it's an array
                 coursesData = Array.isArray(coursesData) ? coursesData : [coursesData];
                 console.log('Processed courses data:', coursesData);

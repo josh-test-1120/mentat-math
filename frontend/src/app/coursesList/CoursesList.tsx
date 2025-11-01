@@ -1,8 +1,10 @@
  "use client";
 
 import { useEffect, useState } from "react";
-import {useSession} from "next-auth/react";
-import {apiHandler} from "@/utils/api";
+import { useSession } from "next-auth/react";
+import { apiHandler } from "@/utils/api";
+import { ExamResultExtended } from "@/app/dashboard/types/shared";
+import { getExamPropStatus } from "@/app/dashboard/localComponents/GradeCard";
 
 export default function CourseList() {
     interface Course {
@@ -15,58 +17,140 @@ export default function CourseList() {
     }
     const [courses, setCourses] = useState<Course[]>([]);
 
-    // Session Information
+    // These are the session state variables
     const { data: session, status } = useSession();
-
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
-    useEffect(() => {
-        // Fetch courses from backend
-        if (status !== "authenticated") return;
+    // Backend API for data
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
+    useEffect(() => {
+        let id = '';
+        if (status !== 'authenticated' || !session) return;
+        // Hydrate session information
         if (session) {
-            setSession(() => ({
+            const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
-            }));
-            if (userSession.id != "") { setSessionReady(true); }
-            console.log("User session NAME: " + session.user.username)
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
+            };
+
+            setSession(newUserSession);
+            setSessionReady(newUserSession.id !== "");
         }
+    }, [session, status]);
 
-        const res =
-            apiHandler(
-            null,
-            "GET",
-            `api/course/listCourses?id=${userSession.id}`,
-            `${process.env.NEXT_PUBLIC_BACKEND_API}`,
-            session?.user?.accessToken || undefined
-            )
-                .then((data) => {
-                    // Check if 'result' key exists and filter it out
-                    const filteredData = Object.keys(data).reduce((acc: Record<string, any>, key) => {
-                        if (key !== 'result') {
-                            // Add all other keys except 'result'
-                            acc[key] = data[key];
-                        }
-                        return acc;
-                    }, {});
-                    // Convert the filtered data into an array of courses
-                    const coursesArray: Course[] = Object.keys(filteredData)
-                        // Extract all course objects by key
-                        .map((key) => filteredData[key])
-                        // Remove any undefined/null values, if any
-                        .filter(Boolean);
+    // Data load effect: Initial data hydration (after session hydration)
+    useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
+        // Otherwise, hydration the data
+        const fetchData = async () => {
+            // Try - Catch handler
+            try {
+                // Fetch the list of courses
+                await fetchCourses();
+            } catch (error) {
+                console.error('Error fetching list of courses:', error);
+            }
+        };
+        // Run the async handler to fetch data
+        fetchData();
+    }, [sessionReady, userSession.id]);
 
-                    setCourses(coursesArray);
-                })
-            .catch((err) => console.error("Error fetching courses:", err));
-    }, [session]);
+    // useEffect(() => {
+    //     // Fetch courses from backend
+    //     if (status !== "authenticated") return;
+    //
+    //     if (session) {
+    //         setSession(() => ({
+    //             id: session?.user.id?.toString() || '',
+    //             username: session?.user.username || '',
+    //             email: session?.user.email || ''
+    //         }));
+    //         if (userSession.id != "") { setSessionReady(true); }
+    //         console.log("User session NAME: " + session.user.username)
+    //     }
+    //
+    //     const res =
+    //         apiHandler(
+    //         null,
+    //         "GET",
+    //         `api/course/listCourses?id=${userSession.id}`,
+    //         `${process.env.NEXT_PUBLIC_BACKEND_API}`,
+    //         session?.user?.accessToken || undefined
+    //         )
+    //             .then((data) => {
+    //                 // Check if 'result' key exists and filter it out
+    //                 const filteredData = Object.keys(data).reduce((acc: Record<string, any>, key) => {
+    //                     if (key !== 'result') {
+    //                         // Add all other keys except 'result'
+    //                         acc[key] = data[key];
+    //                     }
+    //                     return acc;
+    //                 }, {});
+    //                 // Convert the filtered data into an array of courses
+    //                 const coursesArray: Course[] = Object.keys(filteredData)
+    //                     // Extract all course objects by key
+    //                     .map((key) => filteredData[key])
+    //                     // Remove any undefined/null values, if any
+    //                     .filter(Boolean);
+    //
+    //                 setCourses(coursesArray);
+    //             })
+    //         .catch((err) => console.error("Error fetching courses:", err));
+    // }, [session]);
+
+    /**
+     * This will fetch all the Grades (Exam Results) from the database
+     * @param id
+     */
+    const fetchCourses = async () => {
+        // Try wrapper to handle async exceptions
+        try {
+            // API Handler
+            const res = await apiHandler(
+                undefined, // No body for GET request
+                'GET',
+                `api/course/listCourses?id=${userSession.id}`,
+                `${BACKEND_API}`,
+                userSession.accessToken
+            );
+
+            // Handle errors
+            if (res instanceof Error || (res && res.error)) {
+                console.error('Error fetching courses:', res.error);
+            } else {
+                // Get the response data
+                let coursesData = res?.courses || res || []; // Once grabbed, it is gone
+                // Ensure it's an array
+                coursesData = Array.isArray(coursesData) ? coursesData : [coursesData];
+                // Filter out the empty rows
+                coursesData = coursesData
+                    .map((key: string | number) => coursesData[key])
+                    // Remove any undefined/null values, if any
+                    .filter(Boolean);
+                console.log('Processed courses data:', coursesData);
+                // Set courses to coursesData
+                setCourses(coursesData);
+            }
+        } catch (e) {
+            // Error fetching courses
+            console.error('Error fetching courses:', e);
+        }
+    };
 
     console.log("LIST SIZE" + courses.length);
     for (let i = 0; i < courses.length; i++) {

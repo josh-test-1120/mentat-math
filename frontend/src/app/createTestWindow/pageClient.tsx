@@ -49,32 +49,37 @@ export default function CreateTestWindowClient({
     onCancel
 }: CreateTestWindowProps) {
 
+    // These are the session state variables
     const { data: session, status } = useSession();
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
-    // Session Hydration
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
     useEffect(() => {
-        if (status !== "authenticated") return;
-    
+        let id = '';
+        if (status !== 'authenticated' || !session) return;
+        // Hydrate session information
         if (session) {
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
             };
-            
+
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
-            
-            console.log("User session NAME: " + session.user.username);
-            console.log("User session ID: " + newUserSession.id);
         }
-    }, [session, status]); // Added status to dependencies
+    }, [session, status]);
 
     
     
@@ -391,7 +396,7 @@ export default function CreateTestWindowClient({
                 'POST',
                 'api/test-window/create',
                 process.env.NEXT_PUBLIC_BACKEND_API || '',
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
             
             console.log('API Response:', response);
