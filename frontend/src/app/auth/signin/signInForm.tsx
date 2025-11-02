@@ -48,7 +48,7 @@ export default function SignInForm() {
                     </label>
                     <input
                         className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
-                            text-crimson-700 placeholder-crimson-900 [&:-webkit-autofill]
+                            text-crimson-700/80 placeholder-mentat-black/50 [&:-webkit-autofill]
                             leading-tight focus:outline-none focus:shadow-outline w-full"
                         type="text"
                         name="username"
@@ -65,7 +65,7 @@ export default function SignInForm() {
                     </label>
                     <input
                         className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
-                            text-crimson-700 placeholder-crimson-700 [&:-webkit-autofill]
+                            text-crimson-700/80 placeholder-mentat-black/50 [&:-webkit-autofill]
                             leading-tight focus:outline-none focus:shadow-outline w-full"
                         type="email"
                         name="email"
@@ -83,7 +83,7 @@ export default function SignInForm() {
                     </label>
                     <input
                         className="border border-mentat-gold-700 rounded-lg py-2 px-3
-                            text-crimson-700 placeholder-crimson-700 leading-tight
+                            text-crimson-700/80 placeholder-mentat-black/50 leading-tight
                             focus:outline-none focus:shadow-outline w-full"
                         type="password"
                         name="password"
