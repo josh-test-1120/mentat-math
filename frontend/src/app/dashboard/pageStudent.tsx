@@ -61,10 +61,19 @@ export default function ExamsPage() {
         if (!exams || exams.length === 0) {
             return [];
         }
-        // First filter by status
+        // Filter conditions
         let result = filter === 'all'
-            ? exams
-            : exams.filter(exam => exam.status === filter);
+            ? exams.filter((exam) => {
+                const status = getExamPropStatus(exam);
+                return validStatus.includes(status);
+            }
+            ) : filter === 'completed'
+                ? exams.filter(exam => exam.status === filter)
+                : exams.filter((exam) => {
+                    const status = getExamPropStatus(exam);
+                    const results = exams.filter(exam => exam.status === filter)
+                    return validStatus.includes(status) && results.includes(exam);
+                })
         // Return current reduced array
         return result;
     }, [exams, filter]);
@@ -391,16 +400,14 @@ export default function ExamsPage() {
                                     className="space-y-4 mb-2"
                                 >
                                     {filteredExams
-                                        .filter((exam) => {
-                                            const status = getExamPropStatus(exam);
-                                            return validStatus.includes(status);
-                                        })
                                         .map((exam) => (
                                             <GradeCardExtended
                                                 key={exam.examId}
                                                 exam={exam}
                                                 index={0}
-                                                onclick={(e) => loadExamResultDetails(exam, e)}
+                                                onclick={validStatus.includes(exam.status ?? '')
+                                                    ? (e) => loadExamResultDetails(exam, e)
+                                                    : undefined}
                                             />
                                         )
                                     )}
