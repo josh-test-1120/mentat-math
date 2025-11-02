@@ -69,19 +69,6 @@ export default function CourseDetailsComponent({ course,
         parseGradeStrategy()
     }, [course]);
 
-    // Load the specific grade strategy details
-    const loadGradeStrategy = (strategy: GradeStrategy) => {
-        // Define the grade letter strategy
-        let newStrategy: GradeStrategy = {
-            total: strategy?.total || 0,
-            requiredA: strategy?.requiredA || 0,
-            optional: strategy?.optional || [],
-            allOptional: strategy?.allOptional || false
-        }
-        // Return the new Grade Strategy
-        return newStrategy;
-    }
-
     /**
      * Deserialize the grade strategy from the course
      */

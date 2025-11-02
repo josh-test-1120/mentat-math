@@ -44,8 +44,17 @@ interface ScheduledExamDetailsComponentProps {
 
 export default function ScheduledExamDetailsComponent(
         { exam, course, cancelAction, updateAction } : ScheduledExamDetailsComponentProps) {
-    // Session Information
-    const {data: session, status} = useSession();
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // Layout states
     const [testWindows, setTestWindows] = useState<TestWindow[]>([]);
     const [testWindowsLoading, setTestWindowsLoading] = useState<boolean>(true);
     const [examData, setExamData] = useState<ExamResultRequest>();
@@ -70,14 +79,8 @@ export default function ScheduledExamDetailsComponent(
         courseSection: course?.courseSection || exam.courseSection,
         courseId: course?.courseId || exam.courseId
     });
-
+    // Toggle states
     const [isLoaded, setIsLoaded] = useState(false);
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: ''
-    });
 
     // Daypicker states
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -86,7 +89,7 @@ export default function ScheduledExamDetailsComponent(
     // Date Range states
     const [startDate, setStartDate] = useState<Date>(new Date());
     const [endDate, setEndDate] = useState<Date>(new Date(new Date().setMonth(new Date().getMonth() + 3)));
-
+    // Default class names
     const defaultClassNames = getDefaultClassNames();
 
     // Add state to track which card is showing overlay
@@ -106,15 +109,18 @@ export default function ScheduledExamDetailsComponent(
     // Backend API
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    // Page and Session Hydration
+    /**
+     * useAffects that bind the page to refreshes and updates
+     */
+    // General effect: Initial session hydration
     useEffect(() => {
         if (status !== "authenticated") return;
-
         if (session) {
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
             };
 
             setSession(newUserSession);
@@ -122,15 +128,21 @@ export default function ScheduledExamDetailsComponent(
         }
     }, [session, status]);
 
-    // Exam hydration of state
+    /**
+     * useEffect for exam test window hydration
+     * and date picker state updates
+     */
+    // Exam state hydration
     useEffect(() => {
+        // Exit if session not ready
+        if (!sessionReady) return;
         // Set default date when component mount with exam
         if (examResultData) {
             setSelectedDate(examResultData.examScheduledDate);
             setCurrentMonth(examResultData.examScheduledDate);
             fetchTestWindows();
         }
-    }, [examResultData]);
+    }, [sessionReady, examResultData]);
 
     const handleUpdate = async (window: TestWindow) => {
         // Prevent default events
@@ -166,7 +178,7 @@ export default function ScheduledExamDetailsComponent(
                     "PATCH",
                     `api/exam/result/${exam?.examResultId}`,
                     `${BACKEND_API}`,
-                    session?.user?.accessToken || undefined
+                    userSession.accessToken
                 );
 
                 // Handle errors properly
@@ -223,7 +235,7 @@ export default function ScheduledExamDetailsComponent(
                     "POST",
                     `api/exam/result/create`,
                     `${BACKEND_API}`,
-                    session?.user?.accessToken || undefined
+                    userSession.accessToken
                 );
 
                 // Handle errors properly
@@ -240,7 +252,6 @@ export default function ScheduledExamDetailsComponent(
                 setActiveOverlay(null);
                 setHandlerRunning(false);
                 if (updateAction) updateAction();
-                // cancelAction();
             }
         }
     }
@@ -255,48 +266,28 @@ export default function ScheduledExamDetailsComponent(
                 'GET',
                 `api/test-window/course/${examResultData.courseId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching test windows:', res.error);
-                // setTestWindows([]);
             } else {
                 // Convert object to array
                 let testWindowsData = [];
-
-                // If res is an array, set coursesData to res
-                if (Array.isArray(res)) {
-                    testWindowsData = res;
-                    // If res is an object, set coursesData to the values of the object
-                } else if (res && typeof res === 'object') {
-                    // Use Object.entries() to get key-value pairs, then map to values
-                    testWindowsData = Object.entries(res)
-                        .filter(([key, value]) => value !== undefined && value !== null)
-                        .map(([key, value]) => value);
-                    // If res is not an array or object, set coursesData to an empty array
-                } else {
-                    testWindowsData = [];
-                }
-
-                // Filter out invalid entries
-                testWindowsData = testWindowsData.filter(c => c && typeof c === 'object');
-
+                // Get the response data
+                testWindowsData = res?.windows || res || []; // Once grabbed, it is gone
+                // Ensure it's an array
+                testWindowsData = Array.isArray(testWindowsData) ? testWindowsData : [testWindowsData];
                 console.log('Processed test windows data:', testWindowsData);
                 // Set courses to coursesData
                 setTestWindows(testWindowsData);
-                // setFilter('all');
-                // console.log('Length of filter:', filteredExams.length);
             }
         } catch (e) {
             // Error fetching courses
             console.error('Error fetching test windows:', e);
-            // Set courses to empty array
-            // setExams([]);
         } finally {
             // Set loading to false
-            // setLoading(false);
             setTestWindowsLoading(false);
         }
     }
@@ -329,9 +320,6 @@ export default function ScheduledExamDetailsComponent(
             }
         } catch (e) {
             toast.error("Test Window Move Failed");
-        } finally {
-            // Run the cancel/close callback
-            // cancelAction();
         }
     }
 

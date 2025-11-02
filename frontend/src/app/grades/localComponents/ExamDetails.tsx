@@ -6,7 +6,7 @@ import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import { ExamExtended } from "@/app/grades/util/types";
 import ErrorToast from "@/components/services/error";
-import {RingSpinner} from "@/components/UI/Spinners";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 interface ExamDetailsComponentProps {
     exam: ExamExtended;
@@ -14,12 +14,30 @@ interface ExamDetailsComponentProps {
     cancelAction: () => void;
 }
 
+/**
+ * These are the exam details modal
+ * that an instructor can use to modify
+ * or delete an existing exam.
+ * This will allow for easy modification
+ * of existing exams
+ * @author Joshua Summers
+ * @param exam
+ * @param updateAction
+ * @param cancelAction
+ * @constructor
+ */
 export default function ExamDetailsComponent({ exam, updateAction, cancelAction } : ExamDetailsComponentProps) {
-    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-    // const [exam, updateExam] = useState<ExamProp>();
-
-    // Session Information
-    const {data: session, status} = useSession();
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
+    const [sessionReady, setSessionReady] = useState(false);
+    const [userSession, setSession] = useState({
+        id: '',
+        username: '',
+        email: '',
+        accessToken: '',
+    });
+    // Layout data states
     const [examData, setExamData] = useState({
         examId: exam?.examId,
         examName: exam?.examName ?? '',
@@ -32,49 +50,41 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         hasExpiration: Boolean(exam?.examExpirationDate),
         examExpirationDate: exam?.examExpirationDate ?? ''
     });
-
     // Modify action state
     const [isModifying, setIsModifying] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-
+    // Loader states
     const [isLoaded, setIsLoaded] = useState(false);
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setSession] = useState({
-        id: '',
-        username: '',
-        email: ''
-    });
+    // Backend API data
+    const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    // Page and Session Hydration
+    /**
+     * useAffects for session hydration
+     */
+    // General effect: Initial session hydration
     useEffect(() => {
-        if (status !== "authenticated") return;
-
+        let id = '';
+        if (status !== 'authenticated' || !session) return;
+        // Hydrate session information
         if (session) {
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
-                email: session?.user.email || ''
+                email: session?.user.email || '',
+                accessToken: session?.user.accessToken || '',
             };
 
             setSession(newUserSession);
             setSessionReady(newUserSession.id !== "");
-
-            console.log("User session name: " + session.user.username);
-            console.log("User session ID: " + newUserSession.id);
-            console.log("This is the exam:");
-            console.log(exam);
         }
-    }, [session, status, exam]);
+    }, [session, status]);
 
     const handleUpdate = async (event: React.FormEvent) => {
         // Prevent default events
         event.preventDefault();
         // Set Modify state
         setIsModifying(true);
-
         console.log("Modify Exam");
-        console.log(exam);
-        console.log(examData);
         
         // Prepare the payload for the PATCH request
         const updatePayload: any = {
@@ -99,7 +109,6 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
         try {
             console.log("Updating Exam");
             console.log("Update payload:", updatePayload);
-            console.log(session);
             
             // API Handler
             const res = await apiHandler(
@@ -107,7 +116,7 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                 "PATCH",
                 `api/exam/${exam?.examId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors properly
@@ -145,7 +154,7 @@ export default function ExamDetailsComponent({ exam, updateAction, cancelAction 
                 "DELETE",
                 `api/exam/${exam?.examId}`,
                 `${BACKEND_API}`,
-                session?.user?.accessToken || undefined
+                userSession.accessToken
             );
 
             // Handle errors properly

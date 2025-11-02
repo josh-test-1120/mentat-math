@@ -9,14 +9,15 @@ const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
 export default function TestWindowPage() {
 
-    // Session ready flag state variable
+    // These are the session state variables
+    const { data: session, status } = useSession();
+    // Session user information
     const [sessionReady, setSessionReady] = useState(false);
-    // State flag variable for Modal Opening
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [userSession, setSession] = useState({
         id: '',
         username: '',
-        email: ''
+        email: '',
+        accessToken: '',
     });
 
     const [formData, setFormData] = useState({
@@ -70,7 +71,7 @@ export default function TestWindowPage() {
             // Response handler
             if (response.ok) {
                 toast.success("Exam created successfully");
-                setIsModalOpen(false);
+                // setIsModalOpen(false);
                 setFormData({
                     exam_course_id: 1,
                     exam_name: "",

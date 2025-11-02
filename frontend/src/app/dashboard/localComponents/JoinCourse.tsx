@@ -93,7 +93,7 @@ export default function JoinCourseComponent({ onJoinSuccess }: JoinCourseCompone
                 "POST",
                 "api/course/joinCourse",
                 `${BACKEND_API}`,
-                userSession.accessToken || undefined
+                userSession.accessToken
             );
     
             // Handle errors properly
