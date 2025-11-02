@@ -47,9 +47,9 @@ export default function SignInForm() {
                         Username
                     </label>
                     <input
-                        className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
-                            text-crimson-700/80 placeholder-mentat-black/50 [&:-webkit-autofill]
-                            leading-tight focus:outline-none focus:shadow-outline w-full"
+                        className="rounded-lg py-2 px-3 mb-2 text-mentat-black/80 placeholder-mentat-black/50
+                        [&:-webkit-autofill] leading-tight focus:outline-none shadow-md shadow-crimson-700
+                        focus:border-crimson-700 focus:ring-crimson-700 w-full"
                         type="text"
                         name="username"
                         placeholder="Username"
@@ -64,9 +64,9 @@ export default function SignInForm() {
                         Email
                     </label>
                     <input
-                        className="border border-mentat-gold-700 rounded-lg py-2 px-3 mb-2
-                            text-crimson-700/80 placeholder-mentat-black/50 [&:-webkit-autofill]
-                            leading-tight focus:outline-none focus:shadow-outline w-full"
+                        className="rounded-lg py-2 px-3 mb-2 text-mentat-black/80 placeholder-mentat-black/50
+                        [&:-webkit-autofill] leading-tight focus:outline-none shadow-md shadow-crimson-700
+                        focus:border-crimson-700 focus:ring-crimson-700 w-full"
                         type="email"
                         name="email"
                         id="email"
@@ -82,9 +82,9 @@ export default function SignInForm() {
                         Password
                     </label>
                     <input
-                        className="border border-mentat-gold-700 rounded-lg py-2 px-3
-                            text-crimson-700/80 placeholder-mentat-black/50 leading-tight
-                            focus:outline-none focus:shadow-outline w-full"
+                        className="rounded-lg py-2 px-3 mb-2 text-mentat-black/80 placeholder-mentat-black/50
+                        [&:-webkit-autofill] leading-tight focus:outline-none shadow-md shadow-crimson-700
+                        focus:border-crimson-700 focus:ring-crimson-700 w-full"
                         type="password"
                         name="password"
                         id="password"
