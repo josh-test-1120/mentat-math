@@ -109,6 +109,8 @@ export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProp
         zIndex: 0,
     };
 
+    console.log(exam);
+
     return (
         <motion.div
             className={`rounded-xl shadow-sm shadow-crimson-700 hover:shadow-md
@@ -139,20 +141,18 @@ export function GradeCardExtended({ exam, index, onclick }: ExamCardExtendedProp
                         {/* Middle section: Date and time */}
                         <div className="flex flex-col items-center mx-6 px-6 border-l border-r border-mentat-gold/40">
                             <span className="text-md font-semibold italic">
-                                Date: { exam.examTakenDate ? (
+                                Date: { exam.examScheduledDate && (
                                 <React.Fragment>
                                         <span className="text-sm font-medium not-italic">
-                                            {new Date(exam.examTakenDate).toLocaleDateString('en-US',
-                                                { weekday: 'short', month: 'short', day: 'numeric'})}
+                                            {new Date(exam.examScheduledDate + 'T00:00:00')
+                                                .toLocaleString('en-US', {
+                                                    timeZone: 'America/Los_Angeles',
+                                                    weekday: 'short',
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                }
+                                            )}
                                         </span>
-                                </React.Fragment>
-                            ) : (
-                                <React.Fragment>
-                                        <span className="text-sm font-medium not-italic">
-                                            {new Date(exam.examScheduledDate).toLocaleDateString('en-US',
-                                                { weekday: 'short', month: 'short', day: 'numeric'})}
-                                        </span>
-
                                 </React.Fragment>
                             )}
                             </span>
