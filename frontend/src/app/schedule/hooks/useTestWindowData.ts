@@ -27,7 +27,7 @@ export const useInstructorCourses = (session: any, status: string, backendApi: s
             console.log('Not authenticated, status:', status);
             return;
         }
-        if (session.id && session.accessToken) {
+        if (session.id !== '' && session.accessToken !== '') {
             try {
                 setLoading(true);
                 setError(null);
