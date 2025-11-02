@@ -92,6 +92,7 @@ export default function ExamsPage() {
 
     // Data load effect: Initial data hydration (after session hydration)
     useEffect(() => {
+        console.log('Refresh useEffect');
         // Exit if session not ready
         if (!sessionReady) return;
         // Otherwise, hydration the data
@@ -240,6 +241,7 @@ export default function ExamsPage() {
         e.preventDefault();
         // Set the current Exam result state
         setExamResult(exam);
+        console.log(exam);
         // Now we can open the modal since we set the current Exam
         setIsExamModalOpen(true)
     }
@@ -394,13 +396,14 @@ export default function ExamsPage() {
                                             return validStatus.includes(status);
                                         })
                                         .map((exam) => (
-                                        <GradeCardExtended
-                                            key={exam.examId}
-                                            exam={exam}
-                                            index={0}
-                                            onclick={(e) => loadExamResultDetails(exam, e)}
-                                        />
-                                    ))}
+                                            <GradeCardExtended
+                                                key={exam.examId}
+                                                exam={exam}
+                                                index={0}
+                                                onclick={(e) => loadExamResultDetails(exam, e)}
+                                            />
+                                        )
+                                    )}
                                 </motion.div>
                             ) : loading ? (
                                 <motion.div
