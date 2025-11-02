@@ -61,4 +61,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Course not found", "message", ex.getMessage()));
     }
+
+    @ExceptionHandler(ExamDeletionException.class)
+    public ResponseEntity<?> handleExamDeletion(ExamDeletionException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateRecordException.class)
+    public ResponseEntity<?> handleDuplicateRecord(DuplicateRecordException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<?> handleDataAccess(DataAccessException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Database error: " + e.getMessage());
+    }
+
+    @ExceptionHandler(ExamResultDeletionException.class)
+    public ResponseEntity<?> handleExamResultDeletion(ExamResultDeletionException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ExamResultNotFoundException.class)
+    public ResponseEntity<?> handleExamResultNotFound(ExamResultNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    // Fallback for any other unhandled exceptions
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGenericException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occurred: " + e.getMessage());
+    }
 }
