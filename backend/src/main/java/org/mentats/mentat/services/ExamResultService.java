@@ -68,7 +68,7 @@ public class ExamResultService {
         GetForeignKeyObjects(examResultRequest);
 
         // Check for existing exam result (TBD as some duplication can exist)
-        boolean exists = examResultRepository.existsByExam_IdAndExamVersion(examResultRequest.getExamResultId(),
+        boolean exists = examResultRepository.existsByExam_IdAndExamVersion(examResultRequest.getExamId(),
                 examResultRequest.getExamVersion());
         if (exists) {
             throw new DuplicateRecordException("Exam result already exists for this exam and specific version");

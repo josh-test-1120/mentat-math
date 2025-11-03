@@ -5,6 +5,11 @@ import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
 import { ExamResultExtended} from "@/app/dashboard/types/shared";
+// This is needed to wire in the reschedule component from the grade application
+import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
+import Grade from "@/components/types/grade";
+import Modal from "@/components/services/Modal";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 interface ExamActionsComponentProps {
     examResult: ExamResultExtended | undefined
@@ -37,6 +42,8 @@ export default function ExamActionsComponent({ examResult,
         email: '',
         accessToken: '',
     });
+    // Toggle states
+    const [isRescheduleAction, setIsRescheduleAction] = useState(false);
 
     /**
      * useAffects that bind the page to refreshes and updates
@@ -64,6 +71,10 @@ export default function ExamActionsComponent({ examResult,
     const handleReschedule = async (event: React.FormEvent) => {
         event.preventDefault();
         console.log("Rescheduling Exam");
+
+        // Load in the component
+        setIsRescheduleAction(true);
+
     }
 
     /**
@@ -172,7 +183,6 @@ export default function ExamActionsComponent({ examResult,
                             name="exam_date_scheduled"
                             value={examResult?.examScheduledDate.toLocaleString('en-US',
                                 { timeZone: 'America/Los_Angeles' })}
-                            // onChange={data}
                             className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3
                                 py-2"
@@ -188,7 +198,6 @@ export default function ExamActionsComponent({ examResult,
                                 name="is_required"
                                 checked={examResult !== undefined
                                     ? examResult.examRequired === 1 : false}
-                                // onChange={data}
                                 className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5
                                     text-mentat-gold focus:ring-mentat-gold"
                                 readOnly={true}
@@ -197,7 +206,7 @@ export default function ExamActionsComponent({ examResult,
                         </div>
                     </div>
                 </div>
-
+                {/*Buttons and Actions*/}
                 <div className="flex justify-end gap-3">
                     <button
                         type="button"
@@ -225,6 +234,25 @@ export default function ExamActionsComponent({ examResult,
                     </button>
                 </div>
             </form>
+            {/* Reschedule Action Modal */}
+            <Modal
+                isOpen={isRescheduleAction}
+                onClose={() => setIsRescheduleAction(false)}
+                title="Reschedule Exam Options"
+                isFullScreen={true}
+            >
+                <ScheduledExamDetailsComponent
+                    exam={examResult as Grade}
+                    cancelAction={() => {
+                        setIsRescheduleAction(false);
+                    }}
+                    updateAction={() => {
+                        // Handle parent updates
+                        if (updateAction) updateAction();
+                        setIsRescheduleAction(false)
+                    }}
+                />
+            </Modal>
         </div>
     );
 }

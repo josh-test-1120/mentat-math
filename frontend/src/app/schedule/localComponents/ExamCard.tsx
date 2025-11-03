@@ -433,23 +433,17 @@ export function ExamCardMedium({ exam, index, onclick, updateAction }: ExamCardM
                 title="Reschedule Exam Options"
                 isFullScreen={true}
             >
-                {isModalLoading ? (
-                    <div className="flex flex-col items-center justify-center min-h-[200px]">
-                        <RingSpinner size={'sm'} color={'mentat-gold'} />
-                        <p className="mt-4 text-mentat-gold">Loading scheduled exam windows...</p>
-                    </div>
-                ) : (
-                    <ScheduledExamDetailsComponent
-                        exam={exam}
-                        cancelAction={() => {
-                            setIsScheduleModalOpen(false);
-                        }}
-                        updateAction={() => {
-                            // Handle parent updates
-                            if (updateAction) updateAction();
-                            setIsScheduleModalOpen(false)
-                        }}
-                    />)}
+                <ScheduledExamDetailsComponent
+                    exam={exam}
+                    cancelAction={() => {
+                        setIsScheduleModalOpen(false);
+                    }}
+                    updateAction={() => {
+                        // Handle parent updates
+                        if (updateAction) updateAction();
+                        setIsScheduleModalOpen(false)
+                    }}
+                />
             </Modal>
             {/* Overlay that appears when delete is active */}
             {activeOverlay === exam.examResultId && (

@@ -563,7 +563,7 @@ export default function ScheduledExamDetailsComponent(
                 </div>
                 {/*This is the right panel content*/}
                 { testWindowsLoading ? (
-                    <div className="flex justify-center items-center pt-10">
+                    <div className="flex justify-center items-center pt-10 pl-5">
                         <RingSpinner size={'sm'} color={'mentat-gold'} />
                         <p className="ml-3 text-md text-mentat-gold">Loading test windows...</p>
                     </div>
