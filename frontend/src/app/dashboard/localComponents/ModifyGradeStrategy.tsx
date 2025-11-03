@@ -181,7 +181,8 @@ export default function ModifyGradeStrategy({gradeStrategy,
                         )}
                         <div className="text-[10px] content-center mt-2">
                             <button
-                                className="select-none bg-green-700/60 hover:bg-green-700 rounded-2xl text-mentat-gold py-2 px-4 shadow-sm shadow-mentat-gold-700"
+                                className="select-none bg-green-700/60 hover:bg-green-700 rounded-2xl
+                                text-mentat-gold py-2 px-4 shadow-sm shadow-mentat-gold-700"
                                 onClick={loadDefaultGradeStrategy}
                             >
                                 Populate Default Grade Strategy
@@ -200,7 +201,8 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                 </p>
                                 <Link href={"/grades"} className="text-center">
                                     <button
-                                        className="bg-mentat-gold hover:bg-mentat-gold-700 rounded-2xl text-crimson py-2 px-4 shadow-sm shadow-crimson-700 w-1/3 mx-auto"
+                                        className="bg-mentat-gold hover:bg-mentat-gold-700 rounded-2xl
+                                        text-crimson py-2 px-4 shadow-sm shadow-crimson-700 w-1/3 mx-auto"
                                     >
                                         Add Exam
                                     </button>
@@ -251,8 +253,12 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                     totalExams: e.target.value !== '' ? parseInt(e.target.value) : 0
                                                 })
                                             }
-                                            className={`w-12 rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 ${
-                                                isExamValid ? 'text-mentat-gold opacity-100' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                            className={`w-12 rounded-md bg-white/5 text-mentat-gold
+                                            placeholder-mentat-gold/60 border border-mentat-gold/20 
+                                            focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 ${
+                                                isExamValid 
+                                                    ? 'text-mentat-gold opacity-100' 
+                                                    : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                             }`}
                                         />
                                     </div>
@@ -261,7 +267,8 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                     <div className="border border-mentat-gold/20 rounded-lg bg-card-color py-1 px-2">
                                         <div className="italic text-sm mb-1 text-mentat-gold/80">Required Exams:</div>
                                         <div className="flex flex-row flex-wrap gap-2 mb-1 px-4 text-mentat-gold/40">
-                                            {gradeStrategy.requiredExams && gradeStrategy.requiredExams.length > 0 && exams && exams.length > 0 &&
+                                            {gradeStrategy.requiredExams && gradeStrategy.requiredExams.length > 0
+                                                && exams && exams.length > 0 &&
                                                 gradeStrategy.requiredExams.map((exam) => {
                                                     const name = exam.toString();
                                                     return (
@@ -274,17 +281,22 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                 onChange={(e) => {
                                                                     let currentExams = gradeStrategy?.requiredExams;
                                                                     const name = e.target.name;
-                                                                    currentExams = currentExams.filter((exam) => exam !== name)
+                                                                    currentExams = currentExams.filter((exam) =>
+                                                                        exam !== name)
                                                                     setGradeStrategy({
                                                                         ...gradeStrategy,
                                                                         requiredExams: currentExams
                                                                     })
                                                                 }}
-                                                                className="h-4 w-4 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold mr-1"
+                                                                className="h-4 w-4 rounded border-mentat-gold/40
+                                                                bg-card-color/10 text-mentat-gold
+                                                                focus:ring-mentat-gold mr-1"
                                                             />
                                                             <label
                                                                 htmlFor={`${name}`}
-                                                                className="select-none flex items-center justify-center text-xs border border-mentat-gold/20 rounded-2xl bg-card-color/15 py-0.5 px-2"
+                                                                className="select-none flex items-center justify-center
+                                                                 text-xs border border-mentat-gold/20 rounded-2xl
+                                                                 bg-card-color/10 py-0.5 px-2"
                                                             >
                                                                 {name}
                                                             </label>
@@ -297,8 +309,11 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                 <select
                                                     id="alllRequiredExams"
                                                     value={newRequiredExam}
-                                                    onChange={(e) => setNewRequiredExam(e.target.value)}
-                                                    className="w-24 h-6 rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 text-xs"
+                                                    onChange={(e) =>
+                                                        setNewRequiredExam(e.target.value)}
+                                                    className="w-24 h-6 rounded-md bg-card-color/10 text-mentat-gold
+                                                     placeholder-mentat-gold/60 border border-mentat-gold/20
+                                                     focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 text-xs"
                                                 >
                                                     {exams.length === 0 ? (
                                                         <option key='noExams' id='noExams' value='No exams'>No
@@ -313,8 +328,11 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                     )}
                                                 </select>
                                                 <button
-                                                    className={`text-sm border border-mentat-gold/20 rounded-lg ml-1 px-2 shadow-sm shadow-crimson-700 ${
-                                                        isExamValid ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                                    className={`text-sm border border-mentat-gold/20 rounded-lg 
+                                                    ml-1 px-2 shadow-sm shadow-crimson-700 ${
+                                                        isExamValid 
+                                                            ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson'
+                                                            : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                                     }`}
                                                     disabled={!isExamValid}
                                                     onClick={(e) => {
@@ -364,11 +382,15 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                         optionalExams: currentExams
                                                                     })
                                                                 }}
-                                                                className="h-4 w-4 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold mr-1"
+                                                                className="h-4 w-4 rounded border-mentat-gold/40
+                                                                bg-card-color/10 text-mentat-gold
+                                                                focus:ring-mentat-gold mr-1"
                                                             />
                                                             <label
                                                                 htmlFor={`${name}`}
-                                                                className="select-none flex items-center justify-center text-xs border border-mentat-gold/20 rounded-2xl bg-card-color/15 py-0.5 px-2"
+                                                                className="select-none flex items-center justify-center
+                                                                 text-xs border border-mentat-gold/20 rounded-2xl
+                                                                  bg-card-color/10 py-0.5 px-2"
                                                             >
                                                                 {name}
                                                             </label>
@@ -379,8 +401,11 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                 <select
                                                     id="allOptionalExams"
                                                     value={newOptionalExam}
-                                                    onChange={(e) => setNewOptionalExam(e.target.value)}
-                                                    className="w-24 h-6 rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 text-xs"
+                                                    onChange={(e) =>
+                                                        setNewOptionalExam(e.target.value)}
+                                                    className="w-24 h-6 rounded-md bg-card-color/10 text-mentat-gold
+                                                    placeholder-mentat-gold/60 border border-mentat-gold/20
+                                                    focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 text-xs"
                                                 >
                                                     {exams.length === 0 ? (
                                                         <option key='noExams' id='noExams' value='No exams'>No
@@ -388,15 +413,19 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                     ) : (
                                                         exams.map((exam) => (
                                                             <option key={exam.examId.toString()}
-                                                                    id={exam.examId.toString()} value={exam.examName}>
+                                                                    id={exam.examId.toString()} value={exam.examName}
+                                                            >
                                                                 {exam.examName}
                                                             </option>
                                                         ))
                                                     )}
                                                 </select>
                                                 <button
-                                                    className={`text-sm border border-mentat-gold/20 rounded-lg ml-1 px-2 shadow-sm shadow-crimson-700 ${
-                                                        isExamValid ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                                    className={`text-sm border border-mentat-gold/20 rounded-lg ml-1 
+                                                    px-2 shadow-sm shadow-crimson-700 ${
+                                                        isExamValid 
+                                                            ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson' 
+                                                            : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                                     }`}
                                                     disabled={!isExamValid}
                                                     onClick={(e) => {
@@ -432,10 +461,14 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                             const gradeKey = grade as keyof typeof styledGrades;
                                             return (
                                                 <div
-                                                    className='border border-mentat-gold/20 rounded-lg bg-card-color px-4 py-2'
+                                                    className='border border-mentat-gold/20 rounded-lg
+                                                    bg-card-color px-4 py-2'
                                                     key={grade}>
                                                     <div
-                                                        className={'text-center font-semibold italic'}>{styledGrades[gradeKey]}</div>
+                                                        className={'text-center font-semibold italic'}
+                                                    >
+                                                        {styledGrades[gradeKey]}
+                                                    </div>
                                                     <hr className='border-1 border-mentat-gold-700/60 mb-1'/>
 
                                                     {/* Total Exams Required Input */}
@@ -455,15 +488,20 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                     total: e.target.value
                                                                 }
                                                             })}
-                                                            className={`w-12 h-6 rounded-md bg-white/5 placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-2 py-2 ${
-                                                                isExamValid ? 'text-mentat-gold opacity-100' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                                            className={`w-12 h-6 rounded-md bg-card-color/5 
+                                                            placeholder-mentat-gold/60 border border-mentat-gold/20
+                                                             focus:border-mentat-gold/60 focus:ring-0 px-2 py-2 ${
+                                                                isExamValid 
+                                                                    ? 'text-mentat-gold opacity-100'
+                                                                    : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                                             }`}
                                                         />
                                                     </div>
 
                                                     {/* Letter Grade Optional Exams */}
                                                     <div
-                                                        className="border border-mentat-gold/20 rounded-lg bg-card-color my-2 py-1 px-2">
+                                                        className="border border-mentat-gold/20 rounded-lg
+                                                        bg-card-color my-2 py-1 px-2">
                                                         <div className="text-sm mb-1">Optional Exams:</div>
                                                         <div
                                                             className="flex flex-row flex-wrap gap-2 mb-1 text-mentat-gold/40">
@@ -489,11 +527,14 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                                     }
                                                                                 })
                                                                             }}
-                                                                            className="h-4 w-4 rounded border-mentat-gold/40 bg-white/5 text-mentat-gold focus:ring-mentat-gold mr-1"
+                                                                            className="h-4 w-4 rounded border-mentat-gold/40
+                                                                            bg-card-color/10 text-mentat-gold
+                                                                            focus:ring-mentat-gold mr-1"
                                                                         />
                                                                         <label
                                                                             htmlFor={`${gradeKey}-${name}`}
-                                                                            className="select-none border-mentat-gold/20 rounded-2xl bg-card-color/15 py-0.5 px-2"
+                                                                            className="select-none border-mentat-gold/20
+                                                                            rounded-2xl bg-card-color/10 py-0.5 px-2"
                                                                         >
                                                                             {name}
                                                                         </label>
@@ -510,7 +551,11 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                             [gradeKey]: e.target.value
                                                                         }))
                                                                     }}
-                                                                    className="w-24 h-6 rounded-md bg-white/5 text-mentat-gold placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 text-xs"
+                                                                    className="w-24 h-6 rounded-md bg-card-color/10
+                                                                    text-mentat-gold placeholder-mentat-gold/60
+                                                                     border border-mentat-gold/20
+                                                                     focus:border-mentat-gold/60 focus:ring-0 px-1
+                                                                     py-0 text-xs"
                                                                 >
                                                                     {exams.length === 0 ? (
                                                                         <option key='noExams' id='noExams'
@@ -526,8 +571,14 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                     )}
                                                                 </select>
                                                                 <button
-                                                                    className={`text-sm border border-mentat-gold/20 rounded-lg ml-1 px-2 shadow-sm shadow-crimson-700 ${
-                                                                        isExamValid ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                                                    className={`text-sm border border-mentat-gold/20
+                                                                     rounded-lg ml-1 px-2 shadow-sm shadow-crimson-700
+                                                                      ${
+                                                                        isExamValid 
+                                                                            ? 'bg-mentat-gold hover:bg-mentat-gold-700' +
+                                                                            ' text-crimson' 
+                                                                            : 'bg-gray-400 text-gray-600 opacity-50' +
+                                                                            ' cursor-not-allowed'
                                                                     }`}
                                                                     disabled={!isExamValid}
                                                                     onClick={(e) => {
@@ -580,8 +631,13 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                     allOptional: e.target.value === "true"
                                                                 }
                                                             })}
-                                                            className={`w-24 h-6 rounded-md bg-white/5 text-sm placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-1 py-0 ${
-                                                                isExamValid ? 'text-mentat-gold opacity-100' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                                            className={`w-24 h-6 rounded-md bg-card-color/5 text-sm
+                                                             placeholder-mentat-gold/60 border border-mentat-gold/20
+                                                              focus:border-mentat-gold/60 focus:ring-0 px-1 py-0
+                                                               ${
+                                                                isExamValid 
+                                                                    ? 'text-mentat-gold opacity-100' 
+                                                                    : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                                             }`}
                                                         >
                                                             <option value="false">False</option>
@@ -606,8 +662,13 @@ export default function ModifyGradeStrategy({gradeStrategy,
                                                                     requiredA: e.target.value
                                                                 }
                                                             })}
-                                                            className={`w-12 h-6 rounded-md bg-white/5 placeholder-mentat-gold/60 border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-2 py-2 ${
-                                                                isExamValid ? 'text-mentat-gold opacity-100' : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
+                                                            className={`w-12 h-6 rounded-md bg-card-color/5 
+                                                            placeholder-mentat-gold/60 border border-mentat-gold/20
+                                                             focus:border-mentat-gold/60 focus:ring-0 px-2 py-2 
+                                                             ${
+                                                                isExamValid 
+                                                                    ? 'text-mentat-gold opacity-100' 
+                                                                    : 'bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed'
                                                             }`}
                                                         />
                                                     </div>

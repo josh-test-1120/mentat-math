@@ -213,11 +213,11 @@ export default function InstructorReport() {
 
     // Grade strategy visualization
     const gradeStrategy = {
-        A: { min: 90, max: 100, color: 'bg-green-500' },
-        B: { min: 80, max: 89, color: 'bg-blue-500' },
-        C: { min: 70, max: 79, color: 'bg-yellow-500' },
+        F: { min: 0, max: 59, color: 'bg-red-500' },
         D: { min: 60, max: 69, color: 'bg-orange-500' },
-        F: { min: 0, max: 59, color: 'bg-red-500' }
+        C: { min: 70, max: 79, color: 'bg-yellow-500' },
+        B: { min: 80, max: 89, color: 'bg-blue-500' },
+        A: { min: 90, max: 100, color: 'bg-green-500' },
     };
 
     /**
@@ -614,7 +614,9 @@ export default function InstructorReport() {
                                                     >
                                                         {currentGrade === grade && (
                                                             <div
-                                                                className="absolute -top-1 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-b-black border-transparent"
+                                                                className="absolute -top-1 transform -translate-x-1/2
+                                                                w-0 h-0 border-l-4 border-r-4 border-b-4 border-b-black
+                                                                border-transparent"
                                                                 style={{ left: `${((student.examScore - data.min) / 
                                                                         (data.max - data.min)) * 100}%` }}
                                                             ></div>
