@@ -1,8 +1,10 @@
 package org.mentats.mentat.services;
 
+import org.mentats.mentat.models.Course;
 import org.mentats.mentat.models.ExamResult;
 import org.mentats.mentat.payload.request.ScheduleSummaryRequest;
 import org.mentats.mentat.payload.response.ScheduleSummaryResponse;
+import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,9 @@ public class ReportsService {
     @Autowired
     private ExamResultRepository examResultRepository;
     
+    @Autowired
+    private CourseRepository courseRepository;
+    
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -34,6 +39,18 @@ public class ReportsService {
      * @return List of ScheduleSummaryResponse grouped by exam and scheduled date
      */
     public List<ScheduleSummaryResponse> getScheduleSummary(ScheduleSummaryRequest request) {
+        // Get instructor's course IDs if instructorId is provided
+        final Set<Long> instructorCourseIds;
+        if (request != null && request.getInstructorId() != null) {
+            List<Course> instructorCourses = 
+                    courseRepository.findByInstructor_Id(request.getInstructorId());
+            instructorCourseIds = instructorCourses.stream()
+                    .map(course -> course.getCourseId())
+                    .collect(Collectors.toSet());
+        } else {
+            instructorCourseIds = new HashSet<>();
+        }
+        
         // Fetch all exam results that have scheduled dates
         List<ExamResult> allResults = examResultRepository.findAll();
         
@@ -41,11 +58,31 @@ public class ReportsService {
         List<ExamResult> scheduledResults = allResults.stream()
                 .filter(result -> result.getExamScheduledDate() != null)
                 .filter(result -> {
+                    // Filter by instructor's courses only if instructorId is provided
+                    if (request != null && request.getInstructorId() != null && !instructorCourseIds.isEmpty()) {
+                        if (result.getExam() == null || result.getExam().getCourse() == null) {
+                            return false;
+                        }
+                        Long courseId = result.getExam().getCourse().getCourseId();
+                        if (!instructorCourseIds.contains(courseId)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .filter(result -> {
                     // Apply courseId filter if provided
                     if (request != null && request.getCourseId() != null) {
-                        return result.getExam() != null 
-                                && result.getExam().getCourse() != null
-                                && result.getExam().getCourse().getCourseId().equals(request.getCourseId());
+                        if (result.getExam() == null || result.getExam().getCourse() == null) {
+                            return false;
+                        }
+                        // Verify that the requested course belongs to the instructor
+                        if (request.getInstructorId() != null && !instructorCourseIds.isEmpty()) {
+                            if (!instructorCourseIds.contains(request.getCourseId())) {
+                                return false; // Instructor doesn't own this course
+                            }
+                        }
+                        return result.getExam().getCourse().getCourseId().equals(request.getCourseId());
                     }
                     return true;
                 })
