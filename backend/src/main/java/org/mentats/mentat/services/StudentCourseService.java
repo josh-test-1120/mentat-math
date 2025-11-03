@@ -56,10 +56,16 @@ public class StudentCourseService {
                                 studentCourseRequest.getStudentId()));
     }
     // User only
-    private void GetForeignKeyObjects(Long studentID) {
+    private void GetForeignKeyObjectsForStudent(Long studentID) {
         // Find related student entity
         student = userRepository.findById(studentID)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found with ID: " + studentID));
+                .orElseThrow(() -> new EntityNotFoundException("Student not found with ID: " + studentID));
+    }
+    // Course only
+    private void GetForeignKeyObjectsForCourse(Long courseId) {
+        // Find related student entity
+        course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with ID: " + courseId));
     }
 
     /**
@@ -166,7 +172,7 @@ public class StudentCourseService {
     @Transactional(readOnly = true)
     public List<CourseResponse> getEnrolledCourses(Long studentId) {
         // Get referenced objects (FKs)
-        GetForeignKeyObjects(studentId);
+        GetForeignKeyObjectsForStudent(studentId);
         // Validator that student exists
         validator.validateStudent(student);
 
@@ -194,6 +200,38 @@ public class StudentCourseService {
                         proj.getCourseQuarter(),
                         proj.getCourseYear(),
                         proj.getGradeStrategy()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets all students that are enrolled in a course
+     * based on the course ID
+     * @param courseId course ID
+     * @return List of CourseResponses
+     */
+    @Transactional(readOnly = true)
+    public List<StudentCourseResponse> getEnrolledStudentsByCourse(Long courseId) {
+        // Get referenced objects (FKs)
+        GetForeignKeyObjectsForCourse(courseId);
+        // Validator that student exists
+        validator.validateCourse(course);
+
+        // Get all enrollments for the student
+        List<StudentCourse> enrollments = studentCourseRepository.findById_CourseId(course.getCourseId());
+
+        System.out.println("Total enrollments found: " + enrollments.size());
+        System.out.println("Total enrollments: " + enrollments.toString());
+
+        // If no enrollments, return empty list
+        if (enrollments.isEmpty()) return List.of();
+
+        return enrollments.stream()
+                .map(proj -> new StudentCourseResponse(
+                        proj.getCourseId(),
+                        proj.getStudentId(),
+                        proj.getStudentCourseGrade(),
+                        proj.getStudentDateRegistered()
                 ))
                 .collect(Collectors.toList());
     }
