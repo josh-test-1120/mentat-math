@@ -250,4 +250,30 @@ public class CourseController {
         }
     }
 
+    /**
+     * Get the student that joined a course from the database
+     * based on the course ID supplied in the URI
+     * @param cId Course Id
+     * @return ResponseEntity of StudentCourses
+     */
+    @GetMapping("/enrollments/course/{courseID}")
+    public ResponseEntity<List<StudentCourseResponse>> getStudentCoursesByCourseId(@PathVariable("courseID") Long cId) {
+        try {
+            // Use the repository to find courses by instructor ID
+            List<StudentCourseResponse> studentCourses = studentCourseService.getEnrolledStudentsByCourse(cId);
+
+            // Check if any student courses were found
+            if (studentCourses != null && !studentCourses.isEmpty()) {
+                return ResponseEntity.ok(studentCourses);
+            } else {
+                // Return 404 if no student courses found for this course
+                return ResponseEntity.notFound().build();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
