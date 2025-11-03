@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { Calendar, Clock, Users, FileText } from "lucide-react";
+import Course from "@/components/types/course";
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
@@ -34,27 +35,93 @@ interface DaySummary {
 export default function StudentExamSummary() {
     const { data: session } = useSession();
     const [loading, setLoading] = useState(true);
+    const [coursesLoading, setCoursesLoading] = useState(true);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
     const [dataByDay, setDataByDay] = useState<Map<string, ScheduledExamStats[]>>(new Map());
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [expandedExams, setExpandedExams] = useState<Set<number>>(new Set());
 
+    // Fetch instructor's courses
     useEffect(() => {
         const accessToken = session?.user?.accessToken;
-        if (accessToken) {
-            fetchSummary();
+        if (accessToken && session?.user?.id) {
+            fetchCourses();
         }
     }, [session]);
+
+    // Fetch summary when course changes, but only after courses are loaded
+    useEffect(() => {
+        const accessToken = session?.user?.accessToken;
+        if (accessToken && session?.user?.id && !coursesLoading && courses.length > 0) {
+            fetchSummary();
+        }
+    }, [session, selectedCourseId, coursesLoading, courses.length]);
+
+    const fetchCourses = async () => {
+        // Try wrapper to handle async exceptions
+        try {
+            // Set courses loading to true
+            setCoursesLoading(true);
+            // Get the access token and instructor id
+            const accessToken = session?.user?.accessToken;
+            const instructorId = session?.user?.id;
+            // If the access token, backend api, or instructor id are not valid, return
+            if (!accessToken || !BACKEND_API || !instructorId) return;
+            
+            // Fetch the courses from the backend
+            const response = await apiHandler(
+                undefined,
+                'GET',
+                `api/course/listCourses?id=${instructorId}`,
+                BACKEND_API,
+                accessToken
+            );
+
+            // Handle errors
+            if (response instanceof Error || response.error) {
+                console.error('Error fetching courses:', response);
+                return;
+            }
+
+            // Convert the response to an array of courses
+            let coursesData: Course[] = [];
+            if (Array.isArray(response)) {
+                coursesData = response;
+            } else if (response && typeof response === 'object') {
+                coursesData = Object.values(response);
+            }
+
+            // Assign the courses to the state
+            setCourses(coursesData);
+            
+            // "All Courses" is the default selection (selectedCourseId remains null)
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+        } finally {
+            // Set courses loading to false
+            setCoursesLoading(false);
+        }
+    };
 
     const fetchSummary = async () => {
         try {
             setLoading(true);
             const accessToken = session?.user?.accessToken;
-            if (!accessToken || !BACKEND_API) return;
+            const instructorId = session?.user?.id;
+            if (!accessToken || !BACKEND_API || !instructorId) return;
+            
+            // Build query parameters
+            const params = new URLSearchParams();
+            params.append('instructorId', instructorId.toString());
+            if (selectedCourseId !== null) {
+                params.append('courseId', selectedCourseId.toString());
+            }
             
             const response = await apiHandler(
                 undefined,
                 'GET',
-                `api/scheduled-exam/summary`,
+                `api/scheduled-exam/summary?${params.toString()}`,
                 BACKEND_API,
                 accessToken
             );
@@ -116,7 +183,7 @@ export default function StudentExamSummary() {
         return { totalScheduled, uniqueStudents, examCount: exams.length };
     };
 
-    if (loading) {
+    if (loading || coursesLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <RingSpinner />
@@ -124,24 +191,105 @@ export default function StudentExamSummary() {
         );
     }
 
-    if (dataByDay.size === 0) {
+    if (courses.length === 0) {
         return (
             <div className="text-center py-12">
                 <FileText className="w-16 h-16 mx-auto text-mentat-gold/50 mb-4" />
-                <p className="text-mentat-gold/70 text-lg">No scheduled exams found</p>
+                <p className="text-mentat-gold/70 text-lg">No courses available</p>
+                <p className="text-mentat-gold/50 text-sm mt-2">Please create a course first</p>
+            </div>
+        );
+    }
+
+    if (dataByDay.size === 0) {
+        return (
+            <div className="space-y-6">
+                {/* Header with Course Selector */}
+                <div className="bg-gradient-to-r from-crimson/20 to-crimson/10 p-6 rounded-lg border border-crimson/30">
+                    <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                            <h2 className="text-2xl font-bold text-mentat-gold mb-2 flex items-center gap-2">
+                                <Users className="w-6 h-6" />
+                                Student Exam Scheduling Summary
+                            </h2>
+                            <p className="text-mentat-gold/70">View which students scheduled which exams</p>
+                        </div>
+                        {/* Course Selector */}
+                        <div className="flex items-center gap-3 ml-4">
+                            <label htmlFor="course-select-summary-empty" className="text-sm font-medium text-mentat-gold whitespace-nowrap">
+                                Course:
+                            </label>
+                            <select
+                                id="course-select-summary-empty"
+                                value={selectedCourseId || ''}
+                                onChange={(e) => setSelectedCourseId(e.target.value ? parseInt(e.target.value) : null)}
+                                className="rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 
+                                    focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 min-w-[200px]"
+                            >
+                                <option value="">All Courses</option>
+                                {courses.map((course) => (
+                                    <option key={course.courseId} value={course.courseId}>
+                                        {course.courseName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div className="text-center py-12">
+                    <FileText className="w-16 h-16 mx-auto text-mentat-gold/50 mb-4" />
+                    <p className="text-mentat-gold/70 text-lg">No scheduled exams found</p>
+                    <p className="text-mentat-gold/50 text-sm mt-2">
+                        {selectedCourseId ? 'for the selected course' : 'for your courses'}
+                    </p>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            {/* Header */}
+            {/* Header with Course Selector */}
             <div className="bg-gradient-to-r from-crimson/20 to-crimson/10 p-6 rounded-lg border border-crimson/30">
-                <h2 className="text-2xl font-bold text-mentat-gold mb-2 flex items-center gap-2">
-                    <Users className="w-6 h-6" />
-                    Student Exam Scheduling Summary
-                </h2>
-                <p className="text-mentat-gold/70">View which students scheduled which exams</p>
+                <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                        <h2 className="text-2xl font-bold text-mentat-gold mb-2 flex items-center gap-2">
+                            <Users className="w-6 h-6" />
+                            Student Exam Scheduling Summary
+                        </h2>
+                        <p className="text-mentat-gold/70">View which students scheduled which exams</p>
+                    </div>
+                    {/* Course Selector */}
+                    <div className="flex items-center gap-3 ml-4">
+                        <label htmlFor="course-select-summary" className="text-sm font-medium text-mentat-gold whitespace-nowrap">
+                            Course:
+                        </label>
+                        <select
+                            id="course-select-summary"
+                            value={selectedCourseId || ''}
+                            onChange={(e) => setSelectedCourseId(e.target.value ? parseInt(e.target.value) : null)}
+                            disabled={coursesLoading || courses.length === 0}
+                            className="rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 
+                                focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 min-w-[200px]
+                                disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {coursesLoading ? (
+                                <option value="">Loading courses...</option>
+                            ) : courses.length === 0 ? (
+                                <option value="">No courses available</option>
+                            ) : (
+                                <>
+                                    <option value="">All Courses</option>
+                                    {courses.map((course) => (
+                                        <option key={course.courseId} value={course.courseId}>
+                                            {course.courseName}
+                                        </option>
+                                    ))}
+                                </>
+                            )}
+                        </select>
+                    </div>
+                </div>
             </div>
 
             {/* Date Navigation */}
