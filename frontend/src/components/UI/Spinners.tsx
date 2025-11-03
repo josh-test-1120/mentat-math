@@ -22,19 +22,31 @@ export const RingSpinner = ({ size = 'md', color = 'blue-500' }: RingSpinnerProp
     };
     const borderClasses = {
         xs: 'border-2',
-        sm: 'border-4',
+        sm: 'border-2',
         md: 'border-4',
         lg: 'border-6',
         xl: 'border-8'
     }
 
     return (
-        <div className="flex justify-center items-center">
-            <div className={`relative ${sizeClasses[size]}`}>
-                <div className={`absolute top-0 left-0 w-full h-full ${borderClasses[size]} border-gray-200 rounded-full`}></div>
-                <div className={`absolute top-0 left-0 w-full h-full ${borderClasses[size]} border-${color} rounded-full animate-spin border-t-transparent`}></div>
-            </div>
+        <div className="flex justify-center items-center relative">
+            <div className={`rounded-full ${sizeClasses[size]} ${borderClasses[size]} border-l-mentat-gold
+            border-r-mentat-gold/70 border-b-mentat-gold/80 border-t-transparent animate-spin`}></div>
+            <div className={`absolute rounded-full ${sizeClasses[size]} border border-${color} opacity-10
+            animate-ping`}></div>
         </div>
+        // <div className="flex justify-center items-center">
+        //     <div className={`rounded-full ${sizeClasses[size]} border-2 border-t-2 border-${color}
+        //      border-t-transparent animate-spin`}></div>
+        //     <div className={`absolute rounded-full ${sizeClasses[size]} border border-${color} opacity-15
+        //      animate-ping`}></div>
+        //     {/*<div className={`relative ${sizeClasses[size]}`}>*/}
+        //     {/*    <div className={`absolute top-0 left-0 w-full h-full ${borderClasses[size]}*/}
+        //     {/*     border-gray-200 rounded-full`}></div>*/}
+        //     {/*    <div className={`absolute top-0 left-0 w-full h-full ${borderClasses[size]}*/}
+        //     {/*     border-${color} rounded-full animate-spin border-t-transparent`}></div>*/}
+        //     {/*</div>*/}
+        // </div>
     );
 };
 

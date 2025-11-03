@@ -1,6 +1,7 @@
-// import { ExamResult } from "@/components/types/exams";
 import Course from "@/components/types/course";
 import ExamResult from "@/components/types/exam_result";
+import User from "@/components/types/user";
+import Grade from "@/components/types/grade";
 
 /**
  * Define some types and interfaces for the reports and report charts
@@ -60,17 +61,6 @@ export interface ExamAttempt extends Exam {
     bestScore?: string | null | undefined;
 }
 
-interface ExamResultComplete extends Exam {
-    exam_version: number;
-    exam_difficulty: number;
-    exam_duration: number;
-}
-
-// export interface Report extends ExamResultComplete {
-//     course_name: string;
-//     exam_online?: number;
-// }
-
 export interface Report extends Exam, Course, ExamResult {
     status?: 'passed' | 'failed' | 'pending';
     attempts?: number | null | undefined;
@@ -83,7 +73,16 @@ export const StatusMap: Record<string, "pending" | "passed" | "failed" | undefin
     "failed": "failed"
 };
 
-export interface Grade extends ExamResult {
-    course_name: string;
-    exam_online?: number;
+export interface ExamAndResult extends Exam, ExamResult {}
+
+/**
+ * Used by instructors to include the student information
+ * alongside the exam result details for that student
+ */
+export interface StudentExams extends User {
+    exams?: Grade[];
+}
+
+export interface StudentGrade extends User, Grade {
+    status?: 'passed' | 'failed' | 'pending';
 }

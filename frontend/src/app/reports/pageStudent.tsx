@@ -316,7 +316,7 @@ export function StudentReport() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/exam/result/grades/${session?.user?.id}`,
+                `api/exam/result/grades/${userSession.id}`,
                 `${BACKEND_API}`,
                 userSession.accessToken
             );
