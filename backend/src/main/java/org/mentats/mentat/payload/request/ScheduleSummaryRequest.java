@@ -22,15 +22,19 @@ public class ScheduleSummaryRequest {
     @JsonProperty("examId")
     private Long examId;
     
+    @JsonProperty("instructorId")
+    private Long instructorId;
+    
     // Default constructor
     public ScheduleSummaryRequest() {}
 
     // Constructors
-    public ScheduleSummaryRequest(Long courseId, Date startDate, Date endDate, Long examId) {
+    public ScheduleSummaryRequest(Long courseId, Date startDate, Date endDate, Long examId, Long instructorId) {
         this.courseId = courseId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.examId = examId;
+        this.instructorId = instructorId;
     }
 
     // Getters and Setters
@@ -46,6 +50,9 @@ public class ScheduleSummaryRequest {
     public Long getExamId() { return examId; }
     public void setExamId(Long examId) { this.examId = examId; }
 
+    public Long getInstructorId() { return instructorId; }
+    public void setInstructorId(Long instructorId) { this.instructorId = instructorId; }
+
     /**
      * String override for output response
      * @return String representation of the request
@@ -57,6 +64,7 @@ public class ScheduleSummaryRequest {
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", examId=" + examId +
+                ", instructorId=" + instructorId +
                 '}';
     }
 }

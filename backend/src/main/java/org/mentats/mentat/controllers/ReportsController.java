@@ -31,13 +31,25 @@ public class ReportsController {
     /**
      * Get schedule summary
      * Returns statistics showing which students scheduled which exams on which dates
+     * Only returns schedules for courses owned by the instructor if instructorId is provided
      * 
      * @param request ScheduleSummaryRequest containing optional filter parameters
+     * @param instructorId Optional instructor ID from query parameter (takes precedence over request.instructorId)
      * @return ResponseEntity with list of ScheduleSummaryResponse
      */
     @GetMapping("/summary")
-    public ResponseEntity<?> getScheduleSummary(@ModelAttribute ScheduleSummaryRequest request) {
+    public ResponseEntity<?> getScheduleSummary(
+            @ModelAttribute ScheduleSummaryRequest request,
+            @RequestParam(required = false) Long instructorId) {
         try {
+            // Set instructorId from query parameter if provided
+            if (request == null) {
+                request = new ScheduleSummaryRequest();
+            }
+            if (instructorId != null) {
+                request.setInstructorId(instructorId);
+            }
+            
             logger.info("Fetching schedule summary with request: {}", request);
             
             List<ScheduleSummaryResponse> summary = reportsService.getScheduleSummary(request);
