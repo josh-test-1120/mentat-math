@@ -372,7 +372,7 @@ export default function StudentExamSummary() {
                                 className="w-full px-6 py-4 flex justify-between items-center hover:bg-white/5 transition-colors"
                             >
                                 <div className="flex items-center gap-4 flex-1">
-                                    <div className="bg-crimson/20 text-crimson px-3 py-1 rounded-full font-bold text-sm min-w-[3rem] text-center">
+                                    <div className="bg-crimson/20 text-mentat-gold px-3 py-1 rounded-full font-bold text-sm min-w-[3rem] text-center">
                                         {exam.totalScheduled}
                                     </div>
                                     <div className="text-left">
