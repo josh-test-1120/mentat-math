@@ -248,7 +248,7 @@ export default function StudentExamSummary() {
     }
 
     return (
-        <div className="space-y-6 mb-6">
+        <div className="space-y-6 mb-8">
             {/* Header with Course Selector */}
             <div className="bg-gradient-to-r from-crimson/20 to-crimson/10 p-6 rounded-lg border border-crimson/30">
                 <div className="flex justify-between items-start">
