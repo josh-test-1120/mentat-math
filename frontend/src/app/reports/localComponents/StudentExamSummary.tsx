@@ -131,18 +131,45 @@ export default function StudentExamSummary() {
                 return;
             }
 
-            // Organize data by day
-            const dayMap = new Map<string, ScheduledExamStats[]>();
+            // Group flat response data by exam and date
+            // Response is now flat (one entry per student scheduling)
+            const groupedByExamAndDate = new Map<string, ScheduledExamStats>();
             
             if (Array.isArray(response)) {
                 response.forEach((item: any) => {
-                    const date = item.scheduledDate || "No Date";
-                    if (!dayMap.has(date)) {
-                        dayMap.set(date, []);
+                    // Create a unique key for exam + date combination
+                    const examKey = `${item.examId}-${item.scheduledDate || "No Date"}`;
+                    
+                    if (!groupedByExamAndDate.has(examKey)) {
+                        // First occurrence of this exam+date combination
+                        groupedByExamAndDate.set(examKey, {
+                            examName: item.examName || "Unknown",
+                            examId: item.examId,
+                            scheduledDate: item.scheduledDate || "No Date",
+                            totalScheduled: 0,
+                            students: []
+                        });
                     }
-                    dayMap.get(date)!.push(item);
+                    
+                    // Add student to the group and increment count
+                    const examGroup = groupedByExamAndDate.get(examKey)!;
+                    examGroup.totalScheduled += item.totalScheduled || 1;
+                    if (item.students && item.students.length > 0) {
+                        examGroup.students.push(...item.students);
+                    }
                 });
             }
+
+            // Organize grouped data by day
+            const dayMap = new Map<string, ScheduledExamStats[]>();
+            
+            groupedByExamAndDate.forEach((examStats) => {
+                const date = examStats.scheduledDate;
+                if (!dayMap.has(date)) {
+                    dayMap.set(date, []);
+                }
+                dayMap.get(date)!.push(examStats);
+            });
 
             setDataByDay(dayMap);
             

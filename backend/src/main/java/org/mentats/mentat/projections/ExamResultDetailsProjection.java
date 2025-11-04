@@ -39,4 +39,8 @@ public interface ExamResultDetailsProjection {
     String getCourseQuarter();
     Long getCourseProfessorId();
     String getGradeStrategy();
+    
+    // From User (Student) - optional for backward compatibility
+    String getStudentUsername();
+    String getStudentEmail();
 }

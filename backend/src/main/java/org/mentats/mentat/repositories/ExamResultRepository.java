@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -51,7 +52,7 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "er.examVersion as examVersion, " +
             "e.name as examName, e.state as examState, e.required as examRequired, " +
             "e.difficulty as examDifficulty, e.duration as examDuration, e.online as examOnline, " +
-            "e.Id as examId, courseId as courseId, " +
+            "e.Id as examId, c.courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
             "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
@@ -60,4 +61,36 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "JOIN e.course c " +
             "WHERE c.courseId = :courseId")
     List<ExamResultDetailsProjection> findResultDetailsByCourseId(@Param("courseId") Long courseId);
+    
+    /**
+     * Extended version of findResultDetailsByCourseId with optional filters for schedule summary
+     * Uses the same projection as the existing query for consistency
+     */
+    @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
+            "er.examScheduledDate as examScheduledDate, er.examTakenDate as examTakenDate, " +
+            "er.examVersion as examVersion, " +
+            "e.name as examName, e.state as examState, e.required as examRequired, " +
+            "e.difficulty as examDifficulty, e.duration as examDuration, e.online as examOnline, " +
+            "e.Id as examId, c.courseId as courseId, " +
+            "c.courseName as courseName, c.courseSection as courseSection, " +
+            "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
+            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy, " +
+            "u.username as studentUsername, u.email as studentEmail " +
+            "FROM ExamResult er " +
+            "JOIN er.exam e " +
+            "JOIN e.course c " +
+            "JOIN er.student u " +
+            "WHERE er.examScheduledDate IS NOT NULL " +
+            "AND (:instructorId IS NULL OR c.instructor.id = :instructorId) " +
+            "AND (:courseId IS NULL OR c.courseId = :courseId) " +
+            "AND (:examId IS NULL OR e.Id = :examId) " +
+            "AND (:startDate IS NULL OR er.examScheduledDate >= :startDate) " +
+            "AND (:endDate IS NULL OR er.examScheduledDate <= :endDate) " +
+            "ORDER BY er.examScheduledDate, e.Id")
+    List<ExamResultDetailsProjection> findScheduleSummaryDetails(
+            @Param("instructorId") Long instructorId,
+            @Param("courseId") Long courseId,
+            @Param("examId") Long examId,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate);
 }
