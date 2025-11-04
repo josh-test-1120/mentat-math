@@ -59,7 +59,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
     const hasFetched = useRef(false);
 
     // Form validation - only exam name and course are required
-    const isFormValid = course && examName && examName.trim() !== '' || false;
+    const isFormValid = !!(course && examName && examName.trim() !== '');
 
     /**
      * Resets the states when the modal opens
@@ -235,20 +235,22 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     // Get the course select text
     const getCourseSelectText = () => {
+        // Check if courses prop is provided and valid
+        if (!courses || courses.length === 0) {
+            return <option value="">No courses available</option>;
+        }
+
         // Local variables
         let reducedCourses: Course[] = [];
         let loadedCourse = false;
+        
         // Set layout for course passed in (default selection)
-        if (courses && courses.length > 0) {
-            if (course) {
-                reducedCourses = courses.filter((item) => item.courseId !== course.courseId);
-                console.log(reducedCourses);
-                loadedCourse = true;
-            }
+        if (course) {
+            reducedCourses = courses.filter((item) => item.courseId !== course.courseId);
+            loadedCourse = true;
+        } else {
             // Otherwise we handle all courses
-            else {
-                reducedCourses = courses;
-            }
+            reducedCourses = courses;
         }
 
         return (
@@ -261,14 +263,14 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                         {course.courseName}
                     </option>
                 )}
-                {reducedCourses.map((course: any, index: number) => {
-                    const courseName = course.courseName || 'Unknown Course';
+                {reducedCourses.map((courseItem: Course) => {
+                    const courseName = courseItem.courseName || 'Unknown Course';
 
                     return (
                         <option
-                            key={course.courseId}
-                            data-key={course.courseId}
-                            value={course.courseId}>
+                            key={courseItem.courseId}
+                            data-key={courseItem.courseId}
+                            value={courseItem.courseId}>
                             {courseName}
                         </option>
                     )
