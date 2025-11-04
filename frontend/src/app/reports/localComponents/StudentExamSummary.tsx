@@ -19,6 +19,7 @@ interface ScheduledExamStats {
         email: string;
         scheduledDate: string;
         testWindowId: number;
+        examVersion?: number;
     }[];
 }
 
@@ -383,10 +384,13 @@ export default function StudentExamSummary() {
             {/* Exam List for Selected Date */}
             {selectedDate && dataByDay.get(selectedDate) && (
                 <div className="space-y-4 pb-8">
-                    <h3 className="text-xl font-semibold text-mentat-gold flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        {selectedDate}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-xl font-semibold text-mentat-gold flex items-center gap-2">
+                            <Calendar className="w-5 h-5" />
+                            Scheduled Exams
+                        </h3>
+                        <span className="text-mentat-gold/70 text-sm">({selectedDate})</span>
+                    </div>
 
                     {dataByDay.get(selectedDate)!.map((exam) => (
                         <div
@@ -404,9 +408,6 @@ export default function StudentExamSummary() {
                                     </div>
                                     <div className="text-left">
                                         <h4 className="text-mentat-gold font-semibold">{exam.examName}</h4>
-                                        <p className="text-mentat-gold/70 text-sm">
-                                            Exam ID: {exam.examId}
-                                        </p>
                                     </div>
                                 </div>
                                 <div className="text-mentat-gold/70">
@@ -430,6 +431,9 @@ export default function StudentExamSummary() {
                                                 <div className="text-right">
                                                     <p className="text-mentat-gold/50 text-xs">
                                                         {student.scheduledDate}
+                                                    </p>
+                                                    <p className="text-mentat-gold/50 text-xs">
+                                                        Attempt v{student.examVersion ?? 1}
                                                     </p>
                                                 </div>
                                             </div>

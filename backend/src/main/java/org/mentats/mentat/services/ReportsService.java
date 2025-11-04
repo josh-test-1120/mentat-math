@@ -63,7 +63,8 @@ public class ReportsService {
                             projection.getStudentEmail() != null 
                                     ? projection.getStudentEmail() : "Unknown",
                             scheduledDate,
-                            null // testWindowId not available via direct relationship
+                            null, // testWindowId not available via direct relationship
+                            projection.getExamVersion() // include version when available
                     );
             
             // Create response with single student (frontend will group these)

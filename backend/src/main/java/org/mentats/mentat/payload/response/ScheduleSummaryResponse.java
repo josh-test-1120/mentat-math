@@ -70,15 +70,19 @@ public class ScheduleSummaryResponse {
         @JsonProperty("testWindowId")
         private Long testWindowId;
 
+            @JsonProperty("examVersion")
+            private Integer examVersion;
+
         // Constructor
         public StudentSchedulingInfo() {}
 
-        public StudentSchedulingInfo(String username, String email, 
-                                     String scheduledDate, Long testWindowId) {
+            public StudentSchedulingInfo(String username, String email, 
+                                     String scheduledDate, Long testWindowId, Integer examVersion) {
             this.username = username;
             this.email = email;
             this.scheduledDate = scheduledDate;
             this.testWindowId = testWindowId;
+                this.examVersion = examVersion;
         }
 
         // Getters and Setters
@@ -93,6 +97,9 @@ public class ScheduleSummaryResponse {
 
         public Long getTestWindowId() { return testWindowId; }
         public void setTestWindowId(Long testWindowId) { this.testWindowId = testWindowId; }
+
+        public Integer getExamVersion() { return examVersion; }
+        public void setExamVersion(Integer examVersion) { this.examVersion = examVersion; }
     }
 }
 
