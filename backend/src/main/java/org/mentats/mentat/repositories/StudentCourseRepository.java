@@ -19,25 +19,19 @@ import java.util.List;
  */
 @Repository
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, StudentCourseId> {
-//    // Check if a student is enrolled in a course
-//    boolean existsByCourse_IdAndStudent_Id(Long courseId, Long studentId);
-//    // Find all enrollments for a course
-//    List<StudentCourse> findByCourse_Id(Long courseId);
-//    // Find all enrollments for a student
-//    List<StudentCourse> findByStudent_Id(Long studentId);
     // Custom queries for finding embedded ids
     // Check if a student is enrolled in a course
     boolean existsById_CourseIdAndId_StudentId(Long courseId, Long studentId);
-    // Find all enrollments for a student
+    // Find all enrollments for a student (also works due to embedded id)
     List<StudentCourse> findByIdStudentId(Long studentId);
-    // Find all enrollments for a student
+    // Find all enrollments for a student (works same as above, but guaranteed when id changes)
     List<StudentCourse> findById_StudentId(Long studentId);
-    // Find all enrollments for a course
+    // Find all enrollments based on course ID (also works due to embedded id)
+    List<StudentCourse> findByIdCourseId(Long courseId);
+    // Find all enrollments for a course (works same as above, but guaranteed when id changes)
     List<StudentCourse> findById_CourseId(Long courseId);
     // Find enrollment for a student based on a course (use embedded IDs)
     Optional<StudentCourse> findById_CourseIdAndId_StudentId(Long courseId, Long studentId);
-//    // Find enrollment for a student based on a course
-//    Optional<StudentCourse> findByCourse_IdAndStudent_Id(Long courseId, Long studentId);
 }
 
 

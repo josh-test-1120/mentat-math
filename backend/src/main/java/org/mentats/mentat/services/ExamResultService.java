@@ -9,6 +9,7 @@ import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.ExamResultRequest;
 import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
+import org.mentats.mentat.projections.ExamResultsDetailsWithUserProjection;
 import org.mentats.mentat.repositories.ExamRepository;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.components.ExamResultValidator;
@@ -147,6 +148,7 @@ public class ExamResultService {
                 ))
                 .collect(Collectors.toList());
     }
+
     /**
      * Fetch all ExamResult objects based on Student Id
      * @param studentId
@@ -157,6 +159,19 @@ public class ExamResultService {
     public List<ExamResultDetailsProjection> getExamResultsAndExamCourseByStudent(Long studentId) {
         validator.validateStudentId(studentId);
         return examResultRepository.findResultDetailsByStudentId(studentId);
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Student Id
+     * include the Student information along with the exam result
+     * @param studentId
+     * @return List of ExamResultsDetailsWithUserProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by Student ID, along with exam and course table
+    // Read multiple tables by complex JPQL repository call
+    public List<ExamResultsDetailsWithUserProjection> getExamResultsAndExamCourseByStudentWithStudentDetails(Long studentId) {
+        validator.validateStudentId(studentId);
+        return examResultRepository.findResultDetailsByStudentIdWithStudentDetails(studentId);
     }
 
     /**
@@ -219,6 +234,18 @@ public class ExamResultService {
     public List<ExamResultDetailsProjection> getExamResultsByCourseId(Long courseId) {
         validator.validateCourseId(courseId);
         return examResultRepository.findResultDetailsByCourseId(courseId);
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Course Id
+     * include the Student information along with the exam result
+     * @param courseId
+     * @return List of ExamResultsDetailsWithUserProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by complex JPQL repository call
+    public List<ExamResultsDetailsWithUserProjection> getExamResultsByCourseIdWithStudentDetails(Long courseId) {
+        validator.validateCourseId(courseId);
+        return examResultRepository.findResultDetailsByCourseIdWithStudentInfo(courseId);
     }
 
     /**

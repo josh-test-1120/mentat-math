@@ -9,6 +9,7 @@ import org.mentats.mentat.payload.request.ScheduleSummaryRequest;
 import org.mentats.mentat.payload.response.ExamResultResponse;
 import org.mentats.mentat.payload.response.ScheduleSummaryResponse;
 import org.mentats.mentat.projections.ExamResultDetailsProjection;
+import org.mentats.mentat.projections.ExamResultsDetailsWithUserProjection;
 import org.mentats.mentat.repositories.ExamResultRepository;
 import org.mentats.mentat.services.ExamResultService;
 import org.mentats.mentat.services.ReportsService;
@@ -174,9 +175,11 @@ public class ExamResultController {
      * @return List of ExamResultDetailsProjection
      */
     @GetMapping("/course/{courseId}")
-    public ResponseEntity<List<ExamResultDetailsProjection>> getStudentExamResultsByCourseId(@PathVariable Long courseId) {
+    public ResponseEntity<List<ExamResultDetailsProjection>>
+        getStudentExamResultsByCourseId(@PathVariable Long courseId) {
         // Use the ExamResultService to get the exam result based on the Exam Id
-        List<ExamResultDetailsProjection> response = examResultService.getExamResultsByCourseId(courseId);
+        List<ExamResultDetailsProjection> response =
+                examResultService.getExamResultsByCourseId(courseId);
         // Convert to Response DTO
         return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
@@ -187,9 +190,26 @@ public class ExamResultController {
      * @return
      */
     @GetMapping("/grades/{studentId}")
-    public ResponseEntity<List<ExamResultDetailsProjection>> getStudentExamResultsByStudentId(@PathVariable Long studentId) {
+    public ResponseEntity<List<ExamResultDetailsProjection>>
+        getStudentExamResultsByStudentId(@PathVariable Long studentId) {
         // Use the ExamResultService to get the exam result and course by student Id
-        List<ExamResultDetailsProjection> response = examResultService.getExamResultsAndExamCourseByStudent(studentId);
+        List<ExamResultDetailsProjection> response =
+                examResultService.getExamResultsAndExamCourseByStudent(studentId);
+        // Convert to Response DTO
+        return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
+    }
+
+    /**
+     * Consolidated Exam Result query (for client performance)
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/instructor/{studentId}")
+    public ResponseEntity<List<ExamResultsDetailsWithUserProjection>>
+        getStudentExamResultsByStudentIdWithStudentDetails(@PathVariable Long studentId) {
+        // Use the ExamResultService to get the exam result and course by student Id
+        List<ExamResultsDetailsWithUserProjection> response =
+                examResultService.getExamResultsAndExamCourseByStudentWithStudentDetails(studentId);
         // Convert to Response DTO
         return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
