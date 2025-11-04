@@ -382,7 +382,7 @@ export default function StudentExamSummary() {
 
             {/* Exam List for Selected Date */}
             {selectedDate && dataByDay.get(selectedDate) && (
-                <div className="space-y-4">
+                <div className="space-y-4 pb-8">
                     <h3 className="text-xl font-semibold text-mentat-gold flex items-center gap-2">
                         <Calendar className="w-5 h-5" />
                         {selectedDate}
@@ -428,9 +428,6 @@ export default function StudentExamSummary() {
                                                     <p className="text-mentat-gold/70 text-sm">{student.email}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-mentat-gold/70 text-sm">
-                                                        Window ID: {student.testWindowId}
-                                                    </p>
                                                     <p className="text-mentat-gold/50 text-xs">
                                                         {student.scheduledDate}
                                                     </p>
