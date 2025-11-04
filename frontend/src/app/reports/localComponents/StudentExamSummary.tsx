@@ -121,7 +121,7 @@ export default function StudentExamSummary() {
             const response = await apiHandler(
                 undefined,
                 'GET',
-                `api/scheduled-exam/summary?${params.toString()}`,
+                `api/exam/result/summary?${params.toString()}`,
                 BACKEND_API,
                 accessToken
             );
