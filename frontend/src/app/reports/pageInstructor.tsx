@@ -243,9 +243,9 @@ export default function InstructorReport() {
             {null /*custom session onload*/}
             {void (sessionReady ? windowOnload() : <></>)}
 
-            <div className="mx-auto px-4 pt-8 min-h-screen bg-mentat-black">
+            <div className="mx-auto px-4 min-h-screen bg-mentat-black">
                 {/* View Mode Toggle */}
-                <div className="flex justify-center mb-6">
+                <div className="flex justify-center mb-6 -mt-4">
                     <div className="inline-flex bg-white/5 border border-mentat-gold/20 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('grades')}
