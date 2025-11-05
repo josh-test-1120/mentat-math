@@ -97,7 +97,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
     /**
      * useAffects that bind the page to refreshes and updates
      */
-    // General effect: Initial session hydration
     useEffect(() => {
         if (status !== "authenticated") return;
         if (session) {
@@ -182,8 +181,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                 // Your callback logic here
                 console.log('Selected course ID:', courseId);
             }
-
-            // onCourseSelect?.(selectedValue); // Optional callback prop
         };
 
     const handleExamChange =
@@ -197,9 +194,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             if (exams && exams.length > 0) {
                 let current = exams.filter(exam => exam.examId.toString() === examId);
 
-                console.log(examId);
-                console.log(current);
-
                 // Check if exam was found
                 if (current && current.length > 0) {
                     setCurrentExam(current[0]);
@@ -212,8 +206,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                     console.log('No exam selected');
                 }
             }
-
-            // onCourseSelect?.(selectedValue); // Optional callback prop
         };
 
     const handLoadTestWindows =
@@ -223,7 +215,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             // const selectedValue = event.target.value;
             const selectedValue = event.currentTarget.value;
             console.log('Loading test windows');
-            console.log(course);
             setIsScheduleModalOpen(true);
         }
 
