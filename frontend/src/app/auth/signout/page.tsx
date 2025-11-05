@@ -1,32 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCsrfToken } from 'next-auth/react';
+import { useState } from 'react';
 import { signOut } from "next-auth/react";
 
 export default function SignOut() {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [csrfToken, setCsrfToken] = useState<string>('');
 
-    useEffect(() => {
-        // Get CSRF token on client side
-        getCsrfToken().then(token => {
-            if (token) setCsrfToken(token);
-        });
-    }, []);
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSignOut = async () => {
         setIsSubmitting(true);
-        // Form will auto-submit to /api/auth/signout
+        
+        try {
+            // Use NextAuth's signOut function directly
+            await signOut({
+                callbackUrl: '/auth/signin',
+                redirect: true
+            });
+        } catch (error) {
+            console.error('Sign out error:', error);
+            setIsSubmitting(false);
+        }
     };
-
-    if (!csrfToken) {
-        return (
-            <div className="min-h-screen bg-mentat-black flex items-center justify-center p-4">
-                <div className="text-mentat-gold">Loading...</div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-mentat-black flex items-center justify-center p-4">
@@ -34,20 +27,13 @@ export default function SignOut() {
                 <h1 className="text-2xl font-bold text-mentat-gold mb-4 text-center">Sign Out</h1>
                 <p className="text-gray-300 mb-6 text-center">Are you sure you want to sign out?</p>
 
-                <form
-                    method="post"
-                    action="/api/auth/signout"
-                    onSubmit={handleSubmit}
+                <button
+                    onClick={handleSignOut}
+                    disabled={isSubmitting}
+                    className="w-full bg-crimson text-mentat-gold py-3 px-4 rounded-lg hover:bg-crimson-700 transition-colors shadow-sm shadow-mentat-gold-700 font-semibold disabled:opacity-50"
                 >
-                    <input type="hidden" name="csrfToken" value={csrfToken} />
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-crimson text-mentat-gold py-3 px-4 rounded-lg hover:bg-crimson-700 transition-colors shadow-sm shadow-mentat-gold-700 font-semibold disabled:opacity-50"
-                    >
-                        {isSubmitting ? 'Signing Out...' : 'Sign Out'}
-                    </button>
-                </form>
+                    {isSubmitting ? 'Signing Out...' : 'Sign Out'}
+                </button>
 
                 <div className="mt-4 text-center">
                     <a
