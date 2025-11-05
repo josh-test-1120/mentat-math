@@ -72,7 +72,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             // Truth testing
             const defaultCourse = (filteredCourse && filteredCourse.courseId === allCourse.courseId) ||
                 (filteredCourse === undefined);
-            const mismatchedCourse = course && filteredCourse &&
+            const mismatchedCourse = !course || !filteredCourse ||
                 course.courseId !== filteredCourse.courseId;
 
             // Reset the exams
