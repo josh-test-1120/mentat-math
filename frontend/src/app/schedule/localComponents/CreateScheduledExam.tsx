@@ -94,21 +94,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
         }
     }, [isModalOpen]);
 
-    // /**
-    //  * Resets the states when the filtered course changes
-    //  */
-    // useEffect(() => {
-    //     if (filteredCourse) {
-    //         if (filteredCourse.courseId !== allCourse.courseId) {
-    //             setCourse(filteredCourse)
-    //             setCourseName(filteredCourse.courseName);
-    //             fetchExamsByCourse(filteredCourse.courseId.toString());
-    //         }
-    //         console.log('Filtered Course useEffect');
-    //         console.log(filteredCourse);
-    //     }
-    // }, [filteredCourse]);
-
     /**
      * useAffects that bind the page to refreshes and updates
      */
@@ -176,6 +161,8 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     const handleCourseChange =
         (event: ChangeEvent<HTMLSelectElement>) => {
+            // Disable default button events
+            event.preventDefault();
             // Get the data option for the Id
             const selectedOption = event.target.options[event.target.selectedIndex];
             const courseId = selectedOption.getAttribute('data-key');
@@ -201,6 +188,8 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     const handleExamChange =
         (event: ChangeEvent<HTMLSelectElement>) => {
+            // Disable default button events
+            event.preventDefault();
             // Get the data option for the Id
             const selectedOption = event.target.options[event.target.selectedIndex];
             const examId = selectedOption.getAttribute('data-key');
@@ -229,6 +218,8 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     const handLoadTestWindows =
         (event: MouseEvent<HTMLButtonElement>) => {
+            // Disable default button events
+            event.preventDefault();
             // const selectedValue = event.target.value;
             const selectedValue = event.currentTarget.value;
             console.log('Loading test windows');
