@@ -13,7 +13,7 @@ import Exam from "@/components/types/exam";
 import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
 import Grade from "@/components/types/grade";
 import { allCourse } from "@/components/services/CourseSelector";
-import {RingSpinner} from "@/components/UI/Spinners";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
