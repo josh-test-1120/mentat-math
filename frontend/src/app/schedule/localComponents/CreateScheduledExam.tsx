@@ -296,13 +296,15 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
-                   title="Create Exam">
+                   title="Schedule Exam">
                 <form id="createExamForm" className="w-full space-y-4">
                     {/*First Grid Box*/}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/*Course Selection and logic*/}
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
+                            <label htmlFor="exam_course_id" className="text-sm">
+                                Exam Course <span className="text-red-500">*</span>
+                            </label>
                             <select
                                 id="exam_course_id"
                                 name="exam_course_id"
@@ -324,7 +326,9 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                         </div>
                         {/*Exam Selection and Logic*/}
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
+                            <label htmlFor="exam_name" className="text-sm">
+                                Exam Name <span className="text-red-500">*</span>
+                            </label>
                             <select
                                 id="exam_name"
                                 name="exam_name"
@@ -345,6 +349,8 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                             </select>
                         </div>
                     </div>
+
+                    {/*Exam Details Header*/}
                     <div className="text-center mx-auto">
                         <span className="text-sm italic text-mentat-gold/80">Exam Details</span>
                     </div>
@@ -455,45 +461,6 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                             </div>
                         </div>
 
-                        {/*<div className="flex flex-col gap-2">*/}
-                        {/*    <label htmlFor="exam_difficulty" className="text-sm">Exam Difficulty</label>*/}
-                        {/*    <input*/}
-                        {/*        type="text"*/}
-                        {/*        id="exam_difficulty"*/}
-                        {/*        name="exam_difficulty"*/}
-                        {/*        value={currentExam?.examDifficulty}*/}
-                        {/*        readOnly*/}
-                        {/*        className="w-full rounded-md bg-white/5 text-mentat-gold border*/}
-                        {/*         border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2*/}
-                        {/*          cursor-not-allowed opacity-70"*/}
-                        {/*    />*/}
-                        {/*</div>*/}
-                        {/*<div className="grid grid-cols-2 sm:grid-cols-2 gap-4 items-center">*/}
-                        {/*    <div className="flex items-center gap-3">*/}
-                        {/*        <input*/}
-                        {/*            id="is_required"*/}
-                        {/*            type="checkbox"*/}
-                        {/*            name="is_required"*/}
-                        {/*            checked={Boolean(currentExam?.examRequired === 1)}*/}
-                        {/*            readOnly*/}
-                        {/*            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5*/}
-                        {/*            text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"*/}
-                        {/*        />*/}
-                        {/*        <label htmlFor="is_required" className="select-none">Make Exam Required</label>*/}
-                        {/*    </div>*/}
-                        {/*    <div className="flex items-center gap-3">*/}
-                        {/*        <input*/}
-                        {/*            id="is_published"*/}
-                        {/*            type="checkbox"*/}
-                        {/*            name="is_published"*/}
-                        {/*            checked={Boolean(currentExam?.examState === 1)}*/}
-                        {/*            readOnly*/}
-                        {/*            className="h-5 w-5 rounded border-mentat-gold/40 bg-white/5*/}
-                        {/*            text-mentat-gold focus:ring-mentat-gold cursor-not-allowed"*/}
-                        {/*        />*/}
-                        {/*        <label htmlFor="is_published" className="select-none">Publish Exam</label>*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
                     </div>
 
                     <div className="flex justify-end gap-3">
@@ -523,6 +490,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                         </button>
                     </div>
                 </form>
+
                 {/*This is the inner Modal for Test Windows*/}
                 <Modal
                     isOpen={isScheduleModalOpen}
@@ -549,10 +517,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                             }}
                         />)}
                 </Modal>
-
             </Modal>
-
-            {/*<ToastContainer autoClose={3000} hideProgressBar />*/}
         </div>
     );
 }
