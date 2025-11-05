@@ -68,10 +68,12 @@ public class ExamResultService {
         GetForeignKeyObjects(examResultRequest);
 
         // Check for existing exam result (TBD as some duplication can exist)
-        boolean exists = examResultRepository.existsByExam_IdAndExamVersion(examResultRequest.getExamId(),
+        boolean exists = examResultRepository.existsByStudent_IdAndExam_IdAndExamVersion(
+                examResultRequest.getExamStudentId(),
+                examResultRequest.getExamId(),
                 examResultRequest.getExamVersion());
         if (exists) {
-            throw new DuplicateRecordException("Exam result already exists for this exam and specific version");
+            throw new DuplicateRecordException("Exam result already exists for this exam and specific exam version");
         }
 
         // Create entity
@@ -132,6 +134,31 @@ public class ExamResultService {
         validator.validateStudentId(studentId);
 
         List<ExamResult> projections = examResultRepository.findByStudent_Id(studentId);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Student Id and Exam Id
+     * @param studentId
+     * @param examId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    public List<ExamResultResponse> getExamResultsByStudentIdAndExamId(Long studentId, Long examId) {
+        validator.validateStudentId(studentId);
+        validator.validateExamId(examId);
+
+        List<ExamResult> projections =  examResultRepository.findByStudent_IdAndExam_Id(studentId, examId);
 
         return projections.stream()
                 .map(proj -> new ExamResultResponse(
