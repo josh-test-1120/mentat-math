@@ -579,8 +579,9 @@ export default function ScheduledExamDetailsComponent(
                         <hr className="border-crimson border-1 my-1"></hr>
                         <div className="p-4 rounded-lg overflow-y-auto">
                             {/*These are the test windows*/}
-                            { testWindows.map(testWindow => (
+                            { testWindows.map((testWindow, index) => (
                                 <TestWindowCard
+                                    key={`${testWindow}-${index}`}
                                     testWindow={testWindow}
                                     updateAction={handleUpdate}
                                     createAction={handleCreate}
