@@ -58,8 +58,23 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
 
-    // Form validation - only exam name and course are required
-    const isFormValid = !!(course && examName && examName.trim() !== '');
+    // Form validation - only exam name and course are required, and exam must not be expired
+    // Check if the selected exam has expired by comparing expiration date to current date
+    const isExamExpired = (() => {
+        // If no exam is selected or no expiration date, it's not expired
+        if (!currentExam?.expirationDate) {
+            return false;
+        }
+        
+        // Parse expiration date as local midnight to avoid timezone issues
+        const expirationDate = new Date(currentExam.expirationDate + 'T00:00:00');
+        const now = new Date();
+        
+        // Return true if expiration date is in the past
+        return expirationDate < now;
+    })();
+    
+    const isFormValid = !!(course && examName && examName.trim() !== '' && !isExamExpired);
 
     /**
      * Resets the states when the modal opens
