@@ -35,7 +35,7 @@ public class User {
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long Id;
     // Model attributes
     protected int userID;
 
@@ -163,15 +163,15 @@ public class User {
      * @return Long of ID
      */
     public Long getId() {
-        return id;
+        return Id;
     }
 
     /**
      * Setter for ID
-     * @param id Long of ID
+     * @param Id Long of ID
      */
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(Long Id) {
+        this.Id = Id;
     }
 
     /**

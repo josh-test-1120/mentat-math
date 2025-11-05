@@ -150,6 +150,31 @@ public class ExamResultService {
     }
 
     /**
+     * Fetch all ExamResult objects based on Student Id and Exam Id
+     * @param studentId
+     * @param examId
+     * @return List of ExamResultDetailsProjection objects (has more than examResult table data)
+     */
+    public List<ExamResultResponse> getExamResultsByStudentIdAndExamId(Long studentId, Long examId) {
+        validator.validateStudentId(studentId);
+        validator.validateExamId(examId);
+
+        List<ExamResult> projections =  examResultRepository.findByStudent_IdAndExam_Id(studentId, examId);
+
+        return projections.stream()
+                .map(proj -> new ExamResultResponse(
+                        proj.getId(),
+                        proj.getStudentId(),
+                        proj.getExamId(),
+                        proj.getExamVersion(),
+                        proj.getExamScore(),
+                        proj.getExamScheduledDate(),
+                        proj.getExamTakenDate()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Fetch all ExamResult objects based on Student Id
      * @param studentId
      * @return List of ExamResultDetailsProjection objects (has more than examResult table data)

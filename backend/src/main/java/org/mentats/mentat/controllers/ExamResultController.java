@@ -169,6 +169,23 @@ public class ExamResultController {
     }
 
     /**
+     * Get results from exam results table
+     * based on student Id and exam Id
+     * @param sid Student Id
+     * @param eid Exam Id
+     * @return ResponseEntity of ExamResultResponse DTOs
+     */
+    @GetMapping("/user/{studentId}/exam/{examId}")
+    public ResponseEntity<List<ExamResultResponse>>
+        getExamResultByUserIdAndExamId(@PathVariable("studentId") Long sid,
+                                       @PathVariable("examId") Long eid) {
+        // Use the ExamResultService to get the exam result based on the Exam Id
+        List<ExamResultResponse> response = examResultService.getExamResultsByStudentIdAndExamId(sid, eid);
+        // Convert to Response DTO
+        return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
+    }
+
+    /**
      * Get student exam_result records, with exam and course table information JOINED
      * Consolidated Exam Result query (for client performance)
      * @param courseId

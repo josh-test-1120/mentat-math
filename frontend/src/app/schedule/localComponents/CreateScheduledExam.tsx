@@ -13,6 +13,7 @@ import Exam from "@/components/types/exam";
 import ScheduledExamDetailsComponent from "@/app/schedule/localComponents/ScheduledExamDetails";
 import Grade from "@/components/types/grade";
 import { allCourse } from "@/components/services/CourseSelector";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 // Needed to get environment variable for Backend API
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -51,9 +52,11 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
     const [currentExam, setCurrentExam] = useState<Exam>();
     const [examName, setExamName] = useState<string>();
     const [courseName, setCourseName] = useState<string>();
+    const [examVersion, setExamVersion] = useState<number>();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+    const [isFindingExamVersions, setIsFindingExamVersions] = useState(false);
 
     // Reference to control React double render of useEffect
     const hasFetched = useRef(false);
@@ -69,7 +72,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             // Truth testing
             const defaultCourse = (filteredCourse && filteredCourse.courseId === allCourse.courseId) ||
                 (filteredCourse === undefined);
-            const mismatchedCourse = course && filteredCourse &&
+            const mismatchedCourse = !course || !filteredCourse ||
                 course.courseId !== filteredCourse.courseId;
 
             // Reset the exams
@@ -91,25 +94,9 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
         }
     }, [isModalOpen]);
 
-    // /**
-    //  * Resets the states when the filtered course changes
-    //  */
-    // useEffect(() => {
-    //     if (filteredCourse) {
-    //         if (filteredCourse.courseId !== allCourse.courseId) {
-    //             setCourse(filteredCourse)
-    //             setCourseName(filteredCourse.courseName);
-    //             fetchExamsByCourse(filteredCourse.courseId.toString());
-    //         }
-    //         console.log('Filtered Course useEffect');
-    //         console.log(filteredCourse);
-    //     }
-    // }, [filteredCourse]);
-
     /**
      * useAffects that bind the page to refreshes and updates
      */
-    // General effect: Initial session hydration
     useEffect(() => {
         if (status !== "authenticated") return;
         if (session) {
@@ -173,6 +160,8 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     const handleCourseChange =
         (event: ChangeEvent<HTMLSelectElement>) => {
+            // Disable default button events
+            event.preventDefault();
             // Get the data option for the Id
             const selectedOption = event.target.options[event.target.selectedIndex];
             const courseId = selectedOption.getAttribute('data-key');
@@ -192,21 +181,18 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                 // Your callback logic here
                 console.log('Selected course ID:', courseId);
             }
-
-            // onCourseSelect?.(selectedValue); // Optional callback prop
         };
 
     const handleExamChange =
         (event: ChangeEvent<HTMLSelectElement>) => {
+            // Disable default button events
+            event.preventDefault();
             // Get the data option for the Id
             const selectedOption = event.target.options[event.target.selectedIndex];
             const examId = selectedOption.getAttribute('data-key');
 
             if (exams && exams.length > 0) {
                 let current = exams.filter(exam => exam.examId.toString() === examId);
-
-                console.log(examId);
-                console.log(current);
 
                 // Check if exam was found
                 if (current && current.length > 0) {
@@ -220,18 +206,78 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                     console.log('No exam selected');
                 }
             }
-
-            // onCourseSelect?.(selectedValue); // Optional callback prop
         };
 
     const handLoadTestWindows =
         (event: MouseEvent<HTMLButtonElement>) => {
+            // Disable default button events
+            event.preventDefault();
             // const selectedValue = event.target.value;
             const selectedValue = event.currentTarget.value;
             console.log('Loading test windows');
-            console.log(course);
             setIsScheduleModalOpen(true);
         }
+
+    const examVersionDetermination =
+        async (event: MouseEvent<HTMLButtonElement>) => {
+            // Disable default button events
+            event.preventDefault();
+            // Set the loading state
+            setIsFindingExamVersions(true);
+            // Last version number
+            let lastVersion = 0;
+            // Get the exam results for this exam and student
+            try {
+                // API Handler
+                const res = await apiHandler(
+                    undefined, // No body for GET request
+                    'GET',
+                    `api/exam/result/user/${userSession.id}/exam/${currentExam?.examId}`,
+                    `${BACKEND_API}`,
+                    userSession.accessToken
+                );
+
+                // Handle errors
+                if (res instanceof Error || (res && res.error)) {
+                    console.error('Error fetching exam versions:', res.error);
+                    lastVersion++;
+                } else {
+                    // Convert object to array
+                    let examsData = [];
+                    // Get the response data
+                    examsData = res?.exams || res || []; // Once grabbed, it is gone
+                    // Ensure it's an array
+                    examsData = Array.isArray(examsData) ? examsData : [examsData];
+                    console.log('Processed exam versions data:', examsData);
+
+                    examsData.forEach(exam => {
+                        if (exam.examVersion > lastVersion) lastVersion = exam.examVersion;
+                    })
+                    // Update exam version
+                    lastVersion++;
+                }
+            } catch (e) {
+                // Error fetching courses
+                console.error('Error fetching exam version:', e);
+            }
+            finally {
+                console.log(`This is the exam Version: ${lastVersion}`);
+                // Update the version
+                setExamVersion(lastVersion);
+                // Update the current exam record
+                setCurrentExam((prev) => {
+                    // if undefined
+                    if (!prev) { return prev;}
+                    // otherwise update record
+                    return {
+                        ...prev,
+                        examVersion: lastVersion
+                    }
+                });
+                // Set the loading state
+                setIsFindingExamVersions(false);
+            }
+        };
 
     // Get the course select text
     const getCourseSelectText = () => {
@@ -279,6 +325,30 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
         )
     }
 
+    // Get the exam version select text
+    const getVersionSelectText = () => {
+        const versionMap = new Map([
+            [1, '1 - First Attempt'],
+            [2, '2 - Second Attempt'],
+            [3, '3 - Third Attempt'],
+            [4, '4 - Fourth Attempt'],
+            [5, '5 - Last Attempt'],
+        ]);
+
+        return (
+            <React.Fragment>
+                {Array.from(versionMap.entries()).map(([key, value]) => (
+                    <option
+                        key={key}
+                        value={key}
+                    >
+                        {value}
+                    </option>
+                ))}
+            </React.Fragment>
+        );
+    };
+
     return (
         <div className="bg-mentat-black text-mentat-gold">
             <div className="p-6 inline-flex items-center">
@@ -296,38 +366,32 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
-                   title="Create Exam">
+                   title="Create Exam Attempt">
                 <form id="createExamForm" className="w-full space-y-4">
-                    {/*First Grid Box*/}
+                    {/*First Grid Box: Course and Exam Name*/}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/*Course Selection and logic*/}
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_course_id" className="text-sm">Exam Course</label>
+                            <label htmlFor="examCourseId" className="text-sm">Exam Course</label>
                             <select
-                                id="exam_course_id"
-                                name="exam_course_id"
+                                id="examCourseId"
+                                name="examCourseId"
                                 onChange={handleCourseChange}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border
                                 border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0
                                 px-3 py-2"
                             >
-                                {course ? (
-                                    getCourseSelectText()
-                                ) : (
-                                    <React.Fragment>
-                                        <option value="">Select a course</option>
-                                        {getCourseSelectText()}
-                                    </React.Fragment>
-                                )}
+                                {!course && <option value="">Select a course</option>}
+                                {getCourseSelectText()}
                             </select>
                         </div>
                         {/*Exam Selection and Logic*/}
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="exam_name" className="text-sm">Exam Name</label>
+                            <label htmlFor="examName" className="text-sm">Exam Name</label>
                             <select
-                                id="exam_name"
-                                name="exam_name"
+                                id="examName"
+                                name="examName"
                                 onChange={handleExamChange}
                                 required={true}
                                 className="w-full rounded-md bg-white/5 text-mentat-gold border
@@ -344,6 +408,65 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
                                 ))}
                             </select>
                         </div>
+                    </div>
+                    {/*Second Grid Box: Exam Version*/}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/*Exam Version*/}
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="exam_course_id" className="text-sm">Exam Version</label>
+                            <select
+                                id="examVersion"
+                                name="examVersion"
+                                value={examVersion || ""}
+                                onChange={(e) => {
+                                    const version = parseInt(e.target.value);
+                                    setExamVersion(version);
+                                    setCurrentExam((prev) => {
+                                        // if undefined
+                                        if (!prev) { return prev;}
+                                        // otherwise update record
+                                        return {
+                                            ...prev,
+                                            examVersion: version
+                                        }
+                                    });
+                                }}
+                                required={true}
+                                disabled={true}
+                                className="w-full rounded-md bg-white/5 text-mentat-gold border
+                                border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0
+                                px-3 py-2"
+                            >
+                                {!examVersion && <option value="">Select a version</option>}
+                                {getVersionSelectText()}
+                            </select>
+                        </div>
+                        {/*Exam Version Determination Action*/}
+                        <div className="flex flex-col gap-2 items-center justify-end">
+                            <span className="text-[11px] italic text-mentat-gold/60">
+                                <span className="text-red-500">* </span>
+                                    This will determine if previous exam attempts exist
+                            </span>
+                            <button
+                                type="button"
+                                className={`font-semibold py-2 px-4 rounded-md shadow-sm shadow-crimson-700
+                                ${
+                                    isFormValid
+                                        ? 'bg-mentat-gold hover:bg-mentat-gold-700 text-crimson'
+                                        : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                }`}
+                                onClick={examVersionDetermination}
+                                disabled={!isFormValid || isFindingExamVersions}
+                                >
+                                { isFindingExamVersions ? (
+                                    <div className="flex justify-center items-center">
+                                        <RingSpinner size={'xs'} color={'crimson'} />
+                                        <p className="ml-3 text-sm text-crimson">Finding Versions...</p>
+                                    </div>
+                                ) : 'Version Inspection' }
+                            </button>
+                        </div>
+
                     </div>
                     <div className="text-center mx-auto">
                         <span className="text-sm italic text-mentat-gold/80">Exam Details</span>

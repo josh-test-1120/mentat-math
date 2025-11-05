@@ -26,6 +26,10 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
     List<ExamResult> findByExam_Id(Long examId);
     // Find the ExamResults based on Exam Id and Exam version
     List<ExamResult> findByExam_IdAndExamVersion(Long examId, Integer examVersion);
+    // Check if specific student has an exam result for a specific exam and version
+    boolean existsByStudent_IdAndExam_IdAndExamVersion(Long studentId, Long examId, Integer examVersion);
+    // Find the ExamResults based on Student Id and Exam Id
+    List<ExamResult> findByStudent_IdAndExam_Id(Long studentId, Long examId);
     // Delete the ExamResults based on Student Id
     void deleteByStudent_Id(Long studentId);
     // Delete the ExamResults based on Exam Id
