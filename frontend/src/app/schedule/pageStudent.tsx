@@ -291,7 +291,7 @@ export default function StudentSchedule() {
                                     })
                                     .map((examInst) => (
                                     <ExamCardMedium
-                                        key={examInst.examId}
+                                        key={`${examInst.examId}-${examInst.examVersion}`}
                                         exam={examInst}
                                         index={0}
                                         updateAction={() => {
