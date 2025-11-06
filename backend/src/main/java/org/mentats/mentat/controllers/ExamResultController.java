@@ -211,12 +211,13 @@ public class ExamResultController {
      * @param studentId
      * @return
      */
-    @GetMapping("/instructor/{studentId}")
+    @GetMapping("/instructor/{studentId}/course/{courseId}")
     public ResponseEntity<List<ExamResultsDetailsWithUserProjection>>
-        getStudentExamResultsByStudentIdWithStudentDetails(@PathVariable Long studentId) {
+        getStudentExamResultsByStudentIdAndCourseIdWithStudentDetails(@PathVariable Long studentId,
+                                                                      @PathVariable Long courseId) {
         // Use the ExamResultService to get the exam result and course by student Id
         List<ExamResultsDetailsWithUserProjection> response =
-                examResultService.getExamResultsAndExamCourseByStudentWithStudentDetails(studentId);
+                examResultService.getExamResultsAndExamCourseByStudentAndCourseWithStudentDetails(studentId, courseId);
         // Convert to Response DTO
         return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
