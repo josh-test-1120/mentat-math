@@ -151,7 +151,7 @@ export default function StudentSchedule() {
                 // Set courses to coursesData
                 setExams(examsData);
                 // Reset the filter to all
-                setFilter('all');
+                // setFilter('all');
             }
         } catch (e) {
             // Error fetching courses
@@ -234,9 +234,9 @@ export default function StudentSchedule() {
                 <header className="mb-8">
                     <div className="flex items-center justify-between">
                         <h1 className="text-3xl font-bold mb-2">Manage Scheduled Exams</h1>
-                        { session?.user?.id && filteredCourses ? (
+                        { userSession.id !== '' && filteredCourses ? (
                             < CreateScheduledExam
-                                studentId={session?.user?.id}
+                                studentId={userSession.id}
                                 courses={courses}
                                 filteredCourse={course}
                                 updateAction={() => {
@@ -258,7 +258,6 @@ export default function StudentSchedule() {
                                 selectedCourseId={course?.courseId}
                                 onCourseChange={(e) => {
                                     updateCourseHandle(e.target.value);
-                                    console.log(filter);
                                 }}
                                 allDefault={true}
                                 />
@@ -291,7 +290,7 @@ export default function StudentSchedule() {
                                     })
                                     .map((examInst) => (
                                     <ExamCardMedium
-                                        key={examInst.examId}
+                                        key={`${examInst.examId}-${examInst.examVersion}`}
                                         exam={examInst}
                                         index={0}
                                         updateAction={() => {
