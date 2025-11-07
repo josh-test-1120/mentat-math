@@ -7,9 +7,11 @@ import { apiHandler } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
 import Course from "@/components/types/course";
-import { FileText, Users } from "lucide-react";
+import { Blocks, FileText, Spotlight, Users } from "lucide-react";
 import StudentExamSummary from "@/app/reports/localComponents/StudentExamSummary";
 import InstructorExamStatistics from "@/app/reports/localComponents/InstructorExamStatistics";
+import { motion } from "framer-motion";
+import MentatCursor from "@/components/services/MentatCursor";
 
 /**
  * Instructor Report Page
@@ -23,6 +25,7 @@ export default function InstructorReport() {
     const [userSession, setSession] = useState({
         id: '',
         username: '',
+        name: '',
         email: '',
         accessToken: '',
     });
@@ -61,6 +64,7 @@ export default function InstructorReport() {
             const newUserSession = {
                 id: session?.user.id?.toString() || '',
                 username: session?.user.username || '',
+                name: session?.user.name || '',
                 email: session?.user.email || '',
                 accessToken: session?.user.accessToken || '',
             };
@@ -163,85 +167,122 @@ export default function InstructorReport() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-6">
-            {/* Navigation Bar */}
-            <div className="flex justify-center mb-6 -mt-4">
-                <div className="inline-flex bg-card-color border border-mentat-gold/20 rounded-lg p-1">
-                    <button
-                        onClick={() => setNavFilter('summary')}
-                        className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
-                            navFilter === 'summary'
-                                ? 'bg-crimson text-mentat-gold'
-                                : 'text-mentat-gold/70 hover:text-mentat-gold'
-                        }`}
-                    >
-                        <Users className="w-4 h-4" />
-                        Exam Summary
-                    </button>
-                    <button
-                        onClick={() => setNavFilter('grades')}
-                        className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
-                            navFilter === 'grades'
-                                ? 'bg-crimson text-mentat-gold'
-                                : 'text-mentat-gold/70 hover:text-mentat-gold'
-                        }`}
-                    >
-                        <FileText className="w-4 h-4" />
-                        Student Grades
-                    </button>
-                    <button
-                        onClick={() => setNavFilter('insights')}
-                        className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
-                            navFilter === 'insights'
-                                ? 'bg-crimson text-mentat-gold'
-                                : 'text-mentat-gold/70 hover:text-mentat-gold'
-                        }`}
-                    >
-                        <FileText className="w-4 h-4" />
-                        Exam Insights
-                    </button>
-                    <button
-                        onClick={() => setNavFilter('dashboard')}
-                        className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
-                            navFilter === 'dashboard'
-                                ? 'bg-crimson text-mentat-gold'
-                                : 'text-mentat-gold/70 hover:text-mentat-gold'
-                        }`}
-                    >
-                        <FileText className="w-4 h-4" />
-                        Grade Dashboard
-                    </button>
-                </div>
-            </div>
+        <div>
+            {/*<AnimatedPiCursor />*/}
+            <MentatCursor />
+            {/*Main Area for details of page*/}
+            <div className="max-w-5xl mx-auto">
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{duration: 0.6}}
+                >
+                    {/* Navigation Bar */}
+                    <div className="flex justify-center mb-2 -mt-4">
+                        <div className="inline-flex bg-card-color border border-mentat-gold/20 rounded-lg p-1
+                        shadow-sm shadow-crimson-700/40">
+                            <button
+                                onClick={() => setNavFilter('summary')}
+                                className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                                    navFilter === 'summary'
+                                        ? 'bg-crimson text-mentat-gold'
+                                        : 'text-mentat-gold/70 hover:text-mentat-gold'
+                                }`}
+                            >
+                                <Users className="w-4 h-4" />
+                                Exam Summary
+                            </button>
+                            <button
+                                onClick={() => setNavFilter('grades')}
+                                className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                                    navFilter === 'grades'
+                                        ? 'bg-crimson text-mentat-gold'
+                                        : 'text-mentat-gold/70 hover:text-mentat-gold'
+                                }`}
+                            >
+                                <FileText className="w-4 h-4" />
+                                Student Grades
+                            </button>
+                            <button
+                                onClick={() => setNavFilter('insights')}
+                                className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                                    navFilter === 'insights'
+                                        ? 'bg-crimson text-mentat-gold'
+                                        : 'text-mentat-gold/70 hover:text-mentat-gold'
+                                }`}
+                            >
+                                <Blocks className="w-4 h-4" />
+                                Exam Insights
+                            </button>
+                            <button
+                                onClick={() => setNavFilter('dashboard')}
+                                className={`px-4 py-2 rounded-md font-semibold transition-all flex items-center gap-2 ${
+                                    navFilter === 'dashboard'
+                                        ? 'bg-crimson text-mentat-gold'
+                                        : 'text-mentat-gold/70 hover:text-mentat-gold'
+                                }`}
+                            >
+                                <Spotlight className="w-4 h-4" />
+                                Grade Dashboard
+                            </button>
+                        </div>
+                    </div>
+                    {/* Line Divider */}
+                    <hr className="border-mentat-gold/20 border-1"></hr>
 
-            {/* Course Selection */}
-            <div className="flex justify-between items-center mb-6">
-            {/*<div className="max-w-5xl mx-auto">*/}
-                <h1 className="text-3xl font-bold text-center mb-1">Instructor Summary Report</h1>
-                <div className="flex items-center space-x-2">
-                    <CourseSelector
-                        courses={courses}
-                        selectedCourseId={course?.courseId}
-                        onCourseChange={(e) => {
-                            updateCourseHandle(e.target.value);
-                            console.log(courseFilter);
-                        }}
-                    />
-                </div>
+                    <div className="flex justify-center items-center my-2">
+                        <h1 className="text-xl font-bold mb-1 h-full p-2
+                        rounded-xl bg-card-color/5"
+                        >
+                            Instructor Performance Reports
+                        </h1>
+                        {/*This is the course header*/}
+                        <div className="max-w-5xl mx-auto flex justify-end mb-1">
+                            {/*This is the Course Selection button*/}
+                            {userSession.id !== "" ?
+                                (
+                                    <React.Fragment>
+                                        {filteredCourses.length === 0
+                                            ? (
+                                                <div>
+                                                    <p>Student has no courses</p>
+                                                </div>
+                                            )
+                                            : courses && courses.length > 0 && (
+                                            <CourseSelector
+                                                courses={courses}
+                                                selectedCourseId={course?.courseId}
+                                                onCourseChange={(e) => {
+                                                    updateCourseHandle(e.target.value);
+                                                }}
+                                            />
+                                        )}
+                                    </React.Fragment>
+                                ) : (<React.Fragment/>)
+                            }
+                        </div>
+                    </div>
+
+                    {/* Line Divider */}
+                    <hr className="border-crimson border-2 mb-2"></hr>
+
+                    {/*Overflow wrapper container to manage scrolling*/}
+                    <div className="overflow-y-auto pt-1 scrollbar-hide max-h-[70vh]">
+                        {navFilter === 'summary' ? (
+                            <InstructorExamStatistics
+                                course={filteredCourses[0]}
+                                gradeStrategyNew={undefined}
+                            />
+                        ) : navFilter === 'grades' ? (
+                            <div className="max-w-7xl mx-auto">
+                                <StudentExamSummary />
+                            </div>
+                        ) : (
+                            <React.Fragment/>
+                        )}
+                    </div>
+                </motion.div>
             </div>
-            {/*Navigation conditional renderer*/}
-            {navFilter === 'summary' ? (
-                <InstructorExamStatistics
-                    courses={filteredCourses}
-                    gradeStrategyNew={undefined}
-                />
-            ) : navFilter === 'grades' ? (
-                <div className="max-w-7xl mx-auto">
-                    <StudentExamSummary />
-                </div>
-            ) : (
-                <React.Fragment/>
-            )}
         </div>
     );
 };
