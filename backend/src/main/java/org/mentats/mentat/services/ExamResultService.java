@@ -74,7 +74,8 @@ public class ExamResultService {
                 examResultRequest.getExamId(),
                 examResultRequest.getExamVersion());
         if (exists) {
-            throw new DuplicateRecordException("You have already scheduled this exam. Please use the reschedule option to change the date.");
+            throw new DuplicateRecordException("You have already scheduled this version of the exam." +
+                    " Please ensure you are using a different version of the exam.");
         }
 
         // Create entity
