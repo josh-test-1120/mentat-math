@@ -54,14 +54,35 @@ export const reduceRecords = (grades: Report[]) => {
     return records;
 }
 
+// Determine grade status based on score
+export const getGradeStatus = (grade: Report): 'passed' | 'failed' | 'pending' | undefined => {
+    // Grade arrays
+    const passingGrade = ['A', 'B', 'C'];
+    const failingGrade = ['D', 'F'];
+
+    // If a score exists:
+    if (grade?.examScore) {
+        // Check for active states
+        if (passingGrade.includes(grade?.examScore)) return 'passed';
+        // Check for inactive states
+        else if (failingGrade.includes(grade?.examScore)) return 'failed';
+    }
+    // Default state is pending
+    else return 'pending';
+};
+
 // Current Grade Determination Utility
 export default function GradeDetermination(grades: Report[],
                                            strategies?: GradeRequirements) {
     /**
      * Main part of function code
      */
-    // First let's convert the
+    // First let's convert the grades to numbers
     updateRecord(grades);
+    // Ensure that each report has a status
+    grades.forEach(grade => {
+        if (!grade.status) grade.status = getGradeStatus(grade)
+    })
     // Reduce exams to best grades
     let bestGrades: Report[] = reduceRecords(grades);
     // Determine passed exams
@@ -69,6 +90,7 @@ export default function GradeDetermination(grades: Report[],
         exam.status === 'passed').length;
     let passedAs = bestGrades.filter(exam =>
         exam?.examScore === 'A').length;
+    console.log(`josh: This is the passed: ${passed}`);
 
     // Determine letter grade
     // Handle determination if strategies are supplied
