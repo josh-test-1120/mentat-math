@@ -36,9 +36,6 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
     void deleteByExam_Id(Long examId);
     // Unique Record checks
     boolean existsByExam_IdAndExamVersion(Long examId, Integer examVersion);
-    // Check if specific student has an exam result for a specific exam and version
-    boolean existsByStudent_IdAndExam_IdAndExamVersion(Long studentId, Long examId, Integer examVersion);
-
     // Complex query for student exam results with additional table info
     // Query by Student ID
     @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
