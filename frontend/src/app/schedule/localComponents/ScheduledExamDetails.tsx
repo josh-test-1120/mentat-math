@@ -240,58 +240,7 @@ export default function ScheduledExamDetailsComponent(
 
                 // Handle errors properly
                 if (res instanceof Error || (res && res.error)) {
-                    // Check if it's a duplicate error - if so, try to find existing exam result and update it instead
-                    const errorMessage = res?.message || res?.error?.message || '';
-                    if (errorMessage.includes('already scheduled') || res?.error?.status === 409) {
-                        // Try to find the existing exam result and update it
-                        console.log("Duplicate detected, attempting to find and update existing exam result");
-                        try {
-                            // Fetch exam results for this student to find the existing one
-                            const existingResultsRes = await apiHandler(
-                                undefined,
-                                'GET',
-                                `api/exam/result/user/${session?.user?.id}`,
-                                `${BACKEND_API}`,
-                                userSession.accessToken
-                            );
-                            
-                            if (!(existingResultsRes instanceof Error) && !existingResultsRes?.error) {
-                                const existingResults = Array.isArray(existingResultsRes) ? existingResultsRes : [];
-                                const existingResult = existingResults.find((er: any) => 
-                                    er.examId === examResultData.examId && 
-                                    er.examVersion === (examResultData.examVersion || 1)
-                                );
-                                
-                                if (existingResult && existingResult.examResultId) {
-                                    // Update the existing exam result instead
-                                    console.log("Found existing exam result, updating instead");
-                                    const updateRes = await apiHandler(
-                                        insertData,
-                                        "PATCH",
-                                        `api/exam/result/${existingResult.examResultId}`,
-                                        `${BACKEND_API}`,
-                                        userSession.accessToken
-                                    );
-                                    
-                                    if (updateRes instanceof Error || updateRes?.error) {
-                                        toast.error(updateRes?.message || "Failed to reschedule the exam");
-                                    } else {
-                                        toast.success("Successfully rescheduled the Exam!");
-                                        console.log("Exam Result Update Succeeded.");
-                                    }
-                                } else {
-                                    toast.error("Could not find existing exam result to update");
-                                }
-                            } else {
-                                toast.error("Failed to find existing exam result");
-                            }
-                        } catch (updateError) {
-                            console.error("Error updating existing exam result:", updateError);
-                            toast.error("Failed to reschedule exam. Please try rescheduling from the exam card.");
-                        }
-                    } else {
-                        toast.error(errorMessage || "Failed to create the exam result");
-                    }
+                    toast.error(res?.message || "Failed to schedule the Exam!");
                 } else {
                     toast.success("Successfully scheduled the Exam!");
                     console.log("Exam Result Create Succeeded.");
