@@ -81,6 +81,7 @@ export interface ExamAndResult extends Exam, ExamResult {}
  */
 export interface StudentExams extends User {
     exams?: Grade[];
+    status?: "passing" | "failing" | undefined;
 }
 
 export interface StudentGrade extends User, Grade {
