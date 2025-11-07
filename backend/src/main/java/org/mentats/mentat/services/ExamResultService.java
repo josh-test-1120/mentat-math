@@ -67,13 +67,15 @@ public class ExamResultService {
         // Get referenced objects (FKs)
         GetForeignKeyObjects(examResultRequest);
 
-        // Check for existing exam result (TBD as some duplication can exist)
+        // Check if this specific student already has an exam result for this exam and version
+        // This allows different students to schedule the same exam, but prevents duplicate scheduling for the same student
         boolean exists = examResultRepository.existsByStudent_IdAndExam_IdAndExamVersion(
                 examResultRequest.getExamStudentId(),
                 examResultRequest.getExamId(),
                 examResultRequest.getExamVersion());
         if (exists) {
-            throw new DuplicateRecordException("Exam result already exists for this exam and specific exam version");
+            throw new DuplicateRecordException("You have already scheduled this version of the exam." +
+                    " Please ensure you are using a different version of the exam.");
         }
 
         // Create entity

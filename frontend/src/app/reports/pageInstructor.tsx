@@ -3,6 +3,7 @@
 import React, {useState, useEffect, useMemo} from "react";
 import { useRef } from 'react';
 import { toast, ToastContainer } from "react-toastify";
+import { getServerAuthSession } from "@/utils/auth";
 import { apiHandler } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
