@@ -153,11 +153,11 @@ export function StudentReport() {
     // FIXED: Memoized current grade calculation
     const calculatedCurrentGrade = useMemo(() => {
 
-        console.log('🟢 CALCULATED_CURRENT_GRADE useMemo RUNNING');
-        console.log('🟢 gradeRequirements:', gradeRequirements);
-        console.log('🟢 filteredGrades:', filteredGrades);
-        console.log('🟢 filteredGrades length:', filteredGrades?.length);
-        console.log('🟢 grades:', grades);
+        console.log('CALCULATED_CURRENT_GRADE useMemo RUNNING');
+        console.log('gradeRequirements:', gradeRequirements);
+        console.log('filteredGrades:', filteredGrades);
+        console.log('filteredGrades length:', filteredGrades?.length);
+        console.log('grades:', grades);
 
         // // If no grades requirements, return F
         // if (!gradeRequirements) return 'F';
