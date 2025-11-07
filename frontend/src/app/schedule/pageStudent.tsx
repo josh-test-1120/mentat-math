@@ -137,9 +137,12 @@ export default function StudentSchedule() {
                 userSession.accessToken
             );
 
-            // Handle errors
+            // Handle errors - 404 is acceptable when no exams exist yet
             if (res instanceof Error || (res && res.error)) {
                 console.error('Error fetching exams:', res.error);
+                setExams([]);
+            } else if (!res) {
+                // Handle 404 or null response - treat as empty array
                 setExams([]);
             } else {
                 // Convert object to array

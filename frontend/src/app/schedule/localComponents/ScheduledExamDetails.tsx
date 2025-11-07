@@ -240,7 +240,7 @@ export default function ScheduledExamDetailsComponent(
 
                 // Handle errors properly
                 if (res instanceof Error || (res && res.error)) {
-                    toast.error(res?.message || "Failed to create the exam result");
+                    toast.error(res?.message || "Failed to schedule the Exam!");
                 } else {
                     toast.success("Successfully scheduled the Exam!");
                     console.log("Exam Result Create Succeeded.");
