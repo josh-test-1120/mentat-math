@@ -64,17 +64,19 @@ export default function StudentPerformingCard({student, gradeStrategyNew}: Stude
                                 <h4 className="font-medium mb-1">
                                     {student.firstName} {student.lastName}
                                 </h4>
-                                <p className="text-sm text-mentat-gold/60">
-                                    Current Grade:&nbsp;
-                                    <span className="font-medium text-green-600">
-                                    {calculatedCurrentGrade}
-                                </span>
-                                </p>
                             </div>
                             <button className="text-sm bg-white border border-green-300
-                        text-green-600 hover:bg-green-50 px-3 py-1 rounded">
+                            text-green-600 hover:bg-green-50 px-3 py-1 rounded">
                                 Message
                             </button>
+                        </div>
+                        <div className="flex justify-center items-start">
+                            <p className="text-sm text-mentat-gold/60">
+                                Current Grade:&nbsp;
+                                <span className="font-medium text-green-600">
+                                    {calculatedCurrentGrade}
+                                </span>
+                            </p>
                         </div>
                     </div>
 

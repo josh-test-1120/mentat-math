@@ -310,7 +310,7 @@ export default function InstructorExamStatistics({course,
     return (
         <div className="space-y-6 mb-4">
             {/*Instructor Exam Summary Charts Components*/}
-            <div className="text-mentat-gold overflow-hidden shadow rounded-lg">
+            <div className="text-mentat-gold overflow-hidden rounded-lg">
                 <div className="px-4 py-5 sm:p-6">
                     <h2 className="text-lg font-medium mb-4">Exam Performance Overview</h2>
                     <div className="flex flex-wrap gap-2">
@@ -374,7 +374,7 @@ export default function InstructorExamStatistics({course,
                 <React.Fragment>
                     {/*Student Progress Card*/}
                     <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
-                    shadow-sm shadow-crimson-700">
+                    shadow-sm shadow-crimson-700 mx-0.5">
                         <div className="px-4 py-5 sm:p-6">
                             <h2 className="text-lg font-medium mb-4">
                                 Student Performance by Grade Strategy
@@ -391,7 +391,8 @@ export default function InstructorExamStatistics({course,
                         </div>
                     </div>
                     {/*Student Performance Status Cards*/}
-                    <div className="bg-card-color overflow-hidden shadow rounded-lg">
+                    <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
+                     shadow-sm shadow-crimson-700 mx-0.5">
                         <div className="px-4 py-5 sm:p-6">
                             <h2 className="text-lg font-medium mb-4">Student Performance Dashboard</h2>
                             {/* Failing Students Cards */}
@@ -451,7 +452,8 @@ export default function InstructorExamStatistics({course,
                     No grade to generate statistics
                 </div>
             ) : studentResults && studentResults.length > 0 && (
-                <div className="bg-card-color overflow-hidden shadow rounded-lg">
+                <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
+                 shadow-sm shadow-crimson-700 mx-0.5">
                     <div className="px-4 py-5 sm:p-6">
                         <h2 className="text-lg font-medium mb-4">Course Insights</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

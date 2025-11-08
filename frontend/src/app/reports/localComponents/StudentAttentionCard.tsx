@@ -64,19 +64,20 @@ export default function StudentAttentionCard({student, gradeStrategyNew}: Studen
                                 <h4 className="font-medium mb-1">
                                     {student.firstName} {student.lastName}
                                 </h4>
-                                <p className="text-sm">
-                                    Current Grade:&nbsp;
-                                    <span className="font-medium text-red-600">
-                                    {calculatedCurrentGrade}
-                                </span>
-                                </p>
                             </div>
                             <button className="text-sm bg-white border border-red-300 text-red-600
                             hover:bg-red-50 px-3 py-1 rounded">
                                 Contact
                             </button>
                         </div>
-
+                        <div className="flex justify-center items-start">
+                            <p className="text-sm">
+                                Current Grade:&nbsp;
+                                <span className="font-medium text-red-600">
+                                    {calculatedCurrentGrade}
+                                </span>
+                            </p>
+                        </div>
                     </div>
 
                     {/* Popover */}
