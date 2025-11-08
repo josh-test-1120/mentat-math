@@ -61,10 +61,8 @@ export default function StudentProgressCard({student, gradeStrategyNew}: Student
                 <React.Fragment>
                     <div
                         ref={triggerRef}
-                        className="border border-mentat-gold/20 rounded-lg p-4 pb-0 bg-card-color/10
-                           cursor-pointer transition-all duration-200
-                           hover:border-mentat-gold/40 hover:bg-card-color/20
-                           active:scale-95 shadow-sm shadow-mentat-gold/40"
+                        className="rounded-lg p-4 pb-0 bg-card-color/10 cursor-pointer transition-all duration-200
+                           hover:bg-mentat-gold/20 active:scale-95 shadow-sm shadow-mentat-gold/40"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         onClick={handleClick}
