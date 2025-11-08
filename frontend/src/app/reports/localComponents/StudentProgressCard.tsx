@@ -1,10 +1,10 @@
 "use client";
 
-import React, {useEffect, useRef} from "react";
+import React, { useEffect } from "react";
 import { GradeStrategy, StudentExams } from "@/app/reports/types/shared";
 import { useGradeCalculations } from "@/app/reports/hooks/useGradeCalculations";
-import {usePopover} from "@/app/reports/hooks/usePopover";
-import {scoreToNumber} from "@/app/reports/utils/GradeDetermination";
+import { usePopover } from "@/app/reports/hooks/usePopover";
+import { studentStatus, calculateAverageGrade, scoreToNumber } from "@/app/reports/utils/GradeDetermination";
 
 interface StudentProgressCardProps {
     student: StudentExams | undefined;
@@ -41,38 +41,11 @@ export default function StudentProgressCard({student, gradeStrategyNew}: Student
 
     useEffect(() => {
         if (student && calculatedCurrentGrade) {
-            student.status = studentStatus()
+            student.status = studentStatus(calculatedCurrentGrade)
         }
     }, [student, calculatedCurrentGrade]);
 
-    const studentStatus = () => {
-        switch (calculatedCurrentGrade) {
-            case "A":
-            case "B":
-            case "C":
-                return 'passing'
-            case "D":
-            case 'F':
-                return 'failing'
-        }
-    }
-
-    // Helper function to calculate average
-    const calculateAverageGrade = (exams: any[]) => {
-        if (!exams || exams.length === 0) return 'F';
-        const total = exams.reduce((sum, exam) =>
-            sum + scoreToNumber(exam.examScore), 0);
-        const grade = Math.floor(total / exams.length);
-        switch (grade) {
-            case 5: return 'A'
-            case 4: return 'B'
-            case 3: return 'C'
-            case 2: return 'D'
-            default: return 'F'
-        }
-    };
-
-    // Grade strategy visualization
+    // Grade strategy color visualization
     const gradeStrategy = {
         F: {min: 0, max: 59, color: 'bg-red-500'},
         D: {min: 60, max: 69, color: 'bg-orange-500'},
@@ -127,12 +100,11 @@ export default function StudentProgressCard({student, gradeStrategyNew}: Student
                                     >
                                         {calculatedCurrentGrade === grade && (
                                             <div
-                                                className="absolute -top-1 transform -translate-x-1/2
-                                                    w-0 h-0 border-l-4 border-r-4 border-b-4 border-b-black
-                                                    border-transparent"
+                                                className="absolute top-full transform -translate-x-1/2
+                                                    w-0 h-0 border-l-8 border-r-8 border-t-8 border-t-mentat-black
+                                                    border-transparent z-30 -mt-2"
                                                 style={{
-                                                    left: `${((student.examScore - data.min) /
-                                                        (data.max - data.min)) * 100}%`
+                                                    left: '50%'
                                                 }}
                                             ></div>
                                         )}
