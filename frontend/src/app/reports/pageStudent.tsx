@@ -514,7 +514,7 @@ export function StudentReport() {
                         {/*Grade Summary Charts Components*/}
                         <div className="justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold text-center mb-1">Grade Analysis Overview</h2>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
                                 <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
                                     {loading ? (
                                             <div className="flex justify-center items-center pt-6">
