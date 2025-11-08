@@ -2,16 +2,15 @@
 
 import React, {useState, useEffect, useMemo} from "react";
 import { useRef } from 'react';
+import { motion } from "framer-motion";
+import { Blocks, FileText, Spotlight, Users } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
-import { getServerAuthSession } from "@/utils/auth";
 import { apiHandler } from "@/utils/api";
 import { useSession } from "next-auth/react";
 import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
 import Course from "@/components/types/course";
-import { Blocks, FileText, Spotlight, Users } from "lucide-react";
 import StudentExamSummary from "@/app/reports/localComponents/StudentExamSummary";
 import InstructorExamStatistics from "@/app/reports/localComponents/InstructorExamStatistics";
-import { motion } from "framer-motion";
 import MentatCursor from "@/components/services/MentatCursor";
 
 /**

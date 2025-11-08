@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { GradeStrategy, StudentExams, StudentGrade, Report } from "@/app/reports/types/shared";
 import { useSession } from "next-auth/react";
 import Course from "@/components/types/course";
@@ -12,6 +12,9 @@ import StudentAttentionCard from "@/app/reports/localComponents/StudentAttention
 import StudentPerformingCard from "@/app/reports/localComponents/StudentPerformingCard";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { useStudentProgressDeterminations } from "@/app/reports/hooks/useStudentProgressDeterminations";
+import { motion } from "framer-motion";
+import InstructorStatusChart from "@/app/reports/localComponents/InstructorStatusChart";
+import InstructorStatisticsChart from "@/app/reports/localComponents/InstructorStatisticsChart";
 
 interface InstructorExamStatisticsProps {
     course: Course | undefined;
@@ -51,13 +54,13 @@ export default function InstructorExamStatistics({course,
     // This is the Backend Data
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
 
-    // Parent only cares about categorization
+    // Student progress determination hooks
     const { passingStudents, failingStudents, isLoading: statusLoading } = useStudentProgressDeterminations({
         students: studentResults || [],
         course: course
     });
 
-    // Mock data - in a real app, this would come from API calls
+    // Mock data - Left in Exam stats as this component is not ready yet
     useEffect(() => {
         // Simulate API calls
         setExamStats({
@@ -119,7 +122,7 @@ export default function InstructorExamStatistics({course,
         setLoading(true);
         // Courses List
         let studentCoursesData: StudentCourse[] = [];
-        let studentExamResultsData: Grade[] = [];
+        // Student Exam list
         let studentData: StudentExams[] = [];
 
         if (course) {
@@ -306,60 +309,50 @@ export default function InstructorExamStatistics({course,
 
     return (
         <div className="space-y-6 mb-4">
-            {/* Exam Statistics Chart */}
+            {/*Instructor Exam Summary Charts Components*/}
             <div className="text-mentat-gold overflow-hidden shadow rounded-lg">
                 <div className="px-4 py-5 sm:p-6">
                     <h2 className="text-lg font-medium mb-4">Exam Performance Overview</h2>
-                    <div className="flex flex-col md:flex-row">
-                        <div className="md:w-1/2 p-4">
-                            <div className="flex items-center justify-center h-64">
-                                {/* Pie Chart - would be replaced with actual chart library */}
-                                <div className="relative w-48 h-48 rounded-full bg-gray-200">
-                                    <div
-                                        className="absolute top-0 left-0 w-full h-full rounded-full bg-green-500"
-                                        style={{
-                                            clipPath: `inset(0 0 0 50%)`
-                                        }}
-                                    ></div>
-                                    <div
-                                        className="absolute top-0 left-0 w-full h-full rounded-full bg-red-500"
-                                        style={{
-                                            clipPath: `inset(0 0 0 50%)`,
-                                            transform: `rotate(${(examStats.passing / examStats.totalStudents) * 360}deg)`
-                                        }}
-                                    ></div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="text-center">
-                                            <span className="block text-2xl font-bold">{examStats.passing}/{examStats.totalStudents}</span>
-                                            <span className="block text-sm">Passing</span>
-                                        </div>
+                    <div className="flex flex-wrap gap-2">
+                        <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
+                            {loading ? (
+                                    <div className="flex justify-center items-center pt-6">
+                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                        <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
                                     </div>
-                                </div>
-                            </div>
+                                ) : studentResults && studentResults?.length > 0 && (
+                                    <motion.div
+                                        initial="hidden"
+                                        animate="visible"
+                                        className="space-y-2 mb-2"
+                                    >
+                                        <InstructorStatusChart
+                                            key={`grade-chart-${course?.courseId}-
+                                                                ${userSession.id}`}
+                                            data={studentResults}
+                                        />
+                                    </motion.div>
+                                )}
                         </div>
-                        <div className="md:w-1/2 p-4">
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="text-sm font-medium">Passing Rate</h3>
-                                    <p className="text-2xl font-semibold">
-                                        {((examStats.passing / examStats.totalStudents) * 100).toFixed(1)}%
-                                    </p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium">Average Score</h3>
-                                    <p className="text-2xl font-semibold">{examStats.averageScore}%</p>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-card-color p-3 rounded-lg">
-                                        <p className="text-sm font-medium">Passing</p>
-                                        <p className="text-2xl font-bold text-green-600">{examStats.passing}</p>
+                        <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
+                            {loading ? (
+                                    <div className="flex justify-center items-center pt-6">
+                                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                                        <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
                                     </div>
-                                    <div className="bg-card-color p-3 rounded-lg">
-                                        <p className="text-sm font-medium">Failing</p>
-                                        <p className="text-2xl font-bold text-red-600">{examStats.failing}</p>
-                                    </div>
-                                </div>
-                            </div>
+                                ) : studentResults && studentResults?.length > 0 && course && (
+                                    <motion.div
+                                        initial="hidden"
+                                        animate="visible"
+                                        className="space-y-2 mb-2"
+                                    >
+                                        <InstructorStatisticsChart
+                                            key={`progress-chart-${course?.courseId}`}
+                                            students={studentResults}
+                                            course={course}
+                                        />
+                                    </motion.div>
+                                )}
                         </div>
                     </div>
                 </div>
@@ -373,6 +366,7 @@ export default function InstructorExamStatistics({course,
                 </div>
             ) : studentResults && (
                 <React.Fragment>
+                    {/*Student Progress Card*/}
                     <div className="bg-card-color overflow-hidden shadow rounded-lg text-mentat-gold
                     shadow-sm shadow-crimson-700">
                         <div className="px-4 py-5 sm:p-6">
@@ -390,11 +384,11 @@ export default function InstructorExamStatistics({course,
                             </div>
                         </div>
                     </div>
+                    {/*Student Performance Status Cards*/}
                     <div className="bg-card-color overflow-hidden shadow rounded-lg">
                         <div className="px-4 py-5 sm:p-6">
                             <h2 className="text-lg font-medium mb-4">Student Performance Dashboard</h2>
-
-                            {/* Failing Students Section */}
+                            {/* Failing Students Cards */}
                             {failingStudents && failingStudents.length > 0 && (
                                 <div className="mb-6">
                                     <div className="flex items-center mb-3">
@@ -414,8 +408,7 @@ export default function InstructorExamStatistics({course,
                                     </div>
                                 </div>
                             )}
-
-                            {/* Passing Students Section */}
+                            {/* Passing Students Cards */}
                             {passingStudents && passingStudents.length > 0 && (
                                 <div>
                                     <div className="flex items-center mb-3">
@@ -439,62 +432,6 @@ export default function InstructorExamStatistics({course,
                     </div>
                 </React.Fragment>
             )}
-
-
-            {/*/!* Student Dashboard - Failing Students Highlighted *!/*/}
-            {/*{loading ? (*/}
-            {/*        <div className="flex justify-center items-center pt-6">*/}
-            {/*            <RingSpinner size={'sm'} color={'mentat-gold'} />*/}
-            {/*            <p className="ml-3 text-md text-mentat-gold">Analyzing student progress...</p>*/}
-            {/*        </div>*/}
-            {/*    )*/}
-            {/*    : (*/}
-            {/*        <div className="bg-card-color overflow-hidden shadow rounded-lg">*/}
-            {/*            <div className="px-4 py-5 sm:p-6">*/}
-            {/*                <h2 className="text-lg font-medium mb-4">Student Performance Dashboard</h2>*/}
-
-            {/*                /!* Failing Students Section *!/*/}
-            {/*                {failingStudents && failingStudents.length > 0 && (*/}
-            {/*                    <div className="mb-6">*/}
-            {/*                        <div className="flex items-center mb-3">*/}
-            {/*                            <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>*/}
-            {/*                            <h3 className="text-md font-medium">*/}
-            {/*                                Students Needing Attention ({failingStudents.length})*/}
-            {/*                            </h3>*/}
-            {/*                        </div>*/}
-            {/*                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">*/}
-            {/*                            {failingStudents.map((student => (*/}
-            {/*                                <StudentAttentionCard*/}
-            {/*                                    key={`${student.studentId}-${student.status}`}*/}
-            {/*                                    student={student}*/}
-            {/*                                    gradeStrategyNew={undefined}*/}
-            {/*                                />*/}
-            {/*                            )))}*/}
-            {/*                        </div>*/}
-            {/*                    </div>*/}
-            {/*                )}*/}
-
-            {/*                /!* Passing Students Section *!/*/}
-            {/*                {passingStudents && passingStudents.length > 0 && (*/}
-            {/*                    <div>*/}
-            {/*                        <div className="flex items-center mb-3">*/}
-            {/*                            <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>*/}
-            {/*                            <h3 className="text-md font-medium">Students Performing Well ({passingStudents.length})</h3>*/}
-            {/*                        </div>*/}
-            {/*                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">*/}
-            {/*                            {passingStudents.map((student => (*/}
-            {/*                                <StudentPerformingCard*/}
-            {/*                                    key={`${student.studentId}-${student.status}`}*/}
-            {/*                                    student={student}*/}
-            {/*                                    gradeStrategyNew={undefined}*/}
-            {/*                                />*/}
-            {/*                            )))}*/}
-            {/*                        </div>*/}
-            {/*                    </div>*/}
-            {/*                )}*/}
-            {/*            </div>*/}
-            {/*        </div>*/}
-            {/*    )}*/}
 
             {/* Additional Information Section */}
             <div className="bg-card-color overflow-hidden shadow rounded-lg">
