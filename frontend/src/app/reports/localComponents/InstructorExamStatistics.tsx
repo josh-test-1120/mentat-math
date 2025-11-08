@@ -311,7 +311,7 @@ export default function InstructorExamStatistics({course,
         <div className="space-y-6 mb-4">
             {/*Instructor Exam Summary Charts Components*/}
             <div className="text-mentat-gold overflow-hidden rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
+                <div className="mx-0.5">
                     <h2 className="text-lg font-medium mb-4">Exam Performance Overview</h2>
                     <div className="flex flex-wrap gap-2">
                         <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
