@@ -1,13 +1,25 @@
-// hooks/useGradeCalculations.ts
+/**
+ * This is a hook for managing shared grade strategy access
+ * This can be used separately within components, or shared
+ * for access to the grade strategy and grade determination
+ * @author Joshua Summers
+ */
+
 import { useMemo, useState, useEffect } from 'react';
 import GradeDetermination from "@/app/reports/utils/GradeDetermination";
-import { GradeRequirementsJSON, GradeStrategy } from "@/app/reports/types/shared";
+import { GradeRequirements, GradeRequirementsJSON, GradeStrategy } from "@/app/reports/types/shared";
 
 interface useGradeCalculationsParams {
     filteredCourses?: any[];
     filteredGrades?: any[];
 }
 
+/**
+ * Custom hook for making grade determinations
+ * Handles loading the grade strategy and serializing the details
+ * Loading states are handled for this as well, to signal when
+ * the grade strategy is ready
+ */
 export const useGradeCalculations = ({
                                          filteredCourses,
                                          filteredGrades
@@ -44,7 +56,7 @@ export const useGradeCalculations = ({
         try {
             const strategyJSON: GradeRequirementsJSON = JSON.parse(firstCourse.gradeStrategy);
 
-            const requirements = {
+            const requirements: GradeRequirements = {
                 A: loadGradeStrategy(strategyJSON.GradeA),
                 B: loadGradeStrategy(strategyJSON.GradeB),
                 C: loadGradeStrategy(strategyJSON.GradeC),

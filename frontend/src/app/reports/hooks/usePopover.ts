@@ -1,7 +1,26 @@
-// hooks/usePopover.ts
+/**
+ * This is a hook for managing a shared popover component wiring
+ * This will handle all the Timeout events associated
+ * with the hover windows that show, and then remove
+ * and the ability to disable this with click events.
+ *
+ * This simplifies getting access to a controlled popover
+ * in several children components. The triggerRef must
+ * be attached to a container in the consuming component
+ * to ensure that positioning is associated with that
+ * container
+ * @author Joshua Summers
+ */
 import { useState, useRef, useCallback } from 'react';
 
-export const usePopover = (hoverDelay: number = 1000) => {
+/**
+ * Custom hook for popover callbacks
+ * Which will configure the popover above the
+ * container that triggerRef is attached to
+ * controls the position of the popover
+ */
+export const usePopover =
+    (hoverDelay: number = 1000) => {
     const [isVisible, setIsVisible] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [closeOnMouseLeave, setCloseOnMouseLeave] = useState(true);
@@ -9,7 +28,8 @@ export const usePopover = (hoverDelay: number = 1000) => {
     const leaveTimeoutRef = useRef<NodeJS.Timeout>();
     const triggerRef = useRef<HTMLDivElement>(null);
 
-    const showPopover = useCallback((event?: React.MouseEvent, closeOnLeave: boolean = true) => {
+    const showPopover =
+        useCallback((event?: React.MouseEvent, closeOnLeave: boolean = true) => {
         if (hoverTimeoutRef.current) {
             clearTimeout(hoverTimeoutRef.current);
         }

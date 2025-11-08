@@ -1,4 +1,13 @@
-// hooks/useStudentStatusCategorization.ts
+/**
+ * This is a hook for managing the student progress memos
+ * Passing and Failing students are calculated
+ * based on the students passed in, and their associated
+ * exams
+ *
+ * This will pass back the grade strategy state and if
+ * it is ready for use in making student determinations
+ * @author Joshua Summers
+ */
 import { useMemo } from 'react';
 import Course from "@/components/types/course";
 import { Report, StudentExams } from "@/app/reports/types/shared";
@@ -10,6 +19,13 @@ interface useStudentProgressDeterminationsParams {
     course?: Course | undefined
 }
 
+/**
+ * Custom hook for student determinations
+ * in Instructor view pages, where many student
+ * details must be handled. This will parse
+ * all the students that are listed and determine
+ * who is passing and failing
+ */
 export const useStudentProgressDeterminations =
     ({students, course}: useStudentProgressDeterminationsParams) => {
 
