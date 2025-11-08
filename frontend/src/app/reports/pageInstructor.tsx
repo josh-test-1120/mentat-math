@@ -273,6 +273,14 @@ export default function InstructorReport() {
                             <div className="max-w-7xl mx-auto">
                                 <StudentExamSummary />
                             </div>
+                        ) : navFilter === 'insights' ? (
+                            <div className="max-w-7xl mx-auto text-2xl text-center mt-12">
+                                Not Implemented
+                            </div>
+                        ) : navFilter === 'dashboard' ? (
+                            <div className="max-w-7xl mx-auto text-2xl text-center mt-12">
+                                Not Implemented
+                            </div>
                         ) : (
                             <React.Fragment/>
                         )}
