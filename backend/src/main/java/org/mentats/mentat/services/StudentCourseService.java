@@ -220,9 +220,6 @@ public class StudentCourseService {
         // Get all enrollments for the student
         List<StudentCourse> enrollments = studentCourseRepository.findById_CourseId(course.getCourseId());
 
-        System.out.println("Total enrollments found: " + enrollments.size());
-        System.out.println("Total enrollments: " + enrollments.toString());
-
         // If no enrollments, return empty list
         if (enrollments.isEmpty()) return List.of();
 
