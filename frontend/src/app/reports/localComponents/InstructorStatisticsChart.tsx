@@ -8,8 +8,8 @@ import ToolTip from "@/app/reports/localComponents/ToolTip";
 import { numberToLetterGrade, scoreToNumber } from "@/app/reports/utils/GradeDetermination";
 
 interface InstructorStatisticsChartProps {
-    students: StudentExams[];
-    course: Course;
+    students: StudentExams[] | undefined;
+    course: Course | undefined;
 }
 
 /**
@@ -53,7 +53,7 @@ export default function InstructorStatisticsChart({ students, course }: Instruct
 
     // Calculate statistics from student data
     useEffect(() => {
-        if (students.length === 0) return;
+        if (!students || students.length === 0) return;
 
         const scores = students.flatMap(student =>
             student.exams
@@ -245,7 +245,9 @@ export default function InstructorStatisticsChart({ students, course }: Instruct
                                 <div class="font-bold">${stat.label}</div>
                                 <div>${stat.displayValue}</div>
                                 <div class="text-sm text-mentat-gold/60">${stat.description}</div>
-                                <div class="text-xs text-mentat-gold/80 mt-1">${students.length} students, ${allScores.length} exams</div>
+                                <div class="text-xs text-mentat-gold/80 mt-1">
+                                    ${students ? students.length : 0} students, ${allScores.length} exams
+                                </div>
                             </div>
                         `)
                         .style("opacity", 1)
@@ -327,9 +329,9 @@ export default function InstructorStatisticsChart({ students, course }: Instruct
                 ref={containerRef}
                 className="w-full flex flex-1 relative rounded-lg overflow-hidden text-mentat-gold"
             >
-                {students.length === 0 ? (
+                {!students || students.length === 0 ? (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        No student data available
+                        No student grades for analysis
                     </div>
                 ) : (
                     <svg

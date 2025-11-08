@@ -6,7 +6,7 @@ import {Report, StudentExams} from "@/app/reports/types/shared";
 import ToolTip from "@/app/reports/localComponents/ToolTip";
 
 interface InstructorStatusChartProps {
-    data: StudentExams[];
+    data: StudentExams[] | undefined;
 }
 
 interface GradeStatus {
@@ -60,6 +60,7 @@ export default function InstructorStatusChart({ data } : InstructorStatusChartPr
     }
 
     const chart = () => {
+        if (!data) return null;
         // Transform the grade data into chart data
         let chartData = calculateStatus(data);
         // Color map
@@ -245,9 +246,9 @@ export default function InstructorStatusChart({ data } : InstructorStatusChartPr
     return (
         <div className="rounded-lg border border-mentat-gold/20 w-full h-full min-h-[300px]
         bg-card-color shadow-sm shadow-crimson-700 relative">
-            {data.length === 0 ? (
+            {!data || data.length === 0 ? (
                 <div className="absolute inset-0 flex items-center justify-center">
-                    No grades assigned for course
+                    No student grades posted for course
                 </div>
             ) : (
                 <div

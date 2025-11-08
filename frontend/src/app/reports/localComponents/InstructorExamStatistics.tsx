@@ -320,7 +320,7 @@ export default function InstructorExamStatistics({course,
                                         <RingSpinner size={'sm'} color={'mentat-gold'} />
                                         <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
                                     </div>
-                                ) : studentResults && studentResults?.length > 0 && (
+                                ) : (
                                     <motion.div
                                         initial="hidden"
                                         animate="visible"
@@ -340,7 +340,7 @@ export default function InstructorExamStatistics({course,
                                         <RingSpinner size={'sm'} color={'mentat-gold'} />
                                         <p className="ml-3 text-md text-mentat-gold">Generating Graph...</p>
                                     </div>
-                                ) : studentResults && studentResults?.length > 0 && course && (
+                                ) : (
                                     <motion.div
                                         initial="hidden"
                                         animate="visible"
@@ -362,12 +362,18 @@ export default function InstructorExamStatistics({course,
             {loading ? (
                 <div className="flex justify-center items-center pt-6">
                     <RingSpinner size={'sm'} color={'mentat-gold'} />
-                    <p className="ml-3 text-md text-mentat-gold">Loading student results...</p>
+                    <p className="ml-3 text-md text-mentat-gold">Analyzing student grades...</p>
                 </div>
-            ) : studentResults && (
+            ) : !studentResults || studentResults.length === 0 ? (
+                <div className="text-center py-6 rounded-xl shadow-sm shadow-crimson-700 border
+                    border-mentat-gold/40 mx-5"
+                >
+                    No student grades found
+                </div>
+            ) : studentResults && studentResults.length > 0 && (
                 <React.Fragment>
                     {/*Student Progress Card*/}
-                    <div className="bg-card-color overflow-hidden shadow rounded-lg text-mentat-gold
+                    <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
                     shadow-sm shadow-crimson-700">
                         <div className="px-4 py-5 sm:p-6">
                             <h2 className="text-lg font-medium mb-4">
@@ -432,74 +438,86 @@ export default function InstructorExamStatistics({course,
                     </div>
                 </React.Fragment>
             )}
-
             {/* Additional Information Section */}
-            <div className="bg-card-color overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                    <h2 className="text-lg font-medium mb-4">Course Insights</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-card-color/10 p-4 rounded-lg">
-                            <h3 className="text-sm font-medium text-mentat-gold/80">
-                                Most Challenging Topics
-                            </h3>
-                            <ul className="mt-2 text-sm text-green-600">
-                                <li className="flex justify-between">
-                                    <span>Calculus</span>
-                                    <span>68% avg</span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span>Linear Algebra</span>
-                                    <span>72% avg</span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span>Probability</span>
-                                    <span>75% avg</span>
-                                </li>
-                            </ul>
-                        </div>
+            {loading ? (
+                    <div className="flex justify-center items-center pt-6">
+                        <RingSpinner size={'sm'} color={'mentat-gold'} />
+                        <p className="ml-3 text-md text-mentat-gold">Generating course statistics...</p>
+                    </div>
+            ) : !studentResults || studentResults.length === 0 ? (
+                <div className="text-center py-6 rounded-xl shadow-sm shadow-crimson-700 border
+                        border-mentat-gold/40 mx-5"
+                >
+                    No grade to generate statistics
+                </div>
+            ) : studentResults && studentResults.length > 0 && (
+                <div className="bg-card-color overflow-hidden shadow rounded-lg">
+                    <div className="px-4 py-5 sm:p-6">
+                        <h2 className="text-lg font-medium mb-4">Course Insights</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="bg-card-color/10 p-4 rounded-lg">
+                                <h3 className="text-sm font-medium text-mentat-gold/80">
+                                    Most Challenging Topics
+                                </h3>
+                                <ul className="mt-2 text-sm text-green-600">
+                                    <li className="flex justify-between">
+                                        <span>Calculus</span>
+                                        <span>68% avg</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span>Linear Algebra</span>
+                                        <span>72% avg</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span>Probability</span>
+                                        <span>75% avg</span>
+                                    </li>
+                                </ul>
+                            </div>
 
-                        <div className="bg-card-color/10 p-4 rounded-lg">
-                            <h3 className="text-sm font-medium text-mentat-gold/80">
-                                Upcoming Assessments
-                            </h3>
-                            <ul className="mt-2 text-sm text-red-500">
-                                <li className="flex justify-between">
-                                    <span>Quiz 3</span>
-                                    <span>Nov 15</span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span>Final Project</span>
-                                    <span>Dec 5</span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span>Final Exam</span>
-                                    <span>Dec 12</span>
-                                </li>
-                            </ul>
-                        </div>
+                            <div className="bg-card-color/10 p-4 rounded-lg">
+                                <h3 className="text-sm font-medium text-mentat-gold/80">
+                                    Upcoming Assessments
+                                </h3>
+                                <ul className="mt-2 text-sm text-red-500">
+                                    <li className="flex justify-between">
+                                        <span>Quiz 3</span>
+                                        <span>Nov 15</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span>Final Project</span>
+                                        <span>Dec 5</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span>Final Exam</span>
+                                        <span>Dec 12</span>
+                                    </li>
+                                </ul>
+                            </div>
 
-                        <div className="bg-card-color/10 p-4 rounded-lg">
-                            <h3 className="text-sm font-medium text-mentat-gold/80">
-                                Student Engagement
-                            </h3>
-                            <ul className="mt-2 text-sm text-yellow-600">
-                                <li className="flex justify-between">
-                                    <span>Assignment Completion</span>
-                                    <span>92%</span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span>Discussion Participation</span>
-                                    <span>78%</span>
-                                </li>
-                                <li className="flex justify-between">
-                                    <span>Office Hours Attendance</span>
-                                    <span>45%</span>
-                                </li>
-                            </ul>
+                            <div className="bg-card-color/10 p-4 rounded-lg">
+                                <h3 className="text-sm font-medium text-mentat-gold/80">
+                                    Student Engagement
+                                </h3>
+                                <ul className="mt-2 text-sm text-yellow-600">
+                                    <li className="flex justify-between">
+                                        <span>Assignment Completion</span>
+                                        <span>92%</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span>Discussion Participation</span>
+                                        <span>78%</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span>Office Hours Attendance</span>
+                                        <span>45%</span>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
