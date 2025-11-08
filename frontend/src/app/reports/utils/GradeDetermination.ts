@@ -21,6 +21,20 @@ export const scoreToNumber = (score: string | undefined) => {
     }
 }
 
+// Convert grade number to letter grade
+export const numberToLetterGrade = (score: number | undefined) => {
+    // Default for no score or pending score
+    if (!score) return 'F';
+    // Case handler
+    switch (score) {
+        case 5: return 'A';
+        case 4: return 'B';
+        case 3: return 'C';
+        case 5: return 'D';
+        default: return 'F';
+    }
+}
+
 // Determine and assign the best grade for an exam
 export const updateRecord = (grades: Report[]) => {
     // Iterate through the grades
@@ -69,6 +83,34 @@ export const getGradeStatus = (grade: Report): 'passed' | 'failed' | 'pending' |
     }
     // Default state is pending
     else return 'pending';
+};
+
+// Helper function to determine student status in course
+export const studentStatus = (letterGrade: string) => {
+    switch (letterGrade) {
+        case "A":
+        case "B":
+        case "C":
+            return 'passing'
+        case "D":
+        case 'F':
+            return 'failing'
+    }
+}
+
+// Helper function to calculate average
+export const calculateAverageGrade = (exams: any[]) => {
+    if (!exams || exams.length === 0) return 'F';
+    const total = exams.reduce((sum, exam) =>
+        sum + scoreToNumber(exam.examScore), 0);
+    const grade = Math.floor(total / exams.length);
+    switch (grade) {
+        case 5: return 'A'
+        case 4: return 'B'
+        case 3: return 'C'
+        case 2: return 'D'
+        default: return 'F'
+    }
 };
 
 // Current Grade Determination Utility
