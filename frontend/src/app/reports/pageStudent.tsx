@@ -665,12 +665,13 @@ export function StudentReport() {
                         {loading ? (
                             <div className="flex justify-center items-center pt-6">
                                 <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                <p className="ml-3 text-md text-mentat-gold">Loading Grade Strategy Details...</p>
+                                <p className="ml-3 text-md text-mentat-gold">
+                                    Loading Grade Strategy Details...
+                                </p>
                             </div>
                         ) : !filteredGradeStrategy ? (
                             <div className="text-center py-6
-                                        rounded-xl shadow-sm shadow-crimson-700 border
-                                        border-mentat-gold/40 p-6"
+                                rounded-xl shadow-sm shadow-crimson-700 border border-mentat-gold/40 p-6"
                             >
                                 Course has no grade strategy
                             </div>
