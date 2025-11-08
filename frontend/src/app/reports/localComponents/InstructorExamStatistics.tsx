@@ -111,14 +111,14 @@ export default function InstructorExamStatistics({course,
         console.log(gradeRequirementsReady);
 
         updateStudentExamData();
-    }, [course?.courseId, gradeRequirementsReady]);
+    }, [course?.courseId, gradeRequirementsReady, statusLoading]);
 
     /**
      * Fetch Students based on course
      * Implementation for general API handler
      */
     async function fetchStudents() {
-        console.log('Fetching data for instructor report page: Studen course data');
+        console.log('Fetching data for instructor report page: Student course data');
         setLoading(true);
         // Courses List
         let studentCoursesData: StudentCourse[] = [];

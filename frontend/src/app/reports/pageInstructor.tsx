@@ -87,12 +87,8 @@ export default function InstructorReport() {
 
             try {
                 await fetchCourses();
-                // avgScore(grades);
             } catch (error) {
                 console.error('Error fetching report data:', error);
-            }
-            finally {
-                setRefreshTrigger(prev => prev + 1);
             }
         };
         fetchData();
