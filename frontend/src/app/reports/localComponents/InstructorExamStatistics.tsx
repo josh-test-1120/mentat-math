@@ -374,7 +374,7 @@ export default function InstructorExamStatistics({course,
                 <React.Fragment>
                     {/*Student Progress Card*/}
                     <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
-                    shadow-sm shadow-crimson-700 mx-0.5">
+                    shadow-sm shadow-mentat-gold/40 mx-0.5">
                         <div className="px-4 py-5 sm:p-6">
                             <h2 className="text-lg font-medium mb-4">
                                 Student Performance by Grade Strategy
@@ -392,7 +392,7 @@ export default function InstructorExamStatistics({course,
                     </div>
                     {/*Student Performance Status Cards*/}
                     <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
-                     shadow-sm shadow-crimson-700 mx-0.5">
+                     shadow-sm shadow-mentat-gold/40 mx-0.5">
                         <div className="px-4 py-5 sm:p-6">
                             <h2 className="text-lg font-medium mb-4">Student Performance Dashboard</h2>
                             {/* Failing Students Cards */}
@@ -453,11 +453,12 @@ export default function InstructorExamStatistics({course,
                 </div>
             ) : studentResults && studentResults.length > 0 && (
                 <div className="bg-card-color overflow-hidden rounded-lg text-mentat-gold
-                 shadow-sm shadow-crimson-700 mx-0.5">
+                 shadow-sm shadow-mentat-gold/40 mx-0.5">
                     <div className="px-4 py-5 sm:p-6">
                         <h2 className="text-lg font-medium mb-4">Course Insights</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-card-color/10 p-4 rounded-lg">
+                            {/*Challenging Exams*/}
+                            <div className="bg-card-color/10 p-4 rounded-lg shadow-sm shadow-mentat-gold/40">
                                 <h3 className="text-sm font-medium text-mentat-gold/80">
                                     Most Challenging Topics
                                 </h3>
@@ -476,8 +477,8 @@ export default function InstructorExamStatistics({course,
                                     </li>
                                 </ul>
                             </div>
-
-                            <div className="bg-card-color/10 p-4 rounded-lg">
+                            {/*Upcoming Exam Deadlines*/}
+                            <div className="bg-card-color/10 p-4 rounded-lg shadow-sm shadow-mentat-gold/40">
                                 <h3 className="text-sm font-medium text-mentat-gold/80">
                                     Upcoming Assessments
                                 </h3>
@@ -496,8 +497,8 @@ export default function InstructorExamStatistics({course,
                                     </li>
                                 </ul>
                             </div>
-
-                            <div className="bg-card-color/10 p-4 rounded-lg">
+                            {/*Student Exam Engagement*/}
+                            <div className="bg-card-color/10 p-4 rounded-lg shadow-sm shadow-mentat-gold/40">
                                 <h3 className="text-sm font-medium text-mentat-gold/80">
                                     Student Engagement
                                 </h3>

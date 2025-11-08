@@ -64,7 +64,7 @@ export default function StudentProgressCard({student, gradeStrategyNew}: Student
                         className="border border-mentat-gold/20 rounded-lg p-4 pb-0 bg-card-color/10
                            cursor-pointer transition-all duration-200
                            hover:border-mentat-gold/40 hover:bg-card-color/20
-                           active:scale-95"
+                           active:scale-95 shadow-sm shadow-mentat-gold/40"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                         onClick={handleClick}
@@ -141,8 +141,9 @@ export default function StudentProgressCard({student, gradeStrategyNew}: Student
                     {isVisible && (
                         <div
                             className="fixed z-30 bg-mentat-black border border-mentat-gold/30
-                            rounded-lg shadow-lg p-4 pt-8 max-w-sm transform -translate-x-1/2
-                            -translate-y-full backdrop-blur-lg bg-opacity-95"
+                            rounded-lg p-4 pt-8 max-w-sm transform -translate-x-1/2
+                            -translate-y-full backdrop-blur-lg bg-opacity-95 backdrop-saturate-50
+                            shadow-sm shadow-mentat-gold/40"
                             style={{
                                 left: position.x,
                                 top: position.y - 10

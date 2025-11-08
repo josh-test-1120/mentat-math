@@ -324,7 +324,7 @@ export default function InstructorStatisticsChart({ students, course }: Instruct
 
     return (
         <div className="bg-card-color rounded-lg border border-mentat-gold/20 w-full h-full
-        min-h-[300px] flex flex-col shadow-sm shadow-crimson-700">
+        min-h-[300px] flex flex-col shadow-sm shadow-mentat-gold/40">
             <div
                 ref={containerRef}
                 className="w-full flex flex-1 relative rounded-lg overflow-hidden text-mentat-gold"
