@@ -250,6 +250,11 @@ export default function MentatCursor() {
                     cursor: none !important;
                 }
 
+                /* Re-enable system cursor for form elements */
+                select, input, textarea, button, [contenteditable="true"] {
+                    cursor: auto !important;
+                }
+
                 /* Container positioning */
                 .cursor-container {
                     transition: transform 0.15s ease-in-out;
