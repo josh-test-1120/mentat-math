@@ -329,7 +329,7 @@ export default function CreateExam({ course, onExamCreated }: CreateExamProps) {
 
     return (
         <div className="bg-mentat-black text-mentat-gold">
-            <div className="p-6 inline-flex items-center">
+            <div className="p-4 inline-flex items-center">
                 <button
                     className="bg-crimson hover:bg-crimson-700 text-mentat-gold
                         font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline

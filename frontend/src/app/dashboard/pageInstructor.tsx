@@ -173,7 +173,7 @@ export default function InstructorCoursesClient() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto px-4 pb-2 pt-2">
             <div className="mb-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-mentat-gold">My Created Courses</h1>

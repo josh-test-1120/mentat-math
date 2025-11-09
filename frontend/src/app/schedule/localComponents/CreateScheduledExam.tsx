@@ -351,7 +351,7 @@ export default function CreateScheduledExam({ studentId, courses, filteredCourse
 
     return (
         <div className="bg-mentat-black text-mentat-gold">
-            <div className="p-6 inline-flex items-center">
+            <div className="px-4 py-4 inline-flex items-center">
                 <button
                     className="bg-crimson hover:bg-crimson-700 text-mentat-gold
                         font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline
