@@ -470,7 +470,7 @@ export function StudentReport() {
     }
 
     return (
-        <div>
+        <div className="px-4 py-4">
             {/*This is the course header*/}
             <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
                 {/*This is the Course Selection button*/}

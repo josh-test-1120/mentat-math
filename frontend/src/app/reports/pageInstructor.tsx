@@ -174,7 +174,7 @@ export default function InstructorReport() {
                     transition={{duration: 0.6}}
                 >
                     {/* Navigation Bar */}
-                    <div className="flex justify-center mb-2 -mt-4">
+                    <div className="flex justify-center mb-2 mt-2">
                         <div className="inline-flex bg-card-color border border-mentat-gold/20 rounded-lg p-1
                         shadow-sm shadow-crimson-700/40">
                             <button
@@ -226,14 +226,14 @@ export default function InstructorReport() {
                     {/* Line Divider */}
                     <hr className="border-mentat-gold/20 border-1"></hr>
 
-                    <div className="flex justify-center items-center my-2">
+                    <div className="flex justify-between my-2 mx-2">
                         <h1 className="text-xl font-bold mb-1 h-full p-2
                         rounded-xl bg-card-color/5"
                         >
                             Instructor Performance Reports
                         </h1>
                         {/*This is the course header*/}
-                        <div className="max-w-5xl mx-auto flex justify-end mb-1">
+                        <div className="max-w-5xl flex mb-1">
                             {/*This is the Course Selection button*/}
                             {userSession.id !== "" ?
                                 (
@@ -263,7 +263,7 @@ export default function InstructorReport() {
                     <hr className="border-crimson border-2 mb-2"></hr>
 
                     {/*Overflow wrapper container to manage scrolling*/}
-                    <div className="overflow-y-auto pt-1 scrollbar-hide max-h-[70vh]">
+                    <div className="overflow-y-auto pt-1 px-4 scrollbar-hide max-h-[70vh]">
                         {navFilter === 'summary' ? (
                             <InstructorExamStatistics
                                 course={filteredCourses[0]}
