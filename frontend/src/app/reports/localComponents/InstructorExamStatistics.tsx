@@ -441,10 +441,11 @@ export default function InstructorExamStatistics({course,
             )}
             {/* Additional Information Section */}
             {loading ? (
-                    <div className="flex justify-center items-center pt-6">
-                        <RingSpinner size={'sm'} color={'mentat-gold'} />
-                        <p className="ml-3 text-md text-mentat-gold">Generating course statistics...</p>
-                    </div>
+                <React.Fragment/>
+                    // <div className="flex justify-center items-center pt-6">
+                    //     <RingSpinner size={'sm'} color={'mentat-gold'} />
+                    //     <p className="ml-3 text-md text-mentat-gold">Generating course statistics...</p>
+                    // </div>
             ) : !studentResults || studentResults.length === 0 ? (
                 <div className="text-center py-6 rounded-xl shadow-sm shadow-crimson-700 border
                         border-mentat-gold/40 mx-5"
