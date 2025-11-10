@@ -7,6 +7,7 @@ package org.mentats.mentat.controllers;
 import org.mentats.mentat.models.TestWindow;
 import org.mentats.mentat.services.TestWindowService;
 import org.mentats.mentat.payload.request.TestWindowRequest;
+import org.mentats.mentat.payload.response.TestWindowResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,99 +31,108 @@ public class TestWindowController {
     @PostMapping("/create")
     public ResponseEntity<?> createTestWindow(@RequestBody TestWindowRequest request) {
         try {
-            System.out.println("TestWindowController.createTestWindow() called YOLO");
-            System.out.println("Creating test window: " + request);
-            System.out.println("Test window request: " + request);
-            System.out.println("Test window request windowName: " + request.getWindowName());
-            System.out.println("Test window request description: " + request.getDescription());
-            System.out.println("Test window request courseId: " + request.getCourseId());
-            System.out.println("Test window request startDate: " + request.getStartDate());
-            System.out.println("Test window request endDate: " + request.getEndDate());
-            System.out.println("Test window request startTime: " + request.getStartTime());
-            System.out.println("Test window request endTime: " + request.getEndTime());
-            System.out.println("Test window request weekdays: " + request.getWeekdays());
-            System.out.println("Test window request exceptions: " + request.getExceptions());
-            System.out.println("Test window request isActive: " + request.getIsActive());
-                
+            logger.info("Creating test window: {}", request.getWindowName());
             TestWindow testWindow = testWindowService.createTestWindow(request);
-            return ResponseEntity.ok(testWindow);
+            TestWindowResponse response = new TestWindowResponse(testWindow);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating test window: " + e.getMessage());
+            logger.error("Error creating test window: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error creating test window: " + e.getMessage()));
         }
     }
     
     @GetMapping("/course/{courseId}")
     public ResponseEntity<?> getTestWindowsByCourse(@PathVariable Integer courseId) {
         try {
-            List<TestWindow> testWindows = testWindowService.getTestWindowsByCourseId(courseId);
+            logger.info("Fetching test windows for course: {}", courseId);
+            List<TestWindowResponse> testWindows = testWindowService.getTestWindowsByCourseId(courseId)
+                    .stream()
+                    .map(TestWindowResponse::new)
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(testWindows);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error fetching test windows: " + e.getMessage());
+            logger.error("Error fetching test windows: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error fetching test windows: " + e.getMessage()));
         }
     }
     
     @GetMapping("/professor/{professorId}")
     public ResponseEntity<?> getTestWindowsByProfessor(@PathVariable String professorId) {
         try {
-            List<TestWindow> testWindows = testWindowService.getTestWindowsByProfessorId(professorId);
+            logger.info("Fetching test windows for professor: {}", professorId);
+            List<TestWindowResponse> testWindows = testWindowService.getTestWindowsByProfessorId(professorId)
+                    .stream()
+                    .map(TestWindowResponse::new)
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(testWindows);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error fetching test windows: " + e.getMessage());
+            logger.error("Error fetching test windows: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error fetching test windows: " + e.getMessage()));
         }
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<?> getTestWindowById(@PathVariable Integer id) {
         try {
+            logger.info("Fetching test window by id: {}", id);
             return testWindowService.getTestWindowById(id)
+                .map(TestWindowResponse::new)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error fetching test window: " + e.getMessage());
+            logger.error("Error fetching test window: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error fetching test window: " + e.getMessage()));
         }
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTestWindow(@PathVariable Integer id, @RequestBody TestWindowRequest request) {
         try {
+            logger.info("Updating test window: {}", id);
             TestWindow testWindow = testWindowService.updateTestWindow(id, request);
             if (testWindow != null) {
-                return ResponseEntity.ok(testWindow);
+                TestWindowResponse response = new TestWindowResponse(testWindow);
+                return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error updating test window: " + e.getMessage());
+            logger.error("Error updating test window: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error updating test window: " + e.getMessage()));
         }
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTestWindow(@PathVariable Integer id) {
         try {
+            logger.info("Deleting test window: {}", id);
             boolean deleted = testWindowService.deleteTestWindow(id);
             if (deleted) {
-                return ResponseEntity.ok("Test window deleted successfully");
+                return ResponseEntity.ok(Map.of("message", "Test window deleted successfully"));
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error deleting test window: " + e.getMessage());
+            logger.error("Error deleting test window: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error deleting test window: " + e.getMessage()));
         }
     }
     
     @PutMapping("/{id}/disable-weekday")
     public ResponseEntity<?> disableWeekday(@PathVariable Integer id, @RequestParam String weekday) {
         try {
+            logger.info("Disabling weekday {} for test window: {}", weekday, id);
             String result = testWindowService.disableWeekday(id, weekday);
             if (result.equals("deleted")) {
-                return ResponseEntity.ok("Test window deleted (no active weekdays remaining)");
+                return ResponseEntity.ok(Map.of("message", "Test window deleted (no active weekdays remaining)"));
             } else if (result.equals("updated")) {
-                return ResponseEntity.ok("Weekday disabled successfully");
+                return ResponseEntity.ok(Map.of("message", "Weekday disabled successfully"));
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error disabling weekday: " + e.getMessage());
+            logger.error("Error disabling weekday: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error disabling weekday: " + e.getMessage()));
         }
     }
 
@@ -130,17 +141,20 @@ public class TestWindowController {
         try {
             String date = request.get("date");
             if (date == null || date.isEmpty()) {
-                return ResponseEntity.badRequest().body("Date parameter is required");
+                return ResponseEntity.badRequest().body(Map.of("error", "Date parameter is required"));
             }
             
+            logger.info("Adding exception date {} for test window: {}", date, id);
             TestWindow updated = testWindowService.addExceptionDate(id, date);
             if (updated != null) {
-                return ResponseEntity.ok(updated);
+                TestWindowResponse response = new TestWindowResponse(updated);
+                return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error adding exception date: " + e.getMessage());
+            logger.error("Error adding exception date: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error adding exception date: " + e.getMessage()));
         }
     }
 
@@ -169,9 +183,10 @@ public class TestWindowController {
             // Update the end date using the service method
             testWindowService.updateTestWindowEndDate(id, parsedDate);
             
+            logger.info("Successfully updated end date for test window: {}", id);
             return ResponseEntity.ok().body(Map.of("message", "End date updated successfully"));
         } catch (Exception e) {
-            System.err.println("Error updating end date: " + e.getMessage());
+            logger.error("Error updating end date: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
