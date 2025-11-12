@@ -197,6 +197,7 @@ public class CourseService {
         validator.validateSection(courseSection);
         validator.validateYear(courseYear);
         validator.validateQuarter(courseQuarter);
+
         Course existing = courseRepository.findByCourseSectionAndCourseYearAndCourseQuarter(courseSection, courseYear, courseQuarter)
                 .orElseThrow(() -> new CourseNotFoundException("Course not found with section: " + courseSection +
                         ", year: " + courseYear + ", quarter: " + courseQuarter));

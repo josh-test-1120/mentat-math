@@ -153,11 +153,11 @@ export function StudentReport() {
     // FIXED: Memoized current grade calculation
     const calculatedCurrentGrade = useMemo(() => {
 
-        console.log('🟢 CALCULATED_CURRENT_GRADE useMemo RUNNING');
-        console.log('🟢 gradeRequirements:', gradeRequirements);
-        console.log('🟢 filteredGrades:', filteredGrades);
-        console.log('🟢 filteredGrades length:', filteredGrades?.length);
-        console.log('🟢 grades:', grades);
+        console.log('CALCULATED_CURRENT_GRADE useMemo RUNNING');
+        console.log('gradeRequirements:', gradeRequirements);
+        console.log('filteredGrades:', filteredGrades);
+        console.log('filteredGrades length:', filteredGrades?.length);
+        console.log('grades:', grades);
 
         // // If no grades requirements, return F
         // if (!gradeRequirements) return 'F';
@@ -316,7 +316,7 @@ export function StudentReport() {
             const res = await apiHandler(
                 undefined,
                 'GET',
-                `api/exam/result/grades/${session?.user?.id}`,
+                `api/exam/result/grades/${userSession.id}`,
                 `${BACKEND_API}`,
                 userSession.accessToken
             );
@@ -470,7 +470,7 @@ export function StudentReport() {
     }
 
     return (
-        <div>
+        <div className="px-4 py-4">
             {/*This is the course header*/}
             <div className="max-w-5xl mx-auto flex justify-between items-center mb-6">
                 {/*This is the Course Selection button*/}
@@ -514,7 +514,7 @@ export function StudentReport() {
                         {/*Grade Summary Charts Components*/}
                         <div className="justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold text-center mb-1">Grade Analysis Overview</h2>
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
                                 <div className="flex-1 w-1/2 min-w-[300px] min-h-[300px]">
                                     {loading ? (
                                             <div className="flex justify-center items-center pt-6">
@@ -665,12 +665,13 @@ export function StudentReport() {
                         {loading ? (
                             <div className="flex justify-center items-center pt-6">
                                 <RingSpinner size={'sm'} color={'mentat-gold'} />
-                                <p className="ml-3 text-md text-mentat-gold">Loading Grade Strategy Details...</p>
+                                <p className="ml-3 text-md text-mentat-gold">
+                                    Loading Grade Strategy Details...
+                                </p>
                             </div>
                         ) : !filteredGradeStrategy ? (
                             <div className="text-center py-6
-                                        rounded-xl shadow-sm shadow-crimson-700 border
-                                        border-mentat-gold/40 p-6"
+                                rounded-xl shadow-sm shadow-crimson-700 border border-mentat-gold/40 p-6"
                             >
                                 Course has no grade strategy
                             </div>

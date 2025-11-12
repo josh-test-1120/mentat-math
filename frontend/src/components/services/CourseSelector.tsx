@@ -49,7 +49,8 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
                 id="course-select"
                 value={selectedCourseId || ''}
                 onChange={onCourseChange}
-                className="px-3 py-2 bg-white/5 text-mentat-gold border border-mentat-gold/20 rounded-md focus:border-mentat-gold/60 focus:ring-0 focus:outline-none"
+                className="px-3 py-2 bg-card-color text-mentat-gold border border-mentat-gold/20 rounded-md
+                 focus:border-mentat-gold/60 focus:ring-0 focus:outline-none"
             >
                 {allDefault && (
                     <option key={allCourse.courseId} value={allCourse.courseId}>

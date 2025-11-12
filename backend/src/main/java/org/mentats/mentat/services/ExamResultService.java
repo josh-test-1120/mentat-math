@@ -195,9 +195,11 @@ public class ExamResultService {
      */
     // Read multiple exam results by Student ID, along with exam and course table
     // Read multiple tables by complex JPQL repository call
-    public List<ExamResultsDetailsWithUserProjection> getExamResultsAndExamCourseByStudentWithStudentDetails(Long studentId) {
+    public List<ExamResultsDetailsWithUserProjection>
+        getExamResultsAndExamCourseByStudentAndCourseWithStudentDetails(Long studentId,
+                                                                        Long courseId) {
         validator.validateStudentId(studentId);
-        return examResultRepository.findResultDetailsByStudentIdWithStudentDetails(studentId);
+        return examResultRepository.findResultDetailsByStudentIdWithStudentDetails(studentId, courseId);
     }
 
     /**

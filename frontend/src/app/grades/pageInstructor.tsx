@@ -278,12 +278,12 @@ export default function ExamDashboard() {
     }
 
     return (
-        <div className="px-4 pt-8 pb-1">
+        <div className="px-2 pt-2 pb-1">
             <div className="max-w-5xl mx-auto">
                 {/*Create Exam Component*/}
-                <header className="mb-8">
+                <header className="mb-2">
                     <div className="flex items-center justify-between">
-                        <h1 className="text-3xl font-bold mb-2">Exam Listing</h1>
+                        <h1 className="text-3xl font-bold pl-4">Manage Exams</h1>
                         < CreateExam
                             course={course}
                             onExamCreated={() =>
@@ -292,12 +292,12 @@ export default function ExamDashboard() {
                         />
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
-                    <p>Manage and view your created exams</p>
+                    {/*<p>Manage and view your created exams</p>*/}
                 </header>
                 {/*Course filter buttons*/}
-                <div className="rounded-xl shadow-sm p-6 pb-2">
+                <div className="rounded-xl shadow-sm px-4 pb-2">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold">Your Exams</h2>
+                        <h2 className="text-xl font-semibold">Exam Listing</h2>
                         {/*Course Selector Component*/}
                         { courses && courses.length > 0 && (
                             <CourseSelector
@@ -315,7 +315,7 @@ export default function ExamDashboard() {
                 {/* Line Divider */}
                 <hr className="border-crimson border-2 mb-2"></hr>
                 {/* Card Layout */}
-                <div className="shadow-sm p-4 pt-2 max-h-[36vh] min-h-[200px]
+                <div className="shadow-sm p-4 pt-2 max-h-[42vh] min-h-[200px]
                     overflow-y-auto scrollbar-hide"
                 >
                     {loading ? (

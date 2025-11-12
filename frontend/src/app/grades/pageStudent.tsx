@@ -207,7 +207,7 @@ export default function GradesPage() {
     return (
         <div className="min-h-screen flex flex-col px-4">
             {/*This is the header section with filters*/}
-            <div className="sticky top-0 pt-8 z-10 bg-mentat-black
+            <div className="sticky top-0 pt-4 z-10 bg-mentat-black
                 max-w-5xl mx-auto w-full">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

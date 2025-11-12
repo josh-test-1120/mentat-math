@@ -69,7 +69,7 @@ export default function StudentExamSummary() {
             const instructorId = session?.user?.id;
             // If the access token, backend api, or instructor id are not valid, return
             if (!accessToken || !BACKEND_API || !instructorId) return;
-            
+
             // Fetch the courses from the backend
             const response = await apiHandler(
                 undefined,
@@ -95,7 +95,7 @@ export default function StudentExamSummary() {
 
             // Assign the courses to the state
             setCourses(coursesData);
-            
+
             // "All Courses" is the default selection (selectedCourseId remains null)
         } catch (error) {
             console.error('Error fetching courses:', error);
@@ -111,14 +111,14 @@ export default function StudentExamSummary() {
             const accessToken = session?.user?.accessToken;
             const instructorId = session?.user?.id;
             if (!accessToken || !BACKEND_API || !instructorId) return;
-            
+
             // Build query parameters
             const params = new URLSearchParams();
             params.append('instructorId', instructorId.toString());
             if (selectedCourseId !== null) {
                 params.append('courseId', selectedCourseId.toString());
             }
-            
+
             const response = await apiHandler(
                 undefined,
                 'GET',
@@ -135,12 +135,12 @@ export default function StudentExamSummary() {
             // Group flat response data by exam and date
             // Response is now flat (one entry per student scheduling)
             const groupedByExamAndDate = new Map<string, ScheduledExamStats>();
-            
+
             if (Array.isArray(response)) {
                 response.forEach((item: any) => {
                     // Create a unique key for exam + date combination
                     const examKey = `${item.examId}-${item.scheduledDate || "No Date"}`;
-                    
+
                     if (!groupedByExamAndDate.has(examKey)) {
                         // First occurrence of this exam+date combination
                         groupedByExamAndDate.set(examKey, {
@@ -151,7 +151,7 @@ export default function StudentExamSummary() {
                             students: []
                         });
                     }
-                    
+
                     // Add student to the group and increment count
                     const examGroup = groupedByExamAndDate.get(examKey)!;
                     examGroup.totalScheduled += item.totalScheduled || 1;
@@ -163,7 +163,7 @@ export default function StudentExamSummary() {
 
             // Organize grouped data by day
             const dayMap = new Map<string, ScheduledExamStats[]>();
-            
+
             groupedByExamAndDate.forEach((examStats) => {
                 const date = examStats.scheduledDate;
                 if (!dayMap.has(date)) {
@@ -173,7 +173,7 @@ export default function StudentExamSummary() {
             });
 
             setDataByDay(dayMap);
-            
+
             // Set the first date as selected by default
             if (dayMap.size > 0) {
                 setSelectedDate(Array.from(dayMap.keys())[0]);
@@ -207,7 +207,7 @@ export default function StudentExamSummary() {
         const uniqueStudents = new Set(
             exams.flatMap(exam => exam.students.map(s => s.email))
         ).size;
-        
+
         return { totalScheduled, uniqueStudents, examCount: exams.length };
     };
 
@@ -251,7 +251,7 @@ export default function StudentExamSummary() {
                                 id="course-select-summary-empty"
                                 value={selectedCourseId || ''}
                                 onChange={(e) => setSelectedCourseId(e.target.value ? parseInt(e.target.value) : null)}
-                                className="rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 
+                                className="rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
                                     focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 min-w-[200px]"
                             >
                                 <option value="">All Courses</option>
@@ -297,7 +297,7 @@ export default function StudentExamSummary() {
                             value={selectedCourseId || ''}
                             onChange={(e) => setSelectedCourseId(e.target.value ? parseInt(e.target.value) : null)}
                             disabled={coursesLoading || courses.length === 0}
-                            className="rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 
+                            className="rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20
                                 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 min-w-[200px]
                                 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -358,7 +358,7 @@ export default function StudentExamSummary() {
                             {getDayStats(selectedDate).totalScheduled}
                         </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-mentat-gold/20 to-mentat-gold/10 p-4 rounded-lg border border-mentat-gold/30">
                         <div className="flex items-center gap-2 text-mentat-gold/70 mb-2">
                             <Users className="w-5 h-5" />
@@ -368,7 +368,7 @@ export default function StudentExamSummary() {
                             {getDayStats(selectedDate).uniqueStudents}
                         </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-crimson/20 to-crimson/10 p-4 rounded-lg border border-crimson/30">
                         <div className="flex items-center gap-2 text-mentat-gold/70 mb-2">
                             <Clock className="w-5 h-5" />
@@ -448,4 +448,3 @@ export default function StudentExamSummary() {
         </div>
     );
 }
-

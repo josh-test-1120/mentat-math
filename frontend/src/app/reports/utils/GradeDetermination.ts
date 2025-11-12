@@ -21,6 +21,20 @@ export const scoreToNumber = (score: string | undefined) => {
     }
 }
 
+// Convert grade number to letter grade
+export const numberToLetterGrade = (score: number | undefined) => {
+    // Default for no score or pending score
+    if (!score) return 'F';
+    // Case handler
+    switch (score) {
+        case 5: return 'A';
+        case 4: return 'B';
+        case 3: return 'C';
+        case 5: return 'D';
+        default: return 'F';
+    }
+}
+
 // Determine and assign the best grade for an exam
 export const updateRecord = (grades: Report[]) => {
     // Iterate through the grades
@@ -54,14 +68,63 @@ export const reduceRecords = (grades: Report[]) => {
     return records;
 }
 
+// Determine grade status based on score
+export const getGradeStatus = (grade: Report): 'passed' | 'failed' | 'pending' | undefined => {
+    // Grade arrays
+    const passingGrade = ['A', 'B', 'C'];
+    const failingGrade = ['D', 'F'];
+
+    // If a score exists:
+    if (grade?.examScore) {
+        // Check for active states
+        if (passingGrade.includes(grade?.examScore)) return 'passed';
+        // Check for inactive states
+        else if (failingGrade.includes(grade?.examScore)) return 'failed';
+    }
+    // Default state is pending
+    else return 'pending';
+};
+
+// Helper function to determine student status in course
+export const studentStatus = (letterGrade: string) => {
+    switch (letterGrade) {
+        case "A":
+        case "B":
+        case "C":
+            return 'passing'
+        case "D":
+        case 'F':
+            return 'failing'
+    }
+}
+
+// Helper function to calculate average
+export const calculateAverageGrade = (exams: any[]) => {
+    if (!exams || exams.length === 0) return 'F';
+    const total = exams.reduce((sum, exam) =>
+        sum + scoreToNumber(exam.examScore), 0);
+    const grade = Math.floor(total / exams.length);
+    switch (grade) {
+        case 5: return 'A'
+        case 4: return 'B'
+        case 3: return 'C'
+        case 2: return 'D'
+        default: return 'F'
+    }
+};
+
 // Current Grade Determination Utility
 export default function GradeDetermination(grades: Report[],
                                            strategies?: GradeRequirements) {
     /**
      * Main part of function code
      */
-    // First let's convert the
+    // First let's convert the grades to numbers
     updateRecord(grades);
+    // Ensure that each report has a status
+    grades.forEach(grade => {
+        if (!grade.status) grade.status = getGradeStatus(grade)
+    })
     // Reduce exams to best grades
     let bestGrades: Report[] = reduceRecords(grades);
     // Determine passed exams
@@ -69,6 +132,7 @@ export default function GradeDetermination(grades: Report[],
         exam.status === 'passed').length;
     let passedAs = bestGrades.filter(exam =>
         exam?.examScore === 'A').length;
+    console.log(`josh: This is the passed: ${passed}`);
 
     // Determine letter grade
     // Handle determination if strategies are supplied

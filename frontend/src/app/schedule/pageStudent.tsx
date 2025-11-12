@@ -231,12 +231,12 @@ export default function StudentSchedule() {
     }
 
     return (
-        <div className="w-full max-w-screen-2xl px-4 pt-8 pb-2">
+        <div className="w-full max-w-screen-2xl px-4 pt-2 pb-2">
             <div className="max-w-5xl mx-auto overflow-y-auto scrollbar-hide">
                 {/*Create Scheduled Exam Component*/}
-                <header className="mb-8">
+                <header className="mb-1">
                     <div className="flex items-center justify-between">
-                        <h1 className="text-3xl font-bold mb-2">Manage Scheduled Exams</h1>
+                        <h1 className="text-3xl font-bold ml-4">Manage Scheduled Exams</h1>
                         { userSession.id !== '' && filteredCourses ? (
                             < CreateScheduledExam
                                 studentId={userSession.id}
@@ -252,7 +252,7 @@ export default function StudentSchedule() {
                     </div>
                 </header>
                 {/*This is the course selector component*/}
-                <div className="rounded-xl shadow-sm p-6 pb-2">
+                <div className="rounded-xl shadow-sm px-4 py-2">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-semibold">Your Scheduled Exams</h2>
                         { courses && courses.length > 0 && (

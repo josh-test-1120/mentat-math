@@ -36,9 +36,6 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
     void deleteByExam_Id(Long examId);
     // Unique Record checks
     boolean existsByExam_IdAndExamVersion(Long examId, Integer examVersion);
-    // Check if specific student has an exam result for a specific exam and version
-    boolean existsByStudent_IdAndExam_IdAndExamVersion(Long studentId, Long examId, Integer examVersion);
-
     // Complex query for student exam results with additional table info
     // Query by Student ID
     @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
@@ -49,14 +46,14 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "e.Id as examId, c.courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
-            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
+            "c.instructor.Id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
             "FROM ExamResult er " +
             "JOIN er.exam e " +
             "JOIN e.course c " +
-            "WHERE er.student.id = :studentId")
+            "WHERE er.student.Id = :studentId")
     List<ExamResultDetailsProjection> findResultDetailsByStudentId(@Param("studentId") Long studentId);
     // Complex query for student exam results with additional table info
-    // Query by Student ID, but include student information from table
+    // Query by Student ID and course ID, but include student information from table
     @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
             "er.examScheduledDate as examScheduledDate, er.examTakenDate as examTakenDate, " +
             "er.examVersion as examVersion, " +
@@ -67,14 +64,16 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "e.Id as examId, courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
-            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
+            "c.instructor.Id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
             "FROM ExamResult er " +
             "JOIN er.exam e " +
             "JOIN er.student s " +
             "JOIN e.course c " +
-            "WHERE er.student.id = :studentId")
-    List<ExamResultsDetailsWithUserProjection> findResultDetailsByStudentIdWithStudentDetails(@Param("studentId") Long studentId);
-  
+            "WHERE er.student.Id = :studentId " +
+            "AND c.courseId = :courseId")
+    List<ExamResultsDetailsWithUserProjection>
+        findResultDetailsByStudentIdWithStudentDetails(@Param("studentId") Long studentId,
+                                                       @Param("courseId") Long courseId);
     // Complex query for student exam results with additional table info
     // Query by Course ID
     @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
@@ -82,16 +81,16 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "er.examVersion as examVersion, " +
             "e.name as examName, e.state as examState, e.required as examRequired, " +
             "e.difficulty as examDifficulty, e.duration as examDuration, e.online as examOnline, " +
-            "e.Id as examId, c.courseId as courseId, " +
+            "e.Id as examId, courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
-            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
+            "c.instructor.Id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
             "FROM ExamResult er " +
             "JOIN er.exam e " +
             "JOIN e.course c " +
             "WHERE c.courseId = :courseId")
     List<ExamResultDetailsProjection> findResultDetailsByCourseId(@Param("courseId") Long courseId);
-    
+
     /**
      * Extended version of findResultDetailsByCourseId with optional filters for schedule summary
      * Uses the same projection as the existing query for consistency
@@ -123,7 +122,7 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             @Param("examId") Long examId,
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
-  
+
     // Complex query for student exam results with additional table info
     // Query by Course ID, but include student information from table
     @Query("SELECT er.Id as examResultId, er.examScore as examScore, " +
@@ -136,7 +135,7 @@ public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
             "e.Id as examId, courseId as courseId, " +
             "c.courseName as courseName, c.courseSection as courseSection, " +
             "c.courseYear as courseYear, c.courseQuarter as courseQuarter, " +
-            "c.instructor.id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
+            "c.instructor.Id as courseProfessorId, c.gradeStrategy as gradeStrategy " +
             "FROM ExamResult er " +
             "JOIN er.exam e " +
             "JOIN er.student s " +
