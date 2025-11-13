@@ -88,11 +88,35 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials) {
                     throw new Error("Invalid credentials");
                 }
-                const user = await apiAuthSignIn(credentials);
-                // Print statement
-                console.log({user});
+                // Better login handling and error catching
+                try {
+                    const user = await apiAuthSignIn(credentials);
+                    console.log({ user });
+                    // If no user at all, this is Unauthorized error
+                    if (!user) {
+                        throw new Error("Unauthorized");
+                    }
+                    // Return user if found
+                    return user;
+                } catch (error) {
+                    // Output the errors
+                    console.error('Auth error:', error);
 
-                return user;
+                    // Handle specific API errors
+                    if (error instanceof Error) {
+                        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+                            throw new Error("Invalid credentials");
+                        }
+                        if (error.message.includes('404') || error.message.includes('Not Found')) {
+                            throw new Error("This user is not found");
+                        }
+                        if (error.message.includes('429')) {
+                            throw new Error("Too many login attempts");
+                        }
+                    }
+                    // Default error
+                    throw new Error("Authentication Failed");
+                }
             },
         }),
     ],
