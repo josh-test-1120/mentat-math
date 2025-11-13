@@ -1,11 +1,15 @@
-import NextAuth from "next-auth";
+/**
+ * This is the authentication details
+ * for the NextJS components.
+ *
+ * This includes the providers and their
+ * associated configurations
+ * @author Joshua Summers
+ */
 
 import { NextAuthOptions, getServerSession } from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import apiAuthSignIn from "./api";
-import { JWT } from "next-auth/jwt";
-import { getSession } from "next-auth/react";
 
 /**
  * Declare the authentication interfaces for the objects

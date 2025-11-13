@@ -10,7 +10,7 @@
 import { getSession, signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { ToastContainer } from "react-toastify";
-import {RingSpinner} from "@/components/UI/Spinners";
+import { RingSpinner } from "@/components/UI/Spinners";
 
 /**
  * SignInForm Page (Component)
