@@ -19,6 +19,7 @@ export interface UserSession {
     id: string;
     username: string;
     email: string;
+    name: string;
     accessToken: string;
 }
 
@@ -33,6 +34,7 @@ export const useSessionData = () => {
         id: '',
         username: '',
         email: '',
+        name: '',
         accessToken: '',
     });
 
@@ -46,6 +48,7 @@ export const useSessionData = () => {
             id: session?.user.id?.toString() || '',
             username: session?.user.username || '',
             email: session?.user.email || '',
+            name: session?.user.name || '',
             accessToken: session?.user.accessToken || '',
         };
 
