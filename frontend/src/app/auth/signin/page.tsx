@@ -19,7 +19,7 @@ export default async function LoginPage() {
             bg-mentat-black">
             <div className="rounded-lg p-12 bg-white/10 shadow-lg shadow-crimson-700">
                 <h2 className="mb-4 text-2xl font-medium">
-                    Weclome Back!
+                    Welcome Back!
                 </h2>
                 <SignInForm />
             </div>
