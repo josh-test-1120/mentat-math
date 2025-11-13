@@ -26,10 +26,6 @@ export default function StudentSchedule() {
     const { userSession, sessionReady } = useSessionData();
     // Data Fetch hook
     const { exams, courses, loading, fetchAllData } = useFetchData(userSession, BACKEND_API);
-    // Refresh trigger (to re-render page)
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
-    // Reference to control React double render of useEffect
-    const hasFetched = useRef(false);
     // Memoized filter hook
     const {
         selectedCourse,
@@ -37,11 +33,15 @@ export default function StudentSchedule() {
         filteredExams,
         filteredCourses
     } = useExamFilters(exams, courses);
+    // Refresh trigger (to re-render page)
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    // Reference to control React double render of useEffect
+    const hasFetched = useRef(false);
+
 
     /**
      * useAffects that bind the page to refreshes and updates
      */
-    // Initial fetch one session is established
     useEffect(() => {
         if (!sessionReady || hasFetched.current) return;
 
