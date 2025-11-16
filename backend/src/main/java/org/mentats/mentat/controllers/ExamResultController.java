@@ -113,7 +113,6 @@ public class ExamResultController {
     @PatchMapping("/{examResultID}")
     public ResponseEntity<?> updateExamResult(@RequestBody ExamResultRequest examUpdates,
                                               @PathVariable("examResultID") Long eid) {
-        System.out.println(examUpdates.toString());
         try {
             // Use the service layer to handle the update
             ExamResult updatedExamResult = examResultService.updateExamResult(eid, examUpdates);
@@ -212,6 +211,22 @@ public class ExamResultController {
         // Use the ExamResultService to get the exam result and course by student Id
         List<ExamResultDetailsProjection> response =
                 examResultService.getExamResultsAndExamCourseByStudent(studentId);
+        // Convert to Response DTO
+        return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get student exam_result records, with exam and course table information JOINED
+     * Consolidated Exam Result query (for client performance)
+     * @param courseId
+     * @return List of ExamResultDetailsProjection
+     */
+    @GetMapping("/instructor/course/{courseId}")
+    public ResponseEntity<List<ExamResultsDetailsWithUserProjection>>
+    getStudentExamResultsByCourseIdWithStudentDetails(@PathVariable Long courseId) {
+        // Use the ExamResultService to get the exam result based on the Exam Id
+        List<ExamResultsDetailsWithUserProjection> response =
+                examResultService.getExamResultsByCourseIdWithStudentDetails(courseId);
         // Convert to Response DTO
         return response.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }

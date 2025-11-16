@@ -63,7 +63,8 @@ public class ExamResultRequest {
     @Override
     public String toString() {
         return "ExamResultRequest{" +
-                "examStudentId=" + examStudentId +
+                "examResultId=" + examResultId +
+                ", examStudentId=" + examStudentId +
                 ", examId=" + examId +
                 ", examVersion=" + examVersion +
                 ", examScore='" + examScore + '\'' +

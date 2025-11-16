@@ -39,8 +39,9 @@ public class ExamService {
      * Utility to load Foreign Keys
      */
     private void GetForeignKeyObjects(ExamRequest examRequest) {
-        // Find related entities
-        course = courseRepository.findById(examRequest.getExamCourseId())
+        // Find related entities conditionally
+        if (examRequest.getExamCourseId() != null)
+            course = courseRepository.findById(examRequest.getExamCourseId())
                 .orElseThrow(() -> new EntityNotFoundException("Course not found with ID: " + examRequest.getExamCourseId()));
     }
 
