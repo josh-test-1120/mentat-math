@@ -10,6 +10,7 @@ import org.mentats.mentat.models.User;
 import org.mentats.mentat.payload.request.StudentCourseRequest;
 import org.mentats.mentat.payload.response.CourseResponse;
 import org.mentats.mentat.payload.response.StudentCourseResponse;
+import org.mentats.mentat.projections.StudentCourseWithUserDetailsProjection;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.repositories.StudentCourseRepository;
 import org.mentats.mentat.repositories.UserRepository;
@@ -45,12 +46,14 @@ public class StudentCourseService {
      * Utility to load Foreign Keys
      */
     private void GetForeignKeyObjects(StudentCourseRequest studentCourseRequest) {
-        // Find related entities
-        course = courseRepository.findById(studentCourseRequest.getCourseId())
+        // Find related entities conditionally
+        if (studentCourseRequest.getCourseId() != null)
+            course = courseRepository.findById(studentCourseRequest.getCourseId())
                 .orElseThrow(() ->
                         new EntityNotFoundException("Course not found with ID: " +
                                 studentCourseRequest.getCourseId()));
-        student = userRepository.findById(studentCourseRequest.getStudentId())
+        if (studentCourseRequest.getStudentId() != null)
+            student = userRepository.findById(studentCourseRequest.getStudentId())
                 .orElseThrow(() ->
                         new EntityNotFoundException("Course not found with ID: " +
                                 studentCourseRequest.getStudentId()));
@@ -231,5 +234,17 @@ public class StudentCourseService {
                         proj.getStudentDateRegistered()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Fetch all ExamResult objects based on Course Id
+     * include the Student information along with the exam result
+     * @param courseId
+     * @return List of ExamResultsDetailsWithUserProjection objects (has more than examResult table data)
+     */
+    // Read multiple exam results by complex JPQL repository call
+    public List<StudentCourseWithUserDetailsProjection> getStudentCoursesByCourseIdWithStudentDetails(Long courseId) {
+        validator.validateCourseId(courseId);
+        return studentCourseRepository.findResultDetailsByCourseIdWithStudentInfo(courseId);
     }
 }

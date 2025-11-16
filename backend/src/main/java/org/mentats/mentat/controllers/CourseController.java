@@ -9,6 +9,7 @@ import org.mentats.mentat.payload.request.*;
 import org.mentats.mentat.payload.response.CourseResponse;
 import org.mentats.mentat.payload.response.MessageResponse;
 import org.mentats.mentat.payload.response.StudentCourseResponse;
+import org.mentats.mentat.projections.StudentCourseWithUserDetailsProjection;
 import org.mentats.mentat.repositories.CourseRepository;
 import org.mentats.mentat.services.CourseService;
 import org.mentats.mentat.services.StudentCourseService;
@@ -256,11 +257,38 @@ public class CourseController {
      * @param cId Course Id
      * @return ResponseEntity of StudentCourses
      */
+//    @GetMapping("/enrollments/course/{courseID}")
+//    public ResponseEntity<List<StudentCourseResponse>> getStudentCoursesByCourseId(@PathVariable("courseID") Long cId) {
+//        try {
+//            // Use the repository to find courses by instructor ID
+//            List<StudentCourseResponse> studentCourses = studentCourseService.getEnrolledStudentsByCourse(cId);
+//
+//            // Check if any student courses were found
+//            if (studentCourses != null && !studentCourses.isEmpty()) {
+//                return ResponseEntity.ok(studentCourses);
+//            } else {
+//                // Return 404 if no student courses found for this course
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+
+    /**
+     * Get the student that joined a course from the database
+     * based on the course ID supplied in the URI
+     * @param cId Course Id
+     * @return ResponseEntity of StudentCourses
+     */
     @GetMapping("/enrollments/course/{courseID}")
-    public ResponseEntity<List<StudentCourseResponse>> getStudentCoursesByCourseId(@PathVariable("courseID") Long cId) {
+    public ResponseEntity<List<StudentCourseWithUserDetailsProjection>> getStudentCoursesByCourseId(@PathVariable("courseID") Long cId) {
         try {
             // Use the repository to find courses by instructor ID
-            List<StudentCourseResponse> studentCourses = studentCourseService.getEnrolledStudentsByCourse(cId);
+            List<StudentCourseWithUserDetailsProjection> studentCourses =
+                    studentCourseService.getStudentCoursesByCourseIdWithStudentDetails(cId);
 
             // Check if any student courses were found
             if (studentCourses != null && !studentCourses.isEmpty()) {
@@ -275,5 +303,7 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
 
 }
