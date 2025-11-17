@@ -358,10 +358,10 @@ export default function ExamDashboard() {
                 {/* Line Divider */}
                 <hr className="border-crimson border-2 my-2"></hr>
                 {/*Exam Analysis Dashboard Component*/}
-                {/*<ExamStatistics*/}
-                {/*    exams={filteredExams}*/}
-                {/*    index={0}*/}
-                {/*/>*/}
+                <ExamStatistics
+                    exams={filteredExams}
+                    index={0}
+                />
             </div>
             {/* Exam Action Modal */}
             <Modal
