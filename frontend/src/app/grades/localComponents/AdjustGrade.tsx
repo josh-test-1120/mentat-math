@@ -249,6 +249,9 @@ export default function AdjustGrade({ courses, course, onGradeAdjusted }: Adjust
                                  disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                             </input>
+                            <div className="relative text-xs italic text-mentat-gold/60">
+                                <p>Existing Grade is shown here <span className="text-red-500">*</span></p>
+                            </div>
                         </div>
                     </div>
                     {/*Button and actions*/}

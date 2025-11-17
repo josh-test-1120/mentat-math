@@ -257,7 +257,8 @@ export const useAdjustFetchData =
                 setFormData(prev => ({
                     ...prev,
                     examResultId: firstExam?.examResultId || null,
-                    examName: firstExam?.examName || ""
+                    examName: firstExam?.examName || "",
+                    examScore: firstExam?.examScore || "",
                 }));
             }
             setStudentExams(examResultsData);
@@ -291,7 +292,8 @@ export const useAdjustFetchData =
                 return {
                     ...prevFormData,
                     examResultId: value ? parseInt(value) : null,
-                    examName: selectedExam?.examName || ""
+                    examName: selectedExam?.examName || "",
+                    examScore: selectedExam?.examScore || ""
                 };
             }
             // All other fields
