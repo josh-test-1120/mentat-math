@@ -88,21 +88,49 @@ public class TestWindowService {
         throw new RuntimeException("Test window not found with id: " + id);
     }
     
+    /**
+     * Update TestWindow with partial update (PATCH semantics)
+     * Only updates fields that are provided (not null) in the request
+     * @param id TestWindow ID
+     * @param request Partial update request
+     * @return Updated TestWindow
+     */
     public TestWindow updateTestWindow(Integer id, TestWindowRequest request) {
         Optional<TestWindow> existingWindow = testWindowRepository.findById(id);
         if (existingWindow.isPresent()) {
             TestWindow testWindow = existingWindow.get();
             
-            testWindow.setTestWindowTitle(request.getWindowName());
-            testWindow.setDescription(request.getDescription());
-            testWindow.setCourseId(request.getCourseId());
-            testWindow.setTestWindowStartDate(LocalDate.parse(request.getStartDate(), DATE_FORMATTER));
-            testWindow.setTestWindowEndDate(LocalDate.parse(request.getEndDate(), DATE_FORMATTER));
-            testWindow.setTestStartTime(LocalTime.parse(request.getStartTime(), TIME_FORMATTER));
-            testWindow.setTestEndTime(LocalTime.parse(request.getEndTime(), TIME_FORMATTER));
-            testWindow.setWeekdays(request.getWeekdays() != null ? request.getWeekdays() : "{}");
-            testWindow.setExceptions(request.getExceptions());
-            testWindow.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
+            // Update only provided fields (partial update - PATCH semantics)
+            if (request.getWindowName() != null && !request.getWindowName().isEmpty()) {
+                testWindow.setTestWindowTitle(request.getWindowName());
+            }
+            if (request.getDescription() != null) {
+                testWindow.setDescription(request.getDescription());
+            }
+            if (request.getCourseId() != null) {
+                testWindow.setCourseId(request.getCourseId());
+            }
+            if (request.getStartDate() != null && !request.getStartDate().isEmpty()) {
+                testWindow.setTestWindowStartDate(LocalDate.parse(request.getStartDate(), DATE_FORMATTER));
+            }
+            if (request.getEndDate() != null && !request.getEndDate().isEmpty()) {
+                testWindow.setTestWindowEndDate(LocalDate.parse(request.getEndDate(), DATE_FORMATTER));
+            }
+            if (request.getStartTime() != null && !request.getStartTime().isEmpty()) {
+                testWindow.setTestStartTime(LocalTime.parse(request.getStartTime(), TIME_FORMATTER));
+            }
+            if (request.getEndTime() != null && !request.getEndTime().isEmpty()) {
+                testWindow.setTestEndTime(LocalTime.parse(request.getEndTime(), TIME_FORMATTER));
+            }
+            if (request.getWeekdays() != null) {
+                testWindow.setWeekdays(request.getWeekdays());
+            }
+            if (request.getExceptions() != null) {
+                testWindow.setExceptions(request.getExceptions());
+            }
+            if (request.getIsActive() != null) {
+                testWindow.setIsActive(request.getIsActive());
+            }
             
             return testWindowRepository.save(testWindow);
         }

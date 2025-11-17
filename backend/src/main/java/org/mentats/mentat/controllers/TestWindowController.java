@@ -85,7 +85,7 @@ public class TestWindowController {
         }
     }
     
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<?> updateTestWindow(@PathVariable Integer id, @RequestBody TestWindowRequest request) {
         try {
             logger.info("Updating test window: {}", id);
@@ -118,7 +118,7 @@ public class TestWindowController {
         }
     }
     
-    @PutMapping("/{id}/disable-weekday")
+    @PatchMapping("/{id}/disable-weekday")
     public ResponseEntity<?> disableWeekday(@PathVariable Integer id, @RequestParam String weekday) {
         try {
             logger.info("Disabling weekday {} for test window: {}", weekday, id);
