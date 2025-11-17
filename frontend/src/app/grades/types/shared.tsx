@@ -1,6 +1,7 @@
 import Exam from "@/components/types/exam";
 import Course from "@/components/types/course";
 import ExamResult from "@/components/types/exam_result";
+import User from "@/components/types/user";
 
 export interface ExamStatus extends Exam {
     status?: 'active' | 'inactive';
@@ -19,4 +20,17 @@ export interface GradeCardExtendedProps {
     grade: Grade;
     index: number;
     onclick?: (e: any) => void;
+}
+
+/**
+ * Used by instructors to include the student information
+ * alongside the exam result details for that student
+ */
+export interface StudentExams extends User {
+    exams?: Grade[];
+    status?: "passing" | "failing" | undefined;
+}
+
+export interface StudentGrade extends User, Grade {
+    status?: 'passed' | 'failed' | 'pending';
 }

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
-import { ExamExtended } from "@/app/grades/util/types";
+import { ExamExtended } from "@/app/grades/types/shared";
 import React, { useState } from "react";
 
 interface ExamCardCompactProps {

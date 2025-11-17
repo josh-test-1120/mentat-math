@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react';
 import { useSession } from "next-auth/react";
 import { apiHandler } from "@/utils/api";
 import { toast } from "react-toastify";
-import { ExamExtended } from "@/app/grades/util/types";
+import { ExamExtended } from "@/app/grades/types/shared";
 import ErrorToast from "@/components/services/error";
 import { RingSpinner } from "@/components/UI/Spinners";
 

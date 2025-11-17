@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { LucideCircleCheck, CircleX, Hourglass } from 'lucide-react';
-import { Grade, GradeCardExtendedProps } from '@/app/grades/util/types';
+import { Grade, GradeCardExtendedProps } from '@/app/grades/types/shared';
 
 // Determine grade status based on score
 export const getGradeStatus = (grade: Grade): 'passed' | 'failed' | 'pending' | undefined => {
