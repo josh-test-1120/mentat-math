@@ -22,15 +22,6 @@ export interface GradeCardExtendedProps {
     onclick?: (e: any) => void;
 }
 
-/**
- * Used by instructors to include the student information
- * alongside the exam result details for that student
- */
-export interface StudentExams extends User {
-    exams?: Grade[];
-    status?: "passing" | "failing" | undefined;
-}
-
 export interface StudentGrade extends User, Grade {
     status?: 'passed' | 'failed' | 'pending';
 }
