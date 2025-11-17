@@ -236,7 +236,12 @@ export const useAdjustFetchData =
                         console.error('Error fetching student exam results:', res.error);
                     } else {
                         // Get all the courses
-                        const examResultsLocal = res.grades || res || []; // Once grabbed, it is gone
+                        let examResultsLocal: StudentGrade[] = res.grades || res || []; // Once grabbed, it is gone
+
+                        // Reduce the exams to those that have been taken
+                        examResultsLocal = examResultsLocal.filter((exam) =>
+                            exam.examTakenDate !== null);
+
                         examResultsData.push(...examResultsLocal);
                     }
                     console.log('This is the student exam results data:');
