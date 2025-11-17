@@ -1,6 +1,6 @@
 'use client';
 
-import { ExamExtended } from "@/app/grades/util/types";
+import { ExamExtended } from "@/app/grades/types/shared";
 import React, { useEffect, useRef, useState } from "react";
 import { RingSpinner } from "@/components/UI/Spinners";
 import ExamResult from "@/components/types/exam_result";

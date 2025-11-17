@@ -11,10 +11,11 @@ import CreateExam from "./localComponents/CreateExam";
 import Modal from "@/components/services/Modal";
 import ExamDetailsComponent from "@/app/grades/localComponents/ExamDetails";
 import { RingSpinner } from "@/components/UI/Spinners";
-import { ExamExtended } from "@/app/grades/util/types";
+import { ExamExtended } from "@/app/grades/types/shared";
 import ExamResult from "@/components/types/exam_result";
 import { allCourse, CourseSelector } from "@/components/services/CourseSelector";
 import { ExamStatistics } from "@/app/grades/localComponents/ExamStatistics";
+import AdjustGrade from "@/app/grades/localComponents/AdjustGrade";
 
 // Status Counter
 const statusScore = (exam: ExamResult) => {
@@ -280,16 +281,26 @@ export default function ExamDashboard() {
     return (
         <div className="px-2 pt-2 pb-1">
             <div className="max-w-5xl mx-auto">
-                {/*Create Exam Component*/}
                 <header className="mb-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center">
                         <h1 className="text-3xl font-bold pl-4">Manage Exams</h1>
-                        < CreateExam
-                            course={course}
-                            onExamCreated={() =>
-                                setRefreshTrigger(prev => prev + 1)
-                            }
-                        />
+                        <div className="flex flex-1 justify-end">
+                            {/*Adjust Grade Component*/}
+                            < AdjustGrade
+                                courses={courses}
+                                course={course}
+                                onGradeAdjusted={() =>
+                                    setRefreshTrigger(prev => prev + 1)
+                                }
+                            />
+                            {/*Create Exam Component*/}
+                            < CreateExam
+                                course={course}
+                                onExamCreated={() =>
+                                    setRefreshTrigger(prev => prev + 1)
+                                }
+                            />
+                        </div>
                     </div>
                     {/*<h1 className="text-3xl font-bold mb-2">Exam Listing</h1>*/}
                     {/*<p>Manage and view your created exams</p>*/}

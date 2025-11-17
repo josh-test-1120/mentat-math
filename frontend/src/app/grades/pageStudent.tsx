@@ -3,7 +3,7 @@
 import React, {useState, useMemo, useEffect, useRef} from 'react';
 import { apiHandler } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Grade } from '@/app/grades/util/types';
+import { Grade } from '@/app/grades/types/shared';
 import { GradeCardExtended, getGradeStatus } from './localComponents/GradeCards';
 import { useSession } from "next-auth/react";
 import { RingSpinner } from "@/components/UI/Spinners";

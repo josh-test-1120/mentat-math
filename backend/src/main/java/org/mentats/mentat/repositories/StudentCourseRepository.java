@@ -1,6 +1,9 @@
 package org.mentats.mentat.repositories;
 
 import org.mentats.mentat.models.StudentCourse;
+import org.mentats.mentat.projections.StudentCourseWithUserDetailsProjection;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.mentats.mentat.models.StudentCourseId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,6 +35,17 @@ public interface StudentCourseRepository extends JpaRepository<StudentCourse, St
     List<StudentCourse> findById_CourseId(Long courseId);
     // Find enrollment for a student based on a course (use embedded IDs)
     Optional<StudentCourse> findById_CourseIdAndId_StudentId(Long courseId, Long studentId);
+    // Complex query for student course with additional table info
+    // Query by Course Id, with student details
+    @Query("SELECT sc.id.courseId as courseId, sc.id.studentId as studentId, " +
+            "sc.studentCourseGrade as studentCourseGrade, sc.studentDateRegistered as studentDateRegistered, " +
+            "s.firstName as firstName, s.lastName as lastName, " +
+            "s.username as userName, s.email as email " +
+            "FROM StudentCourse sc " +
+            "JOIN sc.course c " +
+            "JOIN sc.student s " +
+            "WHERE sc.id.courseId = :courseId")
+    List<StudentCourseWithUserDetailsProjection> findResultDetailsByCourseIdWithStudentInfo(@Param("courseId") Long courseId);
 }
 
 

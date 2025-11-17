@@ -45,6 +45,18 @@ public class StudentCourseValidator {
         // You might want to check user role or type here
     }
 
+    public void validateCourseId(Long courseId) {
+        if (courseId == null || courseId <= 0) {
+            throw new ValidationException("Course ID must be a positive number");
+        }
+    }
+
+    public void validateStudentId(Long studentId) {
+        if (studentId == null || studentId <= 0) {
+            throw new ValidationException("Student ID must be a positive number");
+        }
+    }
+
     public void validateStudentCourseGrade(String grade) {
         if (grade != null && !grade.trim().isEmpty()) {
             // Validate grade format using the same regex pattern from the entity

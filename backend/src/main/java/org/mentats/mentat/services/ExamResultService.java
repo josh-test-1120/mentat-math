@@ -45,11 +45,13 @@ public class ExamResultService {
      * Utility to load Foreign Keys
      */
     private void GetForeignKeyObjects(ExamResultRequest examResultRequest) {
-        // Find related entities
-        student = userRepository.findById(examResultRequest.getExamStudentId())
+        // Find related entities conditionally
+        if (examResultRequest.getExamStudentId() != null)
+            student = userRepository.findById(examResultRequest.getExamStudentId())
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
-        exam = examRepository.findById(examResultRequest.getExamId())
+        if (examResultRequest.getExamId() != null)
+            exam = examRepository.findById(examResultRequest.getExamId())
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found"));
     }
 
@@ -298,8 +300,12 @@ public class ExamResultService {
         // Handle FK updates and cascades (if appropriate) *** Likely not needed ***
 
         // Update all fields that are provided (partial update)
-        if (examResultUpdates.getExamScore() != null) {
+        // If exam score is not empty or null update with new value
+        if (examResultUpdates.getExamScore() != null && !examResultUpdates.getExamScore().isEmpty()) {
             existing.setExamScore(examResultUpdates.getExamScore());
+        // Exam Score can be null, so ensure it is set to null when empty
+        } else {
+            existing.setExamScore(null);
         }
         if (examResultUpdates.getExamTakenDate() != null) {
             existing.setExamTakenDate(examResultUpdates.getExamTakenDate());

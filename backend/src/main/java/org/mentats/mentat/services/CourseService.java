@@ -41,8 +41,9 @@ public class CourseService {
      * Utility to load Foreign Keys
      */
     private void GetForeignKeyObjects(CourseRequest courseRequest) {
-        // Find related entities
-        instructor = userRepository.findById(courseRequest.getCourseProfessorId())
+        // Find related entities conditionally
+        if (courseRequest.getCourseProfessorId() != null)
+            instructor = userRepository.findById(courseRequest.getCourseProfessorId())
                 .orElseThrow(() ->
                         new EntityNotFoundException("Course not found with ID: " +
                                 courseRequest.getCourseProfessorId()));
