@@ -386,7 +386,7 @@ export default function ModifyPatternModal({
             
             const response = await apiHandler(
                 requestData,
-                'PUT',
+                'PATCH',
                 `api/test-window/${testWindowId}`,
                 `${BACKEND_API}`,
                 userSession.accessToken
