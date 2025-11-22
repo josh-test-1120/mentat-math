@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 /**
  * User Controller
@@ -73,7 +74,7 @@ public class UserController {
     @PatchMapping("/profile/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateProfile(@PathVariable Long userId,
-                                           @RequestBody ProfileUpdateRequest request) {
+                                           @Valid @RequestBody ProfileUpdateRequest request) {
         try {
             // Check if user is updating their own profile or is an admin
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -126,7 +127,7 @@ public class UserController {
     @PatchMapping("/password/{userId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> changePassword(@PathVariable Long userId,
-                                            @RequestBody PasswordChangeRequest request) {
+                                            @Valid @RequestBody PasswordChangeRequest request) {
         try {
             // Check if user is changing their own password or is an admin
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

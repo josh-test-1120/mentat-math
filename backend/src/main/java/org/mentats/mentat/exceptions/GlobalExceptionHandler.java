@@ -3,10 +3,13 @@ package org.mentats.mentat.exceptions;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -43,6 +46,28 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleValidation(ValidationException ex) {
         return ResponseEntity.badRequest()
                 .body(Map.of("error", ex.getMessage()));
+    }
+
+    /**
+     * Handle validation errors from @Valid annotations on request DTOs
+     * Returns a map of field names to error messages
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "Validation failed");
+        response.put("message", "Invalid input provided");
+        response.put("validationErrors", errors);
+        
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(ExamNotFoundException.class)
