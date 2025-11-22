@@ -272,16 +272,16 @@ export default function Sidebar() {
                     </ul>
                     <ul className="pt-5 mt-5 space-y-2 border-t border-mentat-gold/40 dark:border-gray-700">
                         <li>
-                            <a href="#"
-                               className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
-                               transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white
-                               group disabled">
+                            <Link href="/settings"
+                                  className="flex items-center p-2 text-base font-normal text-yellow-300 rounded-lg
+                                  dark:text-white hover:bg-mentat-gold/80 dark:hover:bg-gray-700
+                                  hover:text-crimson group">
                                 <UserRoundPen
                                     className="flex-shrink-0 w-6 h-6 text-mentat-gold transition duration-75
                                     dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 />
-                                <span className="ml-3">Profile</span>
-                            </a>
+                                <span className="ml-3">Settings</span>
+                            </Link>
                         </li>
                         <li>
                             <a href="#"
