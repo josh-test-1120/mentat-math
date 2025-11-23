@@ -102,8 +102,20 @@ export async function apiHandler(inputs: any | undefined, method: string, uri: s
       if (!response.ok) {
         const text = await response.text().catch(() => '');
         console.error('API Error Response:', text);
+        
+        // Try to parse JSON error response (e.g., MessageResponse from backend)
+        let errorMessage = text || `HTTP ${response.status}`;
+        try {
+          const errorJson = JSON.parse(text);
+          // Extract message from various possible response formats
+          errorMessage = errorJson.message || errorJson.error || text;
+        } catch {
+          // If not JSON, use the text as-is
+          errorMessage = text || `HTTP ${response.status}`;
+        }
+        
         // Never return Error(); return a structured object
-        return { error: true, status: response.status, message: text || `HTTP ${response.status}` };
+        return { error: true, status: response.status, message: errorMessage };
       }
 
       const data = await response.json().catch(() => ({}));

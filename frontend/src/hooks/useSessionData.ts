@@ -53,7 +53,9 @@ export const useSessionData = () => {
         };
 
         setUserSession(newUserSession);
-        setSessionReady(newUserSession.id !== "");
+        // Session is ready only when both ID and accessToken are present
+        // This ensures authenticated API calls can be made safely
+        setSessionReady(newUserSession.id !== "" && newUserSession.accessToken !== "");
     }, [session, status]);
 
     // Return the states for handling in rendering

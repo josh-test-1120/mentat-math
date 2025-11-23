@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { apiHandler } from "@/utils/api";
-import { User, Lock, Mail, UserCircle, Save, X } from "lucide-react";
+import { User, Lock, Mail, UserCircle, Save } from "lucide-react";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { motion } from "framer-motion";
+import { useSessionData } from "@/hooks/useSessionData";
 
 /**
  * Settings Page Client Component
@@ -14,17 +14,8 @@ import { motion } from "framer-motion";
  * @constructor
  */
 export default function SettingsClient() {
-    const { data: session, status } = useSession();
+    const { userSession, sessionReady, status } = useSessionData();
     const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API;
-
-    // Session state
-    const [sessionReady, setSessionReady] = useState(false);
-    const [userSession, setUserSession] = useState({
-        id: '',
-        username: '',
-        email: '',
-        accessToken: '',
-    });
 
     // Profile form state
     const [profileData, setProfileData] = useState({
@@ -43,40 +34,30 @@ export default function SettingsClient() {
 
     // UI state
     const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
-    const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
     /**
-     * Initialize session
+     * Initialize profile data from session when ready
      */
     useEffect(() => {
-        if (status !== "authenticated" || !session) return;
-
-        const newUserSession = {
-            id: session?.user.id?.toString() || '',
-            username: session?.user.username || '',
-            email: session?.user.email || '',
-            accessToken: session?.user.accessToken || '',
-        };
-
-        setUserSession(newUserSession);
-        setSessionReady(newUserSession.id !== "");
+        if (!sessionReady || !userSession.id) return;
 
         // Initialize profile data from session
         setProfileData({
             firstName: '', // Will be fetched from backend
             lastName: '',
-            username: session?.user.username || '',
-            email: session?.user.email || '',
+            username: userSession.username || '',
+            email: userSession.email || '',
         });
-    }, [session, status]);
+    }, [sessionReady, userSession.id, userSession.username, userSession.email]);
 
     /**
      * Fetch user profile data from backend
      */
     useEffect(() => {
-        if (!sessionReady || !userSession.id) return;
+        // Ensure we have all required authentication data before making API calls
+        if (status !== "authenticated" || !sessionReady || !userSession.id || !userSession.accessToken || userSession.accessToken === '') return;
 
         const fetchProfile = async () => {
             setIsLoadingProfile(true);
@@ -109,13 +90,19 @@ export default function SettingsClient() {
         };
 
         fetchProfile();
-    }, [sessionReady, userSession.id, userSession.accessToken, BACKEND_API]);
+    }, [status, sessionReady, userSession.id, userSession.accessToken, BACKEND_API]);
 
     /**
      * Handle profile update
      */
     const handleProfileUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!userSession.accessToken || userSession.accessToken === '') {
+            toast.error('Authentication required. Please log in again.');
+            return;
+        }
+
         setIsSaving(true);
 
         try {
@@ -163,6 +150,11 @@ export default function SettingsClient() {
             return;
         }
 
+        if (!userSession.accessToken || userSession.accessToken === '') {
+            toast.error('Authentication required. Please log in again.');
+            return;
+        }
+
         setIsSaving(true);
 
         try {
@@ -178,7 +170,9 @@ export default function SettingsClient() {
             );
 
             if (res instanceof Error || (res && res.error)) {
-                toast.error(res?.message || 'Failed to change password');
+                // Provide user-friendly error messages
+                const errorMessage = res?.message || 'Failed to change password';
+                toast.error(errorMessage);
             } else {
                 toast.success('Password changed successfully!');
                 // Reset password form
@@ -205,7 +199,7 @@ export default function SettingsClient() {
         );
     }
 
-    if (!session) {
+    if (status === "unauthenticated" || !userSession.id) {
         return (
             <div className="flex justify-center items-center h-full">
                 <p className="text-mentat-gold">Please log in to access settings</p>
