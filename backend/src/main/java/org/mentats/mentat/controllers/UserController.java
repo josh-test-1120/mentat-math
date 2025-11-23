@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 /**
@@ -105,6 +106,10 @@ public class UserController {
                     new UserResponse(updatedUser)
             );
             return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            logger.error("User not found updating profile: {}", e.getMessage());
+            return ResponseEntity.status(404)
+                    .body(new MessageResponse("User not found"));
         } catch (IllegalArgumentException e) {
             logger.error("Validation error updating profile: {}", e.getMessage());
             // Return error response if validation error occurs
@@ -159,6 +164,10 @@ public class UserController {
                     java.time.Instant.now()
             );
             return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            logger.error("User not found changing password: {}", e.getMessage());
+            return ResponseEntity.status(404)
+                    .body(new MessageResponse("User not found"));
         } catch (IllegalArgumentException e) {
             logger.error("Validation error changing password: {}", e.getMessage());
             return ResponseEntity.badRequest()
