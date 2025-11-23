@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from "react-toastify";
 import { apiHandler } from "@/utils/api";
-import { User, Lock, Mail, UserCircle, Save } from "lucide-react";
+import { User, Lock, Mail, UserCircle, Save, Eye, EyeOff } from "lucide-react";
 import { RingSpinner } from "@/components/UI/Spinners";
 import { motion } from "framer-motion";
 import { useSessionData } from "@/hooks/useSessionData";
@@ -36,6 +36,11 @@ export default function SettingsClient() {
     const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+    
+    // Password visibility state
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     /**
      * Initialize profile data from session when ready
@@ -398,15 +403,29 @@ export default function SettingsClient() {
                                         <label htmlFor="currentPassword" className="text-sm font-medium text-mentat-gold">
                                             Current Password <span className="text-red-500">*</span>
                                         </label>
-                                        <input
-                                            type="password"
-                                            id="currentPassword"
-                                            value={passwordData.currentPassword}
-                                            onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                            required
-                                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                                            placeholder="Enter your current password"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showCurrentPassword ? "text" : "password"}
+                                                id="currentPassword"
+                                                value={passwordData.currentPassword}
+                                                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                                required
+                                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 pr-10"
+                                                placeholder="Enter your current password"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-mentat-gold/60 hover:text-mentat-gold transition-colors"
+                                                aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                                            >
+                                                {showCurrentPassword ? (
+                                                    <EyeOff className="w-5 h-5" />
+                                                ) : (
+                                                    <Eye className="w-5 h-5" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* New Password */}
@@ -414,16 +433,30 @@ export default function SettingsClient() {
                                         <label htmlFor="newPassword" className="text-sm font-medium text-mentat-gold">
                                             New Password <span className="text-red-500">*</span>
                                         </label>
-                                        <input
-                                            type="password"
-                                            id="newPassword"
-                                            value={passwordData.newPassword}
-                                            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                            required
-                                            minLength={6}
-                                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                                            placeholder="Enter your new password (min. 6 characters)"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showNewPassword ? "text" : "password"}
+                                                id="newPassword"
+                                                value={passwordData.newPassword}
+                                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                                required
+                                                minLength={6}
+                                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 pr-10"
+                                                placeholder="Enter your new password (min. 6 characters)"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-mentat-gold/60 hover:text-mentat-gold transition-colors"
+                                                aria-label={showNewPassword ? "Hide password" : "Show password"}
+                                            >
+                                                {showNewPassword ? (
+                                                    <EyeOff className="w-5 h-5" />
+                                                ) : (
+                                                    <Eye className="w-5 h-5" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* Confirm Password */}
@@ -431,16 +464,30 @@ export default function SettingsClient() {
                                         <label htmlFor="confirmPassword" className="text-sm font-medium text-mentat-gold">
                                             Confirm New Password <span className="text-red-500">*</span>
                                         </label>
-                                        <input
-                                            type="password"
-                                            id="confirmPassword"
-                                            value={passwordData.confirmPassword}
-                                            onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                            required
-                                            minLength={6}
-                                            className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2"
-                                            placeholder="Confirm your new password"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                id="confirmPassword"
+                                                value={passwordData.confirmPassword}
+                                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                required
+                                                minLength={6}
+                                                className="w-full rounded-md bg-white/5 text-mentat-gold border border-mentat-gold/20 focus:border-mentat-gold/60 focus:ring-0 px-3 py-2 pr-10"
+                                                placeholder="Confirm your new password"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-mentat-gold/60 hover:text-mentat-gold transition-colors"
+                                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                            >
+                                                {showConfirmPassword ? (
+                                                    <EyeOff className="w-5 h-5" />
+                                                ) : (
+                                                    <Eye className="w-5 h-5" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
