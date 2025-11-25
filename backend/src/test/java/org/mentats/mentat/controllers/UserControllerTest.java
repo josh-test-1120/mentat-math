@@ -71,8 +71,15 @@ class UserControllerTest {
                 "Test"
         );
 
-        // Setup security context
+        // Setup security context (only for tests that need it)
+        // Note: getUserProfile doesn't use authentication, so we set this up per-test
         SecurityContextHolder.setContext(securityContext);
+    }
+    
+    /**
+     * Helper method to setup authentication for tests that need it
+     */
+    private void setupAuthentication() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(userDetails);
@@ -82,6 +89,7 @@ class UserControllerTest {
     @DisplayName("Should successfully get user profile by ID")
     void testGetUserProfile_Success() {
         // Given
+        // Note: getUserProfile doesn't require authentication, so no security setup needed
         when(userService.getUserById(testUserId)).thenReturn(testUser);
 
         // When
@@ -100,6 +108,7 @@ class UserControllerTest {
     @DisplayName("Should return 404 when user not found")
     void testGetUserProfile_NotFound() {
         // Given
+        // Note: getUserProfile doesn't require authentication, so no security setup needed
         when(userService.getUserById(testUserId))
                 .thenThrow(new EntityNotFoundException("User not found"));
 
@@ -116,6 +125,7 @@ class UserControllerTest {
     @DisplayName("Should successfully update profile with valid data")
     void testUpdateProfile_Success() {
         // Given
+        setupAuthentication(); // This test needs authentication
         ProfileUpdateRequest request = new ProfileUpdateRequest(
                 "UpdatedFirst",
                 "UpdatedLast",
@@ -138,6 +148,7 @@ class UserControllerTest {
     @DisplayName("Should return 404 when updating non-existent user")
     void testUpdateProfile_UserNotFound() {
         // Given
+        setupAuthentication(); // This test needs authentication
         ProfileUpdateRequest request = new ProfileUpdateRequest(
                 "UpdatedFirst",
                 "UpdatedLast",
@@ -162,6 +173,7 @@ class UserControllerTest {
     @DisplayName("Should return 400 when validation fails")
     void testUpdateProfile_ValidationError() {
         // Given
+        setupAuthentication(); // This test needs authentication
         ProfileUpdateRequest request = new ProfileUpdateRequest(
                 "UpdatedFirst",
                 "UpdatedLast",
@@ -187,6 +199,7 @@ class UserControllerTest {
     @DisplayName("Should return 403 when user tries to update another user's profile")
     void testUpdateProfile_UnauthorizedUser() {
         // Given
+        setupAuthentication(); // This test needs authentication
         ProfileUpdateRequest request = new ProfileUpdateRequest(
                 "UpdatedFirst",
                 "UpdatedLast",
@@ -211,6 +224,7 @@ class UserControllerTest {
     @DisplayName("Should successfully change password with valid data")
     void testChangePassword_Success() {
         // Given
+        setupAuthentication(); // This test needs authentication
         PasswordChangeRequest request = new PasswordChangeRequest(
                 "currentPassword",
                 "newPassword123"
@@ -231,6 +245,7 @@ class UserControllerTest {
     @DisplayName("Should return 401 when current password is incorrect")
     void testChangePassword_IncorrectPassword() {
         // Given
+        setupAuthentication(); // This test needs authentication
         PasswordChangeRequest request = new PasswordChangeRequest(
                 "wrongPassword",
                 "newPassword123"
@@ -253,6 +268,7 @@ class UserControllerTest {
     @DisplayName("Should return 400 when password validation fails")
     void testChangePassword_ValidationError() {
         // Given
+        setupAuthentication(); // This test needs authentication
         PasswordChangeRequest request = new PasswordChangeRequest(
                 "currentPassword",
                 "short" // Too short
@@ -273,6 +289,7 @@ class UserControllerTest {
     @DisplayName("Should return 404 when user not found for password change")
     void testChangePassword_UserNotFound() {
         // Given
+        setupAuthentication(); // This test needs authentication
         PasswordChangeRequest request = new PasswordChangeRequest(
                 "currentPassword",
                 "newPassword123"

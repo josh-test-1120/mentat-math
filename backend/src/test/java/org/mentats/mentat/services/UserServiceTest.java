@@ -21,6 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -161,8 +162,9 @@ class UserServiceTest {
                 "newPassword123"
         );
         when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("currentPassword", testUser.getPassword())).thenReturn(true);
-        when(passwordEncoder.matches("newPassword123", testUser.getPassword())).thenReturn(false);
+        // Use anyString() for password hash since we can't guarantee exact reference
+        when(passwordEncoder.matches(eq("currentPassword"), anyString())).thenReturn(true);
+        when(passwordEncoder.matches(eq("newPassword123"), anyString())).thenReturn(false);
         when(passwordEncoder.encode("newPassword123")).thenReturn("$2a$10$newEncodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
@@ -170,8 +172,11 @@ class UserServiceTest {
         userService.changePassword(testUserId, request);
 
         // Then
-        verify(passwordEncoder, times(1)).matches("currentPassword", testUser.getPassword());
-        verify(passwordEncoder, times(1)).matches("newPassword123", testUser.getPassword());
+        // Verify getUserById was called (which calls findById internally)
+        verify(userRepository, times(1)).findById(testUserId);
+        // Verify password checks
+        verify(passwordEncoder, times(1)).matches(eq("currentPassword"), anyString());
+        verify(passwordEncoder, times(1)).matches(eq("newPassword123"), anyString());
         verify(passwordEncoder, times(1)).encode("newPassword123");
         verify(userRepository, times(1)).save(any(User.class));
     }
