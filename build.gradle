@@ -24,6 +24,14 @@ sourceSets {
 			srcDirs = ['backend/src/main/resources','frontend']
 		}
 	}
+	test {
+		java {
+			srcDirs = ['backend/src/test/java']
+		}
+		resources {
+			srcDirs = ['backend/src/test/resources']
+		}
+	}
 }
 
 // Needed to compiled manually for CI
@@ -41,14 +49,17 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
-	implementation 'org.junit.jupiter:junit-jupiter-api:5.5.1' // Added for StudentTest
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+	// JUnit 5 (Jupiter) - latest stable version
+	// Note: spring-boot-starter-test includes JUnit 5, but explicit version ensures consistency
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.1'
 }
 
 tasks.named('test') {
