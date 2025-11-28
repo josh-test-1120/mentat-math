@@ -52,6 +52,33 @@ public class TestConstants {
     public static final int HTTP_CONFLICT = 409;
     public static final int HTTP_INTERNAL_SERVER_ERROR = 500;
     
+    // Test Course IDs
+    public static final Long TEST_COURSE_ID = 1L;
+    public static final Long TEST_COURSE_ID_2 = 2L;
+    public static final Long NON_EXISTENT_COURSE_ID = 999L;
+    
+    // Test Course Data
+    public static final String TEST_COURSE_NAME = "Test Course";
+    public static final String TEST_COURSE_SECTION = "A";
+    public static final String TEST_COURSE_QUARTER = "Fall";
+    public static final Integer TEST_COURSE_YEAR = 2024;
+    public static final String TEST_GRADE_STRATEGY = "Standard";
+    
+    // Test Exam IDs
+    public static final Long TEST_EXAM_ID = 1L;
+    public static final Long TEST_EXAM_ID_2 = 2L;
+    public static final Long NON_EXISTENT_EXAM_ID = 999L;
+    
+    // Test Exam Data
+    public static final String TEST_EXAM_NAME = "Test Exam";
+    public static final String TEST_EXAM_DIFFICULTY = "Medium";
+    public static final String TEST_EXAM_STATE = "DRAFT";
+    public static final Integer TEST_EXAM_DURATION = 60;
+    
+    // Error Messages
+    public static final String ERROR_COURSE_NOT_FOUND = "Course not found";
+    public static final String ERROR_EXAM_NOT_FOUND = "Exam not found";
+    
     // Private constructor to prevent instantiation
     private TestConstants() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
