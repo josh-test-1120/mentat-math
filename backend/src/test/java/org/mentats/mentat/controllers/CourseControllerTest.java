@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mentats.mentat.exceptions.CourseNotFoundException;
@@ -50,7 +49,6 @@ class CourseControllerTest {
     @Mock
     private CourseRepository courseRepository;
 
-    @InjectMocks
     private CourseController courseController;
 
     private Course testCourse;
@@ -60,6 +58,29 @@ class CourseControllerTest {
 
     @BeforeEach
     void setUp() {
+        // Manually create controller with constructor injection
+        courseController = new CourseController(courseRepository);
+        
+        // Manually inject @Autowired fields using reflection
+        try {
+            // Inject courseService
+            java.lang.reflect.Field courseServiceField = CourseController.class.getDeclaredField("courseService");
+            // Set the field accessible
+            courseServiceField.setAccessible(true);
+            // Set the field to the mock courseService
+            courseServiceField.set(courseController, courseService);
+            
+            // Inject studentCourseService
+            java.lang.reflect.Field studentCourseServiceField = CourseController.class.getDeclaredField("studentCourseService");
+            // Set the field accessible
+            studentCourseServiceField.setAccessible(true);
+            // Set the field to the mock studentCourseService
+            studentCourseServiceField.set(courseController, studentCourseService);
+        } catch (Exception e) {
+            // Throw exception if failed to inject mocks into controller
+            throw new RuntimeException("Failed to inject mocks into controller", e);
+        }
+        
         testInstructor = TestDataBuilder.createTestUser(
                 TestConstants.TEST_USER_ID,
                 "instructor",
@@ -111,7 +132,14 @@ class CourseControllerTest {
         // Then
         assertNotNull(response);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        // ResponseEntity.internalServerError().build() returns null body
+        assertNotNull(response.getBody());
         assertTrue(response.getBody() instanceof MessageResponse);
+        // Get the message response body
+        MessageResponse messageResponse = (MessageResponse) response.getBody();
+        // Check if the message contains "Error creating course"
+        assertTrue(messageResponse.getMessage().contains("Error creating course"));
+        // Verify that the courseService.createCourse method was called exactly once
         verify(courseService, times(1)).createCourse(courseRequest);
     }
 
@@ -170,6 +198,21 @@ class CourseControllerTest {
         verify(courseService, times(1)).getCourseById(TestConstants.TEST_COURSE_ID);
     }
 
+    // Should handle exception when getting course by ID
+    @Test
+    @DisplayName("Should handle exception when getting course by ID")
+    void testGetCourse_NotFound() {
+        // Given
+        when(courseService.getCourseById(TestConstants.NON_EXISTENT_COURSE_ID))
+                .thenThrow(new CourseNotFoundException("Course not found"));
+
+        // When & Then - Controller doesn't handle exceptions, so it will throw
+        assertThrows(CourseNotFoundException.class, () -> {
+            courseController.getCourse(TestConstants.NON_EXISTENT_COURSE_ID);
+        });
+        verify(courseService, times(1)).getCourseById(TestConstants.NON_EXISTENT_COURSE_ID);
+    }
+
     @Test
     @DisplayName("Should successfully update course")
     void testUpdateCourse_Success() {
@@ -185,7 +228,14 @@ class CourseControllerTest {
         // Then
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        // ResponseEntity.ok().build() has no body
+        assertNotNull(response.getBody());
+        // Get the course response body
         assertTrue(response.getBody() instanceof CourseResponse);
+        // Get the course response body
+        CourseResponse result = (CourseResponse) response.getBody();
+        assertNotNull(result);
+        // Verify that the courseService.updateCourse method was called exactly once
         verify(courseService, times(1)).updateCourse(TestConstants.TEST_COURSE_ID, updateRequest);
     }
 
@@ -200,7 +250,11 @@ class CourseControllerTest {
 
         // Then
         assertNotNull(response);
+        // ResponseEntity.ok().build() has no body
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        // ResponseEntity.ok().build() returns null body
+        assertNull(response.getBody());
+        // Verify that the courseService.deleteCourse method was called exactly once
         verify(courseService, times(1)).deleteCourse(TestConstants.TEST_COURSE_ID);
     }
 
@@ -216,7 +270,14 @@ class CourseControllerTest {
 
         // Then
         assertNotNull(response);
+        // ResponseEntity.notFound().build() returns null body
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        // Controller returns String body, not MessageResponse
+        assertTrue(response.getBody() instanceof String);
+        // Get the string body
+        String body = (String) response.getBody();
+        assertTrue(body.contains("Course not found"));
+        // Verify that the courseService.deleteCourse method was called exactly once
         verify(courseService, times(1)).deleteCourse(TestConstants.NON_EXISTENT_COURSE_ID);
     }
 
